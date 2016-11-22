@@ -203,51 +203,42 @@ class Translation_Model(Model_Wrapper):
                         name='source_word_embedding',
                         W_regularizer=l2(params['WEIGHT_DECAY']),
                         mask_zero=True)(src_text)
-        src_embedding = GaussianNoise(params['NOISE_AMOUNT'])(src_embedding)
+        src_embedding = Regularize(src_embedding, params, name='src_embedding')
         # Previously generated words as inputs for training
         next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
         state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
                         name='target_word_embedding',
                         W_regularizer=l2(params['WEIGHT_DECAY']),
                         mask_zero=True)(next_words)
-        state_below = GaussianNoise(params['NOISE_AMOUNT'])(state_below)
+        state_below = Regularize(state_below, params, name='state_below')
 
-        annotations = Bidirectional(GRU(params['LSTM_ENCODER_HIDDEN_SIZE'],
+        annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
                                              W_regularizer=l2(params['WEIGHT_DECAY']),
                                              U_regularizer=l2(params['WEIGHT_DECAY']),
                                              b_regularizer=l2(params['WEIGHT_DECAY']),
                                              return_sequences=True),
                                         name='bidirectional_encoder', merge_mode='concat')(src_embedding)
+        annotations = Regularize(annotations, params, name='annotations')
 
         # LSTM initialization perceptrons with ctx mean
         ctx_mean = MaskedMean()(annotations)
-
-        if params['USE_DROPOUT']:
-            ctx_mean = Dropout(params['DROPOUT_P'])(ctx_mean)
-
         if len(params['INIT_LAYERS']) > 0:
-            for nlayer_init in range(len(params['INIT_LAYERS'])-1):
-                ctx_mean = Dense(params['LSTM_DECODER_HIDDEN_SIZE'], name='init_layer_%d'%nlayer_init,
-                                 activation=params['INIT_LAYERS'][nlayer_init],
+            for n_layer_init in range(len(params['INIT_LAYERS'])-1):
+                ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d'%n_layer_init,
+                                 activation=params['INIT_LAYERS'][n_layer_init],
                                  W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-                ctx_mean = GaussianNoise(params['NOISE_AMOUNT'])(ctx_mean)
+                ctx_mean = Regularize(ctx_mean, params, name='ctx' + str(n_layer_init))
 
-                if params['USE_DROPOUT']:
-                    ctx_mean = Dropout(params['DROPOUT_P'])(ctx_mean)
-            initial_state = Dense(params['LSTM_DECODER_HIDDEN_SIZE'], name='initial_state',
+            initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
                                   activation=params['INIT_LAYERS'][-1],
                                   W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-            if params['USE_DROPOUT']:
-                initial_state = Dropout(params['DROPOUT_P'])(initial_state)
-
-            initial_state = GaussianNoise(params['NOISE_AMOUNT'])(initial_state)
-
+            initial_state =  Regularize(initial_state, params, name='initial_state')
             input_attlstmcond = [state_below, annotations, initial_state]
         else:
             input_attlstmcond = [state_below, annotations]
 
         # Decoder
-        sharedAttGRUCond = AttGRUCond(params['LSTM_DECODER_HIDDEN_SIZE'],
+        sharedAttGRUCond = AttGRUCond(params['DECODER_HIDDEN_SIZE'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               U_regularizer=l2(params['WEIGHT_DECAY']),
                                               V_regularizer=l2(params['WEIGHT_DECAY']),
@@ -256,53 +247,35 @@ class Translation_Model(Model_Wrapper):
                                               Wa_regularizer=l2(params['WEIGHT_DECAY']),
                                               Ua_regularizer=l2(params['WEIGHT_DECAY']),
                                               ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                              dropout_U=0.5,
-                                              dropout_V=0.5,
-                                              dropout_W=0.5,
-                                              #dropout_Wa=0.5,
-                                              #dropout_wa=0.5,
-                                              #dropout_Ua=0.5,
                                               return_sequences=True,
                                               return_extra_variables=True,
                                               return_states=True)
 
 
         [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attlstmcond)
-        [proj_h, shared_Regularize1] = Regularize(proj_h, params, shared_layers=True)
+        proj_h= Regularize(proj_h, params,  name='proj_h0')
 
         shared_FC_mlp = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
-
-
         shared_FC_ctx = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_ctx')
         out_layer_ctx = shared_FC_ctx(x_att)
-
         shared_Lambda_Permute = Lambda(lambda x: K.permute_dimensions(x, [1, 0, 2]))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
-
-
         shared_FC_emb = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')
         out_layer_emb = shared_FC_emb(state_below)
 
-        shared_FC_mlp_noise = GaussianNoise(params['NOISE_AMOUNT'])
-        shared_FC_ctx_noise = GaussianNoise(params['NOISE_AMOUNT'])
-        shared_FC_emb_noise = GaussianNoise(params['NOISE_AMOUNT'])
-
-        out_layer_mlp = shared_FC_mlp_noise(out_layer_mlp)
-        out_layer_ctx = shared_FC_ctx_noise(out_layer_ctx)
-        out_layer_emb = shared_FC_emb_noise(out_layer_emb)
-
+        out_layer_mlp = Regularize(out_layer_mlp, params, name='out_layer_mlp')
+        out_layer_ctx = Regularize(out_layer_ctx, params, name='out_layer_ctx')
+        out_layer_emb = Regularize(out_layer_emb, params, name='out_layer_emb')
 
         additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
 
         shared_activation_tanh = Activation('tanh')
 
         out_layer = shared_activation_tanh(additional_output)
-
-        [out_layer, shared_Regularize2] = Regularize(out_layer, params, shared_layers=True)
 
         shared_Deep_list = []
         # Optional deep ouput
@@ -315,10 +288,8 @@ class Translation_Model(Model_Wrapper):
                 shared_Deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
                                               W_regularizer=l2(params['WEIGHT_DECAY'])),
                                             name=activation+'_%d'%i))
-
+            out_layer = Regularize(out_layer, params, name='out_layer'+str(activation))
             out_layer = shared_Deep_list[-1](out_layer)
-            #[out_layer, shared_Regularize3] = Regularize(out_layer, params, shared_layers=True)
-            #shared_Deep_list += shared_Regularize3
 
         # Softmax
         shared_FC_soft = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'], activation=params['CLASSIFIER_ACTIVATION'],
@@ -353,10 +324,10 @@ class Translation_Model(Model_Wrapper):
             # and the following outputs:
             #   - softmax probabilities
             #   - next_state
-            preprocessed_size = params['LSTM_ENCODER_HIDDEN_SIZE']*2
+            preprocessed_size = params['ENCODER_HIDDEN_SIZE']*2
             # Define inputs
             preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
-            prev_h_state = Input(name='prev_state', shape=tuple([params['LSTM_DECODER_HIDDEN_SIZE']]))
+            prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
             input_attlstmcond = [state_below, preprocessed_annotations, prev_h_state]
             # Apply decoder
             [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attlstmcond)
@@ -401,25 +372,28 @@ class Translation_Model(Model_Wrapper):
         :param params:
         :return:
         """
-        input_name = params['INPUTS_IDS_MODEL']
-        output_name = params['OUTPUTS_IDS_MODEL']
+
+
+        # Store inputs and outputs names
+        self.ids_inputs =  params['INPUTS_IDS_MODEL']
+        self.ids_outputs = params['OUTPUTS_IDS_MODEL']
 
         # Source text
-        src_text = Input(name=input_name[0], batch_shape=tuple([None, None]), dtype='int32')
+        src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')
         src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
                         name='source_word_embedding',
                         W_regularizer=l2(params['WEIGHT_DECAY']),
                         mask_zero=True)(src_text)
-        src_embedding = GaussianNoise(params['NOISE_AMOUNT'])(src_embedding)
+        src_embedding = Regularize(src_embedding, params, name='src_embedding')
         # Previously generated words as inputs for training
-        next_words = Input(name=input_name[1], batch_shape=tuple([None, None]), dtype='int32')
+        next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
         state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
                         name='target_word_embedding',
                         W_regularizer=l2(params['WEIGHT_DECAY']),
                         mask_zero=True)(next_words)
-        state_below = GaussianNoise(params['NOISE_AMOUNT'])(state_below)
+        state_below = Regularize(state_below, params, name='state_below')
 
-        annotations = Bidirectional(GRU(params['LSTM_ENCODER_HIDDEN_SIZE'],
+        annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
                                              W_regularizer=l2(params['WEIGHT_DECAY']),
                                              U_regularizer=l2(params['WEIGHT_DECAY']),
                                              b_regularizer=l2(params['WEIGHT_DECAY']),
@@ -428,33 +402,25 @@ class Translation_Model(Model_Wrapper):
 
         # LSTM initialization perceptrons with ctx mean
         ctx_mean = MaskedMean()(annotations)
-
-        if params['USE_DROPOUT']:
-            ctx_mean = Dropout(params['DROPOUT_P'])(ctx_mean)
+        ctx_mean = Regularize(ctx_mean, params, name='ctx_mean')(ctx_mean)
 
         if len(params['INIT_LAYERS']) > 0:
-            for nlayer_init in range(len(params['INIT_LAYERS'])-1):
-                ctx_mean = Dense(params['LSTM_DECODER_HIDDEN_SIZE'], name='init_layer_%d'%nlayer_init,
+            for n_layer_init in range(len(params['INIT_LAYERS'])-1):
+                ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d'%nlayer_init,
                                  activation=params['INIT_LAYERS'][nlayer_init],
                                  W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-                ctx_mean = GaussianNoise(params['NOISE_AMOUNT'])(ctx_mean)
+                ctx_mean = Regularize(ctx_mean, params, name='ctx' + str(n_layer_init))
 
-                if params['USE_DROPOUT']:
-                    ctx_mean = Dropout(params['DROPOUT_P'])(ctx_mean)
-            initial_state = Dense(params['LSTM_DECODER_HIDDEN_SIZE'], name='initial_state',
+            initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
                                   activation=params['INIT_LAYERS'][-1],
                                   W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-            if params['USE_DROPOUT']:
-                initial_state = Dropout(params['DROPOUT_P'])(initial_state)
-
-            initial_state = GaussianNoise(params['NOISE_AMOUNT'])(initial_state)
-
+            initial_state =  Regularize(initial_state, params, name='initial_state')
             input_attlstmcond = [state_below, annotations, initial_state]
         else:
             input_attlstmcond = [state_below, annotations]
 
         # x_att
-        [proj_h, x_att, alphas] = AttGRUCond(params['LSTM_DECODER_HIDDEN_SIZE'],
+        [proj_h, x_att, alphas] = AttGRUCond(params['DECODER_HIDDEN_SIZE'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               U_regularizer=l2(params['WEIGHT_DECAY']),
                                               V_regularizer=l2(params['WEIGHT_DECAY']),
@@ -463,23 +429,23 @@ class Translation_Model(Model_Wrapper):
                                               Wa_regularizer=l2(params['WEIGHT_DECAY']),
                                               Ua_regularizer=l2(params['WEIGHT_DECAY']),
                                               ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                              dropout_U=0.5,
-                                              dropout_V=0.5,
-                                              dropout_W=0.5,
-                                              #dropout_Wa=0.5,
-                                              #dropout_wa=0.5,
-                                              #dropout_Ua=0.5,
                                               init='norm_weight',
                                               inner_init='ortho_weight',
                                               return_sequences=True,
                                               return_extra_variables=True)(input_attlstmcond)
-        if params['USE_BATCH_NORMALIZATION']:
-            proj_h = BatchNormalization(name='batch_normalization_image_embedding',
-                                        W_regularizer=l2(params['WEIGHT_DECAY']))(proj_h)
-        if params['USE_PRELU']:
-            proj_h = PReLU(W_regularizer=l2(params['WEIGHT_DECAY']))(proj_h)
-        if params['USE_DROPOUT']:
-            proj_h = Dropout(params['DROPOUT_P'])(proj_h)
+        prev_proj_h = Regularize(proj_h, params, name='proj_h0')
+
+
+        for n_layer_lstm in range(1, params['N_LAYERS_DECODER_LSTM']):
+            current_proj_h = GRU(params['LSTM_DECODER_HIDDEN_SIZE'],
+                                              W_regularizer=l2(params['WEIGHT_DECAY']),
+                                              U_regularizer=l2(params['WEIGHT_DECAY']),
+                                              b_regularizer=l2(params['WEIGHT_DECAY']),
+                                              return_sequences=True)(prev_proj_h)
+            current_proj_h = Regularize(current_proj_h, params, name='proj_h' + str(n_layer_lstm))
+            prev_proj_h = merge([prev_proj_h, current_proj_h], mode='sum')
+        proj_h = prev_proj_h
+
 
 
         # Equation 7 from Show, attend and tell (http://arxiv.org/abs/1502.03044)
@@ -492,20 +458,11 @@ class Translation_Model(Model_Wrapper):
         out_layer_emb = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')(state_below)
 
-        out_layer_mlp = GaussianNoise(params['NOISE_AMOUNT'])(out_layer_mlp)
-        out_layer_ctx = GaussianNoise(params['NOISE_AMOUNT'])(out_layer_ctx)
-        out_layer_emb = GaussianNoise(params['NOISE_AMOUNT'])(out_layer_emb)
-
+        out_layer_mlp = Regularize(out_layer_mlp, params, name='out_layer_mlp')
+        out_layer_ctx = Regularize(out_layer_ctx, params, name='out_layer_ctx')
+        out_layer_emb = Regularize(out_layer_emb, params, name='out_layer_emb')
         additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
         out_layer = Activation('tanh')(additional_output)
-
-        if params['USE_BATCH_NORMALIZATION']:
-            out_layer = BatchNormalization(name='batch_normalization_image_embedding',
-                                           W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-        if params['USE_PRELU']:
-            out_layer = PReLU(W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-        if params['USE_DROPOUT']:
-            out_layer = Dropout(params['DROPOUT_P'])(out_layer)
 
         # Optional deep ouput
         for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
@@ -516,198 +473,11 @@ class Translation_Model(Model_Wrapper):
                 out_layer = TimeDistributed(Dense(dimension, activation=activation,
                                               W_regularizer=l2(params['WEIGHT_DECAY'])),
                                             name=activation+'_%d'%i)(out_layer)
-            out_layer = GaussianNoise(params['NOISE_AMOUNT'])(out_layer)
-
-            if params['USE_BATCH_NORMALIZATION']:
-                out_layer = BatchNormalization(name='batch_normalization_image_embedding',
-                                              W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-            if params['USE_PRELU']:
-                out_layer = PReLU(W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-            if params['USE_DROPOUT']:
-                out_layer = Dropout(params['DROPOUT_P'])(out_layer)
+            out_layer = Regularize(out_layer, params, name='out_layer'+str(activation))
 
         # Softmax
         output = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'], activation=params['CLASSIFIER_ACTIVATION'],
-                                       name=params['CLASSIFIER_ACTIVATION'],
-                                       W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                 name=output_name[0])(out_layer)
+                                       name=params['CLASSIFIER_ACTIVATION'], W_regularizer=l2(params['WEIGHT_DECAY'])),
+                                 name=self.ids_outputs[0])(out_layer)
 
-        if params['POS_UNK']:
-            net_out = [output, alphas]
-        else:
-            net_out = output
-        self.model = Model(input=[src_text, next_words],
-                           output=net_out)
-
-        # Store inputs and outputs names
-        self.ids_inputs = input_name
-        self.ids_outputs = output_name
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def CharGroundHogModel(self, params):
-        """
-        Machine translation with:
-            * BLSTM encoder
-            * Attention mechansim on input sequence of annotations
-            * Conditional LSTM for decoding
-            * Feed forward layers:
-                + Context projected to output
-                + Last word projected to output
-        :param params:
-        :return:
-        """
-        input_name = params['INPUTS_IDS_MODEL']
-        output_name = params['OUTPUTS_IDS_MODEL']
-
-        # Source text
-        src_text = Input(name=input_name[0], batch_shape=tuple([None, None]), dtype='int32')
-        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
-                        name='source_word_embedding',
-                        W_regularizer=l2(params['WEIGHT_DECAY']),
-                        mask_zero=True)(src_text)
-        src_embedding = GaussianNoise(params['NOISE_AMOUNT'])(src_embedding)
-        # Previously generated words as inputs for training
-        next_words = Input(name=input_name[1], batch_shape=tuple([None, None]), dtype='int32')
-        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
-                        name='target_word_embedding',
-                        W_regularizer=l2(params['WEIGHT_DECAY']),
-                        mask_zero=True)(next_words)
-        state_below = GaussianNoise(params['NOISE_AMOUNT'])(state_below)
-
-        annotations = Bidirectional(GRU(params['LSTM_ENCODER_HIDDEN_SIZE'],
-                                             W_regularizer=l2(params['WEIGHT_DECAY']),
-                                             U_regularizer=l2(params['WEIGHT_DECAY']),
-                                             b_regularizer=l2(params['WEIGHT_DECAY']),
-                                             return_sequences=True),
-                                        name='bidirectional_encoder')(src_embedding)
-
-        # LSTM initialization perceptrons with ctx mean
-        ctx_mean = MaskedMean()(annotations)
-
-        if params['USE_DROPOUT']:
-            ctx_mean = Dropout(params['DROPOUT_P'])(ctx_mean)
-
-        if len(params['INIT_LAYERS']) > 0:
-            for nlayer_init in range(len(params['INIT_LAYERS'])-1):
-                ctx_mean = Dense(params['LSTM_DECODER_HIDDEN_SIZE'], name='init_layer_%d'%nlayer_init,
-                                 activation=params['INIT_LAYERS'][nlayer_init],
-                                 W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-                ctx_mean = GaussianNoise(params['NOISE_AMOUNT'])(ctx_mean)
-
-                if params['USE_DROPOUT']:
-                    ctx_mean = Dropout(params['DROPOUT_P'])(ctx_mean)
-            initial_state = Dense(params['LSTM_DECODER_HIDDEN_SIZE'], name='initial_state',
-                                  activation=params['INIT_LAYERS'][-1],
-                                  W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-            if params['USE_DROPOUT']:
-                initial_state = Dropout(params['DROPOUT_P'])(initial_state)
-
-            initial_state = GaussianNoise(params['NOISE_AMOUNT'])(initial_state)
-
-            input_attlstmcond = [state_below, annotations, initial_state]
-        else:
-            input_attlstmcond = [state_below, annotations]
-
-        # x_att
-        [proj_h, x_att, alphas] = AttGRUCond(params['LSTM_DECODER_HIDDEN_SIZE'],
-                                              W_regularizer=l2(params['WEIGHT_DECAY']),
-                                              U_regularizer=l2(params['WEIGHT_DECAY']),
-                                              V_regularizer=l2(params['WEIGHT_DECAY']),
-                                              b_regularizer=l2(params['WEIGHT_DECAY']),
-                                              wa_regularizer=l2(params['WEIGHT_DECAY']),
-                                              Wa_regularizer=l2(params['WEIGHT_DECAY']),
-                                              Ua_regularizer=l2(params['WEIGHT_DECAY']),
-                                              ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                              dropout_U=0.5,
-                                              dropout_V=0.5,
-                                              dropout_W=0.5,
-                                              #dropout_Wa=0.5,
-                                              #dropout_wa=0.5,
-                                              #dropout_Ua=0.5,
-                                              init='norm_weight',
-                                              inner_init='ortho_weight',
-                                              return_sequences=True,
-                                              return_extra_variables=True)(input_attlstmcond)
-        if params['USE_BATCH_NORMALIZATION']:
-            proj_h = BatchNormalization(name='batch_normalization_image_embedding',
-                                        W_regularizer=l2(params['WEIGHT_DECAY']))(proj_h)
-        if params['USE_PRELU']:
-            proj_h = PReLU(W_regularizer=l2(params['WEIGHT_DECAY']))(proj_h)
-        if params['USE_DROPOUT']:
-            proj_h = Dropout(params['DROPOUT_P'])(proj_h)
-
-
-        # Equation 7 from Show, attend and tell (http://arxiv.org/abs/1502.03044)
-        out_layer_mlp = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_lstm')(proj_h)
-        out_layer_ctx = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_ctx')(x_att)
-        out_layer_ctx = Lambda(lambda x: K.permute_dimensions(x, [1, 0, 2]))(out_layer_ctx)
-
-        out_layer_emb = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')(state_below)
-
-        out_layer_mlp = GaussianNoise(params['NOISE_AMOUNT'])(out_layer_mlp)
-        out_layer_ctx = GaussianNoise(params['NOISE_AMOUNT'])(out_layer_ctx)
-        out_layer_emb = GaussianNoise(params['NOISE_AMOUNT'])(out_layer_emb)
-
-        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
-        out_layer = Activation('tanh')(additional_output)
-
-        if params['USE_BATCH_NORMALIZATION']:
-            out_layer = BatchNormalization(name='batch_normalization_image_embedding',
-                                           W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-        if params['USE_PRELU']:
-            out_layer = PReLU(W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-        if params['USE_DROPOUT']:
-            out_layer = Dropout(params['DROPOUT_P'])(out_layer)
-
-        # Optional deep ouput
-        for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
-            if activation.lower() == 'maxout':
-                out_layer = TimeDistributed(MaxoutDense(dimension, W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                            name='maxout_%d'%i)(out_layer)
-            else:
-                out_layer = TimeDistributed(Dense(dimension, activation=activation,
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                            name=activation+'_%d'%i)(out_layer)
-            out_layer = GaussianNoise(params['NOISE_AMOUNT'])(out_layer)
-
-            if params['USE_BATCH_NORMALIZATION']:
-                out_layer = BatchNormalization(name='batch_normalization_image_embedding',
-                                              W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-            if params['USE_PRELU']:
-                out_layer = PReLU(W_regularizer=l2(params['WEIGHT_DECAY']))(out_layer)
-            if params['USE_DROPOUT']:
-                out_layer = Dropout(params['DROPOUT_P'])(out_layer)
-
-        # Softmax
-        output = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'], activation=params['CLASSIFIER_ACTIVATION'],
-                                       name=params['CLASSIFIER_ACTIVATION'],
-                                       W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                 name=output_name[0])(out_layer)
-
-        if params['POS_UNK']:
-            net_out = [output, alphas]
-        else:
-            net_out = output
-        self.model = Model(input=[src_text, next_words],
-                           output=net_out)
-
-        # Store inputs and outputs names
-        self.ids_inputs = input_name
-        self.ids_outputs = output_name
-
-
+        self.model = Model(input=[src_text, next_words], output=output)

@@ -111,22 +111,21 @@ def load_parameters():
     GLOVE_VECTORS_TRAINABLE = True    # Finetune or not the word embedding vectors.
     TEXT_EMBEDDING_HIDDEN_SIZE = 354  # When using pretrained word embeddings, this parameter must match with the word embeddings size
 
-    # Layer dimensions
-    LSTM_ENCODER_HIDDEN_SIZE = 289   # For models with LSTM encoder
-    BLSTM_ENCODER = True             # Use bidirectional LSTM encoder
-    LSTM_DECODER_HIDDEN_SIZE = 289   # For models with LSTM decoder
+    # Encoder layer dimensions
+    ENCODER_HIDDEN_SIZE = 289         # For models with encoder
+    BIDIRECTIONAL_ENCODER = True      # Use bidirectional encoder
 
-    IMG_EMBEDDING_LAYERS = []  # FC layers for visual embedding
-                               # Here we should specify the activation function and the output dimension
-                               # (e.g IMG_EMBEDDING_LAYERS = [('linear', 1024)]
+    # Decoder layer dimensions
+    DECODER_HIDDEN_SIZE = 289   # For models with LSTM decoder
+    N_LAYERS_DECODER = 1
+
 
     DEEP_OUTPUT_LAYERS = [('maxout', TEXT_EMBEDDING_HIDDEN_SIZE/2)]#[('maxout', TEXT_EMBEDDING_HIDDEN_SIZE/2)]
-
                                 # additional Fully-Connected layers's sizes applied before softmax.
                                 # Here we should specify the activation function and the output dimension
                                 # (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu',400), ('relu':200)])
 
-    INIT_LAYERS = ['tanh']      # FC layers for initializing the first LSTM state
+    INIT_LAYERS = ['tanh']      # FC layers for initializing the first RNN state
                                 # Here we should only specify the activation function of each layer (as they have a potentially fixed size)
                                 # (e.g INIT_LAYERS = ['tanh', 'relu'])
 
@@ -138,6 +137,8 @@ def load_parameters():
     NOISE_AMOUNT = 0.01                 # Amount of noise
 
     USE_BATCH_NORMALIZATION = False     # If True it is recommended to deactivate Dropout
+    BATCH_NORMALIZATION_MODE = 1        # See documentation in Keras' BN
+
     USE_PRELU = False                   # use PReLU activations
     USE_L2 = False                      # L2 normalization on the features
 
@@ -146,10 +147,9 @@ def load_parameters():
     # Results plot and models storing parameters
     EXTRA_NAME = '' # This will be appended to the end of the model name
     MODEL_NAME = DATASET_NAME + '_' + MODEL_TYPE + '_txtemb_' + str(TEXT_EMBEDDING_HIDDEN_SIZE) + \
-                 '_imgemb_' + '_'.join([layer[0] for layer in IMG_EMBEDDING_LAYERS]) + \
-                  '_blstm_' + str(BLSTM_ENCODER) +\
-                 '_' + str(LSTM_ENCODER_HIDDEN_SIZE) + \
-                 '_lstm_' + str(LSTM_DECODER_HIDDEN_SIZE) + \
+                  '_blstm_' + str(BIDIRECTIONAL_ENCODER) +\
+                 '_' + str(ENCODER_HIDDEN_SIZE) + \
+                 '_lstm_' + str(DECODER_HIDDEN_SIZE) + \
                  '_deepout_' + '_'.join([layer[0] for layer in DEEP_OUTPUT_LAYERS]) + \
                  '_' + OPTIMIZER
 
