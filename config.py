@@ -5,7 +5,7 @@ def load_parameters():
     '''
 
     # Input data params
-    DATASET_NAME = 'xerox'
+    DATASET_NAME = 'turista'
     FILL = 'end'                                  # whether we fill the 'end' or the 'start' of the sentence with 0s
     SRC_LAN = 'es'                                # Language of the outputs
     TRG_LAN = 'en'                                # Language of the outputs
@@ -30,7 +30,7 @@ def load_parameters():
     METRICS = ['coco']  # Metric used for evaluating model after each epoch (leave empty if only prediction is required)
     EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator)
     EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator)
-    START_EVAL_ON_EPOCH = 30                      # First epoch where the model will be evaluated
+    START_EVAL_ON_EPOCH = 5                       # First epoch where the model will be evaluated
     EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates
     EVAL_EACH = 5                                 # Sets the evaluation frequency (epochs or updates)
 
@@ -130,13 +130,13 @@ def load_parameters():
                                 # (e.g INIT_LAYERS = ['tanh', 'relu'])
 
     # Regularizers / Normalizers
-    USE_DROPOUT = True                  # Use dropout
+    USE_DROPOUT = False                 # Use dropout
     DROPOUT_P = 0.5                     # Percentage of units to drop
 
-    USE_NOISE = True                    # Use gaussian noise during training
+    USE_NOISE = False                    # Use gaussian noise during training
     NOISE_AMOUNT = 0.01                 # Amount of noise
 
-    USE_BATCH_NORMALIZATION = False     # If True it is recommended to deactivate Dropout
+    USE_BATCH_NORMALIZATION = True      # If True it is recommended to deactivate Dropout
     BATCH_NORMALIZATION_MODE = 1        # See documentation in Keras' BN
 
     USE_PRELU = False                   # use PReLU activations
@@ -162,7 +162,7 @@ def load_parameters():
     VERBOSE = 1                                        # Verbosity level
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model
                                                        # Saved on epoch 'RELOAD' will be used
-    REBUILD_DATASET = False                            # Build again or use stored instance
+    REBUILD_DATASET = True                             # Build again or use stored instance
     MODE = 'training'                                  # 'training' or 'sampling' (if 'sampling' then RELOAD must
                                                        # be greater than 0 and EVAL_ON_SETS will be used)
 

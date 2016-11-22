@@ -3,7 +3,7 @@ from timeit import default_timer as timer
 
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
-from translation_model import Translation_Model
+from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
 
 import utils
@@ -31,9 +31,9 @@ def train_model(params):
 
     ########### Build model
     if(params['RELOAD'] == 0): # build new model
-        nmt_model = Translation_Model(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
-                                           model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
-                                           store_path=params['STORE_PATH'])
+        nmt_model = TranslationModel(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
+                                     model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
+                                     store_path=params['STORE_PATH'])
 
         # Define the inputs and outputs mapping from our Dataset instance to our model
         inputMapping = dict()
