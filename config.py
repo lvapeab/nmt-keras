@@ -13,12 +13,7 @@ def load_parameters():
     DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME
 
     # SRC_LAN or TRG_LAN will be added to the file names
-    TEXT_FILES = {'train': 'DATA/training.',
-                  'val': 'DATA/dev.',
-                  'test': 'DATA/test.'}
-    DATA_SPLITS_IMG_FEAT = {'train': 'DATA/training',
-                            'val': 'DATA/dev',
-                            'test': 'DATA/test'}
+    TEXT_FILES = {'train': 'DATA/training.',  'val': 'DATA/dev.', 'test': 'DATA/test.'}
 
     # Dataset parameters
     INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
@@ -48,18 +43,12 @@ def load_parameters():
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where the model will be evaluated
     SAMPLE_EACH_UPDATES = 1000                    # Sampling frequency
 
-    #TODO: WIP!
+    #TODO: WIP! Other subword methods?
     POS_UNK = False
     HEURISTIC = 1
-    if POS_UNK:
-        raise NotImplementedError
-    #    OUTPUTS_IDS_MODEL.append('alphas')
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'    # Select which tokenization we'll apply
-
-    # Input image parameters
-    DATA_AUGMENTATION = False                      # Apply data augmentation on input data (noise on features)
 
     # Input text parameters
     INPUT_VOCABULARY_SIZE = 0  # Size of the input vocabulary. Set to 0 for using all, otherwise will be truncated to these most frequent words.
@@ -70,8 +59,6 @@ def load_parameters():
     OUTPUT_VOCABULARY_SIZE = 0      # vocabulary of output text. Set to 0 for autosetting, otherwise will be truncated
     MAX_OUTPUT_TEXT_LEN = 50        # set to 0 if we want to use the whole answer as a single class
     MAX_OUTPUT_TEXT_LEN_TEST = 100  # Maximum length of the output sequence at test time
-
-    CLASSIFIER_ACTIVATION = 'softmax'
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
@@ -105,6 +92,7 @@ def load_parameters():
 
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'
+    CLASSIFIER_ACTIVATION = 'softmax'
 
     # Input text parameters
     GLOVE_VECTORS = None              # Path to pretrained vectors. Set to None if you don't want to use pretrained vectors.
@@ -112,24 +100,24 @@ def load_parameters():
     TEXT_EMBEDDING_HIDDEN_SIZE = 354  # When using pretrained word embeddings, this parameter must match with the word embeddings size
 
     # Encoder layer dimensions
-    ENCODER_HIDDEN_SIZE = 289         # For models with encoder
+    ENCODER_HIDDEN_SIZE = 289         # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True      # Use bidirectional encoder
+    N_LAYERS_DECODER = 1              # Stack this number of encoding layers
 
     # Decoder layer dimensions
-    DECODER_HIDDEN_SIZE = 289   # For models with LSTM decoder
-    N_LAYERS_DECODER = 1
+    DECODER_HIDDEN_SIZE = 289         # For models with RNN decoder
+    N_LAYERS_DECODER = 1              # Stack this number of deenoding layers
 
-
-    DEEP_OUTPUT_LAYERS = [('maxout', TEXT_EMBEDDING_HIDDEN_SIZE/2)]#[('maxout', TEXT_EMBEDDING_HIDDEN_SIZE/2)]
-                                # additional Fully-Connected layers's sizes applied before softmax.
-                                # Here we should specify the activation function and the output dimension
-                                # (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu',400), ('relu':200)])
+    # additional Fully-Connected layers's sizes applied before softmax.
+    # Here we should specify the activation function and the output dimension
+    # (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu',400), ('relu':200)])
+    DEEP_OUTPUT_LAYERS = [('maxout', TEXT_EMBEDDING_HIDDEN_SIZE/2)]
 
     INIT_LAYERS = ['tanh']      # FC layers for initializing the first RNN state
                                 # Here we should only specify the activation function of each layer (as they have a potentially fixed size)
                                 # (e.g INIT_LAYERS = ['tanh', 'relu'])
 
-    # Regularizers / Normalizers
+    # Regularizers
     USE_DROPOUT = False                 # Use dropout
     DROPOUT_P = 0.5                     # Percentage of units to drop
 
@@ -141,8 +129,6 @@ def load_parameters():
 
     USE_PRELU = False                   # use PReLU activations
     USE_L2 = False                      # L2 normalization on the features
-
-    CLASSIFIER_ACTIVATION = 'softmax'
 
     # Results plot and models storing parameters
     EXTRA_NAME = '' # This will be appended to the end of the model name

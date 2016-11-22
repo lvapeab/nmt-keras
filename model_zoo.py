@@ -203,6 +203,7 @@ class TranslationModel(Model_Wrapper):
                                         return_sequences=True),
                                     name='bidirectional_encoder',
                                     merge_mode='concat')(src_embedding)
+
         annotations = Regularize(annotations, params, name='annotations')
 
         # Decoder
