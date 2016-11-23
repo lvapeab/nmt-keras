@@ -198,13 +198,14 @@ class TranslationModel(Model_Wrapper):
 
     def GroundHogModel(self, params):
         """
-        Machine translation with:
+        Neural machine translation with:
             * BLSTM encoder
             * Attention mechansim on input sequence of annotations
             * Conditional LSTM for decoding
             * Feed forward layers:
                 + Context projected to output
                 + Last word projected to output
+        See https://arxiv.org/abs/1409.0473 for an in-depth review of the model.
         :param params: Dictionary of parameters (see config.py)
         :return:
         """
@@ -212,14 +213,17 @@ class TranslationModel(Model_Wrapper):
         self.ids_inputs = params["INPUTS_IDS_MODEL"]
         self.ids_outputs = params["OUTPUTS_IDS_MODEL"]
 
-        # Encoder
-        src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')  # Source text input
+        # 1. Source text input
+        src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')
+        # 2. Encoder
+        # 2.1. Source word embedding
         src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding', W_regularizer=l2(params['WEIGHT_DECAY']),
                                   trainable=self.src_embedding_weights_trainable,  weights=self.src_embedding_weights,
                                   mask_zero=True)(src_text)
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
 
+        # 2.2. BRNN encoder (GRU/LSTM)
         annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
                                         W_regularizer=l2(params['WEIGHT_DECAY']),
                                         U_regularizer=l2(params['WEIGHT_DECAY']),
@@ -228,7 +232,7 @@ class TranslationModel(Model_Wrapper):
                                     name='bidirectional_encoder',
                                     merge_mode='concat')(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
-
+        # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
             current_annotations =  Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
@@ -239,16 +243,17 @@ class TranslationModel(Model_Wrapper):
             current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
             annotations = merge([annotations, current_annotations], mode='sum')
 
-        # Decoder
-        # Previously generated words as inputs for training
+        # 3. Decoder
+        # 3.1.1. Previously generated words as inputs for training -> Teacher forcing
         next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
+        # 3.1.2. Target word embedding
         state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
                                 name='target_word_embedding', W_regularizer=l2(params['WEIGHT_DECAY']),
                                 trainable=self.trg_embedding_weights_trainable, weights=self.trg_embedding_weights,
                                 mask_zero=True)(next_words)
         state_below = Regularize(state_below, params, name='state_below')
 
-        # RNN initialization perceptrons with ctx mean
+        # 3.2. Decoder's RNN initialization perceptrons with ctx mean
         ctx_mean = MaskedMean()(annotations)
         if len(params['INIT_LAYERS']) > 0:
             for n_layer_init in range(len(params['INIT_LAYERS'])-1):
@@ -265,7 +270,7 @@ class TranslationModel(Model_Wrapper):
         else:
             input_attentional_decoder = [state_below, annotations]
 
-        # Decoder
+        # 3.3. Attentional decoder
         sharedAttGRUCond = AttGRUCond(params['DECODER_HIDDEN_SIZE'],
                                       W_regularizer=l2(params['WEIGHT_DECAY']),
                                       U_regularizer=l2(params['WEIGHT_DECAY']),
@@ -282,6 +287,7 @@ class TranslationModel(Model_Wrapper):
         [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attentional_decoder)
         proj_h = Regularize(proj_h, params, name='proj_h0')
 
+        # 3.4. Possibly deep decoder
         shared_decoder_list = []
         for n_layer in range(1, params['N_LAYERS_DECODER']):
             raise NotImplementedError, 'Multilayered decoder still not implemented!'
@@ -297,9 +303,7 @@ class TranslationModel(Model_Wrapper):
             current_annotations = Regularize(current_proj_h, params, name='proj_h_' + str(n_layer))
             annotations = merge([annotations, current_annotations], mode='sum')
 
-
-
-
+        # 3.5. Skip connections between encoder and output layer
         shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
@@ -317,13 +321,12 @@ class TranslationModel(Model_Wrapper):
         out_layer_emb = Regularize(out_layer_emb, params, name='out_layer_emb')
 
         additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
-
         shared_activation_tanh = Activation('tanh')
 
         out_layer = shared_activation_tanh(additional_output)
 
         shared_deep_list = []
-        # Optional deep ouput
+        # 3.6 Optional deep ouput layer
         for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
             if activation.lower() == 'maxout':
                 shared_deep_list.append(TimeDistributed(MaxoutDense(dimension,
@@ -336,7 +339,7 @@ class TranslationModel(Model_Wrapper):
             out_layer = Regularize(out_layer, params, name='out_layer'+str(activation))
             out_layer = shared_deep_list[-1](out_layer)
 
-        # Softmax
+        # 3.7. Output layer: Softmax
         shared_FC_soft = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'],
                                                activation=params['CLASSIFIER_ACTIVATION'],
                                                name=params['CLASSIFIER_ACTIVATION'],
@@ -347,7 +350,7 @@ class TranslationModel(Model_Wrapper):
         self.model = Model(input=[src_text, next_words], output=softout)
 
         ##################################################################
-        #                     BEAM SEARCH MODEL
+        #                     BEAM SEARCH MODEL                          #
         ##################################################################
         # Now that we have the basic training model ready, let's prepare the model for applying decoding
         # The beam-search model will include all the minimum required set of layers (decoder stage) which offer the
@@ -399,7 +402,5 @@ class TranslationModel(Model_Wrapper):
             self.ids_outputs_next = self.ids_outputs + ['preprocessed_input', 'next_state']
 
             # Input -> Output matchings from model_init to model_next and from model_next to model_next
-            self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input',
-                                           'next_state': 'prev_state'}
-            self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
-                                           'next_state': 'prev_state'}
+            self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input', 'next_state': 'prev_state'}
+            self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input', 'next_state': 'prev_state'}
