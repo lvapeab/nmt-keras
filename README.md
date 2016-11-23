@@ -33,3 +33,6 @@ NMT-Keras requires the following libraries:
 
 Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
 
+## Acknowledgement
+
+Much of this library has been developed together with [Marc Bolaños](https://github.com/MarcBS) ([web page](http://www.ub.edu/cvub/marcbolanos/)) for other sequence-to-sequence problems.
