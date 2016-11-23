@@ -220,7 +220,6 @@ class TranslationModel(Model_Wrapper):
                                   mask_zero=True)(src_text)
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
 
-
         annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
                                         W_regularizer=l2(params['WEIGHT_DECAY']),
                                         U_regularizer=l2(params['WEIGHT_DECAY']),
@@ -228,8 +227,17 @@ class TranslationModel(Model_Wrapper):
                                         return_sequences=True),
                                     name='bidirectional_encoder',
                                     merge_mode='concat')(src_embedding)
-
         annotations = Regularize(annotations, params, name='annotations')
+
+        for n_layer in range(1, params['N_LAYERS_ENCODER']):
+            current_annotations =  Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
+                                              W_regularizer=l2(params['WEIGHT_DECAY']),
+                                              U_regularizer=l2(params['WEIGHT_DECAY']),
+                                              b_regularizer=l2(params['WEIGHT_DECAY']),
+                                              return_sequences=True,
+                                      name='encoder_' + str(n_layer)))(annotations)
+            current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
+            annotations = merge([annotations, current_annotations], mode='sum')
 
         # Decoder
         # Previously generated words as inputs for training
@@ -273,6 +281,24 @@ class TranslationModel(Model_Wrapper):
 
         [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attentional_decoder)
         proj_h = Regularize(proj_h, params, name='proj_h0')
+
+        shared_decoder_list = []
+        for n_layer in range(1, params['N_LAYERS_DECODER']):
+            raise NotImplementedError, 'Multilayered decoder still not implemented!'
+            shared_decoder_list.append(GRU(params['DECODER_HIDDEN_SIZE'],
+                                              W_regularizer=l2(params['WEIGHT_DECAY']),
+                                              U_regularizer=l2(params['WEIGHT_DECAY']),
+                                              b_regularizer=l2(params['WEIGHT_DECAY']),
+                                              return_sequences=True,
+                                      name='decoder_' + str(n_layer)))
+            current_annotations = shared_decoder_list[-1](proj_h)
+            current_proj_h = Regularize(out_layer, params, name='out_layer'+str(activation))
+
+            current_annotations = Regularize(current_proj_h, params, name='proj_h_' + str(n_layer))
+            annotations = merge([annotations, current_annotations], mode='sum')
+
+
+
 
         shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_lstm')

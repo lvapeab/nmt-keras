@@ -1,4 +1,4 @@
-# nmt-keras
+# NMT-Keras
 
 
 Neural Machine Translation with Keras (+ Theano backend)
@@ -9,6 +9,7 @@ Neural Machine Translation with Keras (+ Theano backend)
  * Peeked decoder: The previously generated word is an input of the current timestep
  * MLPs for initializing the RNN hidden and memory state
  * Support for GRU/LSTM networks
+ * Multilayered residual GRU/LSTM networks (WIP)
  * Beam search decoding
 
 ## Requirements

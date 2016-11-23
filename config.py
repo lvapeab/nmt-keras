@@ -5,10 +5,10 @@ def load_parameters():
     '''
 
     # Input data params
-    DATASET_NAME = 'xerox'                        # Task name
-    SRC_LAN = 'es'                                # Language of the source text
-    TRG_LAN = 'en'                                # Language of the target text
-    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME # Path where data is stored
+    DATASET_NAME = 'xerox'                                         # Task name
+    SRC_LAN = 'es'                                                 # Language of the source text
+    TRG_LAN = 'en'                                                 # Language of the target text
+    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'DATA/training.',  'val': 'DATA/dev.', 'test': 'DATA/test.'} # Data files
@@ -40,7 +40,7 @@ def load_parameters():
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
-    SAMPLE_EACH_UPDATES = 1000                    # Sampling frequency (always in #updates)
+    SAMPLE_EACH_UPDATES = 2000                    # Sampling frequency (always in #updates)
 
     #TODO: WIP! Other subword methods?
     POS_UNK = False
@@ -115,7 +115,7 @@ def load_parameters():
     # Encoder layer dimensions
     ENCODER_HIDDEN_SIZE = 289                     # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
-    N_LAYERS_DECODER = 1                          # Stack this number of encoding layers
+    N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
 
     # Decoder layer dimensions
     DECODER_HIDDEN_SIZE = 289                     # For models with RNN decoder
