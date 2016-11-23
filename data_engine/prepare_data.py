@@ -2,10 +2,14 @@ from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
 import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
-
 def build_dataset(params):
-    
-    if params['REBUILD_DATASET']: # We build a new dataset instance
+    """
+    Builds (or loads) a Dataset instance.
+    :param params: Parameters specifying Dataset options
+    :return: Dataset object
+    """
+
+    if params['REBUILD_DATASET']:  # We build a new dataset instance
         if params['VERBOSE'] > 0:
             silence = False
             logging.info('Building ' + params['DATASET_NAME'] + ' dataset')
@@ -81,6 +85,7 @@ def build_dataset(params):
                                 id=params['INPUTS_IDS_DATASET'][-1],
                                 required=False)
 
+        # If we had multiple references per sentence
         keep_n_captions(ds, repeat=1, n=1, set_names=['val', 'test'])
 
         # We have finished loading the dataset, now we can store it for using it in the future
@@ -92,10 +97,18 @@ def build_dataset(params):
 
     return ds
 
-def keep_n_captions(ds, repeat, n=1, set_names=['val','test']):
-    ''' Keeps only n captions per image and stores the rest in dictionaries for a later evaluation
-    '''
+def keep_n_captions(ds, repeat, n=1, set_names=None):
+    """
+    Keeps only n captions per image and stores the rest in dictionaries for a later evaluation
+    :param ds:
+    :param repeat:
+    :param n:
+    :param set_names:
+    :return:
+    """
 
+    if set_names is None:
+        set_names = ['val', 'test']
     for s in set_names:
         logging.info('Keeping '+str(n)+' captions per input on the '+str(s)+' set.')
 

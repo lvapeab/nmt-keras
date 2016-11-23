@@ -5,10 +5,10 @@ def load_parameters():
     '''
 
     # Input data params
-    DATASET_NAME = 'xerox'                                         # Task name
-    SRC_LAN = 'es'                                                 # Language of the source text
-    TRG_LAN = 'en'                                                 # Language of the target text
-    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME  # Path where data is stored
+    DATASET_NAME = 'xerox'                        # Task name
+    SRC_LAN = 'es'                                # Language of the source text
+    TRG_LAN = 'en'                                # Language of the target text
+    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'DATA/training.',  'val': 'DATA/dev.', 'test': 'DATA/test.'} # Data files
@@ -53,9 +53,10 @@ def load_parameters():
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
     # Text parameters
     FILL = 'end'                                  # Whether we fill the 'end' or the 'start' of the sentence with 0s
-
+    PAD_ON_BATCH = True                           # Whether we take as many timesteps as the longest sequence of
+                                                  # the batch or a fixed size (MAX_OUTPUT_TEXT_LEN)
     # Input text parameters
-    INPUT_VOCABULARY_SIZE = 0                     # Size of the input vocabulary. Set to 0 for using all,
+    INPUT_VOCABULARY_SIZE = 30000                 # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
@@ -65,7 +66,7 @@ def load_parameters():
     SOURCE_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Output text parameters
-    OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
+    OUTPUT_VOCABULARY_SIZE = 30000                # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
