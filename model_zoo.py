@@ -55,13 +55,37 @@ class TranslationModel(Model_Wrapper):
         # Sets the model name and prepares the folders for storing the models
         self.setName(model_name, store_path=store_path)
 
-        # Prepare GLOVE embedding
-        if params['GLOVE_VECTORS'] is not None:
+        # Prepare source GLOVE embedding
+        if params['SOURCE_GLOVE_VECTORS'] is not None:
             if self.verbose > 0:
-                logging.info("<<< Loading pretrained word vectors from file " + params['GLOVE_VECTORS'] + " >>>")
-            self.word_vectors = np.load(os.path.join(params['GLOVE_VECTORS'])).item()
+                logging.info("<<< Loading pretrained word vectors from file " + params['SOURCE_GLOVE_VECTORS'] + " >>>")
+            self.src_word_vectors = np.load(os.path.join(params['SOURCE_GLOVE_VECTORS'])).item()
+            self.src_embedding_weights = np.random.rand(params['INPUT_VOCABULARY_SIZE'],
+                                                        params['SOURCE_TEXT_EMBEDDING_SIZE'])
+            for word, index in self.vocabularies[self.ids_inputs[0]]['words2idx'].iteritems():
+                if self.src_word_vectors.get(word) is not None:
+                    self.src_embedding_weights[index, :] = self.src_word_vectors[word]
+            self.src_embedding_weights = [self.src_embedding_weights]
+            self.src_embedding_weights_trainable = params['SOURCE_GLOVE_VECTORS_TRAINABLE']
         else:
-            self.word_vectors = dict()
+            self.src_embedding_weights = None
+            self.src_embedding_weights_trainable = True
+
+        if params['TARGET_GLOVE_VECTORS'] is not None:
+            if self.verbose > 0:
+                logging.info("<<< Loading pretrained word vectors from file " + params['TARGET_GLOVE_VECTORS'] + " >>>")
+            self.trg_word_vectors = np.load(os.path.join(params['TARGET_GLOVE_VECTORS'])).item()
+            self.trg_embedding_weights = np.random.rand(params['OUTPUT_VOCABULARY_SIZE'],
+                                                        params['TARGET_TEXT_EMBEDDING_SIZE'])
+            for word, index in self.vocabularies[self.ids_inputs[0]]['words2idx'].iteritems():
+                if self.src_word_vectors.get(word) is not None:
+                    self.trg_embedding_weights[index, :] = self.trg_word_vectors[word]
+            self.trg_embedding_weights = [self.trg_embedding_weights]
+            self.trg_embedding_weights_trainable = params['SOURCE_GLOVE_VECTORS_TRAINABLE']
+
+        else:
+            self.trg_embedding_weights = None
+            self.trg_embedding_weights_trainable = True
 
         # Prepare model
         if structure_path:
@@ -190,8 +214,9 @@ class TranslationModel(Model_Wrapper):
 
         # Encoder
         src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')  # Source text input
-        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
+        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding', W_regularizer=l2(params['WEIGHT_DECAY']),
+                                  trainable=self.src_embedding_weights_trainable,  weights=self.src_embedding_weights,
                                   mask_zero=True)(src_text)
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
 
@@ -209,8 +234,9 @@ class TranslationModel(Model_Wrapper):
         # Decoder
         # Previously generated words as inputs for training
         next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
-        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
+        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
                                 name='target_word_embedding', W_regularizer=l2(params['WEIGHT_DECAY']),
+                                trainable=self.trg_embedding_weights_trainable, weights=self.trg_embedding_weights,
                                 mask_zero=True)(next_words)
         state_below = Regularize(state_below, params, name='state_below')
 
@@ -248,15 +274,15 @@ class TranslationModel(Model_Wrapper):
         [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attentional_decoder)
         proj_h = Regularize(proj_h, params, name='proj_h0')
 
-        shared_FC_mlp = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
+        shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
-        shared_FC_ctx = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
+        shared_FC_ctx = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_ctx')
         out_layer_ctx = shared_FC_ctx(x_att)
         shared_Lambda_Permute = Lambda(lambda x: K.permute_dimensions(x, [1, 0, 2]))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
-        shared_FC_emb = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
+        shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')
         out_layer_emb = shared_FC_emb(state_below)
 
@@ -351,126 +377,3 @@ class TranslationModel(Model_Wrapper):
                                            'next_state': 'prev_state'}
             self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
                                            'next_state': 'prev_state'}
-
-
-    def GroundHogModelOldSearch(self, params):
-        """
-        Machine translation with:
-            * BLSTM encoder
-            * Attention mechansim on input sequence of annotations
-            * Conditional LSTM for decoding
-            * Feed forward layers:
-                + Context projected to output
-                + Last word projected to output
-        :param params:
-        :return:
-        """
-
-
-        # Store inputs and outputs names
-        self.ids_inputs =  params['INPUTS_IDS_MODEL']
-        self.ids_outputs = params['OUTPUTS_IDS_MODEL']
-
-        # Source text
-        src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')
-        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
-                        name='source_word_embedding',
-                        W_regularizer=l2(params['WEIGHT_DECAY']),
-                        mask_zero=True)(src_text)
-        src_embedding = Regularize(src_embedding, params, name='src_embedding')
-        # Previously generated words as inputs for training
-        next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
-        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TEXT_EMBEDDING_HIDDEN_SIZE'],
-                        name='target_word_embedding',
-                        W_regularizer=l2(params['WEIGHT_DECAY']),
-                        mask_zero=True)(next_words)
-        state_below = Regularize(state_below, params, name='state_below')
-
-        annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
-                                             W_regularizer=l2(params['WEIGHT_DECAY']),
-                                             U_regularizer=l2(params['WEIGHT_DECAY']),
-                                             b_regularizer=l2(params['WEIGHT_DECAY']),
-                                             return_sequences=True),
-                                        name='bidirectional_encoder')(src_embedding)
-
-        # LSTM initialization perceptrons with ctx mean
-        ctx_mean = MaskedMean()(annotations)
-        ctx_mean = Regularize(ctx_mean, params, name='ctx_mean')(ctx_mean)
-
-        if len(params['INIT_LAYERS']) > 0:
-            for n_layer_init in range(len(params['INIT_LAYERS'])-1):
-                ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d'%nlayer_init,
-                                 activation=params['INIT_LAYERS'][nlayer_init],
-                                 W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-                ctx_mean = Regularize(ctx_mean, params, name='ctx' + str(n_layer_init))
-
-            initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
-                                  activation=params['INIT_LAYERS'][-1],
-                                  W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
-            initial_state =  Regularize(initial_state, params, name='initial_state')
-            input_attlstmcond = [state_below, annotations, initial_state]
-        else:
-            input_attlstmcond = [state_below, annotations]
-
-        # x_att
-        [proj_h, x_att, alphas] = AttGRUCond(params['DECODER_HIDDEN_SIZE'],
-                                              W_regularizer=l2(params['WEIGHT_DECAY']),
-                                              U_regularizer=l2(params['WEIGHT_DECAY']),
-                                              V_regularizer=l2(params['WEIGHT_DECAY']),
-                                              b_regularizer=l2(params['WEIGHT_DECAY']),
-                                              wa_regularizer=l2(params['WEIGHT_DECAY']),
-                                              Wa_regularizer=l2(params['WEIGHT_DECAY']),
-                                              Ua_regularizer=l2(params['WEIGHT_DECAY']),
-                                              ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                              init='norm_weight',
-                                              inner_init='ortho_weight',
-                                              return_sequences=True,
-                                              return_extra_variables=True)(input_attlstmcond)
-        prev_proj_h = Regularize(proj_h, params, name='proj_h0')
-
-
-        for n_layer_lstm in range(1, params['N_LAYERS_DECODER_LSTM']):
-            current_proj_h = GRU(params['LSTM_DECODER_HIDDEN_SIZE'],
-                                              W_regularizer=l2(params['WEIGHT_DECAY']),
-                                              U_regularizer=l2(params['WEIGHT_DECAY']),
-                                              b_regularizer=l2(params['WEIGHT_DECAY']),
-                                              return_sequences=True)(prev_proj_h)
-            current_proj_h = Regularize(current_proj_h, params, name='proj_h' + str(n_layer_lstm))
-            prev_proj_h = merge([prev_proj_h, current_proj_h], mode='sum')
-        proj_h = prev_proj_h
-
-
-
-        # Equation 7 from Show, attend and tell (http://arxiv.org/abs/1502.03044)
-        out_layer_mlp = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_lstm')(proj_h)
-        out_layer_ctx = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_ctx')(x_att)
-        out_layer_ctx = Lambda(lambda x: K.permute_dimensions(x, [1, 0, 2]))(out_layer_ctx)
-
-        out_layer_emb = TimeDistributed(Dense(params['TEXT_EMBEDDING_HIDDEN_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')(state_below)
-
-        out_layer_mlp = Regularize(out_layer_mlp, params, name='out_layer_mlp')
-        out_layer_ctx = Regularize(out_layer_ctx, params, name='out_layer_ctx')
-        out_layer_emb = Regularize(out_layer_emb, params, name='out_layer_emb')
-        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
-        out_layer = Activation('tanh')(additional_output)
-
-        # Optional deep ouput
-        for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
-            if activation.lower() == 'maxout':
-                out_layer = TimeDistributed(MaxoutDense(dimension, W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                            name='maxout_%d'%i)(out_layer)
-            else:
-                out_layer = TimeDistributed(Dense(dimension, activation=activation,
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                            name=activation+'_%d'%i)(out_layer)
-            out_layer = Regularize(out_layer, params, name='out_layer'+str(activation))
-
-        # Softmax
-        output = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'], activation=params['CLASSIFIER_ACTIVATION'],
-                                       name=params['CLASSIFIER_ACTIVATION'], W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                 name=self.ids_outputs[0])(out_layer)
-
-        self.model = Model(input=[src_text, next_words], output=output)

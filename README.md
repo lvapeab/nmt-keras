@@ -1,7 +1,7 @@
 # nmt-keras
 
 
-Neural Machine Translation with Theano&amp;Keras
+Neural Machine Translation with Keras (+ Theano backend)
 
 ## Features: 
 
@@ -21,11 +21,7 @@ NMT-Keras requires the following libraries:
 
 ## Instructions:
 
-Assuming you have a dataset and features extracted from the video frames:
- 
-1) Prepare the inputs/outputs of your model in `data_engine/prepare_data.py`
-  
-2) Set a model configuration in  `config.py` 
+1) Set a model configuration in  `config.py` 
  
 2) Train!:
 
