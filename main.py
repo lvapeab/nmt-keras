@@ -240,7 +240,8 @@ def buildCallbacks(params, model, dataset):
         if params['SAMPLE_ON_SETS']:
             # Evaluate sampling
             extra_vars = {'language': params['TRG_LAN'], 'n_parallel_loaders': params['PARALLEL_LOADERS']}
-            vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
+            vocab_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words']
+            vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
             for s in params['EVAL_ON_SETS']:
                 extra_vars[s] = dict()
                 extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
@@ -254,10 +255,9 @@ def buildCallbacks(params, model, dataset):
                 extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
                 extra_vars['normalize'] =  params['NORMALIZE_SAMPLING']
                 extra_vars['alpha_factor'] =  params['ALPHA_FACTOR']
-                #extra_vars['pos_unk'] =  params['POS_UNK']
-                #extra_vars['heuristic'] =  params['HEURISTIC']
 
-            callback_sampling = utils.callbacks.SampleEachNUpdates(model, dataset,
+            callback_sampling = utils.callbacks.SampleEachNUpdates(model,
+                                                                   dataset,
                                                                    gt_id=params['OUTPUTS_IDS_DATASET'][0],
                                                                    set_name=params['SAMPLE_ON_SETS'],
                                                                    n_samples=params['N_SAMPLES'],
@@ -265,7 +265,10 @@ def buildCallbacks(params, model, dataset):
                                                                    extra_vars=extra_vars,
                                                                    reload_epoch=params['RELOAD'],
                                                                    batch_size=params['BATCH_SIZE'],
-                                                                   is_text=True, index2word_y=vocab,  # text info
+                                                                   is_text=True,
+                                                                   index2word_x=vocab_x,  # text info
+                                                                   index2word_y=vocab_y,  # text info
+                                                                   in_pred_idx=params['INPUTS_IDS_DATASET'][0],
                                                                    sampling_type=params['SAMPLING'],  # text info
                                                                    beam_search=params['BEAM_SEARCH'],
                                                                    start_sampling_on_epoch=params['START_SAMPLING_ON_EPOCH'],

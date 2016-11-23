@@ -30,12 +30,13 @@ NMT-Keras requires the following libraries:
  python main.py
  ``
 
-3) For evaluating on a new partition, we just need to adequately modify `config.py`:
- - Set the EVAL_ON_SETS variable to the desired one (e.g. test)
- - Set RELOAD = 1
- - Set MODE = 'sampling'
+3) For evaluating on a new partition, we just need to adequately modify `config.py`. For example, if we want to obtain the translations of the test set, using the model obtained at the end of the epoch 5, we should do:
+ ```python
+ - MODE = 'sampling'
+ - RELOAD = 5
+ - EVAL_ON_SETS = ['test']
+  ```
  - Run `python main.py`
- 
 ## Contact
 
 Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 

@@ -344,9 +344,9 @@ class PrintPerformanceMetricEachNUpdates(KerasCallback):
 class SampleEachNUpdates(KerasCallback):
 
     def __init__(self, model, dataset, gt_id, set_name, n_samples, each_n_updates=10000, extra_vars=dict(),
-                 is_text=False, index2word_y=None, sampling='max_likelihood', beam_search=False, batch_size=50,
+                 is_text=False, index2word_x=None, index2word_y=None, sampling='max_likelihood', beam_search=False, batch_size=50,
                  reload_epoch=0, start_sampling_on_epoch=0, write_type='list', sampling_type='max_likelihood',
-                 out_pred_idx=None, verbose=1):
+                 out_pred_idx=None, in_pred_idx=None, verbose=1):
         """
             :param model: model to evaluate
             :param dataset: instance of the class Dataset in keras_wrapper.dataset
@@ -359,6 +359,7 @@ class SampleEachNUpdates(KerasCallback):
             :param is_text: defines if the predicted info is of type text (in that case the data will be converted from values into a textual representation)
             :param index2word_y: mapping from the indices to words (only needed if is_text==True)
             :param sampling: sampling mechanism used (only used if is_text==True)
+            :param in_pred_idx: index of the input prediction used for evaluation (only applicable if model has more than one input, else set to None)
             :param out_pred_idx: index of the output prediction used for evaluation (only applicable if model has more than one output, else set to None)
             :param reload_epoch: number o the epoch reloaded (0 by default)
             :param start_sampling_on_epoch: only starts evaluating model if a given epoch has been reached
@@ -367,6 +368,7 @@ class SampleEachNUpdates(KerasCallback):
         self.model_to_eval = model
         self.ds = dataset
         self.gt_id = gt_id
+        self.index2word_x = index2word_x
         self.index2word_y = index2word_y
         self.is_text = is_text
         self.sampling = sampling
@@ -381,6 +383,7 @@ class SampleEachNUpdates(KerasCallback):
         self.write_type = write_type
         self.sampling_type = sampling_type
         self.out_pred_idx = out_pred_idx
+        self.in_pred_idx = in_pred_idx
         self.verbose = verbose
 
     def on_batch_end(self, n_update, logs={}):
@@ -402,31 +405,42 @@ class SampleEachNUpdates(KerasCallback):
 
             if self.beam_search:
                 params_prediction.update(checkDefaultParamsBeamSearch(self.extra_vars))
-                predictions, truths = self.model_to_eval.BeamSearchNet(self.ds, params_prediction)
+                predictions, truths, sources = self.model_to_eval.BeamSearchNet(self.ds, params_prediction)
             else:
                 predictions, truths = self.model_to_eval.predictNet(self.ds, params_prediction)[s]
             gt_y = eval('self.ds.Y_'+s+'["'+self.gt_id+'"]')
             predictions = predictions[s]
+
             if self.is_text:
                 if self.out_pred_idx is not None:
                     predictions = predictions[self.out_pred_idx]
+                if self.in_pred_idx is not None:
+                    sources = [srcs for srcs in sources[0][self.in_pred_idx]]
+
                 # Convert predictions into sentences
                 if self.beam_search:
                     predictions = self.model_to_eval.decode_predictions_beam_search(predictions,
-                                                      self.index2word_y,
-                                                      verbose=self.verbose)
+                                                                                    self.index2word_y,
+                                                                                    verbose=self.verbose)
+                    sources = self.model_to_eval.decode_predictions_beam_search(sources,
+                                                                                self.index2word_x,
+                                                                                pad_sequences=True,
+                                                                                verbose=self.verbose)
                 else:
-                    predictions = self.model_to_eval.decode_predictions(predictions, 1, # always set temperature to 1
-                                                      self.index2word_y,
-                                                      self.sampling_type,
-                                                      verbose=self.verbose)
+                    predictions = self.model_to_eval.decode_predictions(predictions,
+                                                                        1,
+                                                                        self.index2word_y,
+                                                                        self.sampling_type,
+                                                                        verbose=self.verbose)
                 truths = self.model_to_eval.decode_predictions_one_hot(truths,
-                                                      self.index2word_y,
-                                                      verbose=self.verbose)
+                                                                       self.index2word_y,
+                                                                       verbose=self.verbose)
             # Write samples
-            for i, (sample, truth) in enumerate(zip(predictions, truths)):
+            for i, (source, sample, truth) in enumerate(zip(sources, predictions, truths)):
+                print ("Source     (%d): %s"%(i, source))
                 print ("Hypothesis (%d): %s"%(i, sample))
                 print ("Reference  (%d): %s"%(i, truth))
+                print ("\n")
 
 
 class ReduceLearningRate(KerasCallback):
