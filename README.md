@@ -3,7 +3,7 @@
 
 Neural Machine Translation with Keras (+ Theano backend)
 
-## Features: 
+## Features (in addition to the full Keras cosmos): 
 
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
@@ -17,7 +17,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras)
- - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) 
+ - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://lvapeab.github.io/staged_keras_wrapper/))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/)
 
 ## Instructions
@@ -37,6 +37,7 @@ NMT-Keras requires the following libraries:
  - EVAL_ON_SETS = ['test']
   ```
  - Run `python main.py`
+ 
 ## Contact
 
 Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
