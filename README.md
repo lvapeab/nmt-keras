@@ -17,7 +17,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras)
- - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://lvapeab.github.io/staged_keras_wrapper/))
+ - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/)
 
 ## Instructions
@@ -30,7 +30,7 @@ NMT-Keras requires the following libraries:
  python main.py
  ``
 
-3) For evaluating on a new partition, we just need to adequately modify `config.py`. For example, if we want to obtain the translations of the test set, using the model obtained at the end of the epoch 5, we should do:
+3) For evaluating on a new partition, we just need to adequately modify [config.py](https://github.com/lvapeab/nmt-keras/blob/master/config.py). For example, if we want to obtain the translations of the test set, using the model obtained at the end of the epoch 5, we should do:
  ```python
  - MODE = 'sampling'
  - RELOAD = 5
