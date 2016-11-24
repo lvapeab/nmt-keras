@@ -234,12 +234,14 @@ class TranslationModel(Model_Wrapper):
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
-            current_annotations =  Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
-                                              W_regularizer=l2(params['WEIGHT_DECAY']),
-                                              U_regularizer=l2(params['WEIGHT_DECAY']),
-                                              b_regularizer=l2(params['WEIGHT_DECAY']),
-                                              return_sequences=True,
-                                      name='encoder_' + str(n_layer)))(annotations)
+            current_annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
+                                                    W_regularizer=l2(params['WEIGHT_DECAY']),
+                                                    U_regularizer=l2(params['WEIGHT_DECAY']),
+                                                    b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                    return_sequences=True,
+                                                    ),
+                                                merge_mode='concat',
+                                                name='bidirectional_encoder_' + str(n_layer))(annotations)
             current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
             annotations = merge([annotations, current_annotations], mode='sum')
 
@@ -292,10 +294,10 @@ class TranslationModel(Model_Wrapper):
         for n_layer in range(1, params['N_LAYERS_DECODER']):
             raise NotImplementedError, 'Multilayered decoder still not implemented!'
             shared_decoder_list.append(GRU(params['DECODER_HIDDEN_SIZE'],
-                                              W_regularizer=l2(params['WEIGHT_DECAY']),
-                                              U_regularizer=l2(params['WEIGHT_DECAY']),
-                                              b_regularizer=l2(params['WEIGHT_DECAY']),
-                                              return_sequences=True,
+                                           W_regularizer=l2(params['WEIGHT_DECAY']),
+                                           U_regularizer=l2(params['WEIGHT_DECAY']),
+                                           b_regularizer=l2(params['WEIGHT_DECAY']),
+                                           return_sequences=True,
                                       name='decoder_' + str(n_layer)))
             current_annotations = shared_decoder_list[-1](proj_h)
             current_proj_h = Regularize(out_layer, params, name='out_layer'+str(activation))
