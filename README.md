@@ -20,6 +20,7 @@ NMT-Keras requires the following libraries:
  - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/)
 
+
 ## Instructions
 
 1) Set a model configuration in `config.py`. Each parameter is commented.
@@ -37,7 +38,14 @@ NMT-Keras requires the following libraries:
  - EVAL_ON_SETS = ['test']
   ```
  - Run `python main.py`
- 
+
+
+## Resources
+
+ * In [examples/neural_machine_translation.pdf](https://github.com/lvapeab/nmt-keras/blob/master/examples/neural_machine_translation.pdf) you'll find an overview of an attentional NMT system.
+
+ * In [examples/tutorial.ipynb](https://github.com/lvapeab/nmt-keras/blob/master/examples/tutorial.ipynb) you'll find a short tutorial for running this library (WIP!).
+
 ## Contact
 
 Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
