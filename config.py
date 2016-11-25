@@ -12,8 +12,8 @@ def load_parameters():
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'DATA/training.',        # Data files
-                  'DATA/val': 'dev.',
-                  'DATA/test': 'test.'}
+                  'val': 'DATA/dev.',
+                  'test': 'DATA/test.'}
 
     # Dataset class parameters
     INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
