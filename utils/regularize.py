@@ -34,7 +34,9 @@ def Regularize(layer, params, shared_layers=False, name=''):
             bn_mode = params['BATCH_NORMALIZATION_MODE']
         else:
             bn_mode = 0
-        shared_layers_list.append(BatchNormalization(mode=bn_mode, gamma_regularizer=l2_gamma_reg, beta_regularizer=l2_beta_reg,
+        shared_layers_list.append(BatchNormalization(mode=bn_mode,
+                                                     gamma_regularizer=l2_gamma_reg,
+                                                     beta_regularizer=l2_beta_reg,
                                                      name=name + '_batch_normalization'))
 
     if params.get('USE_PRELU') and params['USE_PRELU']:

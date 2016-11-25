@@ -287,7 +287,7 @@ class TranslationModel(Model_Wrapper):
                                       return_states=True)
 
         [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attentional_decoder)
-        proj_h = Regularize(proj_h, params, name='proj_h0')
+        [proj_h, shared_reg_proj_h] = Regularize(proj_h, params, shared_layers=True, name='proj_h0')
 
         # 3.4. Possibly deep decoder
         shared_decoder_list = []
@@ -318,9 +318,9 @@ class TranslationModel(Model_Wrapper):
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')
         out_layer_emb = shared_FC_emb(state_below)
 
-        out_layer_mlp = Regularize(out_layer_mlp, params, name='out_layer_mlp')
-        out_layer_ctx = Regularize(out_layer_ctx, params, name='out_layer_ctx')
-        out_layer_emb = Regularize(out_layer_emb, params, name='out_layer_emb')
+        [out_layer_mlp, shared_reg_out_layer_mlp] = Regularize(out_layer_mlp, params, shared_layers=True, name='out_layer_mlp')
+        [out_layer_ctx, shared_reg_out_layer_ctx] = Regularize(out_layer_ctx, params, shared_layers=True, name='out_layer_ctx')
+        [out_layer_emb, shared_reg_out_layer_emb] = Regularize(out_layer_emb, params, shared_layers=True, name='out_layer_emb')
 
         additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
         shared_activation_tanh = Activation('tanh')
@@ -328,6 +328,7 @@ class TranslationModel(Model_Wrapper):
         out_layer = shared_activation_tanh(additional_output)
 
         shared_deep_list = []
+        shared_reg_deep_list = []
         # 3.6 Optional deep ouput layer
         for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
             if activation.lower() == 'maxout':
@@ -338,8 +339,10 @@ class TranslationModel(Model_Wrapper):
                 shared_deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
                                               W_regularizer=l2(params['WEIGHT_DECAY'])),
                                             name=activation+'_%d'%i))
-            out_layer = Regularize(out_layer, params, name='out_layer'+str(activation))
             out_layer = shared_deep_list[-1](out_layer)
+            [out_layer, shared_reg_out_layer] = Regularize(out_layer,
+                                                           params, shared_layers=True, name='out_layer'+str(activation))
+            shared_reg_deep_list.append(shared_reg_out_layer)
 
         # 3.7. Output layer: Softmax
         shared_FC_soft = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'],
@@ -381,17 +384,29 @@ class TranslationModel(Model_Wrapper):
             input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_state]
             # Apply decoder
             [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attentional_decoder)
+            for reg in shared_reg_proj_h:
+                proj_h = reg(proj_h)
 
             out_layer_mlp = shared_FC_mlp(proj_h)
             out_layer_ctx = shared_FC_ctx(x_att)
             out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
             out_layer_emb = shared_FC_emb(state_below)
 
+            for (reg_out_layer_mlp, reg_out_layer_ctx, reg_out_layer_emb) in zip(shared_reg_out_layer_mlp,
+                                                                                 shared_reg_out_layer_ctx,
+                                                                                 shared_reg_out_layer_emb):
+                out_layer_mlp = reg_out_layer_mlp(out_layer_mlp)
+                out_layer_ctx = reg_out_layer_mlp(out_layer_ctx)
+                out_layer_emb = reg_out_layer_mlp(out_layer_emb)
+
             additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
             out_layer = shared_activation_tanh(additional_output)
 
-            for l in shared_deep_list:
-                out_layer = l(out_layer)
+            for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
+                out_layer = deep_out_layer(out_layer)
+                for reg in reg_list:
+                    out_layer = reg(out_layer)
+
             # Softmax
             softout = shared_FC_soft(out_layer)
             self.model_next = Model(input=[next_words, preprocessed_annotations, prev_h_state],
