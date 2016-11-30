@@ -16,7 +16,7 @@ On a real execution, these values are taken from the `config.py` file.
    
 
 The translation task is *EuTrans* ([Amengual et al.](http://link.springer.com/article/10.1023/A:1011116115948)), a toy-task mainly used for debugging purposes.
-Since it is an easy task, the model should converge in few (~2-4) epochs, yielding a BLEU-4 score close to 1 in the case of the Es->En language direction.
+Since it is an easy task, the model should converge in few (~6-8) epochs, yielding a BLEU-4 score close to 1 in the case of the Es->En language direction.
 
 
 
