@@ -44,7 +44,7 @@ NMT-Keras requires the following libraries:
 
  * In [examples/neural_machine_translation.pdf](https://github.com/lvapeab/nmt-keras/blob/master/examples/neural_machine_translation.pdf) you'll find an overview of an attentional NMT system.
 
- * In [examples/tutorial.ipynb](https://github.com/lvapeab/nmt-keras/blob/master/examples/tutorial.ipynb) you'll find a short tutorial for running this library (WIP!).
+ * In [examples/*.ipynb](https://github.com/lvapeab/nmt-keras/blob/master/examples/) you'll find some tutorials for running this library.
 
 ## Contact
 
