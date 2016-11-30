@@ -5,10 +5,10 @@ def load_parameters():
     '''
 
     # Input data params
-    DATASET_NAME = 'EuTrans'                        # Task name
-    SRC_LAN = 'en'                                  # Language of the source text
-    TRG_LAN = 'es'                                  # Language of the target text
-    DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
+    DATASET_NAME = 'ue'                        # Task name
+    SRC_LAN = 'es'                                  # Language of the source text
+    TRG_LAN = 'en'                                  # Language of the target text
+    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'DATA/training.',        # Data files
@@ -25,9 +25,9 @@ def load_parameters():
     METRICS = ['coco']                            # Metric used for evaluating the model
     EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator)
     EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
-    START_EVAL_ON_EPOCH = 10                      # First epoch where the model will be evaluated
+    START_EVAL_ON_EPOCH = 10                       # First epoch where the model will be evaluated
     EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates
-    EVAL_EACH = 5                                 # Sets the evaluation frequency (epochs or updates)
+    EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates)
 
     # Search parameters
     SAMPLING = 'max_likelihood'                   # Possible values: multinomial or max_likelihood (recommended)
@@ -42,7 +42,7 @@ def load_parameters():
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
-    SAMPLE_EACH_UPDATES = 500                     # Sampling frequency (always in #updates)
+    SAMPLE_EACH_UPDATES = 2500                     # Sampling frequency (always in #updates)
 
     #TODO: WIP! Other subword methods?
     POS_UNK = False
@@ -58,7 +58,7 @@ def load_parameters():
     PAD_ON_BATCH = True                           # Whether we take as many timesteps as the longest sequence of
                                                   # the batch or a fixed size (MAX_OUTPUT_TEXT_LEN)
     # Input text parameters
-    INPUT_VOCABULARY_SIZE = 30000                 # Size of the input vocabulary. Set to 0 for using all,
+    INPUT_VOCABULARY_SIZE = 0                 # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
@@ -68,11 +68,11 @@ def load_parameters():
     SOURCE_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Output text parameters
-    OUTPUT_VOCABULARY_SIZE = 30000                # Size of the input vocabulary. Set to 0 for using all,
+    OUTPUT_VOCABULARY_SIZE = 0                # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
-    MAX_OUTPUT_TEXT_LEN_TEST = 100                # Maximum length of the output sequence during test time
+    MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
     TARGET_GLOVE_VECTORS = None                   # Path to pretrained vectors.
                                                   # Set to None if you don't want to use pretrained vectors.
     TARGET_GLOVE_VECTORS_TRAINABLE = True                # Finetune or not the word embedding vectors.
@@ -110,18 +110,18 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 354              # Source language word embedding size.
+    SOURCE_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
 
-    TARGET_TEXT_EMBEDDING_SIZE = 354              # Source language word embedding size.
+    TARGET_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     # Encoder layer dimensions
-    ENCODER_HIDDEN_SIZE = 289                     # For models with RNN encoder
+    ENCODER_HIDDEN_SIZE = 600                     # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
 
     # Decoder layer dimensions
-    DECODER_HIDDEN_SIZE = 289                     # For models with RNN decoder
+    DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of deenoding layers
 
     # additional Fully-Connected layers's sizes applied before softmax.
