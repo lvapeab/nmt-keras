@@ -52,6 +52,9 @@ NMT-Keras requires the following libraries:
     
     3) [Decoding tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/3_decoding_tutorial.ipynb): Shows how to call a trained translation model and use it to translate new text. 
 
+    4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a NMT model with Keras in few lines. 
+
+
 ## Contact
 
 Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 

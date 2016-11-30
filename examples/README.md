@@ -30,7 +30,7 @@ In the `documentation` folder you'll find a couple of pdf files:
 
 ## TODO list
 
-- [ x ] Add a tutorial for building a NMT model with Keras.
+- [x] Add a tutorial for building a NMT model with Keras.
 
 - [ ] Document (with sphinx) the NMT-Keras library
 
