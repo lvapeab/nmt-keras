@@ -45,8 +45,11 @@ NMT-Keras requires the following libraries:
  * In [examples/neural_machine_translation.pdf](https://github.com/lvapeab/nmt-keras/blob/master/examples/neural_machine_translation.pdf) you'll find an overview of an attentional NMT system.
 
  * In [examples/](https://github.com/lvapeab/nmt-keras/blob/master/examples/) you'll find some tutorials for running this library. They are expected to be followed in order:
+    
     1) [Dataset set up](https://github.com/lvapeab/nmt-keras/blob/master/examples/1_dataset_tutorial.ipynb): Shows how to invoke and configure a Dataset instance for a translation problem.
+    
     2) [Training tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/2_training_tutorial.ipynb): Shows how to call a translation model, link it with the dataset object and construct calllbacks for monitorizing the training. 
+    
     3) [Decoding tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/3_decoding_tutorial.ipynb): Shows how to call a trained translation model and use it to translate new text. 
 
 ## Contact
