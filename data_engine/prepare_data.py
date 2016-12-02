@@ -87,7 +87,7 @@ def build_dataset(params):
                                     required=False)
 
         # If we had multiple references per sentence
-        keep_n_captions(ds, repeat=1, n=1, set_names=['val', 'test'])
+        keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
 
         # We have finished loading the dataset, now we can store it for using it in the future
         saveDataset(ds, params['DATASET_STORE_PATH'])
