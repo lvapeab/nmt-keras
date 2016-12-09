@@ -1,0 +1,33 @@
+{
+    "language"        : "PYTHON",
+    "main-file"       : "spearmint_opt.py",
+    "experiment-name" : "NeuralMachineTranslation",
+    "likelihood"      : "NOISELESS",
+    "variables" : {
+        "SOURCE_TEXT_EMBEDDING_SIZE" : {
+            "type" : "INT",
+            "size" : 1,
+            "min"  : 50,
+            "max"  : 1000
+        },
+        "ENCODER_HIDDEN_SIZE" : {
+            "type" : "INT",
+            "size" : 1,
+            "min"  : 100,
+            "max"  : 2500
+        },
+        "DECODER_HIDDEN_SIZE" : {
+            "type" : "INT",
+            "size" : 1,
+            "min"  : 50,
+            "max"  : 1000
+        },
+        "TARGET_TEXT_EMBEDDING_SIZE" : {
+            "type" : "INT",
+            "size" : 1,
+            "min"  : 50,
+            "max"  : 1000
+        }
+    }
+}
+
