@@ -11,7 +11,7 @@ Neural Machine Translation with Keras (+ Theano backend)
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
  * Beam search decoding.
- * [Spearmint] (https://github.com/HIPS/Spearmint) wrapper for hyperparameter optimization
+ * [Spearmint] (https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
 
