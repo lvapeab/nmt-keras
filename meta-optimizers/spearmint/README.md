@@ -13,6 +13,11 @@ Installation:
 
 Usage:
 
+ 1) Set your experimental settings (see `${nmt_keras_path}/spearmint/config.json` for an example)
+
+ * **_WARNING!_**: It is highly recommendable to specify an absolute path to the data files in `config.py` when launching spearmint!
+
+ 2) Run the `launch_spearmint.sh` script. It will execute the following steps:
 
  * Get NMT-Keras directory:
  
@@ -20,8 +25,6 @@ Usage:
     cd nmt-keras
     nmt_keras_path=`pwd`
  ```
- 
- * Set your experimental settings (see `${nmt_keras_path}/spearmint/config.json` for an example)
   
  * Create directory for storing the database:
  
@@ -48,3 +51,5 @@ Usage:
     ```
     
  * The results will appear at `${nmt_keras_path}/spearmint/output` 
+ 
+ 

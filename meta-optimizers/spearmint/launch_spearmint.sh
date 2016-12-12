@@ -1,16 +1,18 @@
 #!/bin/bash
 
-spearmint_path=`cd ../../../Spearmint;pwd`
-nmt_keras_path=`cd ../../;pwd`
-mkdir -p ${nmt_keras_path}/spearmint/db
-mkdir -p ${nmt_keras_path}/spearmint/logs
+spearmint_path=${SOFTWARE_PREFIX}/Spearmint
+nmt_keras_path=${SOFTWARE_PREFIX}/nmt-keras
+dest_dir=${nmt_keras_path}/meta-optimizers/spearmint
+mkdir -p ${dest_dir}/db
+mkdir -p ${dest_dir}/logs
 
 #Launch mongodb if it is not already launched
-
 if [ `ps -wuax |grep mongod |wc -l` -lt 2 ]; then
-    mongod --fork --logpath ${nmt_keras_path}/spearmint/db/log --dbpath ${nmt_keras_path}/spearmint/db;
+    mongod --fork --logpath ${dest_dir}/db/log --dbpath ${dest_dir}/db;
 fi
 
 
-${spearmint_path}/spearmint/cleanup.sh ${nmt_keras_path}/meta-optimizers/spearmint/
-nohup python ${spearmint_path}/spearmint/main.py  ${nmt_keras_path}/spearmint --config=${nmt_keras_path}/meta-optimizers/spearmint/config.json > ${nmt_keras_path}/spearmint/logs/out.log 2> ${nmt_keras_path}/spearmint/logs/out.err &
+${spearmint_path}/spearmint/cleanup.sh ${dest_dir}
+
+cd ${nmt_keras_path}; nohup python ${spearmint_path}/spearmint/main.py ${dest_dir} --config=${nmt_keras_path}/meta-optimizers/spearmint/config.json >> ${dest_dir}/logs/out.log 2> ${dest_dir}/logs/out.err &
+echo "Main Spearmint process PID:" $! >> ${dest_dir}/logs/out.log
