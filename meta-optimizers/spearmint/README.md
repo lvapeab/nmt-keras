@@ -47,7 +47,7 @@ Usage:
  * Lauch Spearmint! Assuming that it is installed under `${spearmint_path}`:
  
     ```bash
-    nohup python ${spearmint_path}/spearmint/main.py  ${nmt_keras_path}/spearmint --config=${nmt_keras_path}/spearmint/config.json > logs/spearmint.log 2> logs/spearmint.err &
+    cd ${nmt_keras_path}; nohup python ${spearmint_path}/spearmint/main.py ${dest_dir} --config=${nmt_keras_path}/meta-optimizers/spearmint/config.json >> ${dest_dir}/logs/out.log 2> ${dest_dir}/logs/out.err &
     ```
     
  * The results will appear at `${nmt_keras_path}/spearmint/output` 
