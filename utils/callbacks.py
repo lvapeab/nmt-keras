@@ -89,6 +89,12 @@ class PrintPerformanceMetricOnEpochEnd(KerasCallback):
         self.verbose = verbose
 
     def on_epoch_end(self, epoch, logs={}):
+        """
+        On epoch end, sample and evaluate on the specified datasets.
+        :param epoch: Current epoch number
+        :param logs:
+        :return:
+        """
         epoch += 1 # start by index 1
         #epoch += self.reload_epoch
         if epoch < self.start_eval_on_epoch:
@@ -348,22 +354,22 @@ class SampleEachNUpdates(KerasCallback):
                  reload_epoch=0, start_sampling_on_epoch=0, write_type='list', sampling_type='max_likelihood',
                  out_pred_idx=None, in_pred_idx=None, verbose=1):
         """
-            :param model: model to evaluate
-            :param dataset: instance of the class Dataset in keras_wrapper.dataset
-            :param gt_id: identifier in the Dataset instance of the output data about to evaluate
-            :param metric_name: name of the performance metric
-            :param set_name: name of the set split that will be evaluated
-            :param n_samples: batch size used during sampling
-            :param each_n_updates: sampling each this number of epochs
-            :param extra_vars: dictionary of extra variables
-            :param is_text: defines if the predicted info is of type text (in that case the data will be converted from values into a textual representation)
-            :param index2word_y: mapping from the indices to words (only needed if is_text==True)
-            :param sampling: sampling mechanism used (only used if is_text==True)
-            :param in_pred_idx: index of the input prediction used for evaluation (only applicable if model has more than one input, else set to None)
-            :param out_pred_idx: index of the output prediction used for evaluation (only applicable if model has more than one output, else set to None)
-            :param reload_epoch: number o the epoch reloaded (0 by default)
-            :param start_sampling_on_epoch: only starts evaluating model if a given epoch has been reached
-            :param verbose: verbosity level; by default 1
+        :param model: model to evaluate
+        :param dataset: instance of the class Dataset in keras_wrapper.dataset
+        :param gt_id: identifier in the Dataset instance of the output data about to evaluate
+        :param metric_name: name of the performance metric
+        :param set_name: name of the set split that will be evaluated
+        :param n_samples: batch size used during sampling
+        :param each_n_updates: sampling each this number of epochs
+        :param extra_vars: dictionary of extra variables
+        :param is_text: defines if the predicted info is of type text (in that case the data will be converted from values into a textual representation)
+        :param index2word_y: mapping from the indices to words (only needed if is_text==True)
+        :param sampling: sampling mechanism used (only used if is_text==True)
+        :param in_pred_idx: index of the input prediction used for evaluation (only applicable if model has more than one input, else set to None)
+        :param out_pred_idx: index of the output prediction used for evaluation (only applicable if model has more than one output, else set to None)
+        :param reload_epoch: number o the epoch reloaded (0 by default)
+        :param start_sampling_on_epoch: only starts evaluating model if a given epoch has been reached
+        :param verbose: verbosity level; by default 1
         """
         self.model_to_eval = model
         self.ds = dataset

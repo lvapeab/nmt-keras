@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 
 def train_model(params):
     """
-        Main function
+    Training function. Sets the training parameters from params. Build or loads the model and launches the training.
+    :param params: Dictionary of network hyperparameters.
+    :return: None
     """
 
     if params['RELOAD'] > 0:
@@ -76,7 +78,10 @@ def train_model(params):
 
 def apply_NMT_model(params):
     """
-        Function for using a previously trained model for sampling.
+    Sample from a previously trained model.
+
+    :param params: Dictionary of network hyperparameters.
+    :return: None
     """
 
     # Load data
@@ -160,7 +165,12 @@ def apply_NMT_model(params):
 
 def buildCallbacks(params, model, dataset):
     """
-        Builds the selected set of callbacks run during the training of the model
+    Builds the selected set of callbacks run during the training of the model.
+
+    :param params: Dictionary of network hyperparameters.
+    :param model: Model instance on which to apply the callback.
+    :param dataset: Dataset instance on which to apply the callback.
+    :return:
     """
 
     callbacks = []
@@ -275,11 +285,15 @@ def buildCallbacks(params, model, dataset):
 
 
 def check_params(params):
+    """
+    Checks some typical parameters and warns if something wrong was specified.
+    :param params:  Model instance on which to apply the callback.
+    :return: None
+    """
+
     if 'Glove' in params['MODEL_TYPE'] and params['GLOVE_VECTORS'] is None:
         logger.warning("You set a model that uses pretrained word vectors but you didn't specify a vector file."
                        "We'll train WITHOUT pretrained embeddings!")
-    if params["USE_DROPOUT"] and params["USE_BATCH_NORMALIZATION"]:
-        logger.warning("It's not recommended to use both dropout and batch normalization")
 
 if __name__ == "__main__":
 

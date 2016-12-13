@@ -1,8 +1,9 @@
 
 def load_parameters():
-    '''
-        Loads the defined parameters
-    '''
+    """
+    Loads the defined hyperparameters
+    :return parameters: Dictionary of loaded parameters
+    """
 
     # Input data params
     DATASET_NAME = 'EuTrans'                        # Task name

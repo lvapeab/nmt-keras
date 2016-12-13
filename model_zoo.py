@@ -21,6 +21,9 @@ import time
 
 
 class TranslationModel(Model_Wrapper):
+    """
+    Translation model class. Instance of the Model_Wrapper class (see staged_keras_wrapper).
+    """
     
     def resumeTrainNet(self, ds, parameters, out_name=None):
         pass
@@ -28,19 +31,19 @@ class TranslationModel(Model_Wrapper):
     def __init__(self, params, type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
                  model_name=None, vocabularies=None, store_path=None):
         """
-            Translation_Model object constructor.
+        Translation_Model object constructor.
 
-            :param params: all hyperparameters of the model.
-            :param type: network name type (corresponds to any method defined in the section 'MODELS' of this class).
-                         Only valid if 'structure_path' == None.
-            :param verbose: set to 0 if you don't want the model to output informative messages
-            :param structure_path: path to a Keras' model json file.
-                                  If we speficy this parameter then 'type' will be only an informative parameter.
-            :param weights_path: path to the pre-trained weights file (if None, then it will be randomly initialized)
-            :param model_name: optional name given to the network
-                               (if None, then it will be assigned to current time as its name)
-            :param vocabularies: vocabularies used for GLOVE word embedding
-            :param store_path: path to the folder where the temporal model packups will be stored
+        :param params: all hyperparameters of the model.
+        :param type: network name type (corresponds to any method defined in the section 'MODELS' of this class).
+                     Only valid if 'structure_path' == None.
+        :param verbose: set to 0 if you don't want the model to output informative messages
+        :param structure_path: path to a Keras' model json file.
+                              If we speficy this parameter then 'type' will be only an informative parameter.
+        :param weights_path: path to the pre-trained weights file (if None, then it will be randomly initialized)
+        :param model_name: optional name given to the network
+                           (if None, then it will be assigned to current time as its name)
+        :param vocabularies: vocabularies used for GLOVE word embedding
+        :param store_path: path to the folder where the temporal model packups will be stored
         """
         super(self.__class__, self).__init__(type=type, model_name=model_name,
                                              silence=verbose == 0, models_path=store_path, inheritance=True)
@@ -118,8 +121,8 @@ class TranslationModel(Model_Wrapper):
     def setOptimizer(self, **kwargs):
 
         """
-            Sets a new optimizer for the Translation_Model.
-            :param **kwargs:
+        Sets a new optimizer for the Translation_Model.
+        :param **kwargs:
         """
 
         # compile differently depending if our model is 'Sequential' or 'Graph'
@@ -142,9 +145,9 @@ class TranslationModel(Model_Wrapper):
     def setName(self, model_name, store_path=None, clear_dirs=True, **kwargs):
         """
          Changes the name (identifier) of the Translation_Model instance.
-        :param model_name:
-        :param store_path:
-        :param clear_dirs:
+        :param model_name: New model name
+        :param store_path: Path where to store the model
+        :param clear_dirs: Whether the store_path directory will be erased or not
         :param kwargs:
         :return:
         """
@@ -172,7 +175,7 @@ class TranslationModel(Model_Wrapper):
 
     def __str__(self):
         """
-            Plot basic model information.
+        Plots basic model information.
         """
         obj_str = '-----------------------------------------------------------------------------------\n'
         class_name = self.__class__.__name__
@@ -207,7 +210,7 @@ class TranslationModel(Model_Wrapper):
                 + Last word projected to output
         See https://arxiv.org/abs/1409.0473 for an in-depth review of the model.
         :param params: Dictionary of parameters (see config.py)
-        :return:
+        :return: None
         """
 
         self.ids_inputs = params["INPUTS_IDS_MODEL"]
