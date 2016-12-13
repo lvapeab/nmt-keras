@@ -3,16 +3,20 @@
 This folder contains some examples and tutorials showing how the library works.
  
 ## On the tutorials
+
+ ```diff
+- **WARNING**: Almost all variables and parameters in tutorials representing model hyperparameters have been intentionally hardcoded, aiming to  facilitate readability. 
+               On a real execution, these values are taken from the `config.py` file.
+```
  
- There are 3 Jupyter notebooks. All of them have been executed launching 
+ There are 4 Jupyter notebooks. All of them have been executed launching 
  
  ```bash
 ipython notebook
   ```
 at the root `nmt-keras` folder.
 
-These tutorials basically are a split version of the execution pipeline of the library. If you run `python main`, you'll execute almost the same as tutorials 1 and 2. For readability, much of the variables representing model hyperparameters are hardcoded in the tutorials. 
-On a real execution, these values are taken from the `config.py` file.
+These tutorials basically are a split version of the execution pipeline of the library. If you run `python main`, you'll execute almost the same as tutorials 1, 2 and 4. 
    
 
 The translation task is *EuTrans* ([Amengual et al.](http://link.springer.com/article/10.1023/A:1011116115948)), a toy-task mainly used for debugging purposes.
