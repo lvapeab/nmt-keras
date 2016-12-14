@@ -59,8 +59,6 @@ if __name__ == "__main__":
             params_prediction['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
             params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
-            # params_prediction['pos_unk'] =  params['POS_UNK']
-            # params_prediction['heuristic'] =  params['HEURISTIC']
 
             beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction)
             predictions = beam_searcher.BeamSearchNet()[s]
