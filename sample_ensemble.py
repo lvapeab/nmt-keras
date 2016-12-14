@@ -20,6 +20,8 @@ def parse_args():
     parser.add_argument("-d", "--dest",  required=False, help="File to save translations in")
     parser.add_argument("--not-eval", action='store_true', default=False, help="Do not compute metrics for the output")
     parser.add_argument("-e", "--eval-output", required=False, help="Write evaluation results to file")
+    parser.add_argument("-c", "--config",  required=False, help="Config pkl for loading the model configuration. "
+                                                                "If not specified, hyperparameters are read from config.py")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
     return parser.parse_args()
 
@@ -30,7 +32,10 @@ if __name__ == "__main__":
     print "Using an ensemble of %d models" % len(args.models)
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
-    params = load_parameters()
+    if args.config is None:
+        params = load_parameters()
+    else:
+        params = utils.read_write.pkl2dict(args.config)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     # Apply sampling

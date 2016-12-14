@@ -217,13 +217,22 @@ def dict2file(mydict, path, title=None):
 
 def dict2pkl(mydict, path):
     """
-    In:
-        mydict - dictionary to save in a file
-        path - path where acc_dict is stored
-        title - the first sentence in the file;
-            useful if we write many dictionaries
-            into the same file
+    Saves a dictionary object into a pkl file.
+    :param mydict: dictionary to save in a file
+    :param path: path where my_dict is stored
+    :return:
     """
     import cPickle
     with open(path + '.pkl', 'w') as f:
         cPickle.dump(mydict, f, protocol=cPickle.HIGHEST_PROTOCOL)
+
+
+def pkl2dict(path):
+    """
+    Loads a dictionary object from a pkl file.
+
+    :param path: Path to the pkl file to load
+    :return: Dict() containing the loaded pkl
+    """
+    import cPickle
+    return cPickle.load(open(path))
