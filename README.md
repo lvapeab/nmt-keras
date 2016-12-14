@@ -11,6 +11,7 @@ Neural Machine Translation with Keras (+ Theano backend)
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
  * Beam search decoding.
+ * Ensemble decoding.
  * [Spearmint] (https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
@@ -39,6 +40,13 @@ NMT-Keras requires the following libraries:
  - EVAL_ON_SETS = ['test']
   ```
  - Run `python main.py`
+ 
+ 4) We can use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. For example, if we want to use the models from the first three epochs on the val split, just run:
+ ```bash
+  python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -s val
+  ```
+ 
+ 
 
 
 ## Resources
@@ -53,7 +61,7 @@ NMT-Keras requires the following libraries:
     
     3) [Decoding tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/3_decoding_tutorial.ipynb): Shows how to call a trained translation model and use it to translate new text. 
 
-    4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a NMT model with Keras in few (~) lines. 
+    4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a state-of-the-art NMT model with Keras in few (~50) lines. 
 
 
 ## Contact
