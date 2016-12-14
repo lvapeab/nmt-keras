@@ -309,6 +309,7 @@ if __name__ == "__main__":
 
     if params['MODE'] == 'training':
         logging.info('Running training.')
+        utils.read_write.dict2file(params, params['STORE_PATH'] + '/config')
         train_model(params)
     elif params['MODE'] == 'sampling':
         logging.info('Running sampling.')

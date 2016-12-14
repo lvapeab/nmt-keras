@@ -214,3 +214,16 @@ def dict2file(mydict, path, title=None):
         output_list = tmp
     list2file(path, output_list, 'a')
 
+
+def dict2pkl(mydict, path):
+    """
+    In:
+        mydict - dictionary to save in a file
+        path - path where acc_dict is stored
+        title - the first sentence in the file;
+            useful if we write many dictionaries
+            into the same file
+    """
+    import cPickle
+    with open(path + '.pkl', 'w') as f:
+        cPickle.dump(mydict, f, protocol=cPickle.HIGHEST_PROTOCOL)
