@@ -20,6 +20,7 @@ def parse_args():
     parser.add_argument("-d", "--dest",  required=False, help="File to save translations in")
     parser.add_argument("--not-eval", action='store_true', default=False, help="Do not compute metrics for the output")
     parser.add_argument("-e", "--eval-output", required=False, help="Write evaluation results to file")
+    parser.add_argument("-v", "--verbose", required=False,  action='store_true', default=False, help="Be verbose")
     parser.add_argument("-c", "--config",  required=False, help="Config pkl for loading the model configuration. "
                                                                 "If not specified, hyperparameters are read from config.py")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
@@ -60,7 +61,7 @@ if __name__ == "__main__":
             params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
             params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
 
-            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction)
+            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=args.verbose)
             predictions = beam_searcher.BeamSearchNet()[s]
             predictions = models[0].decode_predictions_beam_search(predictions,
                                                                    vocab,
