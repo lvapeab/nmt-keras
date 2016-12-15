@@ -32,4 +32,4 @@ In the `documentation` folder you'll find a couple of pdf files:
 
 - [ ] Document (with sphinx) the NMT-Keras library
 
-- [ ] Add a document explaining the typical output of a training. 
+- [x] Add a document explaining the typical output of a training. 
