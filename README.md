@@ -20,7 +20,7 @@ NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras)
  - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/))
- - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/)
+ - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
 
 ## Instructions
