@@ -37,7 +37,7 @@ def get_coco_score(pred_list, verbose, extra_vars, split):
 
     scorers = [
         (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
-        #(Meteor(language=extra_vars['language']),"METEOR"),
+        (Meteor(language=extra_vars['language']),"METEOR"),
         (Rouge(), "ROUGE_L"),
         (Cider(), "CIDEr")
     ]
