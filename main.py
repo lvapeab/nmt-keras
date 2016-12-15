@@ -35,7 +35,7 @@ def train_model(params):
         nmt_model = TranslationModel(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
                                      model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
                                      store_path=params['STORE_PATH'])
-        utils.read_write.dict2file(params, params['STORE_PATH'] + '/config')
+        utils.read_write.dict2pkl(params, params['STORE_PATH'] + '/config')
 
         # Define the inputs and outputs mapping from our Dataset instance to our model
         inputMapping = dict()
