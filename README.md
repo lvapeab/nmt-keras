@@ -7,6 +7,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
+ * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/) word embedding vectors).
  * MLPs for initializing the RNN hidden and memory state.
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
