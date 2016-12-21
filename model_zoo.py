@@ -2,11 +2,9 @@ from keras.engine import Input
 from keras.engine.topology import merge
 from keras.layers import TimeDistributed, Bidirectional
 from keras.layers.embeddings import Embedding
-from keras.layers.recurrent import LSTM, GRU, LSTMCond, AttLSTM, AttLSTMCond, AttGRUCond
-from keras.layers.convolutional import ZeroPadding1D
-from keras.layers.core import Dropout, Dense, Flatten, Activation, Lambda, MaxoutDense, MaskedMean
-from keras.models import model_from_json, Sequential, Graph, Model
-from keras.regularizers import l2, activity_l2
+from keras.layers.recurrent import GRU, AttGRUCond
+from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean
+from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta
 from keras import backend as K
 from keras.regularizers import l2
@@ -54,37 +52,39 @@ class TranslationModel(Model_Wrapper):
         self._model_type = type
         self.params = params
         self.vocabularies = vocabularies
-
+        self.ids_inputs = params["INPUTS_IDS_MODEL"]
+        self.ids_outputs = params["OUTPUTS_IDS_MODEL"]
         # Sets the model name and prepares the folders for storing the models
         self.setName(model_name, store_path=store_path)
 
-        # Prepare source GLOVE embedding
-        if params['SOURCE_GLOVE_VECTORS'] is not None:
+        # Prepare source word embedding
+        if params['SRC_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
-                logging.info("<<< Loading pretrained word vectors from file " + params['SOURCE_GLOVE_VECTORS'] + " >>>")
-            self.src_word_vectors = np.load(os.path.join(params['SOURCE_GLOVE_VECTORS'])).item()
+                logging.info("<<< Loading pretrained word vectors from:  " + params['SRC_PRETRAINED_VECTORS'] + " >>>")
+            self.src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS'])).item()
             self.src_embedding_weights = np.random.rand(params['INPUT_VOCABULARY_SIZE'],
                                                         params['SOURCE_TEXT_EMBEDDING_SIZE'])
             for word, index in self.vocabularies[self.ids_inputs[0]]['words2idx'].iteritems():
                 if self.src_word_vectors.get(word) is not None:
                     self.src_embedding_weights[index, :] = self.src_word_vectors[word]
             self.src_embedding_weights = [self.src_embedding_weights]
-            self.src_embedding_weights_trainable = params['SOURCE_GLOVE_VECTORS_TRAINABLE']
+            self.src_embedding_weights_trainable = params['SRC_PRETRAINED_VECTORS_TRAINABLE']
         else:
             self.src_embedding_weights = None
             self.src_embedding_weights_trainable = True
 
-        if params['TARGET_GLOVE_VECTORS'] is not None:
+        # Prepare target word embedding
+        if params['TRG_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
-                logging.info("<<< Loading pretrained word vectors from file " + params['TARGET_GLOVE_VECTORS'] + " >>>")
-            self.trg_word_vectors = np.load(os.path.join(params['TARGET_GLOVE_VECTORS'])).item()
+                logging.info("<<< Loading pretrained word vectors from: " + params['TRG_PRETRAINED_VECTORS'] + " >>>")
+            self.trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS'])).item()
             self.trg_embedding_weights = np.random.rand(params['OUTPUT_VOCABULARY_SIZE'],
                                                         params['TARGET_TEXT_EMBEDDING_SIZE'])
-            for word, index in self.vocabularies[self.ids_inputs[0]]['words2idx'].iteritems():
-                if self.src_word_vectors.get(word) is not None:
+            for word, index in self.vocabularies[self.ids_outputs[0]]['words2idx'].iteritems():
+                if self.trg_word_vectors.get(word) is not None:
                     self.trg_embedding_weights[index, :] = self.trg_word_vectors[word]
             self.trg_embedding_weights = [self.trg_embedding_weights]
-            self.trg_embedding_weights_trainable = params['SOURCE_GLOVE_VECTORS_TRAINABLE']
+            self.trg_embedding_weights_trainable = params['TRG_PRETRAINED_VECTORS_TRAINABLE']
 
         else:
             self.trg_embedding_weights = None
@@ -213,8 +213,7 @@ class TranslationModel(Model_Wrapper):
         :return: None
         """
 
-        self.ids_inputs = params["INPUTS_IDS_MODEL"]
-        self.ids_outputs = params["OUTPUTS_IDS_MODEL"]
+
 
         # 1. Source text input
         src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')
@@ -321,9 +320,12 @@ class TranslationModel(Model_Wrapper):
                                               W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')
         out_layer_emb = shared_FC_emb(state_below)
 
-        [out_layer_mlp, shared_reg_out_layer_mlp] = Regularize(out_layer_mlp, params, shared_layers=True, name='out_layer_mlp')
-        [out_layer_ctx, shared_reg_out_layer_ctx] = Regularize(out_layer_ctx, params, shared_layers=True, name='out_layer_ctx')
-        [out_layer_emb, shared_reg_out_layer_emb] = Regularize(out_layer_emb, params, shared_layers=True, name='out_layer_emb')
+        [out_layer_mlp, shared_reg_out_layer_mlp] = Regularize(out_layer_mlp, params,
+                                                               shared_layers=True, name='out_layer_mlp')
+        [out_layer_ctx, shared_reg_out_layer_ctx] = Regularize(out_layer_ctx, params,
+                                                               shared_layers=True, name='out_layer_ctx')
+        [out_layer_emb, shared_reg_out_layer_emb] = Regularize(out_layer_emb, params,
+                                                               shared_layers=True, name='out_layer_emb')
 
         additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
         shared_activation_tanh = Activation('tanh')
@@ -337,11 +339,11 @@ class TranslationModel(Model_Wrapper):
             if activation.lower() == 'maxout':
                 shared_deep_list.append(TimeDistributed(MaxoutDense(dimension,
                                                                     W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                                        name='maxout_%d'%i))
+                                                        name='maxout_%d' % i))
             else:
                 shared_deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                            name=activation+'_%d'%i))
+                                                              W_regularizer=l2(params['WEIGHT_DECAY'])),
+                                                        name=activation+'_%d' % i))
             out_layer = shared_deep_list[-1](out_layer)
             [out_layer, shared_reg_out_layer] = Regularize(out_layer,
                                                            params, shared_layers=True, name='out_layer'+str(activation))
@@ -402,7 +404,8 @@ class TranslationModel(Model_Wrapper):
                 out_layer_ctx = reg_out_layer_mlp(out_layer_ctx)
                 out_layer_emb = reg_out_layer_mlp(out_layer_emb)
 
-            additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
+            additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
+                                      mode='sum', name='additional_input')
             out_layer = shared_activation_tanh(additional_output)
 
             for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):

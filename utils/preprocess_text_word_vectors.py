@@ -1,7 +1,6 @@
 import numpy as np
 
 # Parameters
-#ROOT_PATH =  '/home/lvapeab/smt/tasks/image_desc/VQA/'
 ROOT_PATH = '/media/HDD_2TB/DATASETS/VQA/'
 base_path = ROOT_PATH +'Glove/'
 glove_path = base_path + 'glove.42B.300d.txt'
