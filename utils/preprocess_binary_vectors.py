@@ -1,11 +1,17 @@
 import numpy as np
 
+"""
+Preprocess pretrained binary vectors and stores them in a suitable format (.npy)
+"""
+
 # Parameters
-ROOT_PATH = '/media/HDD_2TB/DATASETS/'
-base_path = ROOT_PATH + 'cnn_polarity/DATA/'
-language = 'fr'
-vectors_path = base_path + 'word2vec_bin.' + language
-dest_file = 'word2vec.' + language
+ROOT_PATH = '/media/HDD_2TB/DATASETS/'                   # Data root path
+base_path = ROOT_PATH + 'cnn_polarity/DATA/'             # Binary vectors path
+vectors_basename = 'word2vec.'                           # Name of the vectors file
+language = 'fr'                                          # Language
+dest_file = 'word2vec.' + language                       # Destination file
+
+vectors_path = base_path + vectors_basename + language
 
 
 def word2vec2npy(v_path, base_path_save, dest_filename):

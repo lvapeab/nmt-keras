@@ -1,19 +1,27 @@
 import numpy as np
 
-# Parameters
-ROOT_PATH = '/media/HDD_2TB/DATASETS/VQA/'
-base_path = ROOT_PATH +'Glove/'
-glove_path = base_path + 'glove.42B.300d.txt'
-dest_file = 'glove_300'
+"""
+Preprocess pretrained text vectors and stores them in a suitable format (.npy)
+"""
 
-def glove2npy(glove_path, base_path_save, dest_file):
+# Parameters
+ROOT_PATH = '/media/HDD_2TB/DATASETS/'                   # Data root path
+base_path = ROOT_PATH + 'cnn_polarity/DATA/'             # Binary vectors path
+vectors_basename = 'word2vec.'                           # Name of the vectors file
+language = 'fr'                                          # Language
+dest_file = 'word2vec.' + language                       # Destination file
+
+vectors_path = base_path + vectors_basename + language
+
+
+def txtvec2npy(v_path, base_path_save, dest_filename):
 
     vecs_dict = dict()
-    print "Loading vectors from %s"%(glove_path)
+    print "Loading vectors from %s" % v_path
 
-    glove_vectors = [x[:-1] for x in open(glove_path).readlines()]
+    glove_vectors = [x[:-1] for x in open(v_path).readlines()]
     n_vecs = len(glove_vectors)
-    print "Found %d vectors in %s"%(n_vecs, glove_path)
+    print "Found %d vectors in %s" % (n_vecs, v_path)
     i = 0
     for vector in glove_vectors:
         v = vector.split()
@@ -22,12 +30,13 @@ def glove2npy(glove_path, base_path_save, dest_file):
         vecs_dict[word] = vec
         i += 1
         if i % 1000 == 0:
-            print "Processed",i,"vectors (",100*float(i)/n_vecs,"%)\r",
+            print "Processed %d vectors (%.2f %%)\r" % (i, 100 * float(i) / n_vecs),
+
     print
     # Store dict
-    print "Saving word vectors in %s" % (base_path_save +'/' + dest_file + '.npy')
-    #create_dir_if_not_exists(base_path_save)
-    np.save(base_path_save + '/' + dest_file + '.npy', vecs_dict)
+    print "Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy')
+    np.save(base_path_save + '/' + dest_filename + '.npy', vecs_dict)
     print
+
 if __name__ == "__main__":
-    glove2npy(glove_path, base_path, dest_file)
+    txtvec2npy(vectors_path, base_path, dest_file)
