@@ -2,7 +2,7 @@ from keras.engine import Input
 from keras.engine.topology import merge
 from keras.layers import TimeDistributed, Bidirectional
 from keras.layers.embeddings import Embedding
-from keras.layers.recurrent import GRU, AttGRUCond
+from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
 from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta
@@ -226,13 +226,21 @@ class TranslationModel(Model_Wrapper):
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
 
         # 2.2. BRNN encoder (GRU/LSTM)
-        annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
-                                        W_regularizer=l2(params['WEIGHT_DECAY']),
-                                        U_regularizer=l2(params['WEIGHT_DECAY']),
-                                        b_regularizer=l2(params['WEIGHT_DECAY']),
-                                        return_sequences=True),
-                                    name='bidirectional_encoder',
-                                    merge_mode='concat')(src_embedding)
+        if params['BIDIRECTIONAL_ENCODER']:
+            annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
+                                            W_regularizer=l2(params['WEIGHT_DECAY']),
+                                            U_regularizer=l2(params['WEIGHT_DECAY']),
+                                            b_regularizer=l2(params['WEIGHT_DECAY']),
+                                            return_sequences=True),
+                                        name='bidirectional_encoder',
+                                        merge_mode='concat')(src_embedding)
+        else:
+            annotations = GRU(params['ENCODER_HIDDEN_SIZE'],
+                              W_regularizer=l2(params['WEIGHT_DECAY']),
+                              U_regularizer=l2(params['WEIGHT_DECAY']),
+                              b_regularizer=l2(params['WEIGHT_DECAY']),
+                              return_sequences=True,
+                              name='encoder')(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
@@ -382,7 +390,9 @@ class TranslationModel(Model_Wrapper):
             # and the following outputs:
             #   - softmax probabilities
             #   - next_state
-            preprocessed_size = params['ENCODER_HIDDEN_SIZE']*2
+            preprocessed_size = params['ENCODER_HIDDEN_SIZE']*2 if \
+                params['BIDIRECTIONAL_ENCODER'] \
+                else params['ENCODER_HIDDEN_SIZE']
             # Define inputs
             preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
             prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
@@ -427,3 +437,6 @@ class TranslationModel(Model_Wrapper):
             # Input -> Output matchings from model_init to model_next and from model_next to model_next
             self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input', 'next_state': 'prev_state'}
             self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input', 'next_state': 'prev_state'}
+
+
+
