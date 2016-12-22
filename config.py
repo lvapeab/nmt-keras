@@ -7,8 +7,8 @@ def load_parameters():
 
     # Input data params
     DATASET_NAME = 'EuTrans'                        # Task name
-    SRC_LAN = 'en'                                  # Language of the source text
-    TRG_LAN = 'es'                                  # Language of the target text
+    SRC_LAN = 'es'                                  # Language of the source text
+    TRG_LAN = 'en'                                  # Language of the target text
     DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
@@ -110,6 +110,7 @@ def load_parameters():
 
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
+    RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
 
     SOURCE_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
@@ -118,17 +119,18 @@ def load_parameters():
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
     TARGET_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
-    TRG_PRETRAINED_VECTORS =  None                # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
+    TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    # Encoder layer dimensions
+    # Encoder configuration
     ENCODER_HIDDEN_SIZE = 600                     # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
+    BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
 
-    # Decoder layer dimensions
+    # Decoder configuration
     DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of deenoding layers
 

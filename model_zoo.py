@@ -227,24 +227,24 @@ class TranslationModel(Model_Wrapper):
 
         # 2.2. BRNN encoder (GRU/LSTM)
         if params['BIDIRECTIONAL_ENCODER']:
-            annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
+            annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
                                             W_regularizer=l2(params['WEIGHT_DECAY']),
                                             U_regularizer=l2(params['WEIGHT_DECAY']),
                                             b_regularizer=l2(params['WEIGHT_DECAY']),
                                             return_sequences=True),
-                                        name='bidirectional_encoder',
+                                        name='bidirectional_encoder_' + params['RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
         else:
-            annotations = GRU(params['ENCODER_HIDDEN_SIZE'],
+            annotations = eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
                               W_regularizer=l2(params['WEIGHT_DECAY']),
                               U_regularizer=l2(params['WEIGHT_DECAY']),
                               b_regularizer=l2(params['WEIGHT_DECAY']),
                               return_sequences=True,
-                              name='encoder')(src_embedding)
+                              name='encoder_' + params['RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
-            current_annotations = Bidirectional(GRU(params['ENCODER_HIDDEN_SIZE'],
+            current_annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
                                                     W_regularizer=l2(params['WEIGHT_DECAY']),
                                                     U_regularizer=l2(params['WEIGHT_DECAY']),
                                                     b_regularizer=l2(params['WEIGHT_DECAY']),
@@ -279,11 +279,18 @@ class TranslationModel(Model_Wrapper):
                                   W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
             initial_state = Regularize(initial_state, params, name='initial_state')
             input_attentional_decoder = [state_below, annotations, initial_state]
+
+            if params['RNN_TYPE'] == 'LSTM':
+                initial_memory = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_memory',
+                                  activation=params['INIT_LAYERS'][-1],
+                                  W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
+                initial_memory = Regularize(initial_memory, params, name='initial_memory')
+                input_attentional_decoder.append(initial_memory)
         else:
             input_attentional_decoder = [state_below, annotations]
 
         # 3.3. Attentional decoder
-        sharedAttGRUCond = AttGRUCond(params['DECODER_HIDDEN_SIZE'],
+        sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
                                       W_regularizer=l2(params['WEIGHT_DECAY']),
                                       U_regularizer=l2(params['WEIGHT_DECAY']),
                                       V_regularizer=l2(params['WEIGHT_DECAY']),
@@ -294,9 +301,17 @@ class TranslationModel(Model_Wrapper):
                                       ba_regularizer=l2(params['WEIGHT_DECAY']),
                                       return_sequences=True,
                                       return_extra_variables=True,
-                                      return_states=True)
+                                      return_states=True,
+                                      name='decoder_Att' + params['RNN_TYPE'] + 'Cond')
 
-        [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attentional_decoder)
+        rnn_output = sharedAttRNNCond(input_attentional_decoder)
+        proj_h = rnn_output[0]
+        x_att = rnn_output[1]
+        alphas = rnn_output[2]
+        h_state = rnn_output[3]
+        if params['RNN_TYPE'] == 'LSTM':
+            h_memory = rnn_output[4]
+
         [proj_h, shared_reg_proj_h] = Regularize(proj_h, params, shared_layers=True, name='proj_h0')
 
         # 3.4. Possibly deep decoder
@@ -376,7 +391,11 @@ class TranslationModel(Model_Wrapper):
         if params['BEAM_SEARCH']:
             # First, we need a model that outputs the preprocessed input + initial h state
             # for applying the initial forward pass
-            self.model_init = Model(input=[src_text, next_words], output=[softout, annotations, h_state])
+            model_init_input = [src_text, next_words]
+            model_init_output = [softout, annotations, h_state] \
+                if params['RNN_TYPE'] == 'GRU' \
+                else [softout, annotations, h_state, h_memory]
+            self.model_init = Model(input=model_init_input, output=model_init_output)
 
             # Store inputs and outputs names for model_init
             self.ids_inputs_init = self.ids_inputs
@@ -397,8 +416,18 @@ class TranslationModel(Model_Wrapper):
             preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
             prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
             input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_state]
+
+            if params['RNN_TYPE'] == 'LSTM':
+                prev_h_memory = Input(name='prev_memory', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
+                input_attentional_decoder.append(prev_h_memory)
             # Apply decoder
-            [proj_h, x_att, alphas, h_state] = sharedAttGRUCond(input_attentional_decoder)
+            rnn_output = sharedAttRNNCond(input_attentional_decoder)
+            proj_h = rnn_output[0]
+            x_att = rnn_output[1]
+            alphas = rnn_output[2]
+            h_state = rnn_output[3]
+            if params['RNN_TYPE'] == 'LSTM':
+                h_memory = rnn_output[4]
             for reg in shared_reg_proj_h:
                 proj_h = reg(proj_h)
 
@@ -425,8 +454,14 @@ class TranslationModel(Model_Wrapper):
 
             # Softmax
             softout = shared_FC_soft(out_layer)
-            self.model_next = Model(input=[next_words, preprocessed_annotations, prev_h_state],
-                                    output=[softout, preprocessed_annotations, h_state])
+            model_next_inputs = [next_words, preprocessed_annotations, prev_h_state]
+            model_next_outputs = [softout, preprocessed_annotations, h_state]
+            if params['RNN_TYPE'] == 'LSTM':
+                model_next_inputs.append(prev_h_memory)
+                model_next_outputs.append(h_memory)
+
+            self.model_next = Model(input=model_next_inputs,
+                                    output=model_next_outputs)
 
             # Store inputs and outputs names for model_next
             # first input must be previous word
@@ -435,8 +470,12 @@ class TranslationModel(Model_Wrapper):
             self.ids_outputs_next = self.ids_outputs + ['preprocessed_input', 'next_state']
 
             # Input -> Output matchings from model_init to model_next and from model_next to model_next
-            self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input', 'next_state': 'prev_state'}
-            self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input', 'next_state': 'prev_state'}
-
-
-
+            self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input',
+                                           'next_state': 'prev_state'}
+            self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
+                                           'next_state': 'prev_state'}
+            if params['RNN_TYPE'] == 'LSTM':
+                self.ids_inputs_next.append('prev_memory')
+                self.ids_outputs_next.append('next_memory')
+                self.matchings_init_to_next['next_memory'] = 'prev_memory'
+                self.matchings_next_to_next['next_memory'] = 'prev_memory'
