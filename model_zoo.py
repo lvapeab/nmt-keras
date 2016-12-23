@@ -17,6 +17,13 @@ import logging
 import shutil
 import time
 
+def permute_dim_shape(input_shape):
+    """
+    Returns the input_shape, but permuting first and second dimensions
+    :param input_shape:
+    :return:
+    """
+    return (input_shape[1], input_shape[0], input_shape[2])
 
 class TranslationModel(Model_Wrapper):
     """
@@ -213,14 +220,13 @@ class TranslationModel(Model_Wrapper):
         :return: None
         """
 
-
-
         # 1. Source text input
         src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')
         # 2. Encoder
         # 2.1. Source word embedding
         src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
-                                  name='source_word_embedding', W_regularizer=l2(params['WEIGHT_DECAY']),
+                                  name='source_word_embedding',
+                                  W_regularizer=l2(params['WEIGHT_DECAY']),
                                   trainable=self.src_embedding_weights_trainable,  weights=self.src_embedding_weights,
                                   mask_zero=True)(src_text)
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
@@ -260,7 +266,8 @@ class TranslationModel(Model_Wrapper):
         next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
         # 3.1.2. Target word embedding
         state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                name='target_word_embedding', W_regularizer=l2(params['WEIGHT_DECAY']),
+                                name='target_word_embedding',
+                                W_regularizer=l2(params['WEIGHT_DECAY']),
                                 trainable=self.trg_embedding_weights_trainable, weights=self.trg_embedding_weights,
                                 mask_zero=True)(next_words)
         state_below = Regularize(state_below, params, name='state_below')
@@ -270,20 +277,23 @@ class TranslationModel(Model_Wrapper):
         if len(params['INIT_LAYERS']) > 0:
             for n_layer_init in range(len(params['INIT_LAYERS'])-1):
                 ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d' % n_layer_init,
-                                 activation=params['INIT_LAYERS'][n_layer_init],
-                                 W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
+                                 W_regularizer=l2(params['WEIGHT_DECAY']),
+                                 activation=params['INIT_LAYERS'][n_layer_init]
+                                 )(ctx_mean)
                 ctx_mean = Regularize(ctx_mean, params, name='ctx' + str(n_layer_init))
 
             initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
-                                  activation=params['INIT_LAYERS'][-1],
-                                  W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
+                                  W_regularizer=l2(params['WEIGHT_DECAY']),
+                                  activation=params['INIT_LAYERS'][-1]
+                                  )(ctx_mean)
             initial_state = Regularize(initial_state, params, name='initial_state')
             input_attentional_decoder = [state_below, annotations, initial_state]
 
             if params['RNN_TYPE'] == 'LSTM':
                 initial_memory = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_memory',
+                                  W_regularizer=l2(params['WEIGHT_DECAY']),
                                   activation=params['INIT_LAYERS'][-1],
-                                  W_regularizer=l2(params['WEIGHT_DECAY']))(ctx_mean)
+                                  )(ctx_mean)
                 initial_memory = Regularize(initial_memory, params, name='initial_memory')
                 input_attentional_decoder.append(initial_memory)
         else:
@@ -331,16 +341,24 @@ class TranslationModel(Model_Wrapper):
             annotations = merge([annotations, current_annotations], mode='sum')
 
         # 3.5. Skip connections between encoder and output layer
-        shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_lstm')
+        shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                              W_regularizer=l2(params['WEIGHT_DECAY']),
+                                              activation='linear',
+                                              ), name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
-        shared_FC_ctx = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_ctx')
+        shared_FC_ctx = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                              W_regularizer=l2(params['WEIGHT_DECAY']),
+                                              activation='linear',
+                                              ), name='logit_ctx')
         out_layer_ctx = shared_FC_ctx(x_att)
-        shared_Lambda_Permute = Lambda(lambda x: K.permute_dimensions(x, [1, 0, 2]))
+
+
+        shared_Lambda_Permute = Lambda(lambda x: K.permute_dimensions(x, [1, 0, 2]), output_shape=permute_dim_shape)
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
-        shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'], activation='linear',
-                                              W_regularizer=l2(params['WEIGHT_DECAY'])), name='logit_emb')
+        shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                        W_regularizer=l2(params['WEIGHT_DECAY']),
+                                        activation='linear'),
+                                        name='logit_emb')
         out_layer_emb = shared_FC_emb(state_below)
 
         [out_layer_mlp, shared_reg_out_layer_mlp] = Regularize(out_layer_mlp, params,
@@ -375,12 +393,13 @@ class TranslationModel(Model_Wrapper):
         # 3.7. Output layer: Softmax
         shared_FC_soft = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'],
                                                activation=params['CLASSIFIER_ACTIVATION'],
-                                               name=params['CLASSIFIER_ACTIVATION'],
-                                               W_regularizer=l2(params['WEIGHT_DECAY'])),
+                                               W_regularizer=l2(params['WEIGHT_DECAY']),
+                                               name=params['CLASSIFIER_ACTIVATION']
+                                               ),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
 
-        self.model = Model(input=[src_text, next_words], output=softout)
+        self.model = Model(input=[src_text, next_words], output=softout, )
 
         ##################################################################
         #                     BEAM SEARCH MODEL                          #
@@ -479,3 +498,4 @@ class TranslationModel(Model_Wrapper):
                 self.ids_outputs_next.append('next_memory')
                 self.matchings_init_to_next['next_memory'] = 'prev_memory'
                 self.matchings_next_to_next['next_memory'] = 'prev_memory'
+

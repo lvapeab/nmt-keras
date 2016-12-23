@@ -19,7 +19,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 
 NMT-Keras requires the following libraries:
 
- - [Our version of Keras](https://github.com/MarcBS/keras)
+ - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.2 or newer, as it solves some issues)
  - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
@@ -42,13 +42,12 @@ NMT-Keras requires the following libraries:
   ```
  - Run `python main.py`
  
- 4) We can use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. For example, if we want to use the models from the first three epochs on the val split, just run:
+4) We can use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. For example, if we want to use the models from the first three epochs on the val split, just run:
  ```bash
   python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -s val
   ```
  
  
-
 
 ## Resources
 
