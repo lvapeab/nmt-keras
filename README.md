@@ -20,7 +20,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.2 or newer, as it solves some issues)
- - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/))
+ - [Staged Keras Wrapper](https://github.com/MarcBS/staged_keras_wrapper) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
 

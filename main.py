@@ -109,14 +109,15 @@ def apply_NMT_model(params):
         if params['BEAM_SEARCH']:
             params_prediction['beam_size'] = params['BEAM_SIZE']
             params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            params_prediction['optimized_search'] = True
             params_prediction['model_inputs'] = params['INPUTS_IDS_MODEL']
             params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             params_prediction['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             params_prediction['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
             params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
-            # params_prediction['pos_unk'] =  params['POS_UNK']
-            # params_prediction['heuristic'] =  params['HEURISTIC']
+            params_prediction['pos_unk'] =  params['POS_UNK']
+            params_prediction['heuristic'] =  params['HEURISTIC']
 
             predictions = nmt_model.BeamSearchNet(dataset, params_prediction)[s]
             predictions = nmt_model.decode_predictions_beam_search(predictions,
@@ -187,14 +188,15 @@ def buildCallbacks(params, model, dataset):
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
             extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            extra_vars['optimized_search'] = True
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             extra_vars['normalize'] = params['NORMALIZE_SAMPLING']
             extra_vars['alpha_factor'] = params['ALPHA_FACTOR']
-            # extra_vars['pos_unk'] =  params['POS_UNK']
-            # extra_vars['heuristic'] =  params['HEURISTIC']
+            extra_vars['pos_unk'] =  params['POS_UNK']
+            extra_vars['heuristic'] =  params['HEURISTIC']
 
         if params['EVAL_EACH_EPOCHS']:
             callback_metric = utils.callbacks.\
