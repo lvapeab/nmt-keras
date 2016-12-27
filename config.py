@@ -35,7 +35,7 @@ def load_parameters():
     TEMPERATURE = 1                               # Multinomial sampling parameter
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
     BEAM_SIZE = 12                                # Beam size (in case of BEAM_SEARCH == True)
-    OPTIMIZED_SEARCH = False                      # Compute annotations only a single time per sample
+    OPTIMIZED_SEARCH = True                      # Compute annotations only a single time per sample
     NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
     ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
                                                   # (see: https://arxiv.org/pdf/1609.08144v1.pdf)
