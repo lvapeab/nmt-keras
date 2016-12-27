@@ -50,7 +50,7 @@ def load_parameters():
     POS_UNK = True                                # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
-                                                  #     1: Replace the UNK by the aligned source (by an external dictionary)
+                                                  #     1: Replace the UNK by the aligned source (by an external dictionary) (TODO:WIP!)
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.

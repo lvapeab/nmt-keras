@@ -12,6 +12,7 @@ Neural Machine Translation with Keras (+ Theano backend)
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
  * Beam search decoding.
+ * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * [Spearmint] (https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
