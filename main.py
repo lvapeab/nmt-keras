@@ -109,19 +109,28 @@ def apply_NMT_model(params):
         if params['BEAM_SEARCH']:
             params_prediction['beam_size'] = params['BEAM_SIZE']
             params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
-            params_prediction['optimized_search'] = True
+            params_prediction['optimized_search'] = params['OPTIMIZED_SEARCH']
             params_prediction['model_inputs'] = params['INPUTS_IDS_MODEL']
             params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             params_prediction['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             params_prediction['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
             params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
-            params_prediction['pos_unk'] =  params['POS_UNK']
-            params_prediction['heuristic'] =  params['HEURISTIC']
-
+            params_prediction['pos_unk'] = params['POS_UNK']
             predictions = nmt_model.BeamSearchNet(dataset, params_prediction)[s]
-            predictions = nmt_model.decode_predictions_beam_search(predictions,
+
+            if params['POS_UNK']:
+                samples = predictions[0]
+                alphas = predictions[1]
+                heuristic = params['HEURISTIC']
+            else:
+                samples = predictions
+                alphas = None
+                heuristic = None
+            predictions = nmt_model.decode_predictions_beam_search(samples,
                                                                    vocab,
+                                                                   alphas=alphas,
+                                                                   heuristic=heuristic,
                                                                    verbose=params['VERBOSE'])
         else:
             predictions = nmt_model.predictNet(dataset, params_prediction)[s]
@@ -195,56 +204,40 @@ def buildCallbacks(params, model, dataset):
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             extra_vars['normalize'] = params['NORMALIZE_SAMPLING']
             extra_vars['alpha_factor'] = params['ALPHA_FACTOR']
-            extra_vars['pos_unk'] =  params['POS_UNK']
-            extra_vars['heuristic'] =  params['HEURISTIC']
+            extra_vars['pos_unk'] = params['POS_UNK']
+            if params['POS_UNK']:
+                extra_vars['heuristic'] = params['HEURISTIC']
+                input_text_id = params['INPUTS_IDS_DATASET'][0]
+                vocab_src =  dataset.vocabulary[input_text_id]['idx2words']
+            else:
+                input_text_id = None
+                vocab_src = None
+        callback_metric = utils.callbacks.\
+            PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
+                                             dataset,
+                                             gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                             metric_name=params['METRICS'],
+                                             set_name=params['EVAL_ON_SETS'],
+                                             batch_size=params['BATCH_SIZE'],
+                                             each_n_epochs=params['EVAL_EACH'],
+                                             extra_vars=extra_vars,
+                                             reload_epoch=params['RELOAD'],
+                                             is_text=True,
+                                             input_text_id=input_text_id,
+                                             index2word_y=vocab,
+                                             index2word_x=vocab_src,
+                                             sampling_type=params['SAMPLING'],
+                                             beam_search=params['BEAM_SEARCH'],
+                                             save_path=model.model_path,
+                                             start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
+                                             write_samples=True,
+                                             write_type=params['SAMPLING_SAVE_MODE'],
+                                             early_stop=params['EARLY_STOP'],
+                                             patience=params['PATIENCE'],
+                                             stop_metric=params['STOP_METRIC'],
+                                             eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                             verbose=params['VERBOSE'])
 
-        if params['EVAL_EACH_EPOCHS']:
-            callback_metric = utils.callbacks.\
-                PrintPerformanceMetricOnEpochEnd(model,
-                                                 dataset,
-                                                 gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                 metric_name=params['METRICS'],
-                                                 set_name=params['EVAL_ON_SETS'],
-                                                 batch_size=params['BATCH_SIZE'],
-                                                 each_n_epochs=params['EVAL_EACH'],
-                                                 extra_vars=extra_vars,
-                                                 reload_epoch=params['RELOAD'],
-                                                 is_text=True,
-                                                 index2word_y=vocab,
-                                                 sampling_type=params['SAMPLING'],
-                                                 beam_search=params['BEAM_SEARCH'],
-                                                 save_path=model.model_path,
-                                                 start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                                 write_samples=True,
-                                                 write_type=params['SAMPLING_SAVE_MODE'],
-                                                 early_stop=params['EARLY_STOP'],
-                                                 patience=params['PATIENCE'],
-                                                 stop_metric=params['STOP_METRIC'],
-                                                 verbose=params['VERBOSE'])
-
-        else:
-            callback_metric = utils.callbacks.\
-                PrintPerformanceMetricEachNUpdates(model,
-                                                   dataset,
-                                                   gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                   metric_name=params['METRICS'],
-                                                   set_name=params['EVAL_ON_SETS'],
-                                                   batch_size=params['BATCH_SIZE'],
-                                                   each_n_updates=params['EVAL_EACH'],
-                                                   extra_vars=extra_vars,
-                                                   reload_epoch=params['RELOAD'],
-                                                   is_text=True,
-                                                   index2word_y=vocab,
-                                                   sampling_type=params['SAMPLING'],
-                                                   beam_search=params['BEAM_SEARCH'],
-                                                   save_path=model.model_path,
-                                                   start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                                   write_samples=True,
-                                                   write_type=params['SAMPLING_SAVE_MODE'],
-                                                   early_stop=params['EARLY_STOP'],
-                                                   patience=params['PATIENCE'],
-                                                   stop_metric=params['STOP_METRIC'],
-                                                   verbose=params['VERBOSE'])
         callbacks.append(callback_metric)
 
         if params['SAMPLE_ON_SETS']:
@@ -265,6 +258,7 @@ def buildCallbacks(params, model, dataset):
                 extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
                 extra_vars['normalize'] = params['NORMALIZE_SAMPLING']
                 extra_vars['alpha_factor'] = params['ALPHA_FACTOR']
+                extra_vars['pos_unk'] = params['POS_UNK']
 
             callback_sampling = utils.callbacks.SampleEachNUpdates(model,
                                                                    dataset,

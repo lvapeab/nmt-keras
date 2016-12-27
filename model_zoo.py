@@ -399,7 +399,7 @@ class TranslationModel(Model_Wrapper):
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
 
-        self.model = Model(input=[src_text, next_words], output=softout, )
+        self.model = Model(input=[src_text, next_words], output=softout)
 
         ##################################################################
         #                     BEAM SEARCH MODEL                          #
@@ -407,13 +407,17 @@ class TranslationModel(Model_Wrapper):
         # Now that we have the basic training model ready, let's prepare the model for applying decoding
         # The beam-search model will include all the minimum required set of layers (decoder stage) which offer the
         # possibility to generate the next state in the sequence given a pre-processed input (encoder stage)
-        if params['BEAM_SEARCH']:
+        if params['BEAM_SEARCH'] and params['OPTIMIZED_SEARCH']:
             # First, we need a model that outputs the preprocessed input + initial h state
             # for applying the initial forward pass
             model_init_input = [src_text, next_words]
             model_init_output = [softout, annotations, h_state] \
                 if params['RNN_TYPE'] == 'GRU' \
                 else [softout, annotations, h_state, h_memory]
+
+            if params['POS_UNK']:
+                model_init_output.append(alphas)
+
             self.model_init = Model(input=model_init_input, output=model_init_output)
 
             # Store inputs and outputs names for model_init
@@ -479,6 +483,9 @@ class TranslationModel(Model_Wrapper):
                 model_next_inputs.append(prev_h_memory)
                 model_next_outputs.append(h_memory)
 
+            if params['POS_UNK']:
+                model_next_outputs.append(alphas)
+
             self.model_next = Model(input=model_next_inputs,
                                     output=model_next_outputs)
 
@@ -498,4 +505,3 @@ class TranslationModel(Model_Wrapper):
                 self.ids_outputs_next.append('next_memory')
                 self.matchings_init_to_next['next_memory'] = 'prev_memory'
                 self.matchings_next_to_next['next_memory'] = 'prev_memory'
-

@@ -26,7 +26,7 @@ def load_parameters():
     METRICS = ['coco']                            # Metric used for evaluating the model
     EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator)
     EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
-    START_EVAL_ON_EPOCH = 1                       # First epoch where the model will be evaluated
+    START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation
     EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates
     EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates)
 
@@ -35,6 +35,7 @@ def load_parameters():
     TEMPERATURE = 1                               # Multinomial sampling parameter
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
     BEAM_SIZE = 12                                # Beam size (in case of BEAM_SEARCH == True)
+    OPTIMIZED_SEARCH = False                      # Compute annotations only a single time per sample
     NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
     ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
                                                   # (see: https://arxiv.org/pdf/1609.08144v1.pdf)
@@ -45,9 +46,11 @@ def load_parameters():
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
     SAMPLE_EACH_UPDATES = 500                     # Sampling frequency (always in #updates)
 
-    #TODO: WIP! Other subword methods?
-    POS_UNK = False
-    HEURISTIC = 1
+    # Unknown words treatment
+    POS_UNK = True                                # Enable POS_UNK strategy for unknown words
+    HEURISTIC = 0                                 # Heuristic to follow:
+                                                  #     0: Replace the UNK by the correspondingly aligned source
+                                                  #     1: Replace the UNK by the aligned source (by an external dictionary)
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
@@ -59,7 +62,7 @@ def load_parameters():
     PAD_ON_BATCH = True                           # Whether we take as many timesteps as the longest sequence of
                                                   # the batch or a fixed size (MAX_OUTPUT_TEXT_LEN)
     # Input text parameters
-    INPUT_VOCABULARY_SIZE = 0                 # Size of the input vocabulary. Set to 0 for using all,
+    INPUT_VOCABULARY_SIZE = 0                     # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
@@ -69,22 +72,23 @@ def load_parameters():
     SOURCE_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Output text parameters
-    OUTPUT_VOCABULARY_SIZE = 0                # Size of the input vocabulary. Set to 0 for using all,
+    OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
     MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
     TARGET_GLOVE_VECTORS = None                   # Path to pretrained vectors.
                                                   # Set to None if you don't want to use pretrained vectors.
-    TARGET_GLOVE_VECTORS_TRAINABLE = True                # Finetune or not the word embedding vectors.
+    TARGET_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
+
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
 
     # Not used!
     ##########
-    LR_DECAY = 20  # number of minimum number of epochs before the next LR decay
-    LR_GAMMA = 0.8  # multiplier used for decreasing the LR
+    LR_DECAY = 20                                 # number of minimum number of epochs before the next LR decay
+    LR_GAMMA = 0.8                                # multiplier used for decreasing the LR
     ##########
 
     OPTIMIZER = 'Adam'                            # Optimizer
