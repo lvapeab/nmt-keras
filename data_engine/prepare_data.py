@@ -86,6 +86,9 @@ def build_dataset(params):
                                     id=params['INPUTS_IDS_DATASET'][-1],
                                     required=False)
 
+        if params['POS_UNK'] and params['HEURISTIC'] > 0:
+            ds.loadMapping(params['MAPPING'])
+
         # If we had multiple references per sentence
         keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
 

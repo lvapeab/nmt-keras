@@ -209,6 +209,8 @@ def buildCallbacks(params, model, dataset):
                 extra_vars['heuristic'] = params['HEURISTIC']
                 input_text_id = params['INPUTS_IDS_DATASET'][0]
                 vocab_src =  dataset.vocabulary[input_text_id]['idx2words']
+                if params['HEURISTIC'] > 0:
+                    extra_vars['mapping'] = dataset.mapping
             else:
                 input_text_id = None
                 vocab_src = None

@@ -21,7 +21,7 @@ def checkDefaultParamsBeamSearch(params):
     required_params = ['model_inputs', 'model_outputs', 'dataset_inputs', 'dataset_outputs']
     default_params = {'beam_size': 5, 'maxlen': 30, 'normalize': False, 'alpha_factor': 1.0,
                       'words_so_far': False, 'n_parallel_loaders': 5, 'optimized_search': False,
-                      'pos_unk': False}
+                      'pos_unk': False, 'heuristic': 0, 'mapping': None}
 
     for k,v in params.iteritems():
         if k in default_params.keys() or k in required_params:
@@ -129,7 +129,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             params_prediction = {'batch_size': self.batch_size, 
                                  'n_parallel_loaders': self.extra_vars['n_parallel_loaders'],
                                  'predict_on_sets': [s],
-                                 'pos_unk': False, 'heuristic': 0}
+                                 'pos_unk': False, 'heuristic': 0, 'mapping': None}
 
             if self.beam_search:
                 params_prediction.update(checkDefaultParamsBeamSearch(self.extra_vars))
@@ -164,6 +164,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                                                                                     alphas=alphas,
                                                                                     x_text=sources,
                                                                                     heuristic=heuristic,
+                                                                                    mapping=params_prediction['mapping'],
                                                                                     verbose=self.verbose)
                 else:
                     predictions = self.model_to_eval.decode_predictions(samples, 1,  # always set temperature to 1
