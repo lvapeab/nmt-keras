@@ -138,15 +138,15 @@ def load_parameters():
     DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of deenoding layers
 
-    # additional Fully-Connected layers's sizes applied before softmax.
-    # Here we should specify the activation function and the output dimension
-    # (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu',400), ('relu':200)])
-    DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)]
 
-    INIT_LAYERS = ['tanh']                        # FC layers for initializing the first RNN state
-                                                  # Here we should only specify the activation function of each layer (as they have a potentially fixed size)
+    # Fully-Connected layers for initializing the first RNN state
+    INIT_LAYERS = ['tanh']                        # Here we should only specify the activation function of each layer
+                                                  # (as they have a potentially fixed size)
                                                   # (e.g INIT_LAYERS = ['tanh', 'relu'])
 
+    # Additional Fully-Connected layers's sizes applied before softmax.
+    DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)] # Here we should specify the activation function and the output dimension
+                                                  # (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu',400), ('relu':200)])
     # Regularizers
     USE_DROPOUT = False                           # Use dropout
     DROPOUT_P = 0.5                               # Percentage of units to drop
@@ -164,8 +164,8 @@ def load_parameters():
     EXTRA_NAME = ''                               # This will be appended to the end of the model name
     MODEL_NAME = DATASET_NAME + '_' + MODEL_TYPE + '_src_emb_' + str(SOURCE_TEXT_EMBEDDING_SIZE) + \
                   '_bidir_' + str(BIDIRECTIONAL_ENCODER) + \
-                 '_enc_' + str(ENCODER_HIDDEN_SIZE) + \
-                 '_dec_' + str(DECODER_HIDDEN_SIZE) + \
+                 '_enc_' + RNN_TYPE + '_' + str(ENCODER_HIDDEN_SIZE) + \
+                 '_dec_' + RNN_TYPE + '_' + str(DECODER_HIDDEN_SIZE) + \
                  '_deepout_' + '_'.join([layer[0] for layer in DEEP_OUTPUT_LAYERS]) + \
                  '_trg_emb_' + str(TARGET_TEXT_EMBEDDING_SIZE) + \
                  '_' + OPTIMIZER + '_' + str(LR)
