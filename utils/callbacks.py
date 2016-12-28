@@ -294,40 +294,45 @@ class SampleEachNUpdates(KerasCallback):
                                  'n_parallel_loaders': self.extra_vars['n_parallel_loaders'],
                                  'predict_on_sets': [s],
                                  'n_samples': self.n_samples,
-                                 'pos_unk': False,
-                                 'heuristic': 0}
+                                 'pos_unk': False, 'heuristic': 0, 'mapping': None}
 
             if self.beam_search:
                 params_prediction.update(checkDefaultParamsBeamSearch(self.extra_vars))
-                predictions, truths, sources = self.model_to_eval.BeamSearchNet(self.ds, params_prediction)[s]
+                predictions, truths, sources = self.model_to_eval.BeamSearchNet(self.ds, params_prediction)
             else:
                 predictions, truths = self.model_to_eval.predictNet(self.ds, params_prediction)[s]
-            gt_y = eval('self.ds.Y_'+s+'["'+self.gt_id+'"]')
+
+            # When sampling, we want to print the sources
+            #sources = []
+            #for preds in predictions[s][2]:
+            #    for src in preds[self.input_text_id]:
+            #        sources.append(src)
+            if self.in_pred_idx is not None:
+                sources = [srcs for srcs in sources[0][self.in_pred_idx]]
+            sources = self.model_to_eval.decode_predictions_beam_search(sources,
+                                                        self.index2word_x,
+                                                        pad_sequences=True,
+                                                        verbose=self.verbose)
             if params_prediction['pos_unk']:
-                samples = predictions[0]
-                alphas = predictions[1]
+                samples = predictions[s][0]
+                alphas = predictions[s][1]
                 heuristic = params_prediction['heuristic']
             else:
-                samples = predictions
+                samples = predictions[s]
                 alphas = None
                 heuristic = None
             if self.is_text:
                 if self.out_pred_idx is not None:
                     samples = samples[self.out_pred_idx]
-                if self.in_pred_idx is not None:
-                    sources = [srcs for srcs in sources[0][self.in_pred_idx]]
-
                 # Convert predictions into sentences
                 if self.beam_search:
                     predictions = self.model_to_eval.decode_predictions_beam_search(samples,
                                                                                     self.index2word_y,
                                                                                     alphas=alphas,
+                                                                                    x_text=sources,
                                                                                     heuristic=heuristic,
+                                                                                    mapping=params_prediction['mapping'],
                                                                                     verbose=self.verbose)
-                    sources = self.model_to_eval.decode_predictions_beam_search(sources,
-                                                                                self.index2word_x,
-                                                                                pad_sequences=True,
-                                                                                verbose=self.verbose)
                 else:
                     predictions = self.model_to_eval.decode_predictions(samples,
                                                                         1,

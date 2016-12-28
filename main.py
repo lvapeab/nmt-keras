@@ -214,6 +214,7 @@ def buildCallbacks(params, model, dataset):
             else:
                 input_text_id = None
                 vocab_src = None
+
         callback_metric = utils.callbacks.\
             PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
                                              dataset,
@@ -254,6 +255,7 @@ def buildCallbacks(params, model, dataset):
             if params['BEAM_SIZE']:
                 extra_vars['beam_size'] = params['BEAM_SIZE']
                 extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+                extra_vars['optimized_search'] = True
                 extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
                 extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
                 extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
@@ -261,6 +263,10 @@ def buildCallbacks(params, model, dataset):
                 extra_vars['normalize'] = params['NORMALIZE_SAMPLING']
                 extra_vars['alpha_factor'] = params['ALPHA_FACTOR']
                 extra_vars['pos_unk'] = params['POS_UNK']
+                if params['POS_UNK']:
+                    extra_vars['heuristic'] = params['HEURISTIC']
+                    if params['HEURISTIC'] > 0:
+                        extra_vars['mapping'] = dataset.mapping
 
             callback_sampling = utils.callbacks.SampleEachNUpdates(model,
                                                                    dataset,
