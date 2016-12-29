@@ -35,7 +35,7 @@ def load_parameters():
     TEMPERATURE = 1                               # Multinomial sampling parameter
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
     BEAM_SIZE = 12                                # Beam size (in case of BEAM_SEARCH == True)
-    OPTIMIZED_SEARCH = True                      # Compute annotations only a single time per sample
+    OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
     NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
     ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
                                                   # (see: https://arxiv.org/pdf/1609.08144v1.pdf)
@@ -44,13 +44,19 @@ def load_parameters():
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
-    SAMPLE_EACH_UPDATES = 500                     # Sampling frequency (always in #updates)
+    SAMPLE_EACH_UPDATES = 5                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
     POS_UNK = True                                # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
-                                                  #     1: Replace the UNK by the aligned source (by an external dictionary) (TODO:WIP!)
+                                                  #     1: Replace the UNK by the translation (given by an external
+                                                  #        dictionary) of the correspondingly aligned source
+                                                  #     2: Replace the UNK by the translation (given by an external
+                                                  #        dictionary) of the correspondingly aligned source only if it
+                                                  #        starts with a lowercase. Otherwise, copies the source word.
+
+    MAPPING = DATA_ROOT_PATH + '/DATA/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
@@ -137,7 +143,6 @@ def load_parameters():
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of deenoding layers
-
 
     # Fully-Connected layers for initializing the first RNN state
     INIT_LAYERS = ['tanh']                        # Here we should only specify the activation function of each layer

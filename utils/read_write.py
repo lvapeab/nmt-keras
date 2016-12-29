@@ -223,7 +223,11 @@ def dict2pkl(mydict, path):
     :return:
     """
     import cPickle
-    with open(path + '.pkl', 'w') as f:
+    if path[-4:] == '.pkl':
+        extension = ''
+    else:
+        extension = '.pkl'
+    with open(path + extension, 'w') as f:
         cPickle.dump(mydict, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
 
