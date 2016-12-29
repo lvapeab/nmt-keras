@@ -3,7 +3,7 @@ from keras.engine.topology import merge
 from keras.layers import TimeDistributed, Bidirectional
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
-from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean
+from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta
 from keras import backend as K
@@ -16,14 +16,6 @@ import os
 import logging
 import shutil
 import time
-
-def permute_dim_shape(input_shape):
-    """
-    Returns the input_shape, but permuting first and second dimensions
-    :param input_shape:
-    :return:
-    """
-    return (input_shape[1], input_shape[0], input_shape[2])
 
 class TranslationModel(Model_Wrapper):
     """
@@ -353,7 +345,7 @@ class TranslationModel(Model_Wrapper):
         out_layer_ctx = shared_FC_ctx(x_att)
 
 
-        shared_Lambda_Permute = Lambda(lambda x: K.permute_dimensions(x, [1, 0, 2]), output_shape=permute_dim_shape)
+        shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
         shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
                                         W_regularizer=l2(params['WEIGHT_DECAY']),
