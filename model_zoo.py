@@ -416,6 +416,8 @@ class TranslationModel(Model_Wrapper):
             self.ids_inputs_init = self.ids_inputs
             # first output must be the output probs.
             self.ids_outputs_init = self.ids_outputs + ['preprocessed_input', 'next_state']
+            if params['RNN_TYPE'] == 'LSTM':
+                self.ids_outputs_init.append('next_memory')
 
             # Second, we need to build an additional model with the capability to have the following inputs:
             #   - preprocessed_input
