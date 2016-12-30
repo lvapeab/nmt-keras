@@ -186,20 +186,7 @@ def multilabel_metrics(pred_list, verbose, extra_vars, split):
 
     return {'accuracy': accuracy}
 
-    """
-    precision, recall, f1, _ = sklearn_metrics.precision_recall_fscore_support(y_gt, y_pred, average='micro')
 
-    if verbose > 0:
-        logging.info('Accuracy: %f \t Precision: %f \t Recall: %f \t F1: %f' %
-                     (accuracy, precision, recall, f1))
-
-    return {'accuracy': accuracy,
-            'precision': precision,
-            'recall': recall,
-            'f1': f1}
-    """
-
-        
 ########################################
 # EVALUATION FUNCTIONS SELECTOR
 ########################################

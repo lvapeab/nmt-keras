@@ -49,23 +49,56 @@ if __name__ == "__main__":
                              'predict_on_sets': [s]}
 
         # Convert predictions into sentences
-        vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
+        index2word_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
 
         if params['BEAM_SEARCH']:
             params_prediction['beam_size'] = params['BEAM_SIZE']
             params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            params_prediction['optimized_search'] = params['OPTIMIZED_SEARCH']
             params_prediction['model_inputs'] = params['INPUTS_IDS_MODEL']
             params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             params_prediction['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             params_prediction['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
             params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
-
+            params_prediction['pos_unk'] = params['POS_UNK']
+            if params['POS_UNK']:
+                params_prediction['heuristic'] = params['HEURISTIC']
+                input_text_id = params['INPUTS_IDS_DATASET'][0]
+                vocab_src =  dataset.vocabulary[input_text_id]['idx2words']
+                if params['HEURISTIC'] > 0:
+                    mapping = dataset.mapping
+            else:
+                input_text_id = None
+                vocab_src = None
+                mapping = None
             beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=args.verbose)
             predictions = beam_searcher.BeamSearchNet()[s]
-            predictions = models[0].decode_predictions_beam_search(predictions,
-                                                                   vocab,
-                                                                   verbose=params['VERBOSE'])
+            if params_prediction['pos_unk']:
+                samples = predictions[0]
+                alphas = predictions[1]
+                sources = []
+                for preds in predictions[2]:
+                    for src in preds[input_text_id]:
+                        sources.append(src)
+                sources =  models[0].decode_predictions_beam_search(sources,
+                                                            vocab_src,
+                                                            pad_sequences=True,
+                                                            verbose=params['VERBOSE'])
+                heuristic = params_prediction['heuristic']
+            else:
+                samples = predictions
+                alphas = None
+                heuristic = None
+                sources = None
+            predictions = models[0].decode_predictions_beam_search(samples,
+                                                                    index2word_y,
+                                                                    alphas=alphas,
+                                                                    x_text=sources,
+                                                                    heuristic=heuristic,
+                                                                    mapping=mapping,
+                                                                    verbose=params['VERBOSE'])
+
         # Store result
         if args.dest is not None:
             filepath = args.dest  # results file
@@ -80,6 +113,7 @@ if __name__ == "__main__":
                 # Evaluate on the chosen metric
                 extra_vars[s] = dict()
                 extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
+                extra_vars['language'] = params['TRG_LAN']
                 metrics = utils.evaluation.select[metric](
                     pred_list=predictions,
                     verbose=1,

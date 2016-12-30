@@ -44,7 +44,7 @@ def load_parameters():
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
-    SAMPLE_EACH_UPDATES = 5                     # Sampling frequency (always in #updates)
+    SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
     POS_UNK = True                                # Enable POS_UNK strategy for unknown words
