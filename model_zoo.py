@@ -54,7 +54,7 @@ class TranslationModel(Model_Wrapper):
         self.ids_inputs = params["INPUTS_IDS_MODEL"]
         self.ids_outputs = params["OUTPUTS_IDS_MODEL"]
         # Sets the model name and prepares the folders for storing the models
-        self.setName(model_name, store_path=store_path)
+        self.setName(model_name, models_path=store_path)
 
         # Prepare source word embedding
         if params['SRC_PRETRAINED_VECTORS'] is not None:
@@ -141,37 +141,7 @@ class TranslationModel(Model_Wrapper):
         self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
 
-    def setName(self, model_name, store_path=None, clear_dirs=True, **kwargs):
-        """
-         Changes the name (identifier) of the Translation_Model instance.
-        :param model_name: New model name
-        :param store_path: Path where to store the model
-        :param clear_dirs: Whether the store_path directory will be erased or not
-        :param kwargs:
-        :return:
-        """
-        if model_name is None:
-            self.name = time.strftime("%Y-%m-%d") + '_' + time.strftime("%X")
-            create_dirs = False
-        else:
-            self.name = model_name
-            create_dirs = True
-
-        if store_path is None:
-            self.model_path = 'Models/' + self.name
-        else:
-            self.model_path = store_path
-
-        # Remove directories if existed
-        if clear_dirs:
-            if os.path.isdir(self.model_path):
-                shutil.rmtree(self.model_path)
-
-        # Create new ones
-        if create_dirs:
-            if not os.path.isdir(self.model_path):
-                os.makedirs(self.model_path)
-
+    
     def __str__(self):
         """
         Plots basic model information.
@@ -403,10 +373,9 @@ class TranslationModel(Model_Wrapper):
             # First, we need a model that outputs the preprocessed input + initial h state
             # for applying the initial forward pass
             model_init_input = [src_text, next_words]
-            model_init_output = [softout, annotations, h_state] \
-                if params['RNN_TYPE'] == 'GRU' \
-                else [softout, annotations, h_state, h_memory]
-
+            model_init_output = [softout, annotations, h_state]
+            if params['RNN_TYPE'] == 'LSTM':
+                model_init_output.append(h_memory)
             if params['POS_UNK']:
                 model_init_output.append(alphas)
 
