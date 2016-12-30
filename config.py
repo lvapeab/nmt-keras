@@ -44,10 +44,10 @@ def load_parameters():
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
-    SAMPLE_EACH_UPDATES = 3                     # Sampling frequency (always in #updates)
+    SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
-    POS_UNK = True                                # Enable POS_UNK strategy for unknown words
+    POS_UNK = True                               # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
                                                   #     1: Replace the UNK by the translation (given by an external
@@ -55,6 +55,7 @@ def load_parameters():
                                                   #     2: Replace the UNK by the translation (given by an external
                                                   #        dictionary) of the correspondingly aligned source only if it
                                                   #        starts with a lowercase. Otherwise, copies the source word.
+    ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
 
     MAPPING = DATA_ROOT_PATH + '/DATA/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
@@ -68,7 +69,7 @@ def load_parameters():
     PAD_ON_BATCH = True                           # Whether we take as many timesteps as the longest sequence of
                                                   # the batch or a fixed size (MAX_OUTPUT_TEXT_LEN)
     # Input text parameters
-    INPUT_VOCABULARY_SIZE = 50                     # Size of the input vocabulary. Set to 0 for using all,
+    INPUT_VOCABULARY_SIZE = 0                     # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
@@ -78,7 +79,7 @@ def load_parameters():
     SOURCE_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Output text parameters
-    OUTPUT_VOCABULARY_SIZE = 50                    # Size of the input vocabulary. Set to 0 for using all,
+    OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class

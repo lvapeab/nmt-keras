@@ -34,9 +34,16 @@ def build_dataset(params):
                      max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                      max_words=params['OUTPUT_VOCABULARY_SIZE'],
                      min_occ=params['MIN_OCCURRENCES_VOCAB'])
+        if params['ALIGN_FROM_RAW']:
+            ds.setRawOutput(base_path+'/'+params['TEXT_FILES']['train']+params['TRG_LAN'],
+                            'train',
+                            type='file-name',
+                            id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
+
         for split in ['val', 'test']:
             if params['TEXT_FILES'].get(split) is not None:
-                ds.setOutput(base_path+'/'+params['TEXT_FILES'][split]+params['TRG_LAN'], split,
+                ds.setOutput(base_path+'/'+params['TEXT_FILES'][split]+params['TRG_LAN'],
+                             split,
                              type='text',
                              id=params['OUTPUTS_IDS_DATASET'][0],
                              pad_on_batch=params['PAD_ON_BATCH'],
@@ -44,6 +51,10 @@ def build_dataset(params):
                              sample_weights=params['SAMPLE_WEIGHTS'],
                              max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                              max_words=params['OUTPUT_VOCABULARY_SIZE'])
+                ds.setRawOutput(base_path+'/'+params['TEXT_FILES'][split]+params['TRG_LAN'],
+                                split,
+                                type='file-name',
+                                id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
 
         # INPUT DATA
         # We must ensure that the 'train' split is the first (for building the vocabulary)
@@ -85,9 +96,15 @@ def build_dataset(params):
                                     type='ghost',
                                     id=params['INPUTS_IDS_DATASET'][-1],
                                     required=False)
+                if params['ALIGN_FROM_RAW']:
+                    ds.setRawInput(base_path+'/'+params['TEXT_FILES'][split]+params['SRC_LAN'],
+                                   split,
+                                   type='file-name',
+                                   id='raw_' + params['INPUTS_IDS_DATASET'][0])
 
-        if params['POS_UNK'] and params['HEURISTIC'] > 0:
-            ds.loadMapping(params['MAPPING'])
+        if params['POS_UNK']:
+            if params['HEURISTIC'] > 0:
+                ds.loadMapping(params['MAPPING'])
 
         # If we had multiple references per sentence
         keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])

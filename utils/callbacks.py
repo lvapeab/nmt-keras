@@ -140,14 +140,18 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             if params_prediction['pos_unk']:
                 samples = predictions[0]
                 alphas = predictions[1]
-                sources = []
-                for preds in predictions[2]:
-                    for src in preds[self.input_text_id]:
-                        sources.append(src)
-                sources = self.model_to_eval.decode_predictions_beam_search(sources,
-                                                            self.index2word_x,
-                                                            pad_sequences=True,
-                                                            verbose=self.verbose)
+
+                if eval('self.ds.loaded_raw_'+ s +'[0]'):
+                    sources = predictions[2]
+                else:
+                    sources = []
+                    for preds in predictions[2]:
+                        for src in preds[self.input_text_id]:
+                            sources.append(src)
+                    sources = self.model_to_eval.decode_predictions_beam_search(sources,
+                                                                self.index2word_x,
+                                                                pad_sequences=True,
+                                                                verbose=self.verbose)
                 heuristic = params_prediction['heuristic']
             else:
                 samples = predictions
@@ -300,11 +304,6 @@ class SampleEachNUpdates(KerasCallback):
             else:
                 predictions, truths = self.model_to_eval.predictNet(self.ds, params_prediction)[s]
 
-            # When sampling, we want to print the sources
-            #sources = []
-            #for preds in predictions[s][2]:
-            #    for src in preds[self.input_text_id]:
-            #        sources.append(src)
             if self.in_pred_idx is not None:
                 sources = [srcs for srcs in sources[0][self.in_pred_idx]]
             sources = self.model_to_eval.decode_predictions_beam_search(sources,
