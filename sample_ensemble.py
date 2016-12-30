@@ -5,6 +5,8 @@ from config import load_parameters
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
+from keras_wrapper.read_write import pkl2dict, list2file
+
 
 import utils
 
@@ -36,7 +38,7 @@ if __name__ == "__main__":
     if args.config is None:
         params = load_parameters()
     else:
-        params = utils.read_write.pkl2dict(args.config)
+        params = pkl2dict(args.config)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     # Apply sampling
@@ -103,7 +105,7 @@ if __name__ == "__main__":
         if args.dest is not None:
             filepath = args.dest  # results file
             if params['SAMPLING_SAVE_MODE'] == 'list':
-                utils.read_write.list2file(filepath, predictions)
+                list2file(filepath, predictions)
             else:
                 raise Exception, 'Only "list" is allowed in "SAMPLING_SAVE_MODE"'
         if args.not_eval is False:

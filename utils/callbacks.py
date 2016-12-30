@@ -6,7 +6,7 @@ import warnings
 import logging
 
 import evaluation
-from read_write import *
+from keras_wrapper.read_write import list2file, listoflists2file, numpy2file
 
 from keras.callbacks import Callback as KerasCallback
 
@@ -177,8 +177,6 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                 filepath = self.save_path +'/'+ s +'_'+ counter_name + '_'+ str(epoch) +'.pred' # results file
                 if self.write_type == 'list':
                     list2file(filepath, predictions)
-                elif self.write_type == 'vqa':
-                    list2vqa(filepath, predictions, self.extra_vars[s]['question_ids'])
                 elif self.write_type == 'listoflists':
                     listoflists2file(filepath, predictions)
                 elif self.write_type == 'numpy':

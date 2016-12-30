@@ -13,7 +13,6 @@ from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.vqa import vqaEval, visual_qa
-from read_write import list2vqa
 from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
@@ -58,52 +57,6 @@ def get_coco_score(pred_list, verbose, extra_vars, split):
             logging.info(metric +': ' + str(value))
 
     return final_scores
-
-
-
-def eval_vqa(pred_list, verbose, extra_vars, split):
-    '''
-    VQA challenge metric
-    
-    # Arguments
-        gt_list, dictionary of reference sentences (id, sentence)
-        pred_list, dictionary of hypothesis sentences (id, sentence)
-        verbose - if greater than 0 the metric measures are printed out
-        extra_vars - extra variables, here are:
-                extra_vars['quesFile'] - path to the .json file where the questions are stored
-                extra_vars['annFile'] - path to the .json file where the annotated answers are stored
-                extra_vars['question_ids'] - question identifiers
-    '''
-    quesFile = extra_vars[split]['quesFile']
-    annFile = extra_vars[split]['annFile']
-    
-    # create temporal resFile
-    resFile = 'tmp_res_file.json'
-    list2vqa(resFile, pred_list, extra_vars[split]['question_ids'])
-    
-    # create vqa object and vqaRes object
-    vqa_ = visual_qa.VQA(annFile, quesFile)
-    vqaRes = vqa_.loadRes(resFile, quesFile)
-    vqaEval_ = vqaEval.VQAEval(vqa_, vqaRes, n=2)   #n is precision of accuracy (number of places after decimal), default is 2
-    vqaEval_.evaluate()
-    os.remove(resFile) # remove temporal file
-    
-    # get results
-    acc_overall = vqaEval_.accuracy['overall']
-    acc_yes_no = vqaEval_.accuracy['perAnswerType']['yes/no']
-    acc_number = vqaEval_.accuracy['perAnswerType']['number']
-    acc_other = vqaEval_.accuracy['perAnswerType']['other']
-    #acc_per_class = vqaEval_.accuracy['perAnswerClass']
-    #acc_class_normalized = vqaEval_.accuracy['classNormalizedOverall']
-
-    if verbose > 0:
-        logging.info('VQA Metric: Accuracy yes/no is {0}, other is {1}, number is {2}, overall is {3}'.\
-                format(acc_yes_no, acc_other, acc_number, acc_overall))#, acc_class_normalized))
-    return {'overall accuracy': acc_overall,
-            'yes/no accuracy': acc_yes_no,
-            'number accuracy': acc_number,
-            'other accuracy': acc_other}
-
 
 
 def eval_multiclass_metrics(pred_list, verbose, extra_vars, split):
@@ -193,7 +146,6 @@ def multilabel_metrics(pred_list, verbose, extra_vars, split):
 
 # List of evaluation functions and their identifiers (will be used in params['METRICS'])
 select = {
-         'vqa': eval_vqa,                        # Metric for the VQA challenge
          'coco': get_coco_score,                 # MS COCO evaluation library (BLEU, METEOR and CIDEr scores)
          'multiclass': eval_multiclass_metrics,  # Set of multiclass classification metrics from sklearn
          'multilabel_metrics': multilabel_metrics,  # Set of multilabel classification metrics from sklearn

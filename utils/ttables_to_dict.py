@@ -2,7 +2,7 @@
 # Code adapted from: https://github.com/sebastien-j/LV_groundhog/blob/master/experiments/nmt/utils/convert_Ttables.py
 
 import numpy as np
-from read_write import dict2pkl
+from keras_wrapper.read_write import dict2pkl
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--fname", type=str)  # T-tables

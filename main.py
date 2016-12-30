@@ -5,6 +5,7 @@ from config import load_parameters
 from data_engine.prepare_data import build_dataset
 from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
+from keras_wrapper.read_write import dict2pkl, list2file
 
 import utils
 import sys
@@ -35,7 +36,7 @@ def train_model(params):
         nmt_model = TranslationModel(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
                                      model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
                                      store_path=params['STORE_PATH'])
-        utils.read_write.dict2pkl(params, params['STORE_PATH'] + '/config')
+        dict2pkl(params, params['STORE_PATH'] + '/config')
 
         # Define the inputs and outputs mapping from our Dataset instance to our model
         inputMapping = dict()
@@ -143,7 +144,7 @@ def apply_NMT_model(params):
         # Store result
         filepath = nmt_model.model_path+'/' + s + '_sampling.pred'  # results file
         if params['SAMPLING_SAVE_MODE'] == 'list':
-            utils.read_write.list2file(filepath, predictions)
+            list2file(filepath, predictions)
         else:
             raise Exception, 'Only "list" is allowed in "SAMPLING_SAVE_MODE"'
 
