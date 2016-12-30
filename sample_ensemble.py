@@ -13,18 +13,20 @@ import utils
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
+
 def parse_args():
     parser = argparse.ArgumentParser("Apply several translation models for making predictions")
     parser.add_argument("-ds", "--dataset", required=True, help="Dataset instance with data")
     parser.add_argument("-s", "--splits",  nargs='+', required=False, default='val', help="Splits to sample. "
-                                                                                         "Should be already included"
-                                                                                         "into the dataset object.")
+                                                                                          "Should be already included"
+                                                                                          "into the dataset object.")
     parser.add_argument("-d", "--dest",  required=False, help="File to save translations in")
     parser.add_argument("--not-eval", action='store_true', default=False, help="Do not compute metrics for the output")
     parser.add_argument("-e", "--eval-output", required=False, help="Write evaluation results to file")
     parser.add_argument("-v", "--verbose", required=False,  action='store_true', default=False, help="Be verbose")
     parser.add_argument("-c", "--config",  required=False, help="Config pkl for loading the model configuration. "
-                                                                "If not specified, hyperparameters are read from config.py")
+                                                                "If not specified, hyperparameters "
+                                                                "are read from config.py")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
     return parser.parse_args()
 
@@ -67,7 +69,7 @@ if __name__ == "__main__":
             if params['POS_UNK']:
                 params_prediction['heuristic'] = params['HEURISTIC']
                 input_text_id = params['INPUTS_IDS_DATASET'][0]
-                vocab_src =  dataset.vocabulary[input_text_id]['idx2words']
+                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
                 if params['HEURISTIC'] > 0:
                     mapping = dataset.mapping
             else:
@@ -83,10 +85,10 @@ if __name__ == "__main__":
                 for preds in predictions[2]:
                     for src in preds[input_text_id]:
                         sources.append(src)
-                sources =  models[0].decode_predictions_beam_search(sources,
-                                                            vocab_src,
-                                                            pad_sequences=True,
-                                                            verbose=params['VERBOSE'])
+                sources = models[0].decode_predictions_beam_search(sources,
+                                                                   vocab_src,
+                                                                   pad_sequences=True,
+                                                                   verbose=params['VERBOSE'])
                 heuristic = params_prediction['heuristic']
             else:
                 samples = predictions
@@ -94,12 +96,12 @@ if __name__ == "__main__":
                 heuristic = None
                 sources = None
             predictions = models[0].decode_predictions_beam_search(samples,
-                                                                    index2word_y,
-                                                                    alphas=alphas,
-                                                                    x_text=sources,
-                                                                    heuristic=heuristic,
-                                                                    mapping=mapping,
-                                                                    verbose=params['VERBOSE'])
+                                                                   index2word_y,
+                                                                   alphas=alphas,
+                                                                   x_text=sources,
+                                                                   heuristic=heuristic,
+                                                                   mapping=mapping,
+                                                                   verbose=params['VERBOSE'])
 
         # Store result
         if args.dest is not None:
@@ -107,7 +109,7 @@ if __name__ == "__main__":
             if params['SAMPLING_SAVE_MODE'] == 'list':
                 list2file(filepath, predictions)
             else:
-                raise Exception, 'Only "list" is allowed in "SAMPLING_SAVE_MODE"'
+                raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
         if args.not_eval is False:
             # Evaluate if any metric in params['METRICS']
             for metric in params['METRICS']:
