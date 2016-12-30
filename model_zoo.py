@@ -192,26 +192,32 @@ class TranslationModel(Model_Wrapper):
         # 2.2. BRNN encoder (GRU/LSTM)
         if params['BIDIRECTIONAL_ENCODER']:
             annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                 W_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                 U_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                 b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                 W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                 U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                 b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                 dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                                 dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
                                                                  return_sequences=True),
                                         name='bidirectional_encoder_' + params['RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
         else:
             annotations = eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                   W_regularizer=l2(params['WEIGHT_DECAY']),
-                                                   U_regularizer=l2(params['WEIGHT_DECAY']),
-                                                   b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                   W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                   U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                   b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                   dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                   dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
                                                    return_sequences=True,
                                                    name='encoder_' + params['RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
             current_annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                         W_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                         U_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                         b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                         W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                         U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                         b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                         dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                                         dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
                                                                          return_sequences=True,
                                                                          ),
                                                 merge_mode='concat',
@@ -258,14 +264,20 @@ class TranslationModel(Model_Wrapper):
 
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
-                                                                     W_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                     U_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                     V_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                     b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                     U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                     V_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                     b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                      wa_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      Wa_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      Ua_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      ba_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_V=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_wa=params['DROPOUT_P'] if params['USE_DROPOUT'] else None,
+                                                                     dropout_Wa=params['DROPOUT_P'] if params['USE_DROPOUT'] else None,
+                                                                     dropout_Ua=params['DROPOUT_P'] if params['USE_DROPOUT'] else None,
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,
                                                                      return_states=True,
@@ -286,9 +298,9 @@ class TranslationModel(Model_Wrapper):
         for n_layer in range(1, params['N_LAYERS_DECODER']):
             raise NotImplementedError, 'Multilayered decoder still not implemented!'
             shared_decoder_list.append(GRU(params['DECODER_HIDDEN_SIZE'],
-                                           W_regularizer=l2(params['WEIGHT_DECAY']),
-                                           U_regularizer=l2(params['WEIGHT_DECAY']),
-                                           b_regularizer=l2(params['WEIGHT_DECAY']),
+                                           W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                           U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                           b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                            return_sequences=True,
                                       name='decoder_' + str(n_layer)))
             current_annotations = shared_decoder_list[-1](proj_h)

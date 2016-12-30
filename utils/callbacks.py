@@ -28,7 +28,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
 
     def __init__(self, model, dataset, gt_id, metric_name, set_name, batch_size, each_n_epochs=1, extra_vars=None,
                  is_text=False, index2word_y=None, input_text_id=None, index2word_x=None, sampling='max_likelihood',
-                 beam_search=False, write_samples=False, save_path='logs/pgerformance.', reload_epoch=0,
+                 beam_search=False, write_samples=False, save_path='logs/performance.', reload_epoch=0,
                  eval_on_epochs=True, start_eval_on_epoch=0, write_type='list', sampling_type='max_likelihood',
                  out_pred_idx=None, early_stop=False, patience=5, stop_metric='Bleu-4', verbose=1):
         """

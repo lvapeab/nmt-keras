@@ -55,7 +55,7 @@ def load_parameters():
                                                   #     2: Replace the UNK by the translation (given by an external
                                                   #        dictionary) of the correspondingly aligned source only if it
                                                   #        starts with a lowercase. Otherwise, copies the source word.
-    ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
+    ALIGN_FROM_RAW = False                        # Align using the full vocabulary or the short_list
 
     MAPPING = DATA_ROOT_PATH + '/DATA/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
@@ -100,7 +100,6 @@ def load_parameters():
 
     OPTIMIZER = 'Adam'                            # Optimizer
     LR = 0.001                                    # (recommended values - Adam 0.001 - Adadelta 1.0
-    WEIGHT_DECAY = 1e-4                           # L2 regularization
     CLIP_C = 1.                                   # During training, clip gradients to this norm
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
 
@@ -154,8 +153,14 @@ def load_parameters():
     DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)] # Here we should specify the activation function and the output dimension
                                                   # (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu',400), ('relu':200)])
     # Regularizers
+    WEIGHT_DECAY = 1e-4                           # L2 regularization
+    RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
+
     USE_DROPOUT = False                           # Use dropout
     DROPOUT_P = 0.5                               # Percentage of units to drop
+
+    USE_RECURRENT_DROPOUT = False                 # Use dropout in recurrent layers # DANGEROUS!
+    RECURRENT_DROPOUT_P = 0.5                     # Percentage of units to drop in recurrent layers
 
     USE_NOISE = True                              # Use gaussian noise during training
     NOISE_AMOUNT = 0.01                           # Amount of noise
