@@ -6,23 +6,20 @@ from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, Att
 from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta
-from keras import backend as K
 from keras.regularizers import l2
-
 from keras_wrapper.cnn_model import Model_Wrapper
 from utils.regularize import Regularize
 import numpy as np
 import os
 import logging
-import shutil
-import time
+
 
 class TranslationModel(Model_Wrapper):
     """
     Translation model class. Instance of the Model_Wrapper class (see staged_keras_wrapper).
     """
     
-    def resumeTrainNet(self, ds, parameters, out_name=None):
+    def resumeTrainNet(self, ds, params, out_name=None):
         pass
 
     def __init__(self, params, type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
@@ -30,7 +27,7 @@ class TranslationModel(Model_Wrapper):
         """
         Translation_Model object constructor.
 
-        :param params: all hyperparameters of the model.
+        :param params: all hyperparams of the model.
         :param type: network name type (corresponds to any method defined in the section 'MODELS' of this class).
                      Only valid if 'structure_path' == None.
         :param verbose: set to 0 if you don't want the model to output informative messages
@@ -141,7 +138,6 @@ class TranslationModel(Model_Wrapper):
         self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
 
-    
     def __str__(self):
         """
         Plots basic model information.
@@ -157,7 +153,7 @@ class TranslationModel(Model_Wrapper):
             obj_str += '\n'
 
         obj_str += '\n'
-        obj_str += 'MODEL PARAMETERS:\n'
+        obj_str += 'MODEL params:\n'
         obj_str += str(self.params)
         obj_str += '\n'
         obj_str += '-----------------------------------------------------------------------------------'
@@ -178,7 +174,7 @@ class TranslationModel(Model_Wrapper):
                 + Context projected to output
                 + Last word projected to output
         See https://arxiv.org/abs/1409.0473 for an in-depth review of the model.
-        :param params: Dictionary of parameters (see config.py)
+        :param params: Dictionary of params (see config.py)
         :return: None
         """
 
@@ -196,28 +192,28 @@ class TranslationModel(Model_Wrapper):
         # 2.2. BRNN encoder (GRU/LSTM)
         if params['BIDIRECTIONAL_ENCODER']:
             annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                            W_regularizer=l2(params['WEIGHT_DECAY']),
-                                            U_regularizer=l2(params['WEIGHT_DECAY']),
-                                            b_regularizer=l2(params['WEIGHT_DECAY']),
-                                            return_sequences=True),
+                                                                 W_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                 U_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                 b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                 return_sequences=True),
                                         name='bidirectional_encoder_' + params['RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
         else:
             annotations = eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                              W_regularizer=l2(params['WEIGHT_DECAY']),
-                              U_regularizer=l2(params['WEIGHT_DECAY']),
-                              b_regularizer=l2(params['WEIGHT_DECAY']),
-                              return_sequences=True,
-                              name='encoder_' + params['RNN_TYPE'])(src_embedding)
+                                                   W_regularizer=l2(params['WEIGHT_DECAY']),
+                                                   U_regularizer=l2(params['WEIGHT_DECAY']),
+                                                   b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                   return_sequences=True,
+                                                   name='encoder_' + params['RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
             current_annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                    W_regularizer=l2(params['WEIGHT_DECAY']),
-                                                    U_regularizer=l2(params['WEIGHT_DECAY']),
-                                                    b_regularizer=l2(params['WEIGHT_DECAY']),
-                                                    return_sequences=True,
-                                                    ),
+                                                                         W_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                         U_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                         b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                         return_sequences=True,
+                                                                         ),
                                                 merge_mode='concat',
                                                 name='bidirectional_encoder_' + str(n_layer))(annotations)
             current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
@@ -253,9 +249,8 @@ class TranslationModel(Model_Wrapper):
 
             if params['RNN_TYPE'] == 'LSTM':
                 initial_memory = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_memory',
-                                  W_regularizer=l2(params['WEIGHT_DECAY']),
-                                  activation=params['INIT_LAYERS'][-1],
-                                  )(ctx_mean)
+                                       W_regularizer=l2(params['WEIGHT_DECAY']),
+                                       activation=params['INIT_LAYERS'][-1])(ctx_mean)
                 initial_memory = Regularize(initial_memory, params, name='initial_memory')
                 input_attentional_decoder.append(initial_memory)
         else:
@@ -263,18 +258,18 @@ class TranslationModel(Model_Wrapper):
 
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
-                                      W_regularizer=l2(params['WEIGHT_DECAY']),
-                                      U_regularizer=l2(params['WEIGHT_DECAY']),
-                                      V_regularizer=l2(params['WEIGHT_DECAY']),
-                                      b_regularizer=l2(params['WEIGHT_DECAY']),
-                                      wa_regularizer=l2(params['WEIGHT_DECAY']),
-                                      Wa_regularizer=l2(params['WEIGHT_DECAY']),
-                                      Ua_regularizer=l2(params['WEIGHT_DECAY']),
-                                      ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                      return_sequences=True,
-                                      return_extra_variables=True,
-                                      return_states=True,
-                                      name='decoder_Att' + params['RNN_TYPE'] + 'Cond')
+                                                                     W_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     U_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     V_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     b_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     wa_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     Wa_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     Ua_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     ba_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                     return_sequences=True,
+                                                                     return_extra_variables=True,
+                                                                     return_states=True,
+                                                                     name='decoder_Att' + params['RNN_TYPE'] + 'Cond')
 
         rnn_output = sharedAttRNNCond(input_attentional_decoder)
         proj_h = rnn_output[0]
@@ -313,7 +308,6 @@ class TranslationModel(Model_Wrapper):
                                               activation='linear',
                                               ), name='logit_ctx')
         out_layer_ctx = shared_FC_ctx(x_att)
-
 
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)

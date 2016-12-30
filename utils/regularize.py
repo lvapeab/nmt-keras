@@ -7,28 +7,29 @@ from keras.layers.core import Dropout, Lambda
 
 def Regularize(layer, params, shared_layers=False, name=''):
     """
-    Apply the regularization specified in params to the layer
+    Apply the regularization specified in parameters to the layer
     :param layer: Layer to regularize
     :param params: Params specifying the regularizations to apply
     :param shared_layers: Boolean indicating if we want to get the used layers for applying to a shared-layers model.
+    :param name: Name prepended to regularizer layer
     :return: Regularized layer
     """
     shared_layers_list = []
 
-    if params.get('USE_NOISE') and  params['USE_NOISE']:
+    if params.get('USE_NOISE') and params['USE_NOISE']:
         if params.get('NOISE_AMOUNT'):
             shared_layers_list.append(GaussianNoise(params['NOISE_AMOUNT'], name=name + '_gaussian_noise'))
 
         else:
             shared_layers_list.append(GaussianNoise(0.01))
 
-
     if params.get('USE_BATCH_NORMALIZATION') and params['USE_BATCH_NORMALIZATION']:
         if params.get('WEIGHT_DECAY'):
             l2_gamma_reg = l2(params['WEIGHT_DECAY'])
             l2_beta_reg = l2(params['WEIGHT_DECAY'])
         else:
-            l2_reg = None
+            l2_gamma_reg = None
+            l2_beta_reg = None
 
         if params.get('BATCH_NORMALIZATION_MODE'):
             bn_mode = params['BATCH_NORMALIZATION_MODE']

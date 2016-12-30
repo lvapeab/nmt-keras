@@ -146,7 +146,7 @@ def apply_NMT_model(params):
         if params['SAMPLING_SAVE_MODE'] == 'list':
             list2file(filepath, predictions)
         else:
-            raise Exception, 'Only "list" is allowed in "SAMPLING_SAVE_MODE"'
+            raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
 
         # Evaluate if any metric in params['METRICS']
         for metric in params['METRICS']:
@@ -209,7 +209,7 @@ def buildCallbacks(params, model, dataset):
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
                 input_text_id = params['INPUTS_IDS_DATASET'][0]
-                vocab_src =  dataset.vocabulary[input_text_id]['idx2words']
+                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
                 if params['HEURISTIC'] > 0:
                     extra_vars['mapping'] = dataset.mapping
             else:
@@ -218,75 +218,76 @@ def buildCallbacks(params, model, dataset):
 
         callback_metric = utils.callbacks.\
             PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
-                                             dataset,
-                                             gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                             metric_name=params['METRICS'],
-                                             set_name=params['EVAL_ON_SETS'],
-                                             batch_size=params['BATCH_SIZE'],
-                                             each_n_epochs=params['EVAL_EACH'],
-                                             extra_vars=extra_vars,
-                                             reload_epoch=params['RELOAD'],
-                                             is_text=True,
-                                             input_text_id=input_text_id,
-                                             index2word_y=vocab,
-                                             index2word_x=vocab_src,
-                                             sampling_type=params['SAMPLING'],
-                                             beam_search=params['BEAM_SEARCH'],
-                                             save_path=model.model_path,
-                                             start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                             write_samples=True,
-                                             write_type=params['SAMPLING_SAVE_MODE'],
-                                             early_stop=params['EARLY_STOP'],
-                                             patience=params['PATIENCE'],
-                                             stop_metric=params['STOP_METRIC'],
-                                             eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                             verbose=params['VERBOSE'])
+                                                           dataset,
+                                                           gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                           metric_name=params['METRICS'],
+                                                           set_name=params['EVAL_ON_SETS'],
+                                                           batch_size=params['BATCH_SIZE'],
+                                                           each_n_epochs=params['EVAL_EACH'],
+                                                           extra_vars=extra_vars,
+                                                           reload_epoch=params['RELOAD'],
+                                                           is_text=True,
+                                                           input_text_id=input_text_id,
+                                                           index2word_y=vocab,
+                                                           index2word_x=vocab_src,
+                                                           sampling_type=params['SAMPLING'],
+                                                           beam_search=params['BEAM_SEARCH'],
+                                                           save_path=model.model_path,
+                                                           start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
+                                                           write_samples=True,
+                                                           write_type=params['SAMPLING_SAVE_MODE'],
+                                                           early_stop=params['EARLY_STOP'],
+                                                           patience=params['PATIENCE'],
+                                                           stop_metric=params['STOP_METRIC'],
+                                                           eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                                           verbose=params['VERBOSE'])
 
         callbacks.append(callback_metric)
 
-        if params['SAMPLE_ON_SETS']:
-            # Evaluate sampling
-            extra_vars = {'language': params['TRG_LAN'], 'n_parallel_loaders': params['PARALLEL_LOADERS']}
-            vocab_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words']
-            vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
-            for s in params['EVAL_ON_SETS']:
-                extra_vars[s] = dict()
-                extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-                extra_vars[s]['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
-            if params['BEAM_SIZE']:
-                extra_vars['beam_size'] = params['BEAM_SIZE']
-                extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
-                extra_vars['optimized_search'] = True
-                extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
-                extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
-                extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
-                extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-                extra_vars['normalize'] = params['NORMALIZE_SAMPLING']
-                extra_vars['alpha_factor'] = params['ALPHA_FACTOR']
-                extra_vars['pos_unk'] = params['POS_UNK']
-                if params['POS_UNK']:
-                    extra_vars['heuristic'] = params['HEURISTIC']
-                    if params['HEURISTIC'] > 0:
-                        extra_vars['mapping'] = dataset.mapping
+    if params['SAMPLE_ON_SETS']:
+        # Write some samples
+        extra_vars = {'language': params['TRG_LAN'], 'n_parallel_loaders': params['PARALLEL_LOADERS']}
+        vocab_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words']
+        vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
+        for s in params['EVAL_ON_SETS']:
+            extra_vars[s] = dict()
+            extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
+            extra_vars[s]['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
+        if params['BEAM_SIZE']:
+            extra_vars['beam_size'] = params['BEAM_SIZE']
+            extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            extra_vars['optimized_search'] = True
+            extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
+            extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
+            extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
+            extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
+            extra_vars['normalize'] = params['NORMALIZE_SAMPLING']
+            extra_vars['alpha_factor'] = params['ALPHA_FACTOR']
+            extra_vars['pos_unk'] = params['POS_UNK']
+            if params['POS_UNK']:
+                extra_vars['heuristic'] = params['HEURISTIC']
+                if params['HEURISTIC'] > 0:
+                    extra_vars['mapping'] = dataset.mapping
 
-            callback_sampling = utils.callbacks.SampleEachNUpdates(model,
-                                                                   dataset,
-                                                                   gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                                   set_name=params['SAMPLE_ON_SETS'],
-                                                                   n_samples=params['N_SAMPLES'],
-                                                                   each_n_updates=params['SAMPLE_EACH_UPDATES'],
-                                                                   extra_vars=extra_vars,
-                                                                   reload_epoch=params['RELOAD'],
-                                                                   batch_size=params['BATCH_SIZE'],
-                                                                   is_text=True,
-                                                                   index2word_x=vocab_x,  # text info
-                                                                   index2word_y=vocab_y,  # text info
-                                                                   in_pred_idx=params['INPUTS_IDS_DATASET'][0],
-                                                                   sampling_type=params['SAMPLING'],  # text info
-                                                                   beam_search=params['BEAM_SEARCH'],
-                                                                   start_sampling_on_epoch=params['START_SAMPLING_ON_EPOCH'],
-                                                                   verbose=params['VERBOSE'])
-            callbacks.append(callback_sampling)
+        callback_sampling = utils.callbacks.SampleEachNUpdates(model,
+                                                               dataset,
+                                                               gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                               set_name=params['SAMPLE_ON_SETS'],
+                                                               n_samples=params['N_SAMPLES'],
+                                                               each_n_updates=params['SAMPLE_EACH_UPDATES'],
+                                                               extra_vars=extra_vars,
+                                                               reload_epoch=params['RELOAD'],
+                                                               batch_size=params['BATCH_SIZE'],
+                                                               is_text=True,
+                                                               index2word_x=vocab_x,  # text info
+                                                               index2word_y=vocab_y,  # text info
+                                                               in_pred_idx=params['INPUTS_IDS_DATASET'][0],
+                                                               sampling_type=params['SAMPLING'],  # text info
+                                                               beam_search=params['BEAM_SEARCH'],
+                                                               start_sampling_on_epoch=params['START_SAMPLING'
+                                                                                              '_ON_EPOCH'],
+                                                               verbose=params['VERBOSE'])
+        callbacks.append(callback_sampling)
     return callbacks
 
 
@@ -303,21 +304,21 @@ def check_params(params):
 
 if __name__ == "__main__":
 
-    params = load_parameters()
+    parameters = load_parameters()
 
     try:
         for arg in sys.argv[1:]:
             k, v = arg.split('=')
-            params[k] = ast.literal_eval(v)
+            parameters[k] = ast.literal_eval(v)
     except ValueError:
         print 'Overwritten arguments must have the form key=Value'
         exit(1)
 
-    if params['MODE'] == 'training':
+    if parameters['MODE'] == 'training':
         logging.info('Running training.')
-        train_model(params)
-    elif params['MODE'] == 'sampling':
+        train_model(parameters)
+    elif parameters['MODE'] == 'sampling':
         logging.info('Running sampling.')
-        apply_NMT_model(params)
+        apply_NMT_model(parameters)
 
     logging.info('Done!')

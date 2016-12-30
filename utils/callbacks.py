@@ -1,20 +1,10 @@
-"""
-Extra set of callbacks.
-"""
-
 import warnings
 import logging
-
 import evaluation
 from keras_wrapper.read_write import list2file, listoflists2file, numpy2file
-
 from keras.callbacks import Callback as KerasCallback
-
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
-###
-# Printing callbacks
-###
 
 def checkDefaultParamsBeamSearch(params):
 
@@ -23,7 +13,7 @@ def checkDefaultParamsBeamSearch(params):
                       'words_so_far': False, 'n_parallel_loaders': 5, 'optimized_search': False,
                       'pos_unk': False, 'heuristic': 0, 'mapping': None}
 
-    for k,v in params.iteritems():
+    for k, v in params.iteritems():
         if k in default_params.keys() or k in required_params:
             default_params[k] = v
 
@@ -33,14 +23,14 @@ def checkDefaultParamsBeamSearch(params):
 
     return default_params
 
+
 class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
 
-    def __init__(self, model, dataset, gt_id, metric_name, set_name, batch_size, each_n_epochs=1, extra_vars=dict(),
+    def __init__(self, model, dataset, gt_id, metric_name, set_name, batch_size, each_n_epochs=1, extra_vars=None,
                  is_text=False, index2word_y=None, input_text_id=None, index2word_x=None, sampling='max_likelihood',
-                 beam_search=False, write_samples = False, save_path='logs/pgerformance.', reload_epoch=0,
-                 eval_on_epochs=True, each_n_updates=10000, start_eval_on_epoch=0,
-                 write_type='list', sampling_type='max_likelihood',
-                 out_pred_idx=None, early_stop=False, patience=5, stop_metric = 'Bleu-4', verbose=1):
+                 beam_search=False, write_samples=False, save_path='logs/pgerformance.', reload_epoch=0,
+                 eval_on_epochs=True, start_eval_on_epoch=0, write_type='list', sampling_type='max_likelihood',
+                 out_pred_idx=None, early_stop=False, patience=5, stop_metric='Bleu-4', verbose=1):
         """
             :param model: model to evaluate
             :param dataset: instance of the class Dataset in keras_wrapper.dataset
@@ -50,7 +40,8 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             :param batch_size: batch size used during sampling
             :param each_n_epochs: sampling each this number of epochs
             :param extra_vars: dictionary of extra variables
-            :param is_text: defines if the predicted info is of type text (in that case the data will be converted from values into a textual representation)
+            :param is_text: defines if the predicted info is of type text (in that case the data
+                            will be converted from values into a textual representation)
             :param index2word_y: mapping from the indices to words (only needed if is_text==True)
             :param sampling: sampling mechanism used (only used if is_text==True)
             :param write_samples: flag for indicating if we want to write the predicted data in a text file
@@ -59,7 +50,8 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             :param start_eval_on_epoch: only starts evaluating model if a given epoch has been reached
             :param write_type: method used for writing predictions
             :param sampling_type: type of sampling used (multinomial or max_likelihood)
-            :param out_pred_idx: index of the output prediction used for evaluation (only applicable if model has more than one output, else set to None)
+            :param out_pred_idx: index of the output prediction used for evaluation
+                                 (only applicable if model has more than one output, else set to None)
             :param verbose: verbosity level; by default 1
         """
         self.model_to_eval = model
@@ -87,33 +79,35 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
         self.patience = patience
         self.stop_metric = stop_metric
         self.best_score = -1
+        self.best_epoch = -1
         self.wait = 0
         self.verbose = verbose
         self.cum_update = 0
         self.epoch = reload_epoch
+        super(PrintPerformanceMetricOnEpochEndOrEachNUpdates, self).__init__()
 
-    def on_epoch_end(self, epoch, logs={}):
+    def on_epoch_end(self, epoch, logs=None):
         """
         On epoch end, sample and evaluate on the specified datasets.
         :param epoch: Current epoch number
         :param logs:
         :return:
         """
-        epoch += 1 # start by index 1
+        epoch += 1  # start by index 1
         if not self.eval_on_epochs:
             return
         if epoch < self.start_eval_on_epoch:
             if self.verbose > 0:
-                logging.info('Not evaluating until end of epoch '+ str(self.start_eval_on_epoch))
+                logging.info('Not evaluating until end of epoch ' + str(self.start_eval_on_epoch))
             return
         elif (epoch-self.start_eval_on_epoch) % self.each_n_epochs != 0:
             if self.verbose > 0:
-                logging.info('Evaluating only every '+ str(self.each_n_epochs) + ' epochs')
+                logging.info('Evaluating only every ' + str(self.each_n_epochs) + ' epochs')
             return
         self.evaluate(epoch, counter_name='epoch')
 
-    def on_batch_end(self, n_update, logs={}):
-        self.cum_update += 1 # start by index 1
+    def on_batch_end(self, n_update, logs=None):
+        self.cum_update += 1  # start by index 1
         if self.eval_on_epochs:
             return
         if self.cum_update % self.each_n_epochs != 0:
@@ -141,7 +135,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                 samples = predictions[0]
                 alphas = predictions[1]
 
-                if eval('self.ds.loaded_raw_'+ s +'[0]'):
+                if eval('self.ds.loaded_raw_' + s + '[0]'):
                     sources = predictions[2]
                 else:
                     sources = []
@@ -149,9 +143,9 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                         for src in preds[self.input_text_id]:
                             sources.append(src)
                     sources = self.model_to_eval.decode_predictions_beam_search(sources,
-                                                                self.index2word_x,
-                                                                pad_sequences=True,
-                                                                verbose=self.verbose)
+                                                                                self.index2word_x,
+                                                                                pad_sequences=True,
+                                                                                verbose=self.verbose)
                 heuristic = params_prediction['heuristic']
             else:
                 samples = predictions
@@ -168,17 +162,19 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                                                                                     alphas=alphas,
                                                                                     x_text=sources,
                                                                                     heuristic=heuristic,
-                                                                                    mapping=params_prediction['mapping'],
+                                                                                    mapping=params_prediction
+                                                                                    ['mapping'],
                                                                                     verbose=self.verbose)
                 else:
-                    predictions = self.model_to_eval.decode_predictions(samples, 1,  # always set temperature to 1
-                                                      self.index2word_y,
-                                                      self.sampling_type,
-                                                      verbose=self.verbose)
+                    predictions = self.model_to_eval.decode_predictions(samples,
+                                                                        1,  # always set temperature to 1
+                                                                        self.index2word_y,
+                                                                        self.sampling_type,
+                                                                        verbose=self.verbose)
             # Store predictions
             if self.write_samples:
                 # Store result
-                filepath = self.save_path +'/'+ s +'_'+ counter_name + '_'+ str(epoch) +'.pred' # results file
+                filepath = self.save_path + '/' + s + '_' + counter_name + '_' + str(epoch) + '.pred'  # results file
                 if self.write_type == 'list':
                     list2file(filepath, predictions)
                 elif self.write_type == 'listoflists':
@@ -192,7 +188,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             for metric in self.metric_name:
                 if self.verbose > 0:
                     logging.info('Evaluating on metric '+metric)
-                filepath = self.save_path +'/'+ s +'.'+metric # results file
+                filepath = self.save_path + '/' + s + '.' + metric  # results file
 
                 # Evaluate on the chosen metric
                 metrics = evaluation.select[metric](
@@ -209,11 +205,11 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                         value = metrics[metric_]
                         header += metric_ + ', '
                         line += str(value) + ', '
-                    if epoch==1 or epoch==self.start_eval_on_epoch:
-                        f.write(header+'\n')
-                    f.write(line+'\n')
+                    if epoch == 1 or epoch == self.start_eval_on_epoch:
+                        f.write(header + '\n')
+                    f.write(line + '\n')
                 if self.verbose > 0:
-                    logging.info('Done evaluating on metric '+metric)
+                    logging.info('Done evaluating on metric ' + metric)
 
             # Early stop check
             if self.early_stop and s in ['val', 'validation', 'dev', 'development']:
@@ -227,33 +223,37 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                 else:
                     if self.wait >= self.patience:
                         if self.verbose > 0:
-                            logging.info("Epoch %d: early stopping. Best %s value found at %s %d: %.4f" %
-                                         (str(counter_name), epoch, self.stop_metric, self.best_epoch, self.best_score))
+                            logging.info("%s %d: early stopping. Best %s value found at %s %d: %.4f" %
+                                         (str(counter_name), epoch, self.stop_metric, str(counter_name),
+                                          self.best_epoch, self.best_score))
                             self.model.stop_training = True
-                    self.wait += 1.
+                    self.wait += 1
                     if self.verbose > 0:
                         logging.info('----bad counter: %d/%d' % (self.wait, self.patience))
 
+
 class SampleEachNUpdates(KerasCallback):
 
-    def __init__(self, model, dataset, gt_id, set_name, n_samples, each_n_updates=10000, extra_vars=dict(),
-                 is_text=False, index2word_x=None, index2word_y=None, input_text_id=None, sampling='max_likelihood', beam_search=False, batch_size=50,
-                 reload_epoch=0, start_sampling_on_epoch=0, write_type='list', sampling_type='max_likelihood',
-                 out_pred_idx=None, in_pred_idx=None, verbose=1):
+    def __init__(self, model, dataset, gt_id, set_name, n_samples, each_n_updates=10000, extra_vars=None,
+                 is_text=False, index2word_x=None, index2word_y=None, input_text_id=None, sampling='max_likelihood',
+                 beam_search=False, batch_size=50, reload_epoch=0, start_sampling_on_epoch=0,
+                 write_type='list', sampling_type='max_likelihood', out_pred_idx=None, in_pred_idx=None, verbose=1):
         """
         :param model: model to evaluate
         :param dataset: instance of the class Dataset in keras_wrapper.dataset
         :param gt_id: identifier in the Dataset instance of the output data about to evaluate
-        :param metric_name: name of the performance metric
         :param set_name: name of the set split that will be evaluated
         :param n_samples: batch size used during sampling
         :param each_n_updates: sampling each this number of epochs
         :param extra_vars: dictionary of extra variables
-        :param is_text: defines if the predicted info is of type text (in that case the data will be converted from values into a textual representation)
+        :param is_text: defines if the predicted info is of type text
+                        (in that case the data will be converted from values into a textual representation)
         :param index2word_y: mapping from the indices to words (only needed if is_text==True)
         :param sampling: sampling mechanism used (only used if is_text==True)
-        :param in_pred_idx: index of the input prediction used for evaluation (only applicable if model has more than one input, else set to None)
-        :param out_pred_idx: index of the output prediction used for evaluation (only applicable if model has more than one output, else set to None)
+        :param in_pred_idx: index of the input prediction used for evaluation
+                            (only applicable if model has more than one input, else set to None)
+        :param out_pred_idx: index of the output prediction used for evaluation
+                             (only applicable if model has more than one output, else set to None)
         :param reload_epoch: number o the epoch reloaded (0 by default)
         :param start_sampling_on_epoch: only starts evaluating model if a given epoch has been reached
         :param verbose: verbosity level; by default 1
@@ -279,8 +279,10 @@ class SampleEachNUpdates(KerasCallback):
         self.out_pred_idx = out_pred_idx
         self.in_pred_idx = in_pred_idx
         self.verbose = verbose
+        super(SampleEachNUpdates, self).__init__()
 
-    def on_batch_end(self, n_update, logs={}):
+    def on_batch_end(self, n_update, logs=None):
+
         n_update += 1  # start by index 1
         n_update += self.reload_epoch
         if n_update < self.start_sampling_on_epoch:
@@ -307,9 +309,9 @@ class SampleEachNUpdates(KerasCallback):
             if self.in_pred_idx is not None:
                 sources = [srcs for srcs in sources[0][self.in_pred_idx]]
             sources = self.model_to_eval.decode_predictions_beam_search(sources,
-                                                        self.index2word_x,
-                                                        pad_sequences=True,
-                                                        verbose=self.verbose)
+                                                                        self.index2word_x,
+                                                                        pad_sequences=True,
+                                                                        verbose=self.verbose)
             if params_prediction['pos_unk']:
                 samples = predictions[s][0]
                 alphas = predictions[s][1]
@@ -328,7 +330,8 @@ class SampleEachNUpdates(KerasCallback):
                                                                                     alphas=alphas,
                                                                                     x_text=sources,
                                                                                     heuristic=heuristic,
-                                                                                    mapping=params_prediction['mapping'],
+                                                                                    mapping=params_prediction
+                                                                                    ['mapping'],
                                                                                     verbose=self.verbose)
                 else:
                     predictions = self.model_to_eval.decode_predictions(samples,
@@ -341,9 +344,9 @@ class SampleEachNUpdates(KerasCallback):
                                                                        verbose=self.verbose)
             # Write samples
             for i, (source, sample, truth) in enumerate(zip(sources, predictions, truths)):
-                print "Source     (%d): %s"%(i, source)
-                print "Hypothesis (%d): %s"%(i, sample)
-                print "Reference  (%d): %s"%(i, truth)
+                print "Source     (%d): %s" % (i, source)
+                print "Hypothesis (%d): %s" % (i, sample)
+                print "Reference  (%d): %s" % (i, truth)
                 print ""
 
 
@@ -373,12 +376,12 @@ class ReduceLearningRate(KerasCallback):
         self.is_early_stopping = is_early_stopping
         self.verbose = verbose
         self.epsilon = 0.1e-10
+        super(ReduceLearningRate, self).__init__()
 
-    def on_epoch_end(self, epoch, logs={}):
+    def on_epoch_end(self, epoch, logs=None):
         current_score = logs.get('val_acc')
         if current_score is None:
-            warnings.warn('validation score is off; ' +
-                    'this reducer works only with the validation score on')
+            warnings.warn('validation score is off; ' + 'this reducer works only with the validation score on')
             return
         if current_score > self.best_score:
             self.best_score = current_score

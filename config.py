@@ -47,7 +47,7 @@ def load_parameters():
     SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
-    POS_UNK = True                               # Enable POS_UNK strategy for unknown words
+    POS_UNK = True                                # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
                                                   #     1: Replace the UNK by the translation (given by an external
