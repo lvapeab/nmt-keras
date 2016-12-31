@@ -198,7 +198,7 @@ def buildCallbacks(params, model, dataset):
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
             extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
-            extra_vars['optimized_search'] = True
+            extra_vars['optimized_search'] = params['OPTIMIZED_SEARCH']
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
@@ -256,7 +256,7 @@ def buildCallbacks(params, model, dataset):
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
             extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
-            extra_vars['optimized_search'] = True
+            extra_vars['optimized_search'] = params['OPTIMIZED_SEARCH']
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
