@@ -297,10 +297,8 @@ def check_params(params):
     :param params:  Model instance on which to apply the callback.
     :return: None
     """
-
-    if 'Glove' in params['MODEL_TYPE'] and params['GLOVE_VECTORS'] is None:
-        logger.warning("You set a model that uses pretrained word vectors but you didn't specify a vector file."
-                       "We'll train WITHOUT pretrained embeddings!")
+    if params['POS_UNK']:
+        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
 
 if __name__ == "__main__":
 
