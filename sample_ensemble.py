@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
         if params['BEAM_SEARCH']:
             params_prediction['beam_size'] = params['BEAM_SIZE']
-            params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN_TEST']
             params_prediction['optimized_search'] = params['OPTIMIZED_SEARCH']
             params_prediction['model_inputs'] = params['INPUTS_IDS_MODEL']
             params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
