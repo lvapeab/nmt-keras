@@ -433,11 +433,11 @@ class TranslationModel(Model_Wrapper):
                                                                                  shared_reg_out_layer_ctx,
                                                                                  shared_reg_out_layer_emb):
                 out_layer_mlp = reg_out_layer_mlp(out_layer_mlp)
-                out_layer_ctx = reg_out_layer_mlp(out_layer_ctx)
-                out_layer_emb = reg_out_layer_mlp(out_layer_emb)
+                out_layer_ctx = reg_out_layer_ctx(out_layer_ctx)
+                out_layer_emb = reg_out_layer_emb(out_layer_emb)
 
             additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
-                                      mode='sum', name='additional_input')
+                                      mode='sum', name='additional_input_model_next')
             out_layer = shared_activation_tanh(additional_output)
 
             for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
