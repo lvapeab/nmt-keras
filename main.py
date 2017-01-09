@@ -109,7 +109,7 @@ def apply_NMT_model(params):
 
         if params['BEAM_SEARCH']:
             params_prediction['beam_size'] = params['BEAM_SIZE']
-            params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN_TEST']
             params_prediction['optimized_search'] = params['OPTIMIZED_SEARCH']
             params_prediction['model_inputs'] = params['INPUTS_IDS_MODEL']
             params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
@@ -197,7 +197,7 @@ def buildCallbacks(params, model, dataset):
             extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
-            extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN_TEST']
             extra_vars['optimized_search'] = params['OPTIMIZED_SEARCH']
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
@@ -255,7 +255,7 @@ def buildCallbacks(params, model, dataset):
             extra_vars[s]['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
-            extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN']
+            extra_vars['maxlen'] = params['MAX_OUTPUT_TEXT_LEN_TEST']
             extra_vars['optimized_search'] = params['OPTIMIZED_SEARCH']
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
@@ -297,10 +297,8 @@ def check_params(params):
     :param params:  Model instance on which to apply the callback.
     :return: None
     """
-
-    if 'Glove' in params['MODEL_TYPE'] and params['GLOVE_VECTORS'] is None:
-        logger.warning("You set a model that uses pretrained word vectors but you didn't specify a vector file."
-                       "We'll train WITHOUT pretrained embeddings!")
+    if params['POS_UNK']:
+        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
 
 if __name__ == "__main__":
 
