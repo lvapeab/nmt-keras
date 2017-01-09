@@ -5,7 +5,7 @@ from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
 from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral
 from keras.models import model_from_json, Model
-from keras.optimizers import Adam, RMSprop, Nadam, Adadelta
+from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD
 from keras.regularizers import l2
 from keras_wrapper.cnn_model import Model_Wrapper
 from utils.regularize import Regularize
@@ -132,12 +132,13 @@ class TranslationModel(Model_Wrapper):
             optimizer = Nadam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
         elif self.params['OPTIMIZER'].lower() == 'adadelta':
             optimizer = Adadelta(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
+        elif self.params['OPTIMIZER'].lower() == 'sgd':
+            optimizer = SGD(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
-            optimizer = self.params['OPTIMIZER']
+            optimizer = eval(self.params['OPTIMIZER'])
         self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
-
     def __str__(self):
         """
         Plots basic model information.
@@ -474,3 +475,4 @@ class TranslationModel(Model_Wrapper):
                 self.ids_outputs_next.append('next_memory')
                 self.matchings_init_to_next['next_memory'] = 'prev_memory'
                 self.matchings_next_to_next['next_memory'] = 'prev_memory'
+
