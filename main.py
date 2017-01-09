@@ -98,11 +98,15 @@ def apply_NMT_model(params):
     # Apply sampling
     extra_vars = dict()
     extra_vars['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
+    extra_vars['language'] = params['TRG_LAN']
+
     for s in params["EVAL_ON_SETS"]:
 
         # Apply model predictions
         params_prediction = {'batch_size': params['BATCH_SIZE'],
-                             'n_parallel_loaders': params['PARALLEL_LOADERS'], 'predict_on_sets': [s]}
+                             'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                             'predict_on_sets': [s],
+                             'pos_unk': False, 'heuristic': 0, 'mapping': None}
 
         # Convert predictions into sentences
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
@@ -118,28 +122,55 @@ def apply_NMT_model(params):
             params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
             params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
             params_prediction['pos_unk'] = params['POS_UNK']
+            if params['POS_UNK']:
+                params_prediction['heuristic'] = params['HEURISTIC']
+                input_text_id = params['INPUTS_IDS_DATASET'][0]
+                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
+                if params['HEURISTIC'] > 0:
+                    params_prediction['mapping'] = dataset.mapping
+            else:
+                input_text_id = None
+                vocab_src = None
+
+
             predictions = nmt_model.BeamSearchNet(dataset, params_prediction)[s]
 
-            if params['POS_UNK']:
+            if params_prediction['pos_unk']:
                 samples = predictions[0]
                 alphas = predictions[1]
-                heuristic = params['HEURISTIC']
+
+                if eval('self.ds.loaded_raw_' + s + '[0]'):
+                    sources = predictions[2]
+                else:
+                    sources = []
+                    for preds in predictions[2]:
+                        for src in preds[input_text_id]:
+                            sources.append(src)
+                    sources = nmt_model.decode_predictions_beam_search(sources,
+                                                                       vocab_src,
+                                                                       pad_sequences=True,
+                                                                       verbose=params['VERBOSE'])
+                heuristic = params_prediction['heuristic']
             else:
                 samples = predictions
                 alphas = None
                 heuristic = None
-            predictions = nmt_model.decode_predictions_beam_search(samples,
-                                                                   vocab,
-                                                                   alphas=alphas,
-                                                                   heuristic=heuristic,
-                                                                   verbose=params['VERBOSE'])
-        else:
-            predictions = nmt_model.predictNet(dataset, params_prediction)[s]
-            predictions = nmt_model.decode_predictions(predictions,
-                                                       params['TEMPERATURE'],
-                                                       vocab,
-                                                       params['SAMPLING'],
-                                                       verbose=params['VERBOSE'])
+                sources = None
+            # Convert predictions into sentences
+            if  params['BEAM_SEARCH']:
+                predictions = nmt_model.decode_predictions_beam_search(samples,
+                                                                       vocab,
+                                                                       alphas=alphas,
+                                                                       x_text=sources,
+                                                                       heuristic=heuristic,
+                                                                       mapping=params_prediction['mapping'],
+                                                                       verbose=params['VERBOSE'])
+            else:
+                predictions = nmt_model.decode_predictions(samples,
+                                                           1,
+                                                           vocab,
+                                                           params['SAMPLING'],
+                                                           verbose=params['VERBOSE'])
 
         # Store result
         filepath = nmt_model.model_path+'/' + s + '_sampling.pred'  # results file
