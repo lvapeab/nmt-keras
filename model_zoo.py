@@ -376,7 +376,7 @@ class TranslationModel(Model_Wrapper):
         # Now that we have the basic training model ready, let's prepare the model for applying decoding
         # The beam-search model will include all the minimum required set of layers (decoder stage) which offer the
         # possibility to generate the next state in the sequence given a pre-processed input (encoder stage)
-        if params['BEAM_SEARCH'] and params['OPTIMIZED_SEARCH']:
+        if params['BEAM_SEARCH']:
             # First, we need a model that outputs the preprocessed input + initial h state
             # for applying the initial forward pass
             model_init_input = [src_text, next_words]
