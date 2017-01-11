@@ -145,13 +145,16 @@ def load_parameters():
     N_LAYERS_DECODER = 1                          # Stack this number of deenoding layers
 
     # Fully-Connected layers for initializing the first RNN state
-    INIT_LAYERS = ['tanh']                        # Here we should only specify the activation function of each layer
-                                                  # (as they have a potentially fixed size)
-                                                  # (e.g INIT_LAYERS = ['tanh', 'relu'])
+    #       Here we should only specify the activation function of each layer
+    #       (as they have a potentially fixed size)
+    #       (e.g INIT_LAYERS = ['tanh', 'relu'])
+    INIT_LAYERS = ['tanh']
 
     # Additional Fully-Connected layers's sizes applied before softmax.
-    DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)] # Here we should specify the activation function and the output dimension
-                                                  # (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu',400), ('relu':200)])
+    #       Here we should specify the activation function and the output dimension
+    #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
+
+    DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)]
     # Regularizers
     WEIGHT_DECAY = 1e-4                           # L2 regularization
     RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
