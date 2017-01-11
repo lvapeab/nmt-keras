@@ -55,9 +55,10 @@ def Regularize(layer, params, shared_layers=False, name=''):
     # Apply all the previously built shared layers
     for l in shared_layers_list:
         layer = l(layer)
+
     result = layer
 
     # Return result or shared layers too
     if shared_layers:
-        return [result, shared_layers_list]
+        return result, shared_layers_list
     return result

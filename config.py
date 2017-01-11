@@ -35,7 +35,7 @@ def load_parameters():
     TEMPERATURE = 1                               # Multinomial sampling parameter
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
     BEAM_SIZE = 12                                # Beam size (in case of BEAM_SEARCH == True)
-    OPTIMIZED_SEARCH = False                      # Compute annotations only a single time per sample
+    OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
     NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
     ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
                                                   # (see: https://arxiv.org/pdf/1609.08144v1.pdf)
@@ -47,7 +47,7 @@ def load_parameters():
     SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
-    POS_UNK = False                               # Enable POS_UNK strategy for unknown words
+    POS_UNK = True                                # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
                                                   #     1: Replace the UNK by the translation (given by an external
@@ -55,7 +55,7 @@ def load_parameters():
                                                   #     2: Replace the UNK by the translation (given by an external
                                                   #        dictionary) of the correspondingly aligned source only if it
                                                   #        starts with a lowercase. Otherwise, copies the source word.
-    ALIGN_FROM_RAW = False                        # Align using the full vocabulary or the short_list
+    ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
 
     MAPPING = DATA_ROOT_PATH + '/DATA/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
