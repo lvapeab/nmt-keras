@@ -329,12 +329,12 @@ def check_params(params):
     :return: None
     """
     if params['POS_UNK']:
-        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
+                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
 
 if __name__ == "__main__":
 
     parameters = load_parameters()
-
     try:
         for arg in sys.argv[1:]:
             k, v = arg.split('=')
@@ -342,7 +342,7 @@ if __name__ == "__main__":
     except ValueError:
         print 'Overwritten arguments must have the form key=Value'
         exit(1)
-
+    check_params(parameters)
     if parameters['MODE'] == 'training':
         logging.info('Running training.')
         train_model(parameters)
