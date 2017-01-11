@@ -133,7 +133,7 @@ def apply_NMT_model(params):
                 vocab_src = None
 
 
-            predictions = nmt_model.BeamSearchNet(dataset, params_prediction)[s]
+            predictions = nmt_model.predictBeamSearchNet(dataset, params_prediction)[s]
 
             if params_prediction['pos_unk']:
                 samples = predictions[0]

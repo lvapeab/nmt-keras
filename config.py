@@ -38,7 +38,7 @@ def load_parameters():
     OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
     NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
     ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
-                                                  # (see: https://arxiv.org/pdf/1609.08144v1.pdf)
+                                                  # (see: arxiv.org/abs/1609.08144)
 
     # Sampling params: Show some samples during training
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
@@ -155,6 +155,7 @@ def load_parameters():
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
 
     DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)]
+
     # Regularizers
     WEIGHT_DECAY = 1e-4                           # L2 regularization
     RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers

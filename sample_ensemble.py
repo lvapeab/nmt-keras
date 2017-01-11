@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 vocab_src = None
                 mapping = None
             beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=args.verbose)
-            predictions = beam_searcher.BeamSearchNet()[s]
+            predictions = beam_searcher.predictBeamSearchNet()[s]
             if params_prediction['pos_unk']:
                 samples = predictions[0]
                 alphas = predictions[1]

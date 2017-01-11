@@ -127,7 +127,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
 
             if self.beam_search:
                 params_prediction.update(checkDefaultParamsBeamSearch(self.extra_vars))
-                predictions = self.model_to_eval.BeamSearchNet(self.ds, params_prediction)[s]
+                predictions = self.model_to_eval.predictBeamSearchNet(self.ds, params_prediction)[s]
             else:
                 predictions = self.model_to_eval.predictNet(self.ds, params_prediction)[s]
 
@@ -302,7 +302,7 @@ class SampleEachNUpdates(KerasCallback):
 
             if self.beam_search:
                 params_prediction.update(checkDefaultParamsBeamSearch(self.extra_vars))
-                predictions, truths, sources = self.model_to_eval.BeamSearchNet(self.ds, params_prediction)
+                predictions, truths, sources = self.model_to_eval.predictBeamSearchNet(self.ds, params_prediction)
             else:
                 predictions, truths = self.model_to_eval.predictNet(self.ds, params_prediction)[s]
 
