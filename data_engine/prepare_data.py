@@ -2,6 +2,55 @@ from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
 import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
+
+def update_dataset_from_file(ds, text_filename, params, splits=list('val'), remove_outputs=False):
+    """
+    Updates the dataset instance from a text file according to the given params.
+    Used for sampling
+
+    :param ds: Dataset instance
+    :param text_filename: Source language sentences
+    :param params: Parameters for building the dataset
+    :param splits: Splits to sample
+    :return: Dataset object with the processed data
+    """
+    for split in splits:
+        if remove_outputs:
+            ds.removeOutput(split,
+                            type='text',
+                            id=params['OUTPUTS_IDS_DATASET'][0])
+
+        # INPUT DATA
+        ds.setInput(text_filename,
+                    split,
+                    type='text',
+                    id=params['INPUTS_IDS_DATASET'][0],
+                    pad_on_batch=params['PAD_ON_BATCH'],
+                    tokenization=params['TOKENIZATION_METHOD'],
+                    build_vocabulary=False,
+                    fill=params['FILL'],
+                    max_text_len=params['MAX_INPUT_TEXT_LEN'],
+                    max_words=params['INPUT_VOCABULARY_SIZE'],
+                    min_occ=params['MIN_OCCURRENCES_VOCAB'],
+                    overwrite_split=True)
+
+        ds.setInput(None,
+                    split,
+                    type='ghost',
+                    id=params['INPUTS_IDS_DATASET'][-1],
+                    required=False,
+                    overwrite_split=True)
+
+        if params['ALIGN_FROM_RAW']:
+            ds.setRawInput(text_filename,
+                           split,
+                           type='file-name',
+                           id='raw_' + params['INPUTS_IDS_DATASET'][0],
+                           overwrite_split=True)
+
+
+    return ds
+
 def build_dataset(params):
     """
     Builds (or loads) a Dataset instance.
