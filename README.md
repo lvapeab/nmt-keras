@@ -1,6 +1,5 @@
 # NMT-Keras
 
-
 Neural Machine Translation with Keras (+ Theano backend)
 
 ## Features (in addition to the full Keras cosmos): 
@@ -21,7 +20,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.2 or newer, as it solves some issues)
- - [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
+ - [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper) (v. 0.7 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
 
@@ -75,9 +74,12 @@ Much of this library has been developed together with [Marc Bolaños](https://gi
 
 To see other projects following the philosophy of NMT-Keras, take a look here:
  
-[VIBIKNet for Visual Question Answering](https://github.com/MarcBS/VIBIKNet)
+[VIBIKNet for visual question answering](https://github.com/MarcBS/VIBIKNet).
 
-[ABiViRNet for Video Description](https://github.com/lvapeab/ABiViRNet)
+[ABiViRNet for video description](https://github.com/lvapeab/ABiViRNet).
+
+[Sentence SelectioNN for sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
+
 
 ## Warning 
 

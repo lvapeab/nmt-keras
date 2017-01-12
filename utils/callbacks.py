@@ -112,7 +112,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             return
         if self.cum_update % self.each_n_epochs != 0:
             return
-        if self.epoch < self.start_eval_on_epoch:
+        if self.epoch <= self.start_eval_on_epoch:
             return
         self.evaluate(self.cum_update, counter_name='update')
 
