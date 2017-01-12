@@ -3,7 +3,7 @@ from keras.engine.topology import merge
 from keras.layers import TimeDistributed, Bidirectional
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
-from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral
+from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral, MaskLayer
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD
 from keras.regularizers import l2
@@ -239,6 +239,8 @@ class TranslationModel(Model_Wrapper):
 
         # 3.2. Decoder's RNN initialization perceptrons with ctx mean
         ctx_mean = MaskedMean()(annotations)
+        annotations = MaskLayer()(annotations)
+
         if len(params['INIT_LAYERS']) > 0:
             for n_layer_init in range(len(params['INIT_LAYERS'])-1):
                 ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d' % n_layer_init,
