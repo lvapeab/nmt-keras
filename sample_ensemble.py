@@ -41,7 +41,8 @@ if __name__ == "__main__":
         params = pkl2dict(args.config)
 
     dataset = loadDataset(args.dataset)
-    dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=args.not_eval)
+    if args.text is not None:
+        dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=args.not_eval)
 
     if args.eval_output:
         keep_n_captions(dataset, repeat=1, n=1, set_names=args.splits)  # Include extra variables (references)
