@@ -239,7 +239,7 @@ class TranslationModel(Model_Wrapper):
 
         # 3.2. Decoder's RNN initialization perceptrons with ctx mean
         ctx_mean = MaskedMean()(annotations)
-        annotations = MaskLayer()(annotations)
+        annotations = MaskLayer()(annotations) # We may want the padded annotations
 
         if len(params['INIT_LAYERS']) > 0:
             for n_layer_init in range(len(params['INIT_LAYERS'])-1):
