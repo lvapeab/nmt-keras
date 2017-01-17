@@ -61,12 +61,12 @@ def build_dataset(params):
     if params['REBUILD_DATASET']:  # We build a new dataset instance
         if params['VERBOSE'] > 0:
             silence = False
-            logging.info('Building ' + params['DATASET_NAME'] + ' dataset')
+            logging.info('Building ' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + ' dataset')
         else:
             silence = True
 
         base_path = params['DATA_ROOT_PATH']
-        name = params['DATASET_NAME']
+        name = params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
         ds = Dataset(name, base_path, silence=silence)
 
         # OUTPUT DATA
