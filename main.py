@@ -219,7 +219,8 @@ def buildCallbacks(params, model, dataset):
 
     if params['METRICS']:
         # Evaluate training
-        extra_vars = {'language': params['TRG_LAN'], 'n_parallel_loaders': params['PARALLEL_LOADERS'],
+        extra_vars = {'language': params['TRG_LAN'],
+                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
                       'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:

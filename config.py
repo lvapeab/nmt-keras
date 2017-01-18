@@ -74,9 +74,6 @@ def load_parameters():
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
     MAX_INPUT_TEXT_LEN = 50                       # Maximum length of the input sequence
-    SOURCE_GLOVE_VECTORS = None                   # Path to pretrained vectors.
-                                                  # Set to None if you don't want to use pretrained vectors.
-    SOURCE_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Output text parameters
     OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
@@ -84,9 +81,6 @@ def load_parameters():
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
     MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
-    TARGET_GLOVE_VECTORS = None                   # Path to pretrained vectors.
-                                                  # Set to None if you don't want to use pretrained vectors.
-    TARGET_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'

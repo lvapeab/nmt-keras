@@ -36,7 +36,7 @@ class TranslationModel(Model_Wrapper):
         :param weights_path: path to the pre-trained weights file (if None, then it will be randomly initialized)
         :param model_name: optional name given to the network
                            (if None, then it will be assigned to current time as its name)
-        :param vocabularies: vocabularies used for GLOVE word embedding
+        :param vocabularies: vocabularies used for word embedding
         :param store_path: path to the folder where the temporal model packups will be stored
         """
         super(self.__class__, self).__init__(type=type, model_name=model_name,
