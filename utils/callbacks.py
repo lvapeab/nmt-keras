@@ -94,6 +94,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
         :return:
         """
         epoch += 1  # start by index 1
+        self.epoch += 1
         if not self.eval_on_epochs:
             return
         if epoch < self.start_eval_on_epoch:
@@ -112,7 +113,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             return
         if self.cum_update % self.each_n_epochs != 0:
             return
-        if self.epoch <= self.start_eval_on_epoch:
+        if self.epoch < self.start_eval_on_epoch - 1:
             return
         self.evaluate(self.cum_update, counter_name='update')
 
@@ -123,7 +124,9 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             params_prediction = {'batch_size': self.batch_size, 
                                  'n_parallel_loaders': self.extra_vars['n_parallel_loaders'],
                                  'predict_on_sets': [s],
-                                 'pos_unk': False, 'heuristic': 0, 'mapping': None}
+                                 'pos_unk': False,
+                                 'heuristic': 0,
+                                 'mapping': None}
 
             if self.beam_search:
                 params_prediction.update(checkDefaultParamsBeamSearch(self.extra_vars))
