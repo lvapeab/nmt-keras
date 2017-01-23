@@ -42,7 +42,7 @@ NMT-Keras requires the following libraries:
   ```
  - Run `python main.py`
  
-4) We can use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. For example, if we want to use the models from the first three epochs on the val split, just run:
+4) We can use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. In short, if we want to use the models from the first three epochs on the val split, just run:
  ```bash
   python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -s val
   ```
