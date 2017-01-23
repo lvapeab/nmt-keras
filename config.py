@@ -87,10 +87,8 @@ def load_parameters():
     CLASSIFIER_ACTIVATION = 'softmax'
 
     # Not used!
-    ##########
-    LR_DECAY = 20                                 # number of minimum number of epochs before the next LR decay
+    LR_DECAY = None                               # number of minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # multiplier used for decreasing the LR
-    ##########
 
     OPTIMIZER = 'Adam'                            # Optimizer
     LR = 0.001                                    # (recommended values - Adam 0.001 - Adadelta 1.0
