@@ -2,6 +2,27 @@
 
 Neural Machine Translation with Keras (+ Theano backend)
 
+# WARNING!!
+
+You are now in the `InteractiveNMT` branch of NMT-Keras. This branch is designed to implement the interactive protocols described in the paper [Interactive Neural Machine Translation](http://www.sciencedirect.com/science/article/pii/S0885230816301000): 
+
+If you use this repository for any purpose, please the aforementioned paper:
+ 
+```
+Interactive Neural Machine Translation
+Álvaro Peris, Miguel Domingo and Francisco Casacuberta.
+In Computer Speech & Language. In press, 2016.
+```
+
+The interactive simulation is implemented at the `interactive_nmt_simulation.py` script. 
+
+## Requirements
+    
+This branch requires—in addition to the regular NMT-Keras requirements—the `InteractiveNMT` branch from [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper/tree/Interactive_NMT).
+
+
+
+
 ## Features (in addition to the full Keras cosmos): 
 
  * Attention model over the input sequence of annotations.
@@ -13,7 +34,7 @@ Neural Machine Translation with Keras (+ Theano backend)
  * Beam search decoding.
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
- * [Spearmint] (https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
+ * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
 
