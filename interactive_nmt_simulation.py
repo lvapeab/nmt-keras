@@ -157,7 +157,7 @@ if __name__ == "__main__":
                 if args.original_dest is not None:
                     filepath = args.original_dest  # results file
                     if params['SAMPLING_SAVE_MODE'] == 'list':
-                        list2file(filepath, [hypothesis])
+                        list2file(filepath, [hypothesis + '\n'], permission='a')
                     else:
                         raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
                 hypothesis = hypothesis.split()
