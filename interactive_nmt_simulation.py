@@ -184,10 +184,6 @@ if __name__ == "__main__":
                             isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id), word))
                                             for index, word in hypothesis_isles]
                             logger.debug("Isles: %s" % (str(hypothesis_isles)))
-                            #if reference == " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split():
-                            #    logger.debug("Isles validating the full hypothesis")
-                            #    hypothesis = " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split()
-                            #    break
                             # Count only for non selected isles
                             # Isles of length 1 account for 1 mouse action
                             mouse_actions_sentence += compute_mouse_movements(isle_indices,
@@ -206,6 +202,7 @@ if __name__ == "__main__":
                                 # Insertions (at the end of the sentence)
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
+                                new_word = reference[checked_index_r]
                                 new_word_index = word2index_y.get(new_word, unk_id)
                                 validated_prefix.append(new_word_index)
                                 fixed_words_user[checked_index_h] = new_word_index
@@ -222,6 +219,7 @@ if __name__ == "__main__":
                             elif hypothesis[checked_index_h] != reference[checked_index_r]:
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
+                                new_word = reference[checked_index_r]
                                 # Substitution
                                 new_word_index = word2index_y.get(new_word, unk_id)
                                 fixed_words_user[checked_index_h] = new_word_index
