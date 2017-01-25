@@ -36,8 +36,11 @@ if __name__ == "__main__":
     print "Using an ensemble of %d models" % len(args.models)
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     if args.config is None:
+        print "Reading parameters from config.py"
         params = load_parameters()
     else:
+        print "Loading parameters from %s" % str(args.config)
+
         params = pkl2dict(args.config)
 
     dataset = loadDataset(args.dataset)

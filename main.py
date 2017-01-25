@@ -5,7 +5,7 @@ from config import load_parameters
 from data_engine.prepare_data import build_dataset
 from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
-from keras_wrapper.read_write import dict2pkl, list2file
+from keras_wrapper.extra.read_write import dict2pkl, list2file
 
 import utils
 import sys

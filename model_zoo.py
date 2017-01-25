@@ -18,7 +18,7 @@ class TranslationModel(Model_Wrapper):
     """
     Translation model class. Instance of the Model_Wrapper class (see staged_keras_wrapper).
     """
-    
+
     def resumeTrainNet(self, ds, params, out_name=None):
         pass
 
@@ -48,8 +48,8 @@ class TranslationModel(Model_Wrapper):
         self._model_type = type
         self.params = params
         self.vocabularies = vocabularies
-        self.ids_inputs = params["INPUTS_IDS_MODEL"]
-        self.ids_outputs = params["OUTPUTS_IDS_MODEL"]
+        self.ids_inputs = params['INPUTS_IDS_MODEL']
+        self.ids_outputs = params['OUTPUTS_IDS_MODEL']
         # Sets the model name and prepares the folders for storing the models
         self.setName(model_name, models_path=store_path)
 
