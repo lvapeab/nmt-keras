@@ -1,6 +1,7 @@
 import argparse
 import copy
 import time
+import logging
 from collections import OrderedDict
 
 from keras_wrapper.extra.read_write import pkl2dict, list2file
@@ -183,10 +184,10 @@ if __name__ == "__main__":
                             isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id), word))
                                             for index, word in hypothesis_isles]
                             logger.debug("Isles: %s" % (str(hypothesis_isles)))
-                            if reference == " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split():
-                                logger.debug("Isles validating the full hypothesis")
-                                hypothesis = " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split()
-                                break
+                            #if reference == " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split():
+                            #    logger.debug("Isles validating the full hypothesis")
+                            #    hypothesis = " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split()
+                            #    break
                             # Count only for non selected isles
                             # Isles of length 1 account for 1 mouse action
                             mouse_actions_sentence += compute_mouse_movements(isle_indices,
@@ -252,7 +253,8 @@ if __name__ == "__main__":
                                 sample_beam_search(src_seq,
                                                    fixed_words=copy.copy(fixed_words_user),
                                                    max_N=args.max_n,
-                                                   isles=isle_indices)
+                                                   isles=isle_indices,
+                                                   idx2word=index2word_y)
                             if params['POS_UNK']:
                                 alphas = [alphas]
                             else:
