@@ -1,11 +1,6 @@
 # NMT-Keras
 
 Neural Machine Translation with Keras (+ Theano backend)
-# NMT-Keras
-
-<<<<<<< 14bf01b9075946437cd5bf9e5006c129a1fd20cf
-=======
-Neural Machine Translation with Keras (+ Theano backend)
 
 # WARNING!!
 
@@ -24,7 +19,7 @@ The interactive simulation is implemented at the `interactive_nmt_simulation.py`
 ## Requirements
     
 This branch requires—in addition to the regular NMT-Keras requirements—the `InteractiveNMT` branch from [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper/tree/Interactive_NMT).
->>>>>>> Merge branch 'master' into interactive_NMT
+
 
 ## Features (in addition to the full Keras cosmos): 
 
