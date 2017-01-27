@@ -2,12 +2,6 @@
 
 Neural Machine Translation with Keras (+ Theano backend)
 
-## Requirements
-    
-This branch requires—in addition to the regular NMT-Keras requirements—the `InteractiveNMT` branch from [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper/tree/Interactive_NMT).
-
-
-
 
 ## Features (in addition to the full Keras cosmos): 
 
