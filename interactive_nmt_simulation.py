@@ -209,7 +209,6 @@ if __name__ == "__main__":
                                 # Insertions (at the end of the sentence)
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
-                                new_word = reference[checked_index_r]
                                 new_word_index = word2index_y.get(new_word, unk_id)
                                 validated_prefix.append(new_word_index)
                                 fixed_words_user[checked_index_h] = new_word_index
@@ -226,7 +225,6 @@ if __name__ == "__main__":
                             elif hypothesis[checked_index_h] != reference[checked_index_r]:
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
-                                new_word = reference[checked_index_r]
                                 # Substitution
                                 new_word_index = word2index_y.get(new_word, unk_id)
                                 fixed_words_user[checked_index_h] = new_word_index
