@@ -1,13 +1,13 @@
 import warnings
 import logging
 import evaluation
-from keras_wrapper.read_write import list2file, listoflists2file, numpy2file
+from keras_wrapper.extra.read_write import list2file, listoflists2file, numpy2file
 from keras.callbacks import Callback as KerasCallback
+
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 
 def checkDefaultParamsBeamSearch(params):
-
     required_params = ['model_inputs', 'model_outputs', 'dataset_inputs', 'dataset_outputs']
     default_params = {'beam_size': 5, 'maxlen': 30, 'normalize': False, 'alpha_factor': 1.0,
                       'words_so_far': False, 'n_parallel_loaders': 5, 'optimized_search': False,
@@ -25,7 +25,6 @@ def checkDefaultParamsBeamSearch(params):
 
 
 class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
-
     def __init__(self, model, dataset, gt_id, metric_name, set_name, batch_size, each_n_epochs=1, extra_vars=None,
                  is_text=False, index2word_y=None, input_text_id=None, index2word_x=None, sampling='max_likelihood',
                  beam_search=False, write_samples=False, save_path='logs/performance.', reload_epoch=0,
@@ -101,7 +100,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
             if self.verbose > 0:
                 logging.info('Not evaluating until end of epoch ' + str(self.start_eval_on_epoch))
             return
-        elif (epoch-self.start_eval_on_epoch) % self.each_n_epochs != 0:
+        elif (epoch - self.start_eval_on_epoch) % self.each_n_epochs != 0:
             if self.verbose > 0:
                 logging.info('Evaluating only every ' + str(self.each_n_epochs) + ' epochs')
             return
@@ -121,7 +120,7 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
         # Evaluate on each set separately
         for s in self.set_name:
             # Apply model predictions
-            params_prediction = {'batch_size': self.batch_size, 
+            params_prediction = {'batch_size': self.batch_size,
                                  'n_parallel_loaders': self.extra_vars['n_parallel_loaders'],
                                  'predict_on_sets': [s],
                                  'pos_unk': False,
@@ -185,25 +184,25 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
                 elif self.write_type == 'numpy':
                     numpy2file(filepath, predictions)
                 else:
-                    raise NotImplementedError('The store type "'+self.write_type+'" is not implemented.')
+                    raise NotImplementedError('The store type "' + self.write_type + '" is not implemented.')
 
             # Evaluate on each metric
             for metric in self.metric_name:
                 if self.verbose > 0:
-                    logging.info('Evaluating on metric '+metric)
+                    logging.info('Evaluating on metric ' + metric)
                 filepath = self.save_path + '/' + s + '.' + metric  # results file
 
                 # Evaluate on the chosen metric
                 metrics = evaluation.select[metric](
-                            pred_list=predictions,
-                            verbose=self.verbose,
-                            extra_vars=self.extra_vars,
-                            split=s)
+                    pred_list=predictions,
+                    verbose=self.verbose,
+                    extra_vars=self.extra_vars,
+                    split=s)
 
                 # Print results to file
                 with open(filepath, 'a') as f:
                     header = counter_name + ','
-                    line = str(epoch)+','
+                    line = str(epoch) + ','
                     for metric_ in sorted(metrics):
                         value = metrics[metric_]
                         header += metric_ + ', '
@@ -236,7 +235,6 @@ class PrintPerformanceMetricOnEpochEndOrEachNUpdates(KerasCallback):
 
 
 class SampleEachNUpdates(KerasCallback):
-
     def __init__(self, model, dataset, gt_id, set_name, n_samples, each_n_updates=10000, extra_vars=None,
                  is_text=False, index2word_x=None, index2word_y=None, input_text_id=None, sampling='max_likelihood',
                  beam_search=False, batch_size=50, reload_epoch=0, start_sampling_on_epoch=0,
@@ -359,6 +357,7 @@ class ReduceLearningRate(KerasCallback):
 
     Original work: jiumem [https://github.com/jiumem]
     """
+
     def __init__(self, patience=0, reduce_nb=10, is_early_stopping=True, verbose=1):
         """
         In:

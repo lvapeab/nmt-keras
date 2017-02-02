@@ -4,6 +4,7 @@
 import numpy as np
 from keras_wrapper.read_write import dict2pkl
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--fname", type=str)  # T-tables
 parser.add_argument("--dest", type=str)

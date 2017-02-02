@@ -5,17 +5,16 @@ Preprocess pretrained text vectors and stores them in a suitable format (.npy)
 """
 
 # Parameters
-ROOT_PATH = '/media/HDD_2TB/DATASETS/'                   # Data root path
-base_path = ROOT_PATH + 'cnn_polarity/DATA/'             # Binary vectors path
-vectors_basename = 'word2vec.'                           # Name of the vectors file
-language = 'fr'                                          # Language
-dest_file = 'word2vec.' + language                       # Destination file
+ROOT_PATH = '/media/HDD_2TB/DATASETS/'  # Data root path
+base_path = ROOT_PATH + 'cnn_polarity/DATA/'  # Binary vectors path
+vectors_basename = 'word2vec.'  # Name of the vectors file
+language = 'fr'  # Language
+dest_file = 'word2vec.' + language  # Destination file
 
 vectors_path = base_path + vectors_basename + language
 
 
 def txtvec2npy(v_path, base_path_save, dest_filename):
-
     vecs_dict = dict()
     print "Loading vectors from %s" % v_path
 
@@ -37,6 +36,7 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
     print "Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy')
     np.save(base_path_save + '/' + dest_filename + '.npy', vecs_dict)
     print
+
 
 if __name__ == "__main__":
     txtvec2npy(vectors_path, base_path, dest_file)
