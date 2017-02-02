@@ -3,8 +3,8 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", type=str) # Use the tokenized text files # Source
-parser.add_argument("--target", type=str) # Target
+parser.add_argument("--source", type=str)  # Use the tokenized text files # Source
+parser.add_argument("--target", type=str)  # Target
 parser.add_argument("--dest", type=str)
 parser.add_argument("--aligner", type=str, default='fast_align')
 

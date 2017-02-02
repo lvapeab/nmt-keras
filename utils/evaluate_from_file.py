@@ -13,32 +13,33 @@ from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.vqa import vqaEval, visual_qa
 
+# ROOT_PATH = '/home/lvapeab/smt/tasks/image_desc/'
+ROOT_PATH = '/media/HDD_2TB/DATASETS/'
 
-#ROOT_PATH = '/home/lvapeab/smt/tasks/image_desc/'
-ROOT_PATH = '/media/HDD_2TB/DATASETS/'  
-
-questions= ROOT_PATH + '/VQA/Questions/OpenEnded_mscoco_val2014_questions.json'
-annotations= ROOT_PATH + '/VQA/Annotations/mscoco_val2014_annotations.json'
-
+questions = ROOT_PATH + '/VQA/Questions/OpenEnded_mscoco_val2014_questions.json'
+annotations = ROOT_PATH + '/VQA/Annotations/mscoco_val2014_annotations.json'
 
 parser = argparse.ArgumentParser(
     description="""This takes two files and a path the references (source, references),
      computes bleu, meteor, rouge and cider metrics""", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-vqa', default=False, action="store_true", help='Compute VQA metrics')
 parser.add_argument('-q', type=str, default=questions, help='Path to questions file (only if the -vqa flag is active)')
-parser.add_argument('-a', type=str, default=annotations, help='Path to annotations file (only if the -vqa flag is active)')
+parser.add_argument('-a', type=str, default=annotations,
+                    help='Path to annotations file (only if the -vqa flag is active)')
 parser.add_argument('-hyp', type=str, help='Hypotheses file')
 parser.add_argument('-l', type=str, default='en', help='Meteor language')
-parser.add_argument('-r', type=argparse.FileType('r'),  nargs="+", help='Path to all the reference files (single-reference files)')
+parser.add_argument('-r', type=argparse.FileType('r'), nargs="+",
+                    help='Path to all the reference files (single-reference files)')
 
 
 def score_vqa(resFile, quesFile, annFile):
     # create vqa object and vqaRes object
     vqa_ = visual_qa.VQA(annFile, quesFile)
     vqaRes = vqa_.loadRes(resFile, quesFile)
-    vqaEval_ = vqaEval.VQAEval(vqa_, vqaRes, n=2)   #n is precision of accuracy (number of places after decimal), default is 2
+    vqaEval_ = vqaEval.VQAEval(vqa_, vqaRes,
+                               n=2)  # n is precision of accuracy (number of places after decimal), default is 2
     vqaEval_.evaluate()
-    print "Overall Accuracy is: %.02f\n" %(vqaEval_.accuracy['overall'])
+    print "Overall Accuracy is: %.02f\n" % (vqaEval_.accuracy['overall'])
     return vqaEval_.accuracy['overall']
 
 
@@ -52,7 +53,7 @@ def load_textfiles(references, hypothesis):
     if len(hypo) != len(refs):
         raise ValueError("There is a sentence number mismatch between the inputs: \n"
                          "\t # sentences in references: %d\n"
-                         "\t # sentences in hypothesis: %d"%(len(refs), len(hypo)))
+                         "\t # sentences in hypothesis: %d" % (len(refs), len(hypo)))
     return refs, hypo
 
 
@@ -64,7 +65,7 @@ def CocoScore(ref, hypo, language='en'):
     """
     scorers = [
         (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
-        (Meteor(language),"METEOR"),
+        (Meteor(language), "METEOR"),
         (Rouge(), "ROUGE_L"),
         (Cider(), "CIDEr")
     ]
