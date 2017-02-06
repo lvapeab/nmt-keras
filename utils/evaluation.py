@@ -29,7 +29,7 @@ def get_coco_score(pred_list, verbose, extra_vars, split):
 
     scorers = [
         (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
-        (Meteor(language=extra_vars['language']), "METEOR (%s)"%str(extra_vars['language'])),
+        (Meteor(language=extra_vars['language']), "METEOR (%s)" % str(extra_vars['language'])),
         (Rouge(), "ROUGE_L"),
         (Cider(), "CIDEr")
     ]
@@ -69,7 +69,7 @@ def eval_multiclass_metrics(pred_list, verbose, extra_vars, split):
     word2idx = extra_vars[split]['word2idx']
     n_classes = len(word2idx)
     n_samples = len(pred_list)
-    
+
     # Create prediction matrix
     y_pred = np.zeros((n_samples, n_classes))
     for i_s, sample in enumerate(pred_list):
@@ -87,10 +87,11 @@ def eval_multiclass_metrics(pred_list, verbose, extra_vars, split):
     rankloss = sklearn_metrics.label_ranking_loss(y_gt, y_pred)
 
     if verbose > 0:
-        logging.info('Coverage Error (best: avg labels per sample = %f): %f' %(np.sum(y_gt)/float(n_samples), coverr))
+        logging.info(
+            'Coverage Error (best: avg labels per sample = %f): %f' % (np.sum(y_gt) / float(n_samples), coverr))
         logging.info('Label Ranking Average Precision (best: 1.0): %f' % avgprec)
         logging.info('Label Ranking Loss (best: 0.0): %f' % rankloss)
-    
+
     return {'coverage error': coverr,
             'average precision': avgprec,
             'ranking loss': rankloss}
@@ -134,10 +135,11 @@ def multilabel_metrics(pred_list, verbose, extra_vars, split):
 
     return {'accuracy': accuracy}
 
+
 # EVALUATION FUNCTIONS SELECTOR
 # List of evaluation functions and their identifiers (will be used in parameters['METRICS'])
 select = {
-         'coco': get_coco_score,                 # MS COCO evaluation library (BLEU, METEOR and CIDEr scores)
-         'multiclass': eval_multiclass_metrics,  # Set of multiclass classification metrics from sklearn
-         'multilabel_metrics': multilabel_metrics,  # Set of multilabel classification metrics from sklearn
-         }
+    'coco': get_coco_score,  # MS COCO evaluation library (BLEU, METEOR and CIDEr scores)
+    'multiclass': eval_multiclass_metrics,  # Set of multiclass classification metrics from sklearn
+    'multilabel_metrics': multilabel_metrics,  # Set of multilabel classification metrics from sklearn
+}

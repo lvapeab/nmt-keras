@@ -1,4 +1,8 @@
 import logging
+import utils
+import sys
+import ast
+import warnings
 from timeit import default_timer as timer
 
 from config import load_parameters
@@ -7,9 +11,6 @@ from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.extra.read_write import dict2pkl, list2file
 
-import utils
-import sys
-import ast
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
@@ -156,7 +157,7 @@ def apply_NMT_model(params):
                 heuristic = None
                 sources = None
             # Convert predictions into sentences
-            if  params['BEAM_SEARCH']:
+            if params['BEAM_SEARCH']:
                 predictions = nmt_model.decode_predictions_beam_search(samples,
                                                                        vocab,
                                                                        alphas=alphas,
@@ -172,7 +173,7 @@ def apply_NMT_model(params):
                                                            verbose=params['VERBOSE'])
 
         # Store result
-        filepath = nmt_model.model_path+'/' + s + '_sampling.pred'  # results file
+        filepath = nmt_model.model_path + '/' + s + '_sampling.pred'  # results file
         if params['SAMPLING_SAVE_MODE'] == 'list':
             list2file(filepath, predictions)
         else:
@@ -247,7 +248,7 @@ def buildCallbacks(params, model, dataset):
                 input_text_id = None
                 vocab_src = None
 
-        callback_metric = utils.callbacks.\
+        callback_metric = utils.callbacks. \
             PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
                                                            dataset,
                                                            gt_id=params['OUTPUTS_IDS_DATASET'][0],
@@ -331,6 +332,14 @@ def check_params(params):
     if params['POS_UNK']:
         assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
+        warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
+                      'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
+
+    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][:-1] != '.npy':
+        warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
+                      'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
+
 
 if __name__ == "__main__":
 

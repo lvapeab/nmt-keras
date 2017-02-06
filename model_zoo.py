@@ -139,6 +139,7 @@ class TranslationModel(Model_Wrapper):
             optimizer = eval(self.params['OPTIMIZER'])
         self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
+
     def __str__(self):
         """
         Plots basic model information.
@@ -186,7 +187,7 @@ class TranslationModel(Model_Wrapper):
         src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding',
                                   W_regularizer=l2(params['WEIGHT_DECAY']),
-                                  trainable=self.src_embedding_weights_trainable,  weights=self.src_embedding_weights,
+                                  trainable=self.src_embedding_weights_trainable, weights=self.src_embedding_weights,
                                   mask_zero=True)(src_text)
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
 
@@ -196,8 +197,10 @@ class TranslationModel(Model_Wrapper):
                                                                  W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                  U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                  b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                 dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
-                                                                 dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                                 dropout_W=params['RECURRENT_DROPOUT_P'] if params[
+                                                                     'USE_RECURRENT_DROPOUT'] else None,
+                                                                 dropout_U=params['RECURRENT_DROPOUT_P'] if params[
+                                                                     'USE_RECURRENT_DROPOUT'] else None,
                                                                  return_sequences=True),
                                         name='bidirectional_encoder_' + params['RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
@@ -206,19 +209,26 @@ class TranslationModel(Model_Wrapper):
                                                    W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                    U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                    b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                   dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
-                                                   dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                   dropout_W=params['RECURRENT_DROPOUT_P'] if params[
+                                                       'USE_RECURRENT_DROPOUT'] else None,
+                                                   dropout_U=params['RECURRENT_DROPOUT_P'] if params[
+                                                       'USE_RECURRENT_DROPOUT'] else None,
                                                    return_sequences=True,
                                                    name='encoder_' + params['RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
             current_annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                         W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                         U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                         b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                         dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
-                                                                         dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
+                                                                         W_regularizer=l2(
+                                                                             params['RECURRENT_WEIGHT_DECAY']),
+                                                                         U_regularizer=l2(
+                                                                             params['RECURRENT_WEIGHT_DECAY']),
+                                                                         b_regularizer=l2(
+                                                                             params['RECURRENT_WEIGHT_DECAY']),
+                                                                         dropout_W=params['RECURRENT_DROPOUT_P'] if
+                                                                         params['USE_RECURRENT_DROPOUT'] else None,
+                                                                         dropout_U=params['RECURRENT_DROPOUT_P'] if
+                                                                         params['USE_RECURRENT_DROPOUT'] else None,
                                                                          return_sequences=True,
                                                                          ),
                                                 merge_mode='concat',
@@ -239,10 +249,10 @@ class TranslationModel(Model_Wrapper):
 
         # 3.2. Decoder's RNN initialization perceptrons with ctx mean
         ctx_mean = MaskedMean()(annotations)
-        annotations = MaskLayer()(annotations) # We may want the padded annotations
+        annotations = MaskLayer()(annotations)  # We may want the padded annotations
 
         if len(params['INIT_LAYERS']) > 0:
-            for n_layer_init in range(len(params['INIT_LAYERS'])-1):
+            for n_layer_init in range(len(params['INIT_LAYERS']) - 1):
                 ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d' % n_layer_init,
                                  W_regularizer=l2(params['WEIGHT_DECAY']),
                                  activation=params['INIT_LAYERS'][n_layer_init]
@@ -275,12 +285,18 @@ class TranslationModel(Model_Wrapper):
                                                                      Wa_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      Ua_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                     dropout_W=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_V=params['RECURRENT_DROPOUT_P'] if params['USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_wa=params['DROPOUT_P'] if params['USE_DROPOUT'] else None,
-                                                                     dropout_Wa=params['DROPOUT_P'] if params['USE_DROPOUT'] else None,
-                                                                     dropout_Ua=params['DROPOUT_P'] if params['USE_DROPOUT'] else None,
+                                                                     dropout_W=params['RECURRENT_DROPOUT_P'] if params[
+                                                                         'USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if params[
+                                                                         'USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_V=params['RECURRENT_DROPOUT_P'] if params[
+                                                                         'USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_wa=params['DROPOUT_P'] if params[
+                                                                         'USE_DROPOUT'] else None,
+                                                                     dropout_Wa=params['DROPOUT_P'] if params[
+                                                                         'USE_DROPOUT'] else None,
+                                                                     dropout_Ua=params['DROPOUT_P'] if params[
+                                                                         'USE_DROPOUT'] else None,
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,
                                                                      return_states=True,
@@ -305,9 +321,9 @@ class TranslationModel(Model_Wrapper):
                                            U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                            b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                            return_sequences=True,
-                                      name='decoder_' + str(n_layer)))
+                                           name='decoder_' + str(n_layer)))
             current_annotations = shared_decoder_list[-1](proj_h)
-            current_proj_h = Regularize(out_layer, params, name='out_layer'+str(activation))
+            current_proj_h = Regularize(out_layer, params, name='out_layer' + str(activation))
 
             current_annotations = Regularize(current_proj_h, params, name='proj_h_' + str(n_layer))
             annotations = merge([annotations, current_annotations], mode='sum')
@@ -327,8 +343,8 @@ class TranslationModel(Model_Wrapper):
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
         shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                        W_regularizer=l2(params['WEIGHT_DECAY']),
-                                        activation='linear'),
+                                              W_regularizer=l2(params['WEIGHT_DECAY']),
+                                              activation='linear'),
                                         name='logit_emb')
         out_layer_emb = shared_FC_emb(state_below)
 
@@ -356,10 +372,11 @@ class TranslationModel(Model_Wrapper):
             else:
                 shared_deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
                                                               W_regularizer=l2(params['WEIGHT_DECAY'])),
-                                                        name=activation+'_%d' % i))
+                                                        name=activation + '_%d' % i))
             out_layer = shared_deep_list[-1](out_layer)
             [out_layer, shared_reg_out_layer] = Regularize(out_layer,
-                                                           params, shared_layers=True, name='out_layer'+str(activation))
+                                                           params, shared_layers=True,
+                                                           name='out_layer' + str(activation))
             shared_reg_deep_list.append(shared_reg_out_layer)
 
         # 3.7. Output layer: Softmax
@@ -405,7 +422,7 @@ class TranslationModel(Model_Wrapper):
             # and the following outputs:
             #   - softmax probabilities
             #   - next_state
-            preprocessed_size = params['ENCODER_HIDDEN_SIZE']*2 if \
+            preprocessed_size = params['ENCODER_HIDDEN_SIZE'] * 2 if \
                 params['BIDIRECTIONAL_ENCODER'] \
                 else params['ENCODER_HIDDEN_SIZE']
             # Define inputs
@@ -478,4 +495,3 @@ class TranslationModel(Model_Wrapper):
                 self.ids_outputs_next.append('next_memory')
                 self.matchings_init_to_next['next_memory'] = 'prev_memory'
                 self.matchings_next_to_next['next_memory'] = 'prev_memory'
-
