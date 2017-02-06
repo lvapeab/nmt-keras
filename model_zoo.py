@@ -339,7 +339,8 @@ class TranslationModel(Model_Wrapper):
         [out_layer_emb, shared_reg_out_layer_emb] = Regularize(out_layer_emb, params,
                                                                shared_layers=True, name='out_layer_emb')
 
-        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
+        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
+                                  mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input')
         shared_activation_tanh = Activation('tanh')
 
         out_layer = shared_activation_tanh(additional_output)
@@ -439,7 +440,7 @@ class TranslationModel(Model_Wrapper):
                 out_layer_emb = reg_out_layer_emb(out_layer_emb)
 
             additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
-                                      mode='sum', name='additional_input_model_next')
+                                      mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input_model_next')
             out_layer = shared_activation_tanh(additional_output)
 
             for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
