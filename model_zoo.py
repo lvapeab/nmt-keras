@@ -5,7 +5,7 @@ from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
 from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral, MaskLayer
 from keras.models import model_from_json, Model
-from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD
+from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
 from keras.regularizers import l2
 from keras_wrapper.cnn_model import Model_Wrapper
 from utils.regularize import Regularize
@@ -126,16 +126,21 @@ class TranslationModel(Model_Wrapper):
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
             logging.info("Preparing optimizer and compiling.")
-        if self.params['OPTIMIZER'].lower() == 'adam':
-            optimizer = Adam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
-        elif self.params['OPTIMIZER'].lower() == 'rmsprop':
-            optimizer = RMSprop(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
-        elif self.params['OPTIMIZER'].lower() == 'nadam':
-            optimizer = Nadam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
+
+        if self.params['OPTIMIZER'].lower() == 'sgd':
+            optimizer = SGD(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+        elif self.params['OPTIMIZER'].lower() == 'rsmprop':
+            optimizer = RMSprop(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+        elif self.params['OPTIMIZER'].lower() == 'adagrad':
+            optimizer = Adagrad(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
         elif self.params['OPTIMIZER'].lower() == 'adadelta':
-            optimizer = Adadelta(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
-        elif self.params['OPTIMIZER'].lower() == 'sgd':
-            optimizer = SGD(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
+            optimizer = Adadelta(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+        elif self.params['OPTIMIZER'].lower() == 'adam':
+            optimizer = Adam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+        elif self.params['OPTIMIZER'].lower() == 'adamax':
+            optimizer = Adamax(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+        elif self.params['OPTIMIZER'].lower() == 'nadam':
+            optimizer = Nadam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])

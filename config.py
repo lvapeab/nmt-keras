@@ -89,7 +89,8 @@ def load_parameters():
 
     OPTIMIZER = 'Adam'                            # Optimizer
     LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
-    CLIP_C = 1.                                   # During training, clip gradients to this norm
+    CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
+    CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
