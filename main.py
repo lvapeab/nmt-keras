@@ -1,14 +1,17 @@
 import logging
 import sys
 import ast
-import warnings
+import argparse
 from timeit import default_timer as timer
 import argparse
 from utils.utils import *
 from config import load_parameters
+from config_online import load_parameters as load_parameters_online
+
 from data_engine.prepare_data import build_dataset
 from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
+from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.read_write import dict2pkl, list2file
 from keras_wrapper.extra.callbacks import *
 from keras_wrapper.extra.evaluation import select as evaluation_select
@@ -75,6 +78,74 @@ def train_model(params):
                        'extra_callbacks': callbacks, 'reload_epoch': params['RELOAD'], 'epoch_offset': params['RELOAD'],
                        'data_augmentation': params['DATA_AUGMENTATION'],
                        'patience': params.get('PATIENCE', 0),# early stopping parameters
+                       'metric_check': params.get('STOP_METRIC', None),
+                       'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
+                       'each_n_epochs': params.get('EVAL_EACH', 1),
+                       'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)}
+    nmt_model.trainNet(dataset, training_params)
+
+    total_end_time = timer()
+    time_difference = total_end_time - total_start_time
+    logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
+
+def train_model_online(params, model_path=None, dataset_path=None):
+    """
+    Training function. Sets the training parameters from params. Build or loads the model and launches the training.
+    :param params: Dictionary of network hyperparameters.
+    :return: None
+    """
+    check_params(params)
+    # Load data
+    if dataset_path is not None:
+        dataset = loadDataset(dataset_path)
+    else:
+        dataset = build_dataset(params)
+    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
+    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
+    if model_path is not None:
+        logging.info('Loading model from %s'%str(model_path))
+        nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'])
+    else:
+        # Build model
+        if params['RELOAD'] == 0:  # build new model
+            nmt_model = TranslationModel(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
+                                         model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
+                                         store_path=params['STORE_PATH'])
+            dict2pkl(params, params['STORE_PATH'] + '/config')
+
+            # Define the inputs and outputs mapping from our Dataset instance to our model
+            inputMapping = dict()
+            for i, id_in in enumerate(params['INPUTS_IDS_DATASET']):
+                pos_source = dataset.ids_inputs.index(id_in)
+                id_dest = nmt_model.ids_inputs[i]
+                inputMapping[id_dest] = pos_source
+            nmt_model.setInputsMapping(inputMapping)
+
+            outputMapping = dict()
+            for i, id_out in enumerate(params['OUTPUTS_IDS_DATASET']):
+                pos_target = dataset.ids_outputs.index(id_out)
+                id_dest = nmt_model.ids_outputs[i]
+                outputMapping[id_dest] = pos_target
+            nmt_model.setOutputsMapping(outputMapping)
+
+        else:  # resume from previously trained model
+            nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'])
+
+        nmt_model.setOptimizer()
+
+    # Callbacks
+    callbacks = buildCallbacks(params, nmt_model, dataset)
+    # Training
+    total_start_time = timer()
+    logger.debug('Starting training!')
+    training_params = {'n_epochs': params['MAX_EPOCH'], 'batch_size': params['BATCH_SIZE'],
+                       'homogeneous_batches': params['HOMOGENEOUS_BATCHES'], 'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
+                       'lr_decay': params['LR_DECAY'], 'lr_gamma': params['LR_GAMMA'],
+                       'epochs_for_save': params['EPOCHS_FOR_SAVE'], 'verbose': params['VERBOSE'],
+                       'eval_on_sets': params['EVAL_ON_SETS_KERAS'], 'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                       'extra_callbacks': callbacks, 'reload_epoch': params['RELOAD'], 'epoch_offset': params['RELOAD'],
+                       'data_augmentation': params['DATA_AUGMENTATION'],
+                       'patience': params.get('PATIENCE', 0),
                        'metric_check': params.get('STOP_METRIC', None),
                        'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
                        'each_n_epochs': params.get('EVAL_EACH', 1),
@@ -275,6 +346,18 @@ def buildCallbacks(params, model, dataset):
     return callbacks
 
 
+
+def parse_args():
+    parser = argparse.ArgumentParser("Train or sample NMT models")
+    parser.add_argument("-o", "--online",
+                        action='store_true', default=False, required=False, help="Online training mode. ")
+    parser.add_argument("-ds", "--dataset", required=False, help="Dataset instance with data")
+    parser.add_argument("--models", nargs='+', required=False, help="path to the models")
+
+    return parser.parse_args()
+
+
+
 def check_params(params):
     """
     Checks some typical parameters and warns if something wrong was specified.
@@ -306,11 +389,21 @@ def parse_args():
 
 
 
+<<<<<<< c488e427e70660a90fd937a2098d1a5a0a6b6598
 if __name__ == "__main__":
     args = parse_args()
     parameters = load_parameters()
     if args.config is not None:
         parameters = update_parameters(parameters, pkl2dict(args.config))
+=======
+    args = parse_args()
+    if args.online:
+        parameters = load_parameters_online()
+    else:
+        parameters = load_parameters()
+
+
+>>>>>>> train_model_online
     try:
         for arg in args.changes:
             try:
@@ -327,6 +420,9 @@ if __name__ == "__main__":
         exit(2)
 
     check_params(parameters)
+    if args.online:
+        train_model_online(parameters, model_name=args.models, dataset_path=args.dataset)
+
     if parameters['MODE'] == 'training':
         logging.info('Running training.')
         train_model(parameters)
