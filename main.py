@@ -389,21 +389,15 @@ def parse_args():
 
 
 
-<<<<<<< c488e427e70660a90fd937a2098d1a5a0a6b6598
+
 if __name__ == "__main__":
     args = parse_args()
     parameters = load_parameters()
     if args.config is not None:
         parameters = update_parameters(parameters, pkl2dict(args.config))
-=======
-    args = parse_args()
+
     if args.online:
-        parameters = load_parameters_online()
-    else:
-        parameters = load_parameters()
-
-
->>>>>>> train_model_online
+        online_parameters = load_parameters_online()
     try:
         for arg in args.changes:
             try:
