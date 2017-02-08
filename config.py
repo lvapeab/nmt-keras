@@ -6,10 +6,10 @@ def load_parameters():
     """
 
     # Input data params
-    DATASET_NAME = 'EuTrans'                        # Task name
-    SRC_LAN = 'es'                                  # Language of the source text
-    TRG_LAN = 'en'                                  # Language of the target text
-    DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
+    DATASET_NAME = 'europarl'                       # Task name
+    SRC_LAN = 'en'                                  # Language of the source text
+    TRG_LAN = 'es'                                  # Language of the target text
+    DATA_ROOT_PATH = '%s/' % DATASET_NAME           # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'DATA/training.',        # Data files
@@ -105,7 +105,7 @@ def load_parameters():
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
-    BATCH_SIZE = 50                               # Size of each minibatch
+    BATCH_SIZE = 30                               # Size of each minibatch
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths for every minibatch (Possibly buggy!)
     PARALLEL_LOADERS = 8                          # Parallel data batch loaders
@@ -114,7 +114,7 @@ def load_parameters():
 
     # Early stop parameters
     EARLY_STOP = True                             # Turns on/off the early stop protocol
-    PATIENCE = 20                                 # We'll stop if the val STOP_METRIC does not improve after this
+    PATIENCE = 6                                 # We'll stop if the val STOP_METRIC does not improve after this
                                                   # number of evaluations
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop
 
@@ -122,8 +122,8 @@ def load_parameters():
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
     RNN_TYPE = 'GRU'                             # RNN unit type ('LSTM' and 'GRU' supported)
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
-    SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
+    SOURCE_TEXT_EMBEDDING_SIZE = 300              # Source language word embedding size.
+    SRC_PRETRAINED_VECTORS = '/media/HDD_2TB/antonio/pretrainedVectors/word2vecb.en.npy'  # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
@@ -187,7 +187,7 @@ def load_parameters():
 
     MODEL_NAME += EXTRA_NAME
 
-    STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
+    STORE_PATH = '/media/HDD_2TB/antonio/trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
     DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list' or 'vqa'
