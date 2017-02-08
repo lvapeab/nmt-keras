@@ -5,8 +5,8 @@ from config import load_parameters
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
-from keras_wrapper.read_write import pkl2dict, list2file
-import utils
+from keras_wrapper.extra.read_write import pkl2dict, list2file
+from keras_wrapper.extra.evaluation import select as evaluation_select
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -127,7 +127,7 @@ if __name__ == "__main__":
                 extra_vars[s] = dict()
                 extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
                 extra_vars['language'] = params['TRG_LAN']
-                metrics = utils.evaluation.select[metric](
+                metrics = evaluation_select[metric](
                     pred_list=predictions,
                     verbose=1,
                     extra_vars=extra_vars,

@@ -102,6 +102,7 @@ def load_parameters():
     PARALLEL_LOADERS = 8                          # Parallel data batch loaders
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
     WRITE_VALID_SAMPLES = True                    # Write valid samples in file
+    SAVE_EACH_EVALUATION = True                   # Save each time we evaluate the model
 
     # Early stop parameters
     EARLY_STOP = True                             # Turns on/off the early stop protocol
