@@ -2,24 +2,25 @@
 
 Neural Machine Translation with Keras (+ Theano backend)
 
+
 ## Features (in addition to the full Keras cosmos): 
 
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
- * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/) word embedding vectors).
+ * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
  * Beam search decoding.
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
- * [Spearmint] (https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
+ * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
 
 NMT-Keras requires the following libraries:
 
- - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.2 or newer, as it solves some issues)
+ - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.3 or newer, as it solves some issues)
  - [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper) (v. 0.7 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
@@ -34,18 +35,20 @@ NMT-Keras requires the following libraries:
  python main.py
  ``
 
-3) For evaluating on a new partition, we just need to adequately modify [config.py](https://github.com/lvapeab/nmt-keras/blob/master/config.py). For example, if we want to obtain the translations of the test set, using the model obtained at the end of the epoch 5, we should do:
+
+3) We can evaluate models or use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. In short, if we want to use the models from the first three epochs on the val split, just run:
+ ```bash
+  python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -t text_to_translate
+  ```
+ 
+
+4) We can also evaluate on a new partition, simply by adequately modifying [config.py](https://github.com/lvapeab/nmt-keras/blob/master/config.py). For example, if we want to obtain the translations of the test set, using the model obtained at the end of the epoch 5, we should do:
  ```python
  - MODE = 'sampling'
  - RELOAD = 5
  - EVAL_ON_SETS = ['test']
   ```
  - Run `python main.py`
- 
-4) We can use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. For example, if we want to use the models from the first three epochs on the val split, just run:
- ```bash
-  python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -s val
-  ```
  
  
 

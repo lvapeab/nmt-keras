@@ -16,18 +16,19 @@ def parse_args():
     parser = argparse.ArgumentParser("Apply several translation models for making predictions")
     parser.add_argument("-ds", "--dataset", required=True, help="Dataset instance with data")
     parser.add_argument("-t", "--text", required=False, help="Text file with source sentences")
-    parser.add_argument("-s", "--splits",  nargs='+', required=False, default=['val'], help="Splits to sample. "
-                                                                                          "Should be already included"
-                                                                                          "into the dataset object.")
-    parser.add_argument("-d", "--dest",  required=False, help="File to save translations in")
+    parser.add_argument("-s", "--splits", nargs='+', required=False, default=['val'], help="Splits to sample. "
+                                                                                           "Should be already included"
+                                                                                           "into the dataset object.")
+    parser.add_argument("-d", "--dest", required=False, help="File to save translations in")
     parser.add_argument("--not-eval", action='store_true', default=False, help="Do not compute metrics for the output")
     parser.add_argument("-e", "--eval-output", required=False, help="Write evaluation results to file")
-    parser.add_argument("-v", "--verbose", required=False,  action='store_true', default=False, help="Be verbose")
-    parser.add_argument("-c", "--config",  required=False, help="Config pkl for loading the model configuration. "
-                                                                "If not specified, hyperparameters "
-                                                                "are read from config.py")
+    parser.add_argument("-v", "--verbose", required=False, action='store_true', default=False, help="Be verbose")
+    parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
+                                                               "If not specified, hyperparameters "
+                                                               "are read from config.py")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
     return parser.parse_args()
+
 
 if __name__ == "__main__":
 
@@ -36,8 +37,11 @@ if __name__ == "__main__":
     print "Using an ensemble of %d models" % len(args.models)
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     if args.config is None:
+        print "Reading parameters from config.py"
         params = load_parameters()
     else:
+        print "Loading parameters from %s" % str(args.config)
+
         params = pkl2dict(args.config)
 
     dataset = loadDataset(args.dataset)

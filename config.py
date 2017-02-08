@@ -34,7 +34,7 @@ def load_parameters():
     SAMPLING = 'max_likelihood'                   # Possible values: multinomial or max_likelihood (recommended)
     TEMPERATURE = 1                               # Multinomial sampling parameter
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
-    BEAM_SIZE = 12                                # Beam size (in case of BEAM_SEARCH == True)
+    BEAM_SIZE = 6                                 # Beam size (in case of BEAM_SEARCH == True)
     OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
     NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
     ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
@@ -64,8 +64,9 @@ def load_parameters():
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
     # Input image parameters
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
+
     # Text parameters
-    FILL = 'end'                                  # Whether we fill the 'end' or the 'start' of the sentence with 0s
+    FILL = 'end'                                  # Whether we pad the 'end' or the 'start' of the sentence with 0s
     PAD_ON_BATCH = True                           # Whether we take as many timesteps as the longest sequence of
                                                   # the batch or a fixed size (MAX_OUTPUT_TEXT_LEN)
     # Input text parameters
@@ -74,9 +75,6 @@ def load_parameters():
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
     MAX_INPUT_TEXT_LEN = 50                       # Maximum length of the input sequence
-    SOURCE_GLOVE_VECTORS = None                   # Path to pretrained vectors.
-                                                  # Set to None if you don't want to use pretrained vectors.
-    SOURCE_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Output text parameters
     OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
@@ -84,24 +82,17 @@ def load_parameters():
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
     MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
-    TARGET_GLOVE_VECTORS = None                   # Path to pretrained vectors.
-                                                  # Set to None if you don't want to use pretrained vectors.
-    TARGET_GLOVE_VECTORS_TRAINABLE = True         # Finetune or not the word embedding vectors.
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
 
-    # Not used!
-    ##########
-    LR_DECAY = 20                                 # number of minimum number of epochs before the next LR decay
-    LR_GAMMA = 0.8                                # multiplier used for decreasing the LR
-    ##########
-
     OPTIMIZER = 'Adam'                            # Optimizer
-    LR = 0.001                                    # (recommended values - Adam 0.001 - Adadelta 1.0
+    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     CLIP_C = 1.                                   # During training, clip gradients to this norm
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
+    LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
+    LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
@@ -120,7 +111,7 @@ def load_parameters():
 
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
-    RNN_TYPE = 'GRU'                             # RNN unit type ('LSTM' and 'GRU' supported)
+    RNN_TYPE = 'GRU'                              # RNN unit type ('LSTM' and 'GRU' supported)
 
     SOURCE_TEXT_EMBEDDING_SIZE = 300              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = '/media/HDD_2TB/antonio/pretrainedVectors/word2vecb.en.npy'  # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
@@ -142,7 +133,8 @@ def load_parameters():
 
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
-    N_LAYERS_DECODER = 1                          # Stack this number of deenoding layers
+    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers (unimplemented)
+    ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip connections
 
     # Fully-Connected layers for initializing the first RNN state
     #       Here we should only specify the activation function of each layer
@@ -153,7 +145,6 @@ def load_parameters():
     # Additional Fully-Connected layers's sizes applied before softmax.
     #       Here we should specify the activation function and the output dimension
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
-
     DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)]
 
     # Regularizers
@@ -177,8 +168,9 @@ def load_parameters():
 
     # Results plot and models storing parameters
     EXTRA_NAME = ''                               # This will be appended to the end of the model name
-    MODEL_NAME = DATASET_NAME + '_' + MODEL_TYPE + '_src_emb_' + str(SOURCE_TEXT_EMBEDDING_SIZE) + \
-                  '_bidir_' + str(BIDIRECTIONAL_ENCODER) + \
+    MODEL_NAME = DATASET_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
+                 '_src_emb_' + str(SOURCE_TEXT_EMBEDDING_SIZE) + \
+                 '_bidir_' + str(BIDIRECTIONAL_ENCODER) + \
                  '_enc_' + RNN_TYPE + '_' + str(ENCODER_HIDDEN_SIZE) + \
                  '_dec_' + RNN_TYPE + '_' + str(DECODER_HIDDEN_SIZE) + \
                  '_deepout_' + '_'.join([layer[0] for layer in DEEP_OUTPUT_LAYERS]) + \
