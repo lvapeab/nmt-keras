@@ -57,14 +57,16 @@ class TranslationModel(Model_Wrapper):
         if params['SRC_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
                 logging.info("<<< Loading pretrained word vectors from:  " + params['SRC_PRETRAINED_VECTORS'] + " >>>")
-            self.src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS'])).item()
+            src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS'])).item()
             self.src_embedding_weights = np.random.rand(params['INPUT_VOCABULARY_SIZE'],
                                                         params['SOURCE_TEXT_EMBEDDING_SIZE'])
             for word, index in self.vocabularies[self.ids_inputs[0]]['words2idx'].iteritems():
-                if self.src_word_vectors.get(word) is not None:
-                    self.src_embedding_weights[index, :] = self.src_word_vectors[word]
+                if src_word_vectors.get(word) is not None:
+                    self.src_embedding_weights[index, :] = src_word_vectors[word]
             self.src_embedding_weights = [self.src_embedding_weights]
             self.src_embedding_weights_trainable = params['SRC_PRETRAINED_VECTORS_TRAINABLE']
+            del src_word_vectors
+
         else:
             self.src_embedding_weights = None
             self.src_embedding_weights_trainable = True
@@ -73,15 +75,15 @@ class TranslationModel(Model_Wrapper):
         if params['TRG_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
                 logging.info("<<< Loading pretrained word vectors from: " + params['TRG_PRETRAINED_VECTORS'] + " >>>")
-            self.trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS'])).item()
+            trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS'])).item()
             self.trg_embedding_weights = np.random.rand(params['OUTPUT_VOCABULARY_SIZE'],
                                                         params['TARGET_TEXT_EMBEDDING_SIZE'])
             for word, index in self.vocabularies[self.ids_outputs[0]]['words2idx'].iteritems():
-                if self.trg_word_vectors.get(word) is not None:
-                    self.trg_embedding_weights[index, :] = self.trg_word_vectors[word]
+                if trg_word_vectors.get(word) is not None:
+                    self.trg_embedding_weights[index, :] = trg_word_vectors[word]
             self.trg_embedding_weights = [self.trg_embedding_weights]
             self.trg_embedding_weights_trainable = params['TRG_PRETRAINED_VECTORS_TRAINABLE']
-
+            del trg_word_vectors
         else:
             self.trg_embedding_weights = None
             self.trg_embedding_weights_trainable = True
@@ -355,7 +357,8 @@ class TranslationModel(Model_Wrapper):
         [out_layer_emb, shared_reg_out_layer_emb] = Regularize(out_layer_emb, params,
                                                                shared_layers=True, name='out_layer_emb')
 
-        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb], mode='sum', name='additional_input')
+        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
+                                  mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input')
         shared_activation_tanh = Activation('tanh')
 
         out_layer = shared_activation_tanh(additional_output)
@@ -456,7 +459,7 @@ class TranslationModel(Model_Wrapper):
                 out_layer_emb = reg_out_layer_emb(out_layer_emb)
 
             additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
-                                      mode='sum', name='additional_input_model_next')
+                                      mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input_model_next')
             out_layer = shared_activation_tanh(additional_output)
 
             for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
