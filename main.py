@@ -398,6 +398,14 @@ if __name__ == "__main__":
 
     if args.online:
         online_parameters = load_parameters_online()
+
+
+    if args.online:
+        parameters = load_parameters_online()
+    else:
+        parameters = load_parameters()
+
+
     try:
         for arg in args.changes:
             try:
