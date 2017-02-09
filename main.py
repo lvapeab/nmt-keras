@@ -145,6 +145,7 @@ def apply_NMT_model(params):
                                                            reload_epoch=params['RELOAD'],
                                                            is_text=True,
                                                            input_text_id=input_text_id,
+                                                           save_path=nmt_model.model_path,
                                                            index2word_y=vocab,
                                                            index2word_x=vocab_src,
                                                            sampling_type=params['SAMPLING'],
