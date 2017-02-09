@@ -154,7 +154,7 @@ def apply_NMT_model(params):
                                                            write_samples=True,
                                                            write_type=params['SAMPLING_SAVE_MODE'],
                                                            eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                           save_each_evaluation=params['SAVE_EACH_EVALUATION'],
+                                                           save_each_evaluation=False,
                                                            verbose=params['VERBOSE'])
 
         callback_metric.evaluate(params['RELOAD'], counter_name='epoch' if params['EVAL_EACH_EPOCHS'] else 'update')
