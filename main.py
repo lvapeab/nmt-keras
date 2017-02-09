@@ -3,7 +3,8 @@ import sys
 import ast
 import warnings
 from timeit import default_timer as timer
-
+import argparse
+from utils.utils import *
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
 from model_zoo import TranslationModel
@@ -102,115 +103,60 @@ def apply_NMT_model(params):
     nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'])
     nmt_model.setOptimizer()
 
-    # Apply sampling
-    extra_vars = dict()
-    extra_vars['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
-    extra_vars['language'] = params['TRG_LAN']
-
     for s in params["EVAL_ON_SETS"]:
 
-        # Apply model predictions
-        params_prediction = {'batch_size': params['BATCH_SIZE'],
-                             'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                             'predict_on_sets': [s],
-                             'pos_unk': False, 'heuristic': 0, 'mapping': None}
-
-        # Convert predictions into sentences
+        # Evaluate training
+        extra_vars = {'language': params.get('TRG_LAN', 'en'),
+                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
-
-        if params['BEAM_SEARCH']:
-            params_prediction['beam_size'] = params['BEAM_SIZE']
-            params_prediction['maxlen'] = params['MAX_OUTPUT_TEXT_LEN_TEST']
-            params_prediction['optimized_search'] = params['OPTIMIZED_SEARCH']
-            params_prediction['model_inputs'] = params['INPUTS_IDS_MODEL']
-            params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
-            params_prediction['dataset_inputs'] = params['INPUTS_IDS_DATASET']
-            params_prediction['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
-            params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
-            params_prediction['pos_unk'] = params['POS_UNK']
+        for s in params['EVAL_ON_SETS']:
+            extra_vars[s] = dict()
+            extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
+        input_text_id = None
+        vocab_src = None
+        if params['BEAM_SIZE']:
+            extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
+            extra_vars['state_below_index'] =  params.get('BEAM_SEARCH_COND_INPUT', -1)
+            extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
+            extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
+            extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
+            extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
+            extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
+            extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
+            extra_vars['normalize'] =  params.get('NORMALIZE_SAMPLING', False)
+            extra_vars['alpha_factor'] =  params.get('ALPHA_FACTOR', 1.)
+            extra_vars['pos_unk'] = params['POS_UNK']
             if params['POS_UNK']:
-                params_prediction['heuristic'] = params['HEURISTIC']
+                extra_vars['heuristic'] = params['HEURISTIC']
                 input_text_id = params['INPUTS_IDS_DATASET'][0]
                 vocab_src = dataset.vocabulary[input_text_id]['idx2words']
                 if params['HEURISTIC'] > 0:
-                    params_prediction['mapping'] = dataset.mapping
-            else:
-                input_text_id = None
-                vocab_src = None
+                    extra_vars['mapping'] = dataset.mapping
 
-            predictions = nmt_model.predictBeamSearchNet(dataset, params_prediction)[s]
-
-            if params_prediction['pos_unk']:
-                samples = predictions[0]
-                alphas = predictions[1]
-
-                if eval('self.ds.loaded_raw_' + s + '[0]'):
-                    sources = predictions[2]
-                else:
-                    sources = []
-                    for preds in predictions[2]:
-                        for src in preds[input_text_id]:
-                            sources.append(src)
-                    sources = nmt_model.decode_predictions_beam_search(sources,
-                                                                       vocab_src,
-                                                                       pad_sequences=True,
-                                                                       verbose=params['VERBOSE'])
-                heuristic = params_prediction['heuristic']
-            else:
-                samples = predictions
-                alphas = None
-                heuristic = None
-                sources = None
-            # Convert predictions into sentences
-            if params['BEAM_SEARCH']:
-                predictions = nmt_model.decode_predictions_beam_search(samples,
-                                                                       vocab,
-                                                                       alphas=alphas,
-                                                                       x_text=sources,
-                                                                       heuristic=heuristic,
-                                                                       mapping=params_prediction['mapping'],
-                                                                       verbose=params['VERBOSE'])
-            else:
-                predictions = nmt_model.decode_predictions(samples,
-                                                           1,
-                                                           vocab,
-                                                           params['SAMPLING'],
+        callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(nmt_model,
+                                                           dataset,
+                                                           gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                           metric_name=params['METRICS'],
+                                                           set_name=params['EVAL_ON_SETS'],
+                                                           batch_size=params['BATCH_SIZE'],
+                                                           each_n_epochs=params['EVAL_EACH'],
+                                                           extra_vars=extra_vars,
+                                                           reload_epoch=params['RELOAD'],
+                                                           is_text=True,
+                                                           input_text_id=input_text_id,
+                                                           index2word_y=vocab,
+                                                           index2word_x=vocab_src,
+                                                           sampling_type=params['SAMPLING'],
+                                                           beam_search=params['BEAM_SEARCH'],
+                                                           start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
+                                                           write_samples=True,
+                                                           write_type=params['SAMPLING_SAVE_MODE'],
+                                                           eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                                           save_each_evaluation=params['SAVE_EACH_EVALUATION'],
                                                            verbose=params['VERBOSE'])
 
-        # Store result
-        filepath = nmt_model.model_path + '/' + s + '_sampling.pred'  # results file
-        if params['SAMPLING_SAVE_MODE'] == 'list':
-            list2file(filepath, predictions)
-        else:
-            raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
-
-        # Evaluate if any metric in params['METRICS']
-        for metric in params['METRICS']:
-            logging.info('Evaluating on metric ' + metric)
-            filepath = nmt_model.model_path + '/' + s + '_sampling.' + metric  # results file
-
-            # Evaluate on the chosen metric
-            extra_vars[s] = dict()
-            extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-            metrics = evaluation_select[metric](
-                pred_list=predictions,
-                verbose=1,
-                extra_vars=extra_vars,
-                split=s)
-
-            # Print results to file
-            with open(filepath, 'w') as f:
-                header = ''
-                line = ''
-                for metric_ in sorted(metrics):
-                    value = metrics[metric_]
-                    header += metric_ + ','
-                    line += str(value) + ','
-                f.write(header + '\n')
-                f.write(line + '\n')
-            logging.info('Done evaluating on metric ' + metric)
-
+        callback_metric.evaluate(params['RELOAD'], counter_name='epoch' if params['EVAL_EACH_EPOCHS'] else 'update')
 
 def buildCallbacks(params, model, dataset):
     """
@@ -233,6 +179,8 @@ def buildCallbacks(params, model, dataset):
         for s in params['EVAL_ON_SETS']:
             extra_vars[s] = dict()
             extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
+        input_text_id = None
+        vocab_src = None
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
             extra_vars['state_below_index'] =  params.get('BEAM_SEARCH_COND_INPUT', -1)
@@ -251,9 +199,6 @@ def buildCallbacks(params, model, dataset):
                 vocab_src = dataset.vocabulary[input_text_id]['idx2words']
                 if params['HEURISTIC'] > 0:
                     extra_vars['mapping'] = dataset.mapping
-            else:
-                input_text_id = None
-                vocab_src = None
 
         callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
                                                            dataset,
@@ -347,16 +292,39 @@ def check_params(params):
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
 
 
-if __name__ == "__main__":
+def parse_args():
+    parser = argparse.ArgumentParser("Train or sample NMT models")
+    parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
+                                                               "If not specified, hyperparameters "
+                                                               "are read from config.py")
+    parser.add_argument("-ds", "--dataset", required=False, help="Dataset instance with data")
+    parser.add_argument("changes",  nargs="*", help="Changes to config. "
+                                                    "Following the syntax Key=Value",
+                        default="")
+    return parser.parse_args()
 
+
+
+if __name__ == "__main__":
+    args = parse_args()
     parameters = load_parameters()
+    if args.config is not None:
+        parameters = update_parameters(parameters, pkl2dict(args.config))
     try:
-        for arg in sys.argv[1:]:
-            k, v = arg.split('=')
-            parameters[k] = ast.literal_eval(v)
+        for arg in args.changes:
+            try:
+                k, v = arg.split('=')
+            except ValueError:
+                print 'Overwritten arguments must have the form key=Value'
+                exit(1)
+            try:
+                parameters[k] = ast.literal_eval(v)
+            except:
+                parameters[k] = v
     except ValueError:
-        print 'Overwritten arguments must have the form key=Value'
-        exit(1)
+        print 'Error processing arguments: (', k, ",",v,")"
+        exit(2)
+
     check_params(parameters)
     if parameters['MODE'] == 'training':
         logging.info('Running training.')
