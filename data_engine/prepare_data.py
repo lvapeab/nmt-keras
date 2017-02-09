@@ -4,13 +4,13 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 
-def update_dataset_from_file(ds, text_filename, params, splits=list('val'), remove_outputs=False):
+def update_dataset_from_file(ds, input_text_filename, params, splits=list('val'), output_text_filename=None, remove_outputs=False):
     """
     Updates the dataset instance from a text file according to the given params.
     Used for sampling
 
     :param ds: Dataset instance
-    :param text_filename: Source language sentences
+    :param input_text_filename: Source language sentences
     :param params: Parameters for building the dataset
     :param splits: Splits to sample
     :return: Dataset object with the processed data
@@ -20,9 +20,23 @@ def update_dataset_from_file(ds, text_filename, params, splits=list('val'), remo
             ds.removeOutput(split,
                             type='text',
                             id=params['OUTPUTS_IDS_DATASET'][0])
+        else:
+            ds.setOutput(output_text_filename,
+                         split,
+                         type='text',
+                         id=params['OUTPUTS_IDS_DATASET'][0],
+                         tokenization=params['TOKENIZATION_METHOD'],
+                         build_vocabulary=False,
+                         pad_on_batch=params['PAD_ON_BATCH'],
+                         sample_weights=params['SAMPLE_WEIGHTS'],
+                         max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
+                         max_words=params['OUTPUT_VOCABULARY_SIZE'],
+                         min_occ=params['MIN_OCCURRENCES_VOCAB'],
+                         overwrite_split=True)
+
 
         # INPUT DATA
-        ds.setInput(text_filename,
+        ds.setInput(input_text_filename,
                     split,
                     type='text',
                     id=params['INPUTS_IDS_DATASET'][0],
@@ -43,7 +57,7 @@ def update_dataset_from_file(ds, text_filename, params, splits=list('val'), remo
                     overwrite_split=True)
 
         if params['ALIGN_FROM_RAW']:
-            ds.setRawInput(text_filename,
+            ds.setRawInput(input_text_filename,
                            split,
                            type='file-name',
                            id='raw_' + params['INPUTS_IDS_DATASET'][0],
