@@ -10,7 +10,7 @@ from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
-from keras_wrapper.dataset import loadDataset
+from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.extra.read_write import dict2pkl, list2file
 from keras_wrapper.extra.callbacks import *
 from keras_wrapper.extra.evaluation import select as evaluation_select
@@ -124,7 +124,7 @@ def train_model_online(params, model_path=None, dataset=None):
         nmt_model = loadModel(model_path, -1, full_path=True)
     else:
         raise Exception, 'Online mode requires an already trained model!'
-
+    saveDataset(dataset, store_path='datasets_online/')
     nmt_model.setOptimizer()
 
     # Callbacks
@@ -134,8 +134,8 @@ def train_model_online(params, model_path=None, dataset=None):
     logger.debug('Starting training!')
     training_params = {'n_epochs': 1,
                        'shuffle': False,
-                       'batch_size': params['BATCH_SIZE'],
-                       'homogeneous_batches': params['HOMOGENEOUS_BATCHES'],
+                       'batch_size': 1,
+                       'homogeneous_batches': False,
                        'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
                        'lr_decay': params['LR_DECAY'],
                        'lr_gamma': params['LR_GAMMA'],
@@ -393,7 +393,7 @@ if __name__ == "__main__":
     check_params(parameters)
     if args.online:
         dataset = loadDataset(args.dataset)
-        dataset = update_dataset_from_file(dataset, args.source, parameters, output_text_filename=args.references, splits=['train'], remove_outputs=False)
+        dataset = update_dataset_from_file(dataset, args.source, parameters, output_text_filename=args.references, splits=['train'], remove_outputs=False, compute_state_below=True)
         train_model_online(parameters, model_path=args.models, dataset=dataset)
 
     if parameters['MODE'] == 'training':
