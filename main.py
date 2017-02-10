@@ -132,9 +132,9 @@ def train_model_online(params, model_path=None, dataset=None):
     # Training
     total_start_time = timer()
     logger.debug('Starting training!')
-    training_params = {'n_epochs': 1,
+    training_params = {'n_epochs': params['MAX_EPOCH'],
                        'shuffle': False,
-                       'batch_size': 1,
+                       'batch_size': params['BATCH_SIZE'],
                        'homogeneous_batches': False,
                        'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
                        'lr_decay': params['LR_DECAY'],
@@ -144,8 +144,8 @@ def train_model_online(params, model_path=None, dataset=None):
                        'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
                        'n_parallel_loaders': params['PARALLEL_LOADERS'],
                        'extra_callbacks': callbacks,
-                       'reload_epoch': 0,
-                       'epoch_offset': 0,
+                       'reload_epoch': params['RELOAD'],
+                       'epoch_offset': params['RELOAD'],
                        'data_augmentation': params['DATA_AUGMENTATION'],
                        'patience': params.get('PATIENCE', 0),
                        'metric_check': params.get('STOP_METRIC', None),
