@@ -4,13 +4,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 
-def update_dataset_from_file(ds,
-                             input_text_filename,
-                             params,
-                             splits=list('val'),
-                             output_text_filename=None,
-                             remove_outputs=False,
-                             compute_state_below=False):
+def update_dataset_from_file(ds, input_text_filename, params, splits=list('val'), output_text_filename=None, remove_outputs=False):
     """
     Updates the dataset instance from a text file according to the given params.
     Used for sampling
@@ -54,28 +48,13 @@ def update_dataset_from_file(ds,
                     max_words=params['INPUT_VOCABULARY_SIZE'],
                     min_occ=params['MIN_OCCURRENCES_VOCAB'],
                     overwrite_split=True)
-        if compute_state_below:
-            # INPUT DATA
-            ds.setInput(output_text_filename,
-                        split,
-                        type='text',
-                        id=params['INPUTS_IDS_DATASET'][1],
-                        pad_on_batch=params['PAD_ON_BATCH'],
-                        tokenization=params['TOKENIZATION_METHOD'],
-                        build_vocabulary=False,
-                        offset=1,
-                        fill=params['FILL'],
-                        max_text_len=params['MAX_INPUT_TEXT_LEN'],
-                        max_words=params['INPUT_VOCABULARY_SIZE'],
-                        min_occ=params['MIN_OCCURRENCES_VOCAB'],
-                        overwrite_split=True)
-        else:
-            ds.setInput(None,
-                        split,
-                        type='ghost',
-                        id=params['INPUTS_IDS_DATASET'][-1],
-                        required=False,
-                        overwrite_split=True)
+
+        ds.setInput(None,
+                    split,
+                    type='ghost',
+                    id=params['INPUTS_IDS_DATASET'][-1],
+                    required=False,
+                    overwrite_split=True)
 
         if params['ALIGN_FROM_RAW']:
             ds.setRawInput(input_text_filename,
@@ -200,8 +179,8 @@ def build_dataset(params):
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
-                
+        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '.pkl')
+
     return ds
 
 
