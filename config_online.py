@@ -95,8 +95,8 @@ def load_parameters():
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
 
     # Training parameters
-    MAX_EPOCH = 500                               # Stop when computed this number of epochs
-    BATCH_SIZE = 50                               # Size of each minibatch
+    MAX_EPOCH = 1                               # Stop when computed this number of epochs
+    BATCH_SIZE = 1                               # Size of each minibatch
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths for every minibatch (Possibly buggy!)
     PARALLEL_LOADERS = 8                          # Parallel data batch loaders
@@ -105,8 +105,8 @@ def load_parameters():
     SAVE_EACH_EVALUATION = True                   # Save each time we evaluate the model
 
     # Early stop parameters
-    EARLY_STOP = True                             # Turns on/off the early stop protocol
-    PATIENCE = 20                                 # We'll stop if the val STOP_METRIC does not improve after this
+    EARLY_STOP = False                             # Turns on/off the early stop protocol
+    PATIENCE = 0                                 # We'll stop if the val STOP_METRIC does not improve after this
                                                   # number of evaluations
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop
 
