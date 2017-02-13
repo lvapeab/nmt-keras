@@ -41,7 +41,6 @@ if __name__ == "__main__":
         params = load_parameters()
     else:
         print "Loading parameters from %s" % str(args.config)
-
         params = pkl2dict(args.config)
 
     dataset = loadDataset(args.dataset)
