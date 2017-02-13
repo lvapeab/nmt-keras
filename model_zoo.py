@@ -128,19 +128,56 @@ class TranslationModel(Model_Wrapper):
             logging.info("Preparing optimizer and compiling.")
 
         if self.params['OPTIMIZER'].lower() == 'sgd':
-            optimizer = SGD(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+            optimizer = SGD(lr=self.params.get('LR', 0.01),
+                            momentum=self.params.get('MOMENTUM', 0.0),
+                            decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                            nesterov=self.params.get('NESTEROV_MOMENTUM', False),
+                            clipnorm=self.params.get('CLIP_C', 0.),
+                            clipvalue=self.params.get('CLIP_V', 0.), )
+
         elif self.params['OPTIMIZER'].lower() == 'rsmprop':
-            optimizer = RMSprop(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+            optimizer = RMSprop(lr=self.params.get('LR', 0.001),
+                                rho=self.params.get('RHO', 0.9),
+                                decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                clipnorm=self.params.get('CLIP_C', 0.),
+                                clipvalue=self.params.get('CLIP_V', 0.))
+
         elif self.params['OPTIMIZER'].lower() == 'adagrad':
-            optimizer = Adagrad(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+            optimizer = Adagrad(lr=self.params.get('LR', 0.01),
+                                decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                clipnorm=self.params.get('CLIP_C', 0.),
+                                clipvalue=self.params.get('CLIP_V', 0.))
+
         elif self.params['OPTIMIZER'].lower() == 'adadelta':
-            optimizer = Adadelta(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+            optimizer = Adadelta(lr=self.params.get('LR', 1.0),
+                                 rho=self.params.get('RHO', 0.9),
+                                 decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                 clipnorm=self.params.get('CLIP_C', 0.),
+                                 clipvalue=self.params.get('CLIP_V', 0.))
+
         elif self.params['OPTIMIZER'].lower() == 'adam':
-            optimizer = Adam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+            optimizer = Adam(lr=self.params.get('LR', 0.001),
+                             beta_1=self.params.get('BETA_1', 0.9),
+                             beta_2=self.params.get('BETA_2', 0.999),
+                             decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                             clipnorm=self.params.get('CLIP_C', 0.),
+                             clipvalue=self.params.get('CLIP_V', 0.))
+
         elif self.params['OPTIMIZER'].lower() == 'adamax':
-            optimizer = Adamax(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+            optimizer = Adamax(lr=self.params.get('LR', 0.002),
+                               beta_1=self.params.get('BETA_1', 0.9),
+                               beta_2=self.params.get('BETA_2', 0.999),
+                               decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                               clipnorm=self.params.get('CLIP_C', 0.),
+                               clipvalue=self.params.get('CLIP_V', 0.))
+
         elif self.params['OPTIMIZER'].lower() == 'nadam':
-            optimizer = Nadam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'], clipvalue=self.params['CLIP_V'])
+            optimizer = Nadam(lr=self.params.get('LR', 0.002),
+                              beta_1=self.params.get('BETA_1', 0.9),
+                              beta_2=self.params.get('BETA_2', 0.999),
+                              schedule_decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                              clipnorm=self.params.get('CLIP_C', 0.),
+                              clipvalue=self.params.get('CLIP_V', 0.))
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])
