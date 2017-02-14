@@ -188,7 +188,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     fsrc = open(args.references, 'r')
     source_lines = fsrc.read().split('\n')
     n_lines = len(source_lines) - 1
-    assert n_lines == len(target_lines), 'Number of source and target lines must match'
+    assert len(source_lines) == len(target_lines), 'Number of source and target lines must match'
 
     start_time = time.time()
     eta = -1
