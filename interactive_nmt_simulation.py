@@ -184,13 +184,6 @@ if __name__ == "__main__":
                             isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id), word))
                                             for index, word in hypothesis_isles]
                             logger.debug("Isles: %s" % (str(hypothesis_isles)))
-<<<<<<< 5d168e193a6ff2998f73376b5a02b4f29aa18f3b
-=======
-                            #if reference == " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split():
-                            #    logger.debug("Isles validating the full hypothesis")
-                            #    hypothesis = " ".join([" ".join(h_isle[1]) for h_isle in hypothesis_isles]).split()
-                            #    break
->>>>>>> index2word_y to isles-based beam search
                             # Count only for non selected isles
                             # Isles of length 1 account for 1 mouse action
                             mouse_actions_sentence += compute_mouse_movements(isle_indices,
