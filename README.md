@@ -16,6 +16,8 @@ In Computer Speech & Language. In press, 2016.
 
 The interactive simulation is implemented at the `interactive_nmt_simulation.py` script. 
 
+In addition, this branch also supports online learning. Refer to the `main.py` for more information.
+
 ## Requirements
     
 This branch requires—in addition to the regular NMT-Keras requirements—the `InteractiveNMT` branch from [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper/tree/Interactive_NMT).
