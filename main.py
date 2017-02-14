@@ -2,8 +2,11 @@ import logging
 import sys
 import ast
 import argparse
+import copy
+import time
 from timeit import default_timer as timer
-import argparse
+
+from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
 from utils.utils import *
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
@@ -11,6 +14,8 @@ from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.dataset import loadDataset, saveDataset
+from keras_wrapper.online_trainer import OnlineTrainer
+from keras_wrapper.extra.isles_utils import parse_input
 from keras_wrapper.extra.read_write import dict2pkl, list2file
 from keras_wrapper.extra.callbacks import *
 from keras_wrapper.extra.evaluation import select as evaluation_select
@@ -28,16 +33,15 @@ def parse_args():
     parser.add_argument("-s", "--splits",  nargs='+', required=False, default=['val'],
                         help="Splits to train on. Should be already included into the dataset object.")
     parser.add_argument("-ds", "--dataset", required=False, help="Dataset instance with data")
-    parser.add_argument("-m", "--models", required=False, help="Model to load",
-                        default="")
+    parser.add_argument("-m", "--models", nargs='*', required=False, help="Models to load", default="")
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=False)
     parser.add_argument("-trg", "--references", help="Reference sentence", required=False)
+    parser.add_argument("-hyp", "--hypotheses", required=False, help="Store hypothesis to this file")
+    parser.add_argument("-v", "--verbose", required=False, default=False, action='store_true', help="Verbosity level")
     parser.add_argument("changes",  nargs="*", help="Changes to config, following the syntax Key=Value",
                         default="")
 
     return parser.parse_args()
-
-
 
 def train_model(params):
     """
@@ -89,7 +93,8 @@ def train_model(params):
     total_start_time = timer()
 
     logger.debug('Starting training!')
-    training_params = {'n_epochs': params['MAX_EPOCH'], 'batch_size': params['BATCH_SIZE'],
+    training_params = {'n_epochs': params['MAX_EPOCH'],
+                       'batch_size': params['BATCH_SIZE'],
                        'homogeneous_batches': params['HOMOGENEOUS_BATCHES'], 'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
                        'lr_decay': params['LR_DECAY'], 'lr_gamma': params['LR_GAMMA'],
                        'epochs_for_save': params['EPOCHS_FOR_SAVE'], 'verbose': params['VERBOSE'],
@@ -103,11 +108,13 @@ def train_model(params):
                        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)}
     nmt_model.trainNet(dataset, training_params)
 
+
+
     total_end_time = timer()
     time_difference = total_end_time - total_start_time
     logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
 
-def train_model_online(params, model_path=None, dataset=None):
+def train_model_online(params, source_filename, target_filename, models_path=None, dataset=None, store_hypotheses=None, verbose=0):
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
     :param params: Dictionary of network hyperparameters.
@@ -119,44 +126,110 @@ def train_model_online(params, model_path=None, dataset=None):
         dataset = build_dataset(params)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
-    if model_path is not None:
-        logging.info('Loading model from %s'%str(model_path))
-        nmt_model = loadModel(model_path, -1, full_path=True)
+
+    # Load models
+    if models_path is not None:
+        logging.info('Loading models from %s'%str(models_path))
+        models = [loadModel(m, -1, full_path=True) for m in models_path]
     else:
         raise Exception, 'Online mode requires an already trained model!'
-    saveDataset(dataset, store_path='datasets_online/')
-    nmt_model.setOptimizer()
 
-    # Callbacks
-    callbacks = buildCallbacks(params, nmt_model, dataset)
-    # Training
-    total_start_time = timer()
-    logger.debug('Starting training!')
-    training_params = {'n_epochs': params['MAX_EPOCH'],
-                       'shuffle': False,
-                       'batch_size': params['BATCH_SIZE'],
-                       'homogeneous_batches': False,
-                       'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
-                       'lr_decay': params['LR_DECAY'],
-                       'lr_gamma': params['LR_GAMMA'],
-                       'epochs_for_save': params['EPOCHS_FOR_SAVE'],
-                       'verbose': params['VERBOSE'],
-                       'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
-                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                       'extra_callbacks': callbacks,
-                       'reload_epoch': params['RELOAD'],
-                       'epoch_offset': params['RELOAD'],
-                       'data_augmentation': params['DATA_AUGMENTATION'],
-                       'patience': params.get('PATIENCE', 0),
-                       'metric_check': params.get('STOP_METRIC', None),
-                       'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
-                       'each_n_epochs': params.get('EVAL_EACH', 1),
-                       'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)}
-    nmt_model.trainNet(dataset, training_params)
+    for nmt_model in models:
+        nmt_model.setOptimizer()
 
-    total_end_time = timer()
-    time_difference = total_end_time - total_start_time
-    logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
+    # Apply model predictions
+    params_prediction = {# Decoding params
+                         #'predict_on_sets': [s],
+                         'beam_size': params['BEAM_SIZE'],
+                         'maxlen': params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                         'optimized_search': params['OPTIMIZED_SEARCH'],
+                         'model_inputs': params['INPUTS_IDS_MODEL'],
+                         'model_outputs': params['OUTPUTS_IDS_MODEL'],
+                         'dataset_inputs': params['INPUTS_IDS_DATASET'],
+                         'dataset_outputs': params['OUTPUTS_IDS_DATASET'],
+                         'normalize': params['NORMALIZE_SAMPLING'],
+                         'alpha_factor': params['ALPHA_FACTOR'],
+                         'pos_unk': params['POS_UNK'],
+                         'state_below_index': -1,
+                         'output_text_index': 0,
+    }
+    params_training = { #Traning params
+                         'n_epochs': params['MAX_EPOCH'],
+                         'shuffle': False,
+                         'batch_size': params['BATCH_SIZE'],
+                         'homogeneous_batches': False,
+                         'lr_decay': params['LR_DECAY'],
+                         'lr_gamma': params['LR_GAMMA'],
+                         'epochs_for_save': -1,
+                         'verbose': verbose,
+                         'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
+                         'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                         'extra_callbacks': [], #callbacks,
+                         'reload_epoch': params['RELOAD'],
+                         'epoch_offset': params['RELOAD'],
+                         'data_augmentation': params['DATA_AUGMENTATION'],
+                         'patience': params.get('PATIENCE', 0),
+                         'metric_check': params.get('STOP_METRIC', None),
+                         'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
+                         'each_n_epochs': params.get('EVAL_EACH', 1),
+                         'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)
+                         }
+    beam_searcher = InteractiveBeamSearchSampler(models, dataset, params_prediction, verbose=verbose)
+    params_prediction = copy.copy(params_prediction)
+    params_prediction['store_hypotheses'] = store_hypotheses
+    # Empty dest file
+    open(store_hypotheses, 'w').close()
+    # Create sampler and trainer
+    online_trainer = OnlineTrainer(models, dataset, beam_searcher, params_prediction, params_training)
+
+    # Open new data
+    ftrg = open(args.references, 'r')
+    target_lines = ftrg.read().split('\n')
+    fsrc = open(args.references, 'r')
+    source_lines = fsrc.read().split('\n')
+    n_lines = len(source_lines) - 1
+    assert n_lines == len(target_lines), 'Number of source and target lines must match'
+
+    start_time = time.time()
+    eta = -1
+    for n_line, (source_line, target_line) in enumerate(zip(source_lines, target_lines)):
+
+        src_seq = dataset.loadText([source_line],
+                                   dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]],
+                                   params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                   0,
+                                   fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][0]],
+                                   pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
+                                   words_so_far=False,
+                                   loading_X=True)[0]
+        state_below = dataset.loadText([target_line],
+                                   dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                   params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                   1,
+                                   fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
+                                   pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
+                                   words_so_far=False,
+                                   loading_X=True)[0]
+        trg_seq = dataset.loadTextOneHot([target_line],
+                                         vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                         vocabulary_len=dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]],
+                                         max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                         offset=0,
+                                         fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
+                                         pad_on_batch=dataset.pad_on_batch[params['OUTPUTS_IDS_DATASET'][0]],
+                                         words_so_far=False,
+                                         sample_weights=params['SAMPLE_WEIGHTS'],
+                                         loading_X=False)
+
+        online_trainer.train_online([src_seq, state_below], trg_seq)
+        sys.stdout.write('\r')
+        sys.stdout.write("Processed %d/%d  -  ETA: %ds " % ((n_line + 1) , n_lines, int(eta)))
+        sys.stdout.flush()
+        eta = (n_lines - (n_line + 1)) * (time.time() - start_time) / (n_line + 1)
+
+
+    sys.stdout.write('The online training took: %f secs (Speed: %f sec/sample)\n' % ((time.time() - start_time), (
+                    time.time() - start_time) / n_lines))
 
 
 def apply_NMT_model(params):
@@ -393,10 +466,11 @@ if __name__ == "__main__":
     check_params(parameters)
     if args.online:
         dataset = loadDataset(args.dataset)
-        dataset = update_dataset_from_file(dataset, args.source, parameters, output_text_filename=args.references, splits=['train'], remove_outputs=False, compute_state_below=True)
-        train_model_online(parameters, model_path=args.models, dataset=dataset)
+        dataset = update_dataset_from_file(dataset, args.source, parameters,
+                                           output_text_filename=args.references, splits=['train'], remove_outputs=False, compute_state_below=True)
+        train_model_online(parameters, args.source, args.references, models_path=args.models, dataset=dataset, store_hypotheses=args.hypotheses, verbose=int(args.verbose))
 
-    if parameters['MODE'] == 'training':
+    elif parameters['MODE'] == 'training':
         logging.info('Running training.')
         train_model(parameters)
     elif parameters['MODE'] == 'sampling':
