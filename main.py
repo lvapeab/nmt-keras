@@ -183,9 +183,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     online_trainer = OnlineTrainer(models, dataset, beam_searcher, params_prediction, params_training)
 
     # Open new data
-    ftrg = open(args.references, 'r')
+    ftrg = open(target_filename, 'r')
     target_lines = ftrg.read().split('\n')
-    fsrc = open(args.references, 'r')
+    fsrc = open(source_filename, 'r')
     source_lines = fsrc.read().split('\n')
     n_lines = len(source_lines) - 1
     assert len(source_lines) == len(target_lines), 'Number of source and target lines must match'
@@ -202,6 +202,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                    pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
                                    words_so_far=False,
                                    loading_X=True)[0]
+        if verbose > 0:
+            print "Input sentence:", source_line
+            print "Parsed sentence:", map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0])
         state_below = dataset.loadText([target_line],
                                    dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                    params['MAX_OUTPUT_TEXT_LEN_TEST'],
@@ -220,6 +223,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                          words_so_far=False,
                                          sample_weights=params['SAMPLE_WEIGHTS'],
                                          loading_X=False)
+        if verbose > 0:
+            print "Output sentence:", target_line
+            print "Parsed sentence (state below):", map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0])
 
         online_trainer.train_online([src_seq, state_below], trg_seq)
         sys.stdout.write('\r')
