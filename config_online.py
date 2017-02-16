@@ -11,7 +11,7 @@ def load_parameters():
     STORE_PATH = 'trained_models/retrained_model/'  # Models and evaluation results will be stored here
 
     OPTIMIZER = 'SGD'                            # Optimizer
-    LR = 100.0                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
+    LR = 0.01                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     CLIP_C = 10.                                   # During training, clip gradients to this norm
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate

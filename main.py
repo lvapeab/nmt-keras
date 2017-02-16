@@ -12,7 +12,7 @@ from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from model_zoo import TranslationModel
-from keras_wrapper.cnn_model import loadModel, saveModel
+from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.online_trainer import OnlineTrainer
 from keras_wrapper.extra.isles_utils import parse_input
@@ -130,7 +130,10 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     # Load models
     if models_path is not None:
         logging.info('Loading models from %s'%str(models_path))
-        models = [loadModel(m, -1, full_path=True) for m in models_path]
+        model_instances = [TranslationModel(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
+                                   model_name=params['MODEL_NAME'] + '_' + str(i), vocabularies=dataset.vocabulary,
+                                   store_path=params['STORE_PATH']) for i in range(len(models_path))]
+        models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, models_path)]
     else:
         raise Exception, 'Online mode requires an already trained model!'
     for nmt_model in models:
