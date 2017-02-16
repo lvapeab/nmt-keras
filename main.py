@@ -12,7 +12,7 @@ from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from model_zoo import TranslationModel
-from keras_wrapper.cnn_model import loadModel
+from keras_wrapper.cnn_model import loadModel, saveModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.online_trainer import OnlineTrainer
 from keras_wrapper.extra.isles_utils import parse_input
@@ -133,8 +133,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         models = [loadModel(m, -1, full_path=True) for m in models_path]
     else:
         raise Exception, 'Online mode requires an already trained model!'
-
     for nmt_model in models:
+        nmt_model.setParams(params)
         nmt_model.setOptimizer()
 
     # Apply model predictions
@@ -153,7 +153,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                          'state_below_index': -1,
                          'output_text_index': 0,
     }
-    params_training = { #Traning params
+    params_training = {  #Traning params
                          'n_epochs': params['MAX_EPOCH'],
                          'shuffle': False,
                          'batch_size': params['BATCH_SIZE'],
@@ -174,6 +174,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                          'each_n_epochs': params.get('EVAL_EACH', 1),
                          'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)
                          }
+
     beam_searcher = InteractiveBeamSearchSampler(models, dataset, params_prediction, verbose=verbose)
     params_prediction = copy.copy(params_prediction)
     params_prediction['store_hypotheses'] = store_hypotheses
@@ -238,6 +239,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     sys.stdout.write('The online training took: %f secs (Speed: %f sec/sample)\n' % ((time.time() - start_time), (
                     time.time() - start_time) / n_lines))
+    saveModel(nmt_model, -1,  path=params.get('STORE_PATH', 'retrained_model'), full_path=True)
 
 
 def apply_NMT_model(params):

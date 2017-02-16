@@ -116,6 +116,9 @@ class TranslationModel(Model_Wrapper):
 
         self.setOptimizer()
 
+    def setParams(self, params):
+        self.params = params
+
     def setOptimizer(self, **kwargs):
 
         """
@@ -125,7 +128,8 @@ class TranslationModel(Model_Wrapper):
 
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
-            logging.info("Preparing optimizer and compiling.")
+            logging.info("Preparing optimizer: %s [LR: %s] and compiling." %
+                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01))))
 
         if self.params['OPTIMIZER'].lower() == 'sgd':
             optimizer = SGD(lr=self.params.get('LR', 0.01),
