@@ -23,7 +23,7 @@ class TranslationModel(Model_Wrapper):
         pass
 
     def __init__(self, params, type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
-                 model_name=None, vocabularies=None, store_path=None):
+                 model_name=None, vocabularies=None, store_path=None, set_optimizer=True):
         """
         Translation_Model object constructor.
 
@@ -113,8 +113,8 @@ class TranslationModel(Model_Wrapper):
         if verbose > 0:
             print str(self)
             self.model.summary()
-
-        self.setOptimizer()
+        if set_optimizer:
+            self.setOptimizer()
 
     def setParams(self, params):
         self.params = params

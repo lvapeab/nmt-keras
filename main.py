@@ -130,9 +130,14 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     # Load models
     if models_path is not None:
         logging.info('Loading models from %s'%str(models_path))
-        model_instances = [TranslationModel(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
-                                   model_name=params['MODEL_NAME'] + '_' + str(i), vocabularies=dataset.vocabulary,
-                                   store_path=params['STORE_PATH']) for i in range(len(models_path))]
+        model_instances = [TranslationModel(params,
+                                            type=params['MODEL_TYPE'],
+                                            verbose=params['VERBOSE'],
+                                            model_name=params['MODEL_NAME'] + '_' + str(i),
+                                            vocabularies=dataset.vocabulary,
+                                            store_path=params['STORE_PATH'],
+                                            set_optimizer=False)
+                           for i in range(len(models_path))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, models_path)]
     else:
         raise Exception, 'Online mode requires an already trained model!'
@@ -193,7 +198,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     fsrc = open(source_filename, 'r')
     source_lines = fsrc.read().split('\n')[:-1]
     fsrc.close()
-    n_lines = len(source_lines) - 1
+    source_lines = source_lines[:-1] if source_lines[-1] == '' else source_lines
+    target_lines = target_lines[:-1] if target_lines[-1] == '' else target_lines
+    n_lines = len(source_lines)
     assert len(source_lines) == len(target_lines), 'Number of source and target lines must match'
 
     start_time = time.time()
