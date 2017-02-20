@@ -40,7 +40,7 @@ class TranslationModel(Model_Wrapper):
         :param store_path: path to the folder where the temporal model packups will be stored
         """
         super(self.__class__, self).__init__(type=type, model_name=model_name,
-                                             silence=verbose == 0, models_path=store_path, inheritance=True)
+                                             silence=verbose==0, models_path=store_path, inheritance=True)
 
         self.__toprint = ['_model_type', 'name', 'model_path', 'verbose']
 
@@ -51,7 +51,7 @@ class TranslationModel(Model_Wrapper):
         self.ids_inputs = params['INPUTS_IDS_MODEL']
         self.ids_outputs = params['OUTPUTS_IDS_MODEL']
         # Sets the model name and prepares the folders for storing the models
-        self.setName(model_name, models_path=store_path)
+        self.setName(model_name, models_path=store_path, clear_dirs=clear_dirs)
 
         # Prepare source word embedding
         if params['SRC_PRETRAINED_VECTORS'] is not None:

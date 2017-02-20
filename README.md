@@ -56,27 +56,47 @@ NMT-Keras requires the following libraries:
  ``
 
 
-3) We can evaluate models or use model ensembles with the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. In short, if we want to use the models from the first three epochs on the val split, just run:
+3) We can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. 
+In short, if we want to use the models from the first three epochs on the val split, just run:
  ```bash
   python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -t text_to_translate
   ```
  
-
-4) We can also evaluate on a new partition, simply by adequately modifying [config.py](https://github.com/lvapeab/nmt-keras/blob/master/config.py). For example, if we want to obtain the translations of the test set, using the model obtained at the end of the epoch 5, we should do:
- ```python
- - MODE = 'sampling'
- - RELOAD = 5
- - EVAL_ON_SETS = ['test']
+ 
+ 
+* The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
+```
+python score.py --help
+usage: Use several translation models for scoring source--target pairs
+       [-h] -ds DATASET [-src SOURCE] [-trg TARGET] [-s SPLITS [SPLITS ...]]
+       [-d DEST] [-v] [-c CONFIG] --models MODELS [MODELS ...]
+optional arguments:
+    -h, --help            show this help message and exit
+    -ds DATASET, --dataset DATASET
+                            Dataset instance with data
+    -src SOURCE, --source SOURCE
+                            Text file with source sentences
+    -trg TARGET, --target TARGET
+                            Text file with target sentences
+    -s SPLITS [SPLITS ...], --splits SPLITS [SPLITS ...]
+                            Splits to sample. Should be already includedinto the
+                            dataset object.
+    -d DEST, --dest DEST  File to save scores in
+    -v, --verbose         Be verbose
+    -c CONFIG, --config CONFIG
+                            Config pkl for loading the model configuration. If not
+                            specified, hyperparameters are read from config.py
+    --models MODELS [MODELS ...]
+                            path to the models
   ```
- - Run `python main.py`
  
- 
+
 
 ## Resources
 
  * In [examples/documentation/neural_machine_translation.pdf](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/neural_machine_translation.pdf) you'll find an overview of an attentional NMT system.
 
- * In [examples/](https://github.com/lvapeab/nmt-keras/blob/master/examples/) you'll find some tutorials for running this library. They are expected to be followed in order:
+ * In the [examples](https://github.com/lvapeab/nmt-keras/blob/master/examples/) folder you'll find some tutorials for running this library. They are expected to be followed in order:
     
     1) [Dataset set up](https://github.com/lvapeab/nmt-keras/blob/master/examples/1_dataset_tutorial.ipynb): Shows how to invoke and configure a Dataset instance for a translation problem.
     

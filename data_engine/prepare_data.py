@@ -26,7 +26,7 @@ def update_dataset_from_file(ds,
             ds.removeOutput(split,
                             type='text',
                             id=params['OUTPUTS_IDS_DATASET'][0])
-        else:
+        elif output_text_filename is not None:
             ds.setOutput(output_text_filename,
                          split,
                          type='text',
