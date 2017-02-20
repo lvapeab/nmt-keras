@@ -240,7 +240,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             logging.info('Output sentence:  %s' % str(target_line))
             logging.info('Parsed sentence (state below): %s ' % map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
-        online_trainer.train_online([src_seq, state_below], trg_seq)
+        online_trainer.sample_and_train_online([src_seq, state_below], trg_seq)
         sys.stdout.write('\r')
         sys.stdout.write("Processed %d/%d  -  ETA: %ds " % ((n_line + 1) , n_lines, int(eta)))
         sys.stdout.flush()
