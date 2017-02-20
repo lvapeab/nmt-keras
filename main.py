@@ -1,17 +1,13 @@
-import logging
-import sys
-import ast
-import warnings
-from timeit import default_timer as timer
 import argparse
-from utils.utils import *
+import ast
+from timeit import default_timer as timer
+
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
-from model_zoo import TranslationModel
 from keras_wrapper.cnn_model import loadModel
-from keras_wrapper.extra.read_write import dict2pkl, list2file
 from keras_wrapper.extra.callbacks import *
-from keras_wrapper.extra.evaluation import select as evaluation_select
+from model_zoo import TranslationModel
+from utils.utils import update_parameters
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -74,7 +70,7 @@ def train_model(params):
                        'eval_on_sets': params['EVAL_ON_SETS_KERAS'], 'n_parallel_loaders': params['PARALLEL_LOADERS'],
                        'extra_callbacks': callbacks, 'reload_epoch': params['RELOAD'], 'epoch_offset': params['RELOAD'],
                        'data_augmentation': params['DATA_AUGMENTATION'],
-                       'patience': params.get('PATIENCE', 0),# early stopping parameters
+                       'patience': params.get('PATIENCE', 0),  # early stopping parameters
                        'metric_check': params.get('STOP_METRIC', None),
                        'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
                        'each_n_epochs': params.get('EVAL_EACH', 1),
@@ -110,22 +106,21 @@ def apply_NMT_model(params):
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
                       'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
-        for s in params['EVAL_ON_SETS']:
-            extra_vars[s] = dict()
-            extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
+        extra_vars[s] = dict()
+        extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
         input_text_id = None
         vocab_src = None
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
-            extra_vars['state_below_index'] =  params.get('BEAM_SEARCH_COND_INPUT', -1)
+            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
             extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
             extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize'] =  params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['alpha_factor'] =  params.get('ALPHA_FACTOR', 1.)
+            extra_vars['normalize'] = params.get('NORMALIZE_SAMPLING', False)
+            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.)
             extra_vars['pos_unk'] = params['POS_UNK']
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -135,29 +130,31 @@ def apply_NMT_model(params):
                     extra_vars['mapping'] = dataset.mapping
 
         callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(nmt_model,
-                                                           dataset,
-                                                           gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                           metric_name=params['METRICS'],
-                                                           set_name=params['EVAL_ON_SETS'],
-                                                           batch_size=params['BATCH_SIZE'],
-                                                           each_n_epochs=params['EVAL_EACH'],
-                                                           extra_vars=extra_vars,
-                                                           reload_epoch=params['RELOAD'],
-                                                           is_text=True,
-                                                           input_text_id=input_text_id,
-                                                           save_path=nmt_model.model_path,
-                                                           index2word_y=vocab,
-                                                           index2word_x=vocab_src,
-                                                           sampling_type=params['SAMPLING'],
-                                                           beam_search=params['BEAM_SEARCH'],
-                                                           start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                                           write_samples=True,
-                                                           write_type=params['SAMPLING_SAVE_MODE'],
-                                                           eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                           save_each_evaluation=False,
-                                                           verbose=params['VERBOSE'])
+                                                                         dataset,
+                                                                         gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                                         metric_name=params['METRICS'],
+                                                                         set_name=params['EVAL_ON_SETS'],
+                                                                         batch_size=params['BATCH_SIZE'],
+                                                                         each_n_epochs=params['EVAL_EACH'],
+                                                                         extra_vars=extra_vars,
+                                                                         reload_epoch=params['RELOAD'],
+                                                                         is_text=True,
+                                                                         input_text_id=input_text_id,
+                                                                         save_path=nmt_model.model_path,
+                                                                         index2word_y=vocab,
+                                                                         index2word_x=vocab_src,
+                                                                         sampling_type=params['SAMPLING'],
+                                                                         beam_search=params['BEAM_SEARCH'],
+                                                                         start_eval_on_epoch=params[
+                                                                             'START_EVAL_ON_EPOCH'],
+                                                                         write_samples=True,
+                                                                         write_type=params['SAMPLING_SAVE_MODE'],
+                                                                         eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                                                         save_each_evaluation=False,
+                                                                         verbose=params['VERBOSE'])
 
         callback_metric.evaluate(params['RELOAD'], counter_name='epoch' if params['EVAL_EACH_EPOCHS'] else 'update')
+
 
 def buildCallbacks(params, model, dataset):
     """
@@ -184,15 +181,15 @@ def buildCallbacks(params, model, dataset):
         vocab_src = None
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
-            extra_vars['state_below_index'] =  params.get('BEAM_SEARCH_COND_INPUT', -1)
+            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
             extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
             extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize'] =  params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['alpha_factor'] =  params.get('ALPHA_FACTOR', 1.)
+            extra_vars['normalize'] = params.get('NORMALIZE_SAMPLING', False)
+            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.)
             extra_vars['pos_unk'] = params['POS_UNK']
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -202,27 +199,29 @@ def buildCallbacks(params, model, dataset):
                     extra_vars['mapping'] = dataset.mapping
 
         callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
-                                                           dataset,
-                                                           gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                           metric_name=params['METRICS'],
-                                                           set_name=params['EVAL_ON_SETS'],
-                                                           batch_size=params['BATCH_SIZE'],
-                                                           each_n_epochs=params['EVAL_EACH'],
-                                                           extra_vars=extra_vars,
-                                                           reload_epoch=params['RELOAD'],
-                                                           is_text=True,
-                                                           input_text_id=input_text_id,
-                                                           index2word_y=vocab,
-                                                           index2word_x=vocab_src,
-                                                           sampling_type=params['SAMPLING'],
-                                                           beam_search=params['BEAM_SEARCH'],
-                                                           save_path=model.model_path,
-                                                           start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                                           write_samples=True,
-                                                           write_type=params['SAMPLING_SAVE_MODE'],
-                                                           eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                           save_each_evaluation=params['SAVE_EACH_EVALUATION'],
-                                                           verbose=params['VERBOSE'])
+                                                                         dataset,
+                                                                         gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                                         metric_name=params['METRICS'],
+                                                                         set_name=params['EVAL_ON_SETS'],
+                                                                         batch_size=params['BATCH_SIZE'],
+                                                                         each_n_epochs=params['EVAL_EACH'],
+                                                                         extra_vars=extra_vars,
+                                                                         reload_epoch=params['RELOAD'],
+                                                                         is_text=True,
+                                                                         input_text_id=input_text_id,
+                                                                         index2word_y=vocab,
+                                                                         index2word_x=vocab_src,
+                                                                         sampling_type=params['SAMPLING'],
+                                                                         beam_search=params['BEAM_SEARCH'],
+                                                                         save_path=model.model_path,
+                                                                         start_eval_on_epoch=params[
+                                                                             'START_EVAL_ON_EPOCH'],
+                                                                         write_samples=True,
+                                                                         write_type=params['SAMPLING_SAVE_MODE'],
+                                                                         eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                                                         save_each_evaluation=params[
+                                                                             'SAVE_EACH_EVALUATION'],
+                                                                         verbose=params['VERBOSE'])
 
         callbacks.append(callback_metric)
 
@@ -299,11 +298,10 @@ def parse_args():
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
     parser.add_argument("-ds", "--dataset", required=False, help="Dataset instance with data")
-    parser.add_argument("changes",  nargs="*", help="Changes to config. "
-                                                    "Following the syntax Key=Value",
+    parser.add_argument("changes", nargs="*", help="Changes to config. "
+                                                   "Following the syntax Key=Value",
                         default="")
     return parser.parse_args()
-
 
 
 if __name__ == "__main__":
@@ -323,7 +321,7 @@ if __name__ == "__main__":
             except:
                 parameters[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",",v,")"
+        print 'Error processing arguments: (', k, ",", v, ")"
         exit(2)
 
     check_params(parameters)

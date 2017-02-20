@@ -19,6 +19,10 @@ def update_dataset_from_file(ds,
     :param input_text_filename: Source language sentences
     :param params: Parameters for building the dataset
     :param splits: Splits to sample
+    :param output_text_filename: Target language sentences
+    :param remove_outputs: Remove outputs from dataset (if True, will ignore the output_text_filename parameter)
+    :param compute_state_below: Compute state below input (shifted target text for professor teaching)
+
     :return: Dataset object with the processed data
     """
     for split in splits:
@@ -39,7 +43,6 @@ def update_dataset_from_file(ds,
                          max_words=params['OUTPUT_VOCABULARY_SIZE'],
                          min_occ=params['MIN_OCCURRENCES_VOCAB'],
                          overwrite_split=True)
-
 
         # INPUT DATA
         ds.setInput(input_text_filename,
@@ -200,8 +203,8 @@ def build_dataset(params):
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
-
+        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME']
+                         + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     return ds
 
@@ -209,12 +212,16 @@ def build_dataset(params):
 def keep_n_captions(ds, repeat, n=1, set_names=None):
     """
     Keeps only n captions per image and stores the rest in dictionaries for a later evaluation
-    :param ds:
+    :param ds: Dataset object
     :param repeat:
     :param n:
     :param set_names:
     :return:
     """
+
+    n_samples = None
+    X = None
+    Y = None
 
     if set_names is None:
         set_names = ['val', 'test']
@@ -251,7 +258,7 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
             for i in range(0, n_samples, repeat):
                 dict_Y[count_samples] = []
                 for j in range(repeat):
-                    if (j < n):
+                    if j < n:
                         new_Y.append(Y[id_out][i + j])
                     dict_Y[count_samples].append(Y[id_out][i + j])
                 count_samples += 1
@@ -262,33 +269,3 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
         new_len = len(new_Y)
         exec ('ds.len_' + s + ' = new_len')
         logging.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')
-
-
-if __name__ == "__main__":
-    params = dict()
-
-    # Parameters (this should be externally provided from a config file)
-    params['RELOAD_DATASET'] = True  # build again or use stored instance
-    params['DATASET_NAME'] = 'Translation_toy'
-    params['DATA_ROOT_PATH'] = '/media/HDD_2TB/DATASETS/Translation_toy'
-    params['TOKENIZATION_METHOD'] = 'tokenize_basic'
-
-    params['TEXT_FILES'] = {'train': 'training.', 'val': 'val.', 'test': 'test.'}
-    params['INPUTS_IDS_DATASET'] = ['source_text']
-    params['OUTPUTS_IDS_DATASET'] = ['target_text']
-
-    params['MAX_INPUT_TEXT_LEN'] = 35
-    params['INPUT_VOCABULARY_SIZE'] = 0
-
-    params['MAX_OUTPUT_TEXT_LEN'] = 35
-    params['OUTPUT_VOCABULARY_SIZE'] = 0
-
-    params['SRC_LAN'] = 'en'
-    params['TRG_LAN'] = 'es'
-
-    params['VERBOSE'] = 1
-
-    ds = build_dataset(params)
-
-    logging.info('Sample data loaded correctly.')
-    print

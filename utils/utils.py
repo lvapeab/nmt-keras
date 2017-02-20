@@ -1,4 +1,3 @@
-
 def update_parameters(params, updates):
     """
     Updates the parameters from params with the ones specified in updates
