@@ -2,14 +2,18 @@ import argparse
 import copy
 import time
 import logging
+import ast
 from collections import OrderedDict
 
 from keras_wrapper.extra.read_write import pkl2dict, list2file
-
+from utils.utils import *
 from config import load_parameters
-from data_engine.prepare_data import update_dataset_from_file
+from config_online import load_parameters as load_parameters_online
+from data_engine.prepare_data import build_dataset, update_dataset_from_file
+from model_zoo import TranslationModel
+
 from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
-from keras_wrapper.cnn_model import loadModel
+from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *
 
@@ -24,35 +28,112 @@ def check_params(parameters):
 def parse_args():
     parser = argparse.ArgumentParser("Simulate an interactive NMT session")
     parser.add_argument("-ds", "--dataset", required=True, help="Dataset instance with data")
-    parser.add_argument("-s", "--splits",  nargs='+', required=False, default=['val'],
+    parser.add_argument("-s", "--splits", nargs='+', required=False, default=['val'],
                         help="Splits to sample. Should be already included into the dataset object.")
     parser.add_argument("-e", "--eval-output", required=False, help="Write evaluation results to file")
-    parser.add_argument("-v", "--verbose", required=False,  action='store_true', default=False, help="Be verbose")
-    parser.add_argument("-c", "--config",  required=False, help="Config pkl for loading the model configuration. "
-                                                                "If not specified, hyperparameters "
-                                                                "are read from config.py")
+    parser.add_argument("-v", "--verbose", required=False, action='store_true', default=False, help="Be verbose")
+    parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
+                                                               "If not specified, hyperparameters "
+                                                               "are read from config.py")
     parser.add_argument("--max-n", type=int, default=5, help="Maximum number of words generated between isles")
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=True)
     parser.add_argument("-trg", "--references", help="Reference sentence (for simulation)", required=True)
-    parser.add_argument("-d", "--dest",  required=False, help="File to save translations in")
+    parser.add_argument("-d", "--dest", required=False, help="File to save translations in")
     parser.add_argument("-od", "--original-dest", help="Save original hypotheses to this file", required=False)
     parser.add_argument("-p", "--prefix", action="store_true", default=False, help="Prefix-based post-edition")
-
+    parser.add_argument("-o", "--online",
+                        action='store_true', default=False, required=False,
+                        help="Online training mode after postedition. ")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
     return parser.parse_args()
+
+
+def train_online(models, dataset, source_line, target_line, params_training):
+    src_seq = dataset.loadText([source_line],
+                               dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]],
+                               params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                               0,
+                               fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][0]],
+                               pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
+                               words_so_far=False,
+                               loading_X=True)[0]
+    state_below = dataset.loadText([target_line],
+                                   dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                   params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                   1,
+                                   fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
+                                   pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
+                                   words_so_far=False,
+                                   loading_X=True)[0]
+    trg_seq = dataset.loadTextOneHot([target_line],
+                                     vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                     vocabulary_len=dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]],
+                                     max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                     offset=0,
+                                     fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
+                                     pad_on_batch=dataset.pad_on_batch[params['OUTPUTS_IDS_DATASET'][0]],
+                                     words_so_far=False,
+                                     sample_weights=params['SAMPLE_WEIGHTS'],
+                                     loading_X=False)
+    for model in models:
+        model.trainNetFromSamples([src_seq, state_below], trg_seq[0], params_training)
+
 
 if __name__ == "__main__":
 
     args = parse_args()
-    models = args.models
+    params = load_parameters()
+    if args.config is not None:
+        params = update_parameters(params, pkl2dict(args.config))
+
+    if args.online:
+        online_parameters = load_parameters_online()
+        params = update_parameters(params, online_parameters)
+
+    check_params(params)
+    if args.online:
+        params_training = {  # Traning params
+            'n_epochs': params['MAX_EPOCH'],
+            'shuffle': False,
+            'batch_size': params['BATCH_SIZE'],
+            'homogeneous_batches': False,
+            'lr_decay': params['LR_DECAY'],
+            'lr_gamma': params['LR_GAMMA'],
+            'epochs_for_save': -1,
+            'verbose': args.verbose,
+            'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
+            'n_parallel_loaders': params['PARALLEL_LOADERS'],
+            'extra_callbacks': [],  # callbacks,
+            'reload_epoch': params['RELOAD'],
+            'epoch_offset': params['RELOAD'],
+            'data_augmentation': params['DATA_AUGMENTATION'],
+            'patience': params.get('PATIENCE', 0),
+            'metric_check': params.get('STOP_METRIC', None),
+            'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
+            'each_n_epochs': params.get('EVAL_EACH', 1),
+            'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)
+        }
+        dataset = loadDataset(args.dataset)
+        dataset = update_dataset_from_file(dataset, args.source, params,
+                                           output_text_filename=args.references, splits=['train'], remove_outputs=False,
+                                           compute_state_below=True)
     logger.info("<<< Using an ensemble of %d models >>>" % len(args.models))
-    models = [loadModel(m, -1, full_path=True) for m in args.models]
-    if args.config is None:
-        logger.info("<<< Reading parameters from config.py >>>")
-        params = load_parameters()
+    if args.online:
+        logging.info('Loading models from %s' % str(args.models))
+        model_instances = [TranslationModel(params,
+                                            type=params['MODEL_TYPE'],
+                                            verbose=params['VERBOSE'],
+                                            model_name=params['MODEL_NAME'] + '_' + str(i),
+                                            vocabularies=dataset.vocabulary,
+                                            store_path=params['STORE_PATH'],
+                                            set_optimizer=False)
+                           for i in range(len(args.models))]
+        models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
+        for nmt_model in models:
+            nmt_model.setParams(params)
+            nmt_model.setOptimizer()
     else:
-        logger.info("<<< Loading parameters from %s >>>" % str(args.config))
-        params = pkl2dict(args.config)
+        models = [loadModel(m, -1, full_path=True) for m in args.models]
 
     # Load text files
     fsrc = open(args.source, 'r')
@@ -248,7 +329,7 @@ if __name__ == "__main__":
                         # Generate a new hypothesis
                         if correction_made:
                             logger.debug("")
-                            trans_indices, costs, alphas = interactive_beam_searcher.\
+                            trans_indices, costs, alphas = interactive_beam_searcher. \
                                 sample_beam_search(src_seq,
                                                    fixed_words=copy.copy(fixed_words_user),
                                                    max_N=args.max_n,
@@ -321,6 +402,8 @@ if __name__ == "__main__":
                               float(total_errors) / total_words,
                               float(total_mouse_actions) / total_words,
                               float(total_mouse_actions) / total_chars))
+                if args.online:
+                    train_online(models, dataset, line, " ".join(reference), params_training)
 
                 print >> ftrans, " ".join(hypothesis)
 
