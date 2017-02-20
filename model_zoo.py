@@ -23,7 +23,7 @@ class TranslationModel(Model_Wrapper):
         pass
 
     def __init__(self, params, type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
-                 model_name=None, vocabularies=None, store_path=None):
+                 model_name=None, vocabularies=None, store_path=None, set_optimizer=True, clear_dirs=True):
         """
         Translation_Model object constructor.
 
@@ -40,7 +40,7 @@ class TranslationModel(Model_Wrapper):
         :param store_path: path to the folder where the temporal model packups will be stored
         """
         super(self.__class__, self).__init__(type=type, model_name=model_name,
-                                             silence=verbose == 0, models_path=store_path, inheritance=True)
+                                             silence=verbose==0, models_path=store_path, inheritance=True)
 
         self.__toprint = ['_model_type', 'name', 'model_path', 'verbose']
 
@@ -51,7 +51,7 @@ class TranslationModel(Model_Wrapper):
         self.ids_inputs = params['INPUTS_IDS_MODEL']
         self.ids_outputs = params['OUTPUTS_IDS_MODEL']
         # Sets the model name and prepares the folders for storing the models
-        self.setName(model_name, models_path=store_path)
+        self.setName(model_name, models_path=store_path, clear_dirs=clear_dirs)
 
         # Prepare source word embedding
         if params['SRC_PRETRAINED_VECTORS'] is not None:
@@ -113,8 +113,11 @@ class TranslationModel(Model_Wrapper):
         if verbose > 0:
             print str(self)
             self.model.summary()
+        if set_optimizer:
+            self.setOptimizer()
 
-        self.setOptimizer()
+    def setParams(self, params):
+        self.params = params
 
     def setOptimizer(self, **kwargs):
 
@@ -125,7 +128,8 @@ class TranslationModel(Model_Wrapper):
 
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
-            logging.info("Preparing optimizer and compiling.")
+            logging.info("Preparing optimizer: %s [LR: %s] and compiling." %
+                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01))))
 
         if self.params['OPTIMIZER'].lower() == 'sgd':
             optimizer = SGD(lr=self.params.get('LR', 0.01),
