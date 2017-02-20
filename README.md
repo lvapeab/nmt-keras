@@ -45,7 +45,7 @@ In short, if we want to use the models from the first three epochs on the val sp
  
  
 * The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
- ```bash
+```
 python score.py --help
 usage: Use several translation models for scoring source--target pairs
        [-h] -ds DATASET [-src SOURCE] [-trg TARGET] [-s SPLITS [SPLITS ...]]
@@ -69,7 +69,6 @@ optional arguments:
     --models MODELS [MODELS ...]
                             path to the models
   ```
-
  
 
 
