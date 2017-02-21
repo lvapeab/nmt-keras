@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument("-trg", "--references", help="Reference sentence", required=False)
     parser.add_argument("-hyp", "--hypotheses", required=False, help="Store hypothesis to this file")
     parser.add_argument("-v", "--verbose", required=False, default=False, action='store_true', help="Verbosity level")
-    parser.add_argument("changes",  nargs="*", help="Changes to config, following the syntax Key=Value",
+    parser.add_argument("-ch", "--changes",  nargs="*", help="Changes to config, following the syntax Key=Value",
                         default="")
 
     return parser.parse_args()
@@ -120,6 +120,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     :param params: Dictionary of network hyperparameters.
     :return: None
     """
+
+    logging.info('Starting online training.')
+
     check_params(params)
     # Load data
     if dataset is None:
@@ -136,7 +139,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                             model_name=params['MODEL_NAME'] + '_' + str(i),
                                             vocabularies=dataset.vocabulary,
                                             store_path=params['STORE_PATH'],
-                                            set_optimizer=False)
+                                            set_optimizer=False,
+                                            clear_dirs=False)
                            for i in range(len(models_path))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, models_path)]
     else:
@@ -183,12 +187,15 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                          'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)
                          }
 
+    # Create sampler
+    logging.info('Creating sampler...')
     beam_searcher = InteractiveBeamSearchSampler(models, dataset, params_prediction, verbose=verbose)
     params_prediction = copy.copy(params_prediction)
     params_prediction['store_hypotheses'] = store_hypotheses
     # Empty dest file
     open(store_hypotheses, 'w').close()
-    # Create sampler and trainer
+    # Create trainer
+    logging.info('Creating trainer...')
     online_trainer = OnlineTrainer(models, dataset, beam_searcher, params_prediction, params_training, verbose=verbose)
 
     # Open new data
