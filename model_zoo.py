@@ -40,7 +40,7 @@ class TranslationModel(Model_Wrapper):
         :param store_path: path to the folder where the temporal model packups will be stored
         """
         super(self.__class__, self).__init__(type=type, model_name=model_name,
-                                             silence=verbose==0, models_path=store_path, inheritance=True)
+                                             silence=verbose == 0, models_path=store_path, inheritance=True)
 
         self.__toprint = ['_model_type', 'name', 'model_path', 'verbose']
 
@@ -120,12 +120,12 @@ class TranslationModel(Model_Wrapper):
         self.params = params
 
     def setOptimizer(self, **kwargs):
-
         """
         Sets a new optimizer for the Translation_Model.
-        :param **kwargs:
-        """
 
+        :param kwargs:
+        :return:
+        """
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
             logging.info("Preparing optimizer: %s [LR: %s] and compiling." %
@@ -439,107 +439,107 @@ class TranslationModel(Model_Wrapper):
         self.model = Model(input=[src_text, next_words], output=softout)
 
         ##################################################################
-        #                     BEAM SEARCH MODEL                          #
+        #                         SAMPLING MODEL                         #
         ##################################################################
         # Now that we have the basic training model ready, let's prepare the model for applying decoding
         # The beam-search model will include all the minimum required set of layers (decoder stage) which offer the
         # possibility to generate the next state in the sequence given a pre-processed input (encoder stage)
-        if params['BEAM_SEARCH']:
-            # First, we need a model that outputs the preprocessed input + initial h state
-            # for applying the initial forward pass
-            model_init_input = [src_text, next_words]
-            model_init_output = [softout, annotations, h_state]
-            if params['RNN_TYPE'] == 'LSTM':
-                model_init_output.append(h_memory)
-            if params['POS_UNK']:
-                model_init_output.append(alphas)
 
-            self.model_init = Model(input=model_init_input, output=model_init_output)
+        # First, we need a model that outputs the preprocessed input + initial h state
+        # for applying the initial forward pass
+        model_init_input = [src_text, next_words]
+        model_init_output = [softout, annotations, h_state]
+        if params['RNN_TYPE'] == 'LSTM':
+            model_init_output.append(h_memory)
+        if params['POS_UNK']:
+            model_init_output.append(alphas)
 
-            # Store inputs and outputs names for model_init
-            self.ids_inputs_init = self.ids_inputs
-            # first output must be the output probs.
-            self.ids_outputs_init = self.ids_outputs + ['preprocessed_input', 'next_state']
-            if params['RNN_TYPE'] == 'LSTM':
-                self.ids_outputs_init.append('next_memory')
+        self.model_init = Model(input=model_init_input, output=model_init_output)
 
-            # Second, we need to build an additional model with the capability to have the following inputs:
-            #   - preprocessed_input
-            #   - prev_word
-            #   - prev_state
-            # and the following outputs:
-            #   - softmax probabilities
-            #   - next_state
-            preprocessed_size = params['ENCODER_HIDDEN_SIZE'] * 2 if \
-                params['BIDIRECTIONAL_ENCODER'] \
-                else params['ENCODER_HIDDEN_SIZE']
-            # Define inputs
-            preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
-            prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
-            input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_state]
+        # Store inputs and outputs names for model_init
+        self.ids_inputs_init = self.ids_inputs
+        # first output must be the output probs.
+        self.ids_outputs_init = self.ids_outputs + ['preprocessed_input', 'next_state']
+        if params['RNN_TYPE'] == 'LSTM':
+            self.ids_outputs_init.append('next_memory')
 
-            if params['RNN_TYPE'] == 'LSTM':
-                prev_h_memory = Input(name='prev_memory', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
-                input_attentional_decoder.append(prev_h_memory)
-            # Apply decoder
-            rnn_output = sharedAttRNNCond(input_attentional_decoder)
-            proj_h = rnn_output[0]
-            x_att = rnn_output[1]
-            alphas = rnn_output[2]
-            h_state = rnn_output[3]
-            if params['RNN_TYPE'] == 'LSTM':
-                h_memory = rnn_output[4]
-            for reg in shared_reg_proj_h:
-                proj_h = reg(proj_h)
+        # Second, we need to build an additional model with the capability to have the following inputs:
+        #   - preprocessed_input
+        #   - prev_word
+        #   - prev_state
+        # and the following outputs:
+        #   - softmax probabilities
+        #   - next_state
+        preprocessed_size = params['ENCODER_HIDDEN_SIZE'] * 2 if \
+            params['BIDIRECTIONAL_ENCODER'] \
+            else params['ENCODER_HIDDEN_SIZE']
+        # Define inputs
+        preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
+        prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
+        input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_state]
 
-            out_layer_mlp = shared_FC_mlp(proj_h)
-            out_layer_ctx = shared_FC_ctx(x_att)
-            out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
-            out_layer_emb = shared_FC_emb(state_below)
+        if params['RNN_TYPE'] == 'LSTM':
+            prev_h_memory = Input(name='prev_memory', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
+            input_attentional_decoder.append(prev_h_memory)
+        # Apply decoder
+        rnn_output = sharedAttRNNCond(input_attentional_decoder)
+        proj_h = rnn_output[0]
+        x_att = rnn_output[1]
+        alphas = rnn_output[2]
+        h_state = rnn_output[3]
+        if params['RNN_TYPE'] == 'LSTM':
+            h_memory = rnn_output[4]
+        for reg in shared_reg_proj_h:
+            proj_h = reg(proj_h)
 
-            for (reg_out_layer_mlp, reg_out_layer_ctx, reg_out_layer_emb) in zip(shared_reg_out_layer_mlp,
-                                                                                 shared_reg_out_layer_ctx,
-                                                                                 shared_reg_out_layer_emb):
-                out_layer_mlp = reg_out_layer_mlp(out_layer_mlp)
-                out_layer_ctx = reg_out_layer_ctx(out_layer_ctx)
-                out_layer_emb = reg_out_layer_emb(out_layer_emb)
+        out_layer_mlp = shared_FC_mlp(proj_h)
+        out_layer_ctx = shared_FC_ctx(x_att)
+        out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
+        out_layer_emb = shared_FC_emb(state_below)
 
-            additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
-                                      mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input_model_next')
-            out_layer = shared_activation_tanh(additional_output)
+        for (reg_out_layer_mlp, reg_out_layer_ctx, reg_out_layer_emb) in zip(shared_reg_out_layer_mlp,
+                                                                             shared_reg_out_layer_ctx,
+                                                                             shared_reg_out_layer_emb):
+            out_layer_mlp = reg_out_layer_mlp(out_layer_mlp)
+            out_layer_ctx = reg_out_layer_ctx(out_layer_ctx)
+            out_layer_emb = reg_out_layer_emb(out_layer_emb)
 
-            for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
-                out_layer = deep_out_layer(out_layer)
-                for reg in reg_list:
-                    out_layer = reg(out_layer)
+        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
+                                  mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input_model_next')
+        out_layer = shared_activation_tanh(additional_output)
 
-            # Softmax
-            softout = shared_FC_soft(out_layer)
-            model_next_inputs = [next_words, preprocessed_annotations, prev_h_state]
-            model_next_outputs = [softout, preprocessed_annotations, h_state]
-            if params['RNN_TYPE'] == 'LSTM':
-                model_next_inputs.append(prev_h_memory)
-                model_next_outputs.append(h_memory)
+        for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
+            out_layer = deep_out_layer(out_layer)
+            for reg in reg_list:
+                out_layer = reg(out_layer)
 
-            if params['POS_UNK']:
-                model_next_outputs.append(alphas)
+        # Softmax
+        softout = shared_FC_soft(out_layer)
+        model_next_inputs = [next_words, preprocessed_annotations, prev_h_state]
+        model_next_outputs = [softout, preprocessed_annotations, h_state]
+        if params['RNN_TYPE'] == 'LSTM':
+            model_next_inputs.append(prev_h_memory)
+            model_next_outputs.append(h_memory)
 
-            self.model_next = Model(input=model_next_inputs,
-                                    output=model_next_outputs)
+        if params['POS_UNK']:
+            model_next_outputs.append(alphas)
 
-            # Store inputs and outputs names for model_next
-            # first input must be previous word
-            self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input', 'prev_state']
-            # first output must be the output probs.
-            self.ids_outputs_next = self.ids_outputs + ['preprocessed_input', 'next_state']
+        self.model_next = Model(input=model_next_inputs,
+                                output=model_next_outputs)
 
-            # Input -> Output matchings from model_init to model_next and from model_next to model_next
-            self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input',
-                                           'next_state': 'prev_state'}
-            self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
-                                           'next_state': 'prev_state'}
-            if params['RNN_TYPE'] == 'LSTM':
-                self.ids_inputs_next.append('prev_memory')
-                self.ids_outputs_next.append('next_memory')
-                self.matchings_init_to_next['next_memory'] = 'prev_memory'
-                self.matchings_next_to_next['next_memory'] = 'prev_memory'
+        # Store inputs and outputs names for model_next
+        # first input must be previous word
+        self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input', 'prev_state']
+        # first output must be the output probs.
+        self.ids_outputs_next = self.ids_outputs + ['preprocessed_input', 'next_state']
+
+        # Input -> Output matchings from model_init to model_next and from model_next to model_next
+        self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input',
+                                       'next_state': 'prev_state'}
+        self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
+                                       'next_state': 'prev_state'}
+        if params['RNN_TYPE'] == 'LSTM':
+            self.ids_inputs_next.append('prev_memory')
+            self.ids_outputs_next.append('next_memory')
+            self.matchings_init_to_next['next_memory'] = 'prev_memory'
+            self.matchings_next_to_next['next_memory'] = 'prev_memory'
