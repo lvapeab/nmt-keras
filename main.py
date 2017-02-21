@@ -192,8 +192,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     beam_searcher = InteractiveBeamSearchSampler(models, dataset, params_prediction, verbose=verbose)
     params_prediction = copy.copy(params_prediction)
     params_prediction['store_hypotheses'] = store_hypotheses
-    # Empty dest file
-    open(store_hypotheses, 'w').close()
+
     # Create trainer
     logging.info('Creating trainer...')
     online_trainer = OnlineTrainer(models, dataset, beam_searcher, params_prediction, params_training, verbose=verbose)
@@ -209,6 +208,10 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     target_lines = target_lines[:-1] if target_lines[-1] == '' else target_lines
     n_lines = len(source_lines)
     assert len(source_lines) == len(target_lines), 'Number of source and target lines must match'
+    # Empty dest file
+    if store_hypotheses:
+        logging.info('Storing htypotheses in: %s' % store_hypotheses)
+        open(store_hypotheses, 'w').close()
 
     start_time = time.time()
     eta = -1
