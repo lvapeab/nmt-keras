@@ -128,8 +128,9 @@ class TranslationModel(Model_Wrapper):
         """
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
-            logging.info("Preparing optimizer: %s [LR: %s] and compiling." %
-                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01))))
+            logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s] and compiling." %
+                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01)),
+                          str(self.params.get('LOSS', 'categorical_crossentropy'))))
 
         if self.params['OPTIMIZER'].lower() == 'sgd':
             optimizer = SGD(lr=self.params.get('LR', 0.01),
@@ -185,7 +186,7 @@ class TranslationModel(Model_Wrapper):
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])
-        self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
+        self.model.compile(optimizer=optimizer, loss=self.params['LOSS'], metrics=self.params['KERAS_METRICS'],
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
 
     def __str__(self):

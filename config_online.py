@@ -7,12 +7,14 @@ def load_parameters():
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
+    KERAS_METRICS = ['categorical_crossentropy']                            # Metric used for evaluating the model
+
     CLASSIFIER_ACTIVATION = 'softmax'
     STORE_PATH = 'trained_models/retrained_model/'  # Models and evaluation results will be stored here
 
-    OPTIMIZER = 'SGD'                            # Optimizer
+    OPTIMIZER = 'SGD'                             # Optimizer
     LR = 0.01                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
-    CLIP_C = 10.                                   # During training, clip gradients to this norm
+    CLIP_C = 10.                                  # During training, clip gradients to this norm
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
@@ -38,7 +40,7 @@ def load_parameters():
     RNN_TYPE = 'GRU'                              # RNN unit type ('LSTM' and 'GRU' supported)
 
     # Regularizers
-    WEIGHT_DECAY = 0. #1e-4                           # L2 regularization
+    WEIGHT_DECAY = 0.                             # L2 regularization
     RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
 
     USE_DROPOUT = False                           # Use dropout

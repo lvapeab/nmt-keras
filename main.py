@@ -6,12 +6,13 @@ import copy
 import time
 from timeit import default_timer as timer
 
-from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
+from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler, BeamSearchEnsemble
 from utils.utils import *
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from model_zoo import TranslationModel
+
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.online_trainer import OnlineTrainer
@@ -145,6 +146,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, models_path)]
     else:
         raise Exception, 'Online mode requires an already trained model!'
+
+
     for nmt_model in models:
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
@@ -189,13 +192,19 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Create sampler
     logging.info('Creating sampler...')
-    beam_searcher = InteractiveBeamSearchSampler(models, dataset, params_prediction, verbose=verbose)
+    beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=verbose)
     params_prediction = copy.copy(params_prediction)
     params_prediction['store_hypotheses'] = store_hypotheses
 
     # Create trainer
     logging.info('Creating trainer...')
-    online_trainer = OnlineTrainer(models, dataset, beam_searcher, params_prediction, params_training, verbose=verbose)
+    online_trainer = OnlineTrainer(models,
+                                   dataset,
+                                   beam_searcher,
+                                   params_prediction,
+                                   params_training,
+                                   require_sampling='PassiveAggressive' in params['OPTIMIZER'],
+                                   verbose=verbose)
 
     # Open new data
     ftrg = open(target_filename, 'r')

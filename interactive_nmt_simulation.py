@@ -217,7 +217,7 @@ if __name__ == "__main__":
                 logger.debug("Target: %s" % target_lines[n_line])
                 reference = target_lines[n_line].split()
                 # 0. Get a first hypothesis
-                trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search(src_seq)
+                trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search_interactive(src_seq)
                 if params_prediction['pos_unk']:
                     alphas = [alphas]
                     sources = [seqin]
@@ -330,11 +330,11 @@ if __name__ == "__main__":
                         if correction_made:
                             logger.debug("")
                             trans_indices, costs, alphas = interactive_beam_searcher. \
-                                sample_beam_search(src_seq,
-                                                   fixed_words=copy.copy(fixed_words_user),
-                                                   max_N=args.max_n,
-                                                   isles=isle_indices,
-                                                   idx2word=index2word_y)
+                                sample_beam_search_interactive(src_seq,
+                                                               fixed_words=copy.copy(fixed_words_user),
+                                                               max_N=args.max_n,
+                                                               isles=isle_indices,
+                                                               idx2word=index2word_y)
                             if params['POS_UNK']:
                                 alphas = [alphas]
                             else:
