@@ -123,7 +123,7 @@ def build_dataset(params):
                      max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                      max_words=params['OUTPUT_VOCABULARY_SIZE'],
                      min_occ=params['MIN_OCCURRENCES_VOCAB'])
-        if params['ALIGN_FROM_RAW']:
+        if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
             ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                             'train',
                             type='file-name',
@@ -140,10 +140,11 @@ def build_dataset(params):
                              sample_weights=params['SAMPLE_WEIGHTS'],
                              max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                              max_words=params['OUTPUT_VOCABULARY_SIZE'])
-                ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
-                                split,
-                                type='file-name',
-                                id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
+                if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
+                    ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
+                                    split,
+                                    type='file-name',
+                                    id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
 
         # INPUT DATA
         # We must ensure that the 'train' split is the first (for building the vocabulary)
@@ -185,7 +186,7 @@ def build_dataset(params):
                                     type='ghost',
                                     id=params['INPUTS_IDS_DATASET'][-1],
                                     required=False)
-                if params['ALIGN_FROM_RAW']:
+                if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
                     ds.setRawInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
                                    split,
                                    type='file-name',
