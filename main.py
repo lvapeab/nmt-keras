@@ -4,7 +4,7 @@ from timeit import default_timer as timer
 
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
-from keras_wrapper.cnn_model import loadModel
+from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.extra.callbacks import *
 from model_zoo import TranslationModel
 from utils.utils import update_parameters
@@ -53,7 +53,16 @@ def train_model(params):
         nmt_model.setOutputsMapping(outputMapping)
 
     else:  # resume from previously trained model
-        nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'])
+        nmt_model = TranslationModel(params,
+                                     type=params['MODEL_TYPE'],
+                                     verbose=params['VERBOSE'],
+                                     model_name=params['MODEL_NAME'],
+                                     vocabularies=dataset.vocabulary,
+                                     store_path=params['STORE_PATH'],
+                                     set_optimizer=False,
+                                     clear_dirs=False)
+        nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'])
+        nmt_model.setParams(params)
         nmt_model.setOptimizer()
 
     # Callbacks

@@ -7,8 +7,8 @@ def load_parameters():
 
     # Input data params
     DATASET_NAME = 'EuTrans'                        # Task name
-    SRC_LAN = 'es'                                  # Language of the source text
-    TRG_LAN = 'en'                                  # Language of the target text
+    SRC_LAN = 'en'                                  # Language of the source text
+    TRG_LAN = 'es'                                  # Language of the target text
     DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
@@ -57,7 +57,7 @@ def load_parameters():
                                                   #        starts with a lowercase. Otherwise, copies the source word.
     ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
 
-    MAPPING = DATA_ROOT_PATH + '/DATA/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
+    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
@@ -100,7 +100,7 @@ def load_parameters():
     BATCH_SIZE = 50                               # Size of each minibatch
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
-    JOINT_BATCHES = 4                             # When using homogenous batches, get this number of batches to sort
+    JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
     PARALLEL_LOADERS = 1                          # Parallel data batch loaders
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
     WRITE_VALID_SAMPLES = True                    # Write valid samples in file
@@ -137,7 +137,7 @@ def load_parameters():
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers (unimplemented)
-    ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip connections
+    ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
 
     # Fully-Connected layers for initializing the first RNN state
     #       Here we should only specify the activation function of each layer
@@ -148,7 +148,7 @@ def load_parameters():
     # Additional Fully-Connected layers's sizes applied before softmax.
     #       Here we should specify the activation function and the output dimension
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
-    DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)]
+    DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
 
     # Regularizers
     WEIGHT_DECAY = 1e-4                           # L2 regularization
