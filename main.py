@@ -84,7 +84,16 @@ def train_model(params):
         nmt_model.setOutputsMapping(outputMapping)
 
     else:  # resume from previously trained model
-        nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'])
+        nmt_model = TranslationModel(params,
+                                     type=params['MODEL_TYPE'],
+                                     verbose=params['VERBOSE'],
+                                     model_name=params['MODEL_NAME'],
+                                     vocabularies=dataset.vocabulary,
+                                     store_path=params['STORE_PATH'],
+                                     set_optimizer=False,
+                                     clear_dirs=False)
+        nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'])
+        nmt_model.setParams(params)
         nmt_model.setOptimizer()
 
     # Callbacks
@@ -109,8 +118,6 @@ def train_model(params):
                        'each_n_epochs': params.get('EVAL_EACH', 1),
                        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)}
     nmt_model.trainNet(dataset, training_params)
-
-
 
     total_end_time = timer()
     time_difference = total_end_time - total_start_time
@@ -296,22 +303,21 @@ def apply_NMT_model(params):
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
                       'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
-        for s in params['EVAL_ON_SETS']:
-            extra_vars[s] = dict()
-            extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
+        extra_vars[s] = dict()
+        extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
         input_text_id = None
         vocab_src = None
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
-            extra_vars['state_below_index'] =  params.get('BEAM_SEARCH_COND_INPUT', -1)
+            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
             extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
             extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize'] =  params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['alpha_factor'] =  params.get('ALPHA_FACTOR', 1.)
+            extra_vars['normalize'] = params.get('NORMALIZE_SAMPLING', False)
+            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.)
             extra_vars['pos_unk'] = params['POS_UNK']
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -321,27 +327,28 @@ def apply_NMT_model(params):
                     extra_vars['mapping'] = dataset.mapping
 
         callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(nmt_model,
-                                                           dataset,
-                                                           gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                           metric_name=params['METRICS'],
-                                                           set_name=params['EVAL_ON_SETS'],
-                                                           batch_size=params['BATCH_SIZE'],
-                                                           each_n_epochs=params['EVAL_EACH'],
-                                                           extra_vars=extra_vars,
-                                                           reload_epoch=params['RELOAD'],
-                                                           is_text=True,
-                                                           input_text_id=input_text_id,
-                                                           save_path=nmt_model.model_path,
-                                                           index2word_y=vocab,
-                                                           index2word_x=vocab_src,
-                                                           sampling_type=params['SAMPLING'],
-                                                           beam_search=params['BEAM_SEARCH'],
-                                                           start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                                           write_samples=True,
-                                                           write_type=params['SAMPLING_SAVE_MODE'],
-                                                           eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                           save_each_evaluation=False,
-                                                           verbose=params['VERBOSE'])
+                                                                         dataset,
+                                                                         gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                                         metric_name=params['METRICS'],
+                                                                         set_name=params['EVAL_ON_SETS'],
+                                                                         batch_size=params['BATCH_SIZE'],
+                                                                         each_n_epochs=params['EVAL_EACH'],
+                                                                         extra_vars=extra_vars,
+                                                                         reload_epoch=params['RELOAD'],
+                                                                         is_text=True,
+                                                                         input_text_id=input_text_id,
+                                                                         save_path=nmt_model.model_path,
+                                                                         index2word_y=vocab,
+                                                                         index2word_x=vocab_src,
+                                                                         sampling_type=params['SAMPLING'],
+                                                                         beam_search=params['BEAM_SEARCH'],
+                                                                         start_eval_on_epoch=params[
+                                                                             'START_EVAL_ON_EPOCH'],
+                                                                         write_samples=True,
+                                                                         write_type=params['SAMPLING_SAVE_MODE'],
+                                                                         eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                                                         save_each_evaluation=False,
+                                                                         verbose=params['VERBOSE'])
 
         callback_metric.evaluate(params['RELOAD'], counter_name='epoch' if params['EVAL_EACH_EPOCHS'] else 'update')
 
@@ -371,15 +378,15 @@ def buildCallbacks(params, model, dataset):
         vocab_src = None
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
-            extra_vars['state_below_index'] =  params.get('BEAM_SEARCH_COND_INPUT', -1)
+            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
             extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
             extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
             extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize'] =  params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['alpha_factor'] =  params.get('ALPHA_FACTOR', 1.)
+            extra_vars['normalize'] = params.get('NORMALIZE_SAMPLING', False)
+            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.)
             extra_vars['pos_unk'] = params['POS_UNK']
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -389,27 +396,29 @@ def buildCallbacks(params, model, dataset):
                     extra_vars['mapping'] = dataset.mapping
 
         callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
-                                                           dataset,
-                                                           gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                           metric_name=params['METRICS'],
-                                                           set_name=params['EVAL_ON_SETS'],
-                                                           batch_size=params['BATCH_SIZE'],
-                                                           each_n_epochs=params['EVAL_EACH'],
-                                                           extra_vars=extra_vars,
-                                                           reload_epoch=params['RELOAD'],
-                                                           is_text=True,
-                                                           input_text_id=input_text_id,
-                                                           index2word_y=vocab,
-                                                           index2word_x=vocab_src,
-                                                           sampling_type=params['SAMPLING'],
-                                                           beam_search=params['BEAM_SEARCH'],
-                                                           save_path=model.model_path,
-                                                           start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                                           write_samples=True,
-                                                           write_type=params['SAMPLING_SAVE_MODE'],
-                                                           eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                           save_each_evaluation=False,
-                                                           verbose=params['VERBOSE'])
+                                                                         dataset,
+                                                                         gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                                         metric_name=params['METRICS'],
+                                                                         set_name=params['EVAL_ON_SETS'],
+                                                                         batch_size=params['BATCH_SIZE'],
+                                                                         each_n_epochs=params['EVAL_EACH'],
+                                                                         extra_vars=extra_vars,
+                                                                         reload_epoch=params['RELOAD'],
+                                                                         is_text=True,
+                                                                         input_text_id=input_text_id,
+                                                                         index2word_y=vocab,
+                                                                         index2word_x=vocab_src,
+                                                                         sampling_type=params['SAMPLING'],
+                                                                         beam_search=params['BEAM_SEARCH'],
+                                                                         save_path=model.model_path,
+                                                                         start_eval_on_epoch=params[
+                                                                             'START_EVAL_ON_EPOCH'],
+                                                                         write_samples=True,
+                                                                         write_type=params['SAMPLING_SAVE_MODE'],
+                                                                         eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                                                         save_each_evaluation=params[
+                                                                             'SAVE_EACH_EVALUATION'],
+                                                                         verbose=params['VERBOSE'])
 
         callbacks.append(callback_metric)
 
