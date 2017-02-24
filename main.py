@@ -97,6 +97,7 @@ def train_model(params):
     training_params = {'n_epochs': params['MAX_EPOCH'],
                        'batch_size': params['BATCH_SIZE'],
                        'homogeneous_batches': params['HOMOGENEOUS_BATCHES'], 'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
+                       'joint_batches': params['JOINT_BATCHES'],
                        'lr_decay': params['LR_DECAY'], 'lr_gamma': params['LR_GAMMA'],
                        'epochs_for_save': params['EPOCHS_FOR_SAVE'], 'verbose': params['VERBOSE'],
                        'eval_on_sets': params['EVAL_ON_SETS_KERAS'], 'n_parallel_loaders': params['PARALLEL_LOADERS'],

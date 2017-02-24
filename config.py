@@ -15,9 +15,9 @@ def load_parameters():
     DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
-    TEXT_FILES = {'train': 'DATA/training.',        # Data files
-                  'val': 'DATA/dev.',
-                  'test': 'DATA/test.'}
+    TEXT_FILES = {'train': 'training.',        # Data files
+                  'val': 'dev.',
+                  'test': 'test.'}
 
     # Dataset class parameters
     INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
@@ -102,8 +102,9 @@ def load_parameters():
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
     BATCH_SIZE = 50                               # Size of each minibatch
 
-    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths for every minibatch (Possibly buggy!)
-    PARALLEL_LOADERS = 8                          # Parallel data batch loaders
+    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
+    JOINT_BATCHES = 4                             # When using homogenous batches, get this number of batches to sort
+    PARALLEL_LOADERS = 1                          # Parallel data batch loaders
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
     WRITE_VALID_SAMPLES = True                    # Write valid samples in file
     SAVE_EACH_EVALUATION = True                   # Save each time we evaluate the model
