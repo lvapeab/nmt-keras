@@ -24,6 +24,7 @@ If we launch the script with the `--help` flag, the different options are shown:
     -c CONFIG, --config CONFIG
                           Config pkl for loading the model configuration. If not
                           specified, hyperparameters are read from config.py
+    --n-best              Write n-best list (n = beam size)                       
     --models MODELS [MODELS ...]
 ```
 
