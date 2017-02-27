@@ -236,6 +236,7 @@ class TranslationModel(Model_Wrapper):
         src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding',
                                   W_regularizer=l2(params['WEIGHT_DECAY']),
+                                  init=params['INIT_FUNCTION'],
                                   trainable=self.src_embedding_weights_trainable, weights=self.src_embedding_weights,
                                   mask_zero=True)(src_text)
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
@@ -250,6 +251,7 @@ class TranslationModel(Model_Wrapper):
                                                                      'USE_RECURRENT_DROPOUT'] else None,
                                                                  dropout_U=params['RECURRENT_DROPOUT_P'] if params[
                                                                      'USE_RECURRENT_DROPOUT'] else None,
+                                                                 init=params['INIT_FUNCTION'],
                                                                  return_sequences=True),
                                         name='bidirectional_encoder_' + params['RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
@@ -263,6 +265,7 @@ class TranslationModel(Model_Wrapper):
                                                    dropout_U=params['RECURRENT_DROPOUT_P'] if params[
                                                        'USE_RECURRENT_DROPOUT'] else None,
                                                    return_sequences=True,
+                                                   init=params['INIT_FUNCTION'],
                                                    name='encoder_' + params['RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
@@ -278,6 +281,7 @@ class TranslationModel(Model_Wrapper):
                                                                          params['USE_RECURRENT_DROPOUT'] else None,
                                                                          dropout_U=params['RECURRENT_DROPOUT_P'] if
                                                                          params['USE_RECURRENT_DROPOUT'] else None,
+                                                                         init=params['INIT_FUNCTION'],
                                                                          return_sequences=True,
                                                                          ),
                                                 merge_mode='concat',
@@ -292,6 +296,7 @@ class TranslationModel(Model_Wrapper):
         state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
                                 name='target_word_embedding',
                                 W_regularizer=l2(params['WEIGHT_DECAY']),
+                                init=params['INIT_FUNCTION'],
                                 trainable=self.trg_embedding_weights_trainable, weights=self.trg_embedding_weights,
                                 mask_zero=True)(next_words)
         state_below = Regularize(state_below, params, name='state_below')
@@ -303,12 +308,14 @@ class TranslationModel(Model_Wrapper):
         if len(params['INIT_LAYERS']) > 0:
             for n_layer_init in range(len(params['INIT_LAYERS']) - 1):
                 ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d' % n_layer_init,
+                                 init=params['INIT_FUNCTION'],
                                  W_regularizer=l2(params['WEIGHT_DECAY']),
                                  activation=params['INIT_LAYERS'][n_layer_init]
                                  )(ctx_mean)
                 ctx_mean = Regularize(ctx_mean, params, name='ctx' + str(n_layer_init))
 
             initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
+                                  init=params['INIT_FUNCTION'],
                                   W_regularizer=l2(params['WEIGHT_DECAY']),
                                   activation=params['INIT_LAYERS'][-1]
                                   )(ctx_mean)
@@ -317,6 +324,7 @@ class TranslationModel(Model_Wrapper):
 
             if params['RNN_TYPE'] == 'LSTM':
                 initial_memory = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_memory',
+                                       init=params['INIT_FUNCTION'],
                                        W_regularizer=l2(params['WEIGHT_DECAY']),
                                        activation=params['INIT_LAYERS'][-1])(ctx_mean)
                 initial_memory = Regularize(initial_memory, params, name='initial_memory')
@@ -346,6 +354,7 @@ class TranslationModel(Model_Wrapper):
                                                                          'USE_DROPOUT'] else None,
                                                                      dropout_Ua=params['DROPOUT_P'] if params[
                                                                          'USE_DROPOUT'] else None,
+                                                                     init=params['INIT_FUNCTION'],
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,
                                                                      return_states=True,
@@ -379,11 +388,13 @@ class TranslationModel(Model_Wrapper):
 
         # 3.5. Skip connections between encoder and output layer
         shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                              init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear',
                                               ), name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
         shared_FC_ctx = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                              init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear',
                                               ), name='logit_ctx')
@@ -392,6 +403,7 @@ class TranslationModel(Model_Wrapper):
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
         shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                              init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear'),
                                         name='logit_emb')
@@ -416,10 +428,12 @@ class TranslationModel(Model_Wrapper):
         for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
             if activation.lower() == 'maxout':
                 shared_deep_list.append(TimeDistributed(MaxoutDense(dimension,
+                                                                    init=params['INIT_FUNCTION'],
                                                                     W_regularizer=l2(params['WEIGHT_DECAY'])),
                                                         name='maxout_%d' % i))
             else:
                 shared_deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
+                                                              init=params['INIT_FUNCTION'],
                                                               W_regularizer=l2(params['WEIGHT_DECAY'])),
                                                         name=activation + '_%d' % i))
             out_layer = shared_deep_list[-1](out_layer)
