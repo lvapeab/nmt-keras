@@ -25,15 +25,15 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
 
 ## Features (in addition to the full Keras cosmos): 
 
+ * Beam search decoding.
+ * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
+ * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
- * Beam search decoding.
- * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
- * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
@@ -55,13 +55,11 @@ NMT-Keras requires the following libraries:
  python main.py
  ``
 
-
 3) We can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. 
 In short, if we want to use the models from the first three epochs on the val split, just run:
  ```bash
   python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -t text_to_translate
   ```
- 
  
  
 * The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
