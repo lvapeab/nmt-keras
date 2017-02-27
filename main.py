@@ -211,7 +211,6 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                    beam_searcher,
                                    params_prediction,
                                    params_training,
-                                   require_sampling='PassiveAggressive' in params['OPTIMIZER'],
                                    verbose=verbose)
 
     # Open new data
