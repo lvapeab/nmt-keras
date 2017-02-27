@@ -6,7 +6,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 ## Features (in addition to the full Keras cosmos): 
 
  * Beam search decoding.
- * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
+  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
@@ -14,6 +14,7 @@ Neural Machine Translation with Keras (+ Theano backend)
  * MLPs for initializing the RNN hidden and memory state.
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
+ * N-best list generation (as byproduct of the beam search process).
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
