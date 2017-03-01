@@ -5,8 +5,8 @@ from config import load_parameters
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
-from keras_wrapper.read_write import pkl2dict, list2file
-import utils
+from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file
+from keras_wrapper.extra.evaluation import select as evaluation_select
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -26,6 +26,7 @@ def parse_args():
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
+    parser.add_argument("--n-best", action="store_true", default=False, help="Write n-best list (n = beam size)")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
     return parser.parse_args()
 
@@ -41,7 +42,6 @@ if __name__ == "__main__":
         params = load_parameters()
     else:
         print "Loading parameters from %s" % str(args.config)
-
         params = pkl2dict(args.config)
 
     dataset = loadDataset(args.dataset)
@@ -85,8 +85,11 @@ if __name__ == "__main__":
                 input_text_id = None
                 vocab_src = None
                 mapping = None
-            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=args.verbose)
-            predictions = beam_searcher.predictBeamSearchNet()[s]
+            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, n_best=args.n_best, verbose=args.verbose)
+            if args.n_best:
+                predictions, n_best = beam_searcher.predictBeamSearchNet()[s]
+            else:
+                predictions = beam_searcher.predictBeamSearchNet()[s]
             if params_prediction['pos_unk']:
                 samples = predictions[0]
                 alphas = predictions[1]
@@ -111,12 +114,42 @@ if __name__ == "__main__":
                                                                    heuristic=heuristic,
                                                                    mapping=mapping,
                                                                    verbose=params['VERBOSE'])
-
+            if args.n_best:
+                n_best_predictions = []
+                if params_prediction['pos_unk']:
+                    sources = []
+                    for preds in predictions[2]:
+                        for src in preds[input_text_id]:
+                            sources.append(src)
+                    sources = models[0].decode_predictions_beam_search(sources,
+                                                                       vocab_src,
+                                                                       pad_sequences=True,
+                                                                       verbose=params['VERBOSE'])
+                    heuristic = params_prediction['heuristic']
+                else:
+                    alphas = None
+                    heuristic = None
+                    sources = None
+                i = 0
+                for i, (n_best_preds, n_best_scores, n_best_alphas) in enumerate(n_best):
+                    n_best_sample_score = []
+                    for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
+                        pred = models[0].decode_predictions_beam_search([n_best_pred],
+                                                           index2word_y,
+                                                           alphas=n_best_alpha,
+                                                           x_text=sources,
+                                                           heuristic=heuristic,
+                                                           mapping=mapping,
+                                                           verbose=0)
+                        n_best_sample_score.append([i, pred, n_best_score])
+                    n_best_predictions.append(n_best_sample_score)
         # Store result
         if args.dest is not None:
             filepath = args.dest  # results file
             if params['SAMPLING_SAVE_MODE'] == 'list':
                 list2file(filepath, predictions)
+                if args.n_best:
+                    nbest2file(filepath + '.nbest', n_best_predictions)
             else:
                 raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
         if args.not_eval is False:
@@ -127,7 +160,7 @@ if __name__ == "__main__":
                 extra_vars[s] = dict()
                 extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
                 extra_vars['language'] = params['TRG_LAN']
-                metrics = utils.evaluation.select[metric](
+                metrics = evaluation_select[metric](
                     pred_list=predictions,
                     verbose=1,
                     extra_vars=extra_vars,

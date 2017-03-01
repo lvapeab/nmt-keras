@@ -5,7 +5,7 @@ from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
 from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral, MaskLayer
 from keras.models import model_from_json, Model
-from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD
+from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
 from keras.regularizers import l2
 from keras_wrapper.cnn_model import Model_Wrapper
 from utils.regularize import Regularize
@@ -23,7 +23,7 @@ class TranslationModel(Model_Wrapper):
         pass
 
     def __init__(self, params, type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
-                 model_name=None, vocabularies=None, store_path=None):
+                 model_name=None, vocabularies=None, store_path=None, set_optimizer=True, clear_dirs=True):
         """
         Translation_Model object constructor.
 
@@ -51,7 +51,7 @@ class TranslationModel(Model_Wrapper):
         self.ids_inputs = params['INPUTS_IDS_MODEL']
         self.ids_outputs = params['OUTPUTS_IDS_MODEL']
         # Sets the model name and prepares the folders for storing the models
-        self.setName(model_name, models_path=store_path)
+        self.setName(model_name, models_path=store_path, clear_dirs=clear_dirs)
 
         # Prepare source word embedding
         if params['SRC_PRETRAINED_VECTORS'] is not None:
@@ -113,29 +113,75 @@ class TranslationModel(Model_Wrapper):
         if verbose > 0:
             print str(self)
             self.model.summary()
+        if set_optimizer:
+            self.setOptimizer()
 
-        self.setOptimizer()
+    def setParams(self, params):
+        self.params = params
 
     def setOptimizer(self, **kwargs):
-
         """
         Sets a new optimizer for the Translation_Model.
-        :param **kwargs:
-        """
 
+        :param kwargs:
+        :return:
+        """
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
-            logging.info("Preparing optimizer and compiling.")
-        if self.params['OPTIMIZER'].lower() == 'adam':
-            optimizer = Adam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
-        elif self.params['OPTIMIZER'].lower() == 'rmsprop':
-            optimizer = RMSprop(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
-        elif self.params['OPTIMIZER'].lower() == 'nadam':
-            optimizer = Nadam(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
+            logging.info("Preparing optimizer: %s [LR: %s] and compiling." %
+                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01))))
+
+        if self.params['OPTIMIZER'].lower() == 'sgd':
+            optimizer = SGD(lr=self.params.get('LR', 0.01),
+                            momentum=self.params.get('MOMENTUM', 0.0),
+                            decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                            nesterov=self.params.get('NESTEROV_MOMENTUM', False),
+                            clipnorm=self.params.get('CLIP_C', 0.),
+                            clipvalue=self.params.get('CLIP_V', 0.), )
+
+        elif self.params['OPTIMIZER'].lower() == 'rsmprop':
+            optimizer = RMSprop(lr=self.params.get('LR', 0.001),
+                                rho=self.params.get('RHO', 0.9),
+                                decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                clipnorm=self.params.get('CLIP_C', 0.),
+                                clipvalue=self.params.get('CLIP_V', 0.))
+
+        elif self.params['OPTIMIZER'].lower() == 'adagrad':
+            optimizer = Adagrad(lr=self.params.get('LR', 0.01),
+                                decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                clipnorm=self.params.get('CLIP_C', 0.),
+                                clipvalue=self.params.get('CLIP_V', 0.))
+
         elif self.params['OPTIMIZER'].lower() == 'adadelta':
-            optimizer = Adadelta(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
-        elif self.params['OPTIMIZER'].lower() == 'sgd':
-            optimizer = SGD(lr=self.params['LR'], clipnorm=self.params['CLIP_C'])
+            optimizer = Adadelta(lr=self.params.get('LR', 1.0),
+                                 rho=self.params.get('RHO', 0.9),
+                                 decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                 clipnorm=self.params.get('CLIP_C', 0.),
+                                 clipvalue=self.params.get('CLIP_V', 0.))
+
+        elif self.params['OPTIMIZER'].lower() == 'adam':
+            optimizer = Adam(lr=self.params.get('LR', 0.001),
+                             beta_1=self.params.get('BETA_1', 0.9),
+                             beta_2=self.params.get('BETA_2', 0.999),
+                             decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                             clipnorm=self.params.get('CLIP_C', 0.),
+                             clipvalue=self.params.get('CLIP_V', 0.))
+
+        elif self.params['OPTIMIZER'].lower() == 'adamax':
+            optimizer = Adamax(lr=self.params.get('LR', 0.002),
+                               beta_1=self.params.get('BETA_1', 0.9),
+                               beta_2=self.params.get('BETA_2', 0.999),
+                               decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                               clipnorm=self.params.get('CLIP_C', 0.),
+                               clipvalue=self.params.get('CLIP_V', 0.))
+
+        elif self.params['OPTIMIZER'].lower() == 'nadam':
+            optimizer = Nadam(lr=self.params.get('LR', 0.002),
+                              beta_1=self.params.get('BETA_1', 0.9),
+                              beta_2=self.params.get('BETA_2', 0.999),
+                              schedule_decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                              clipnorm=self.params.get('CLIP_C', 0.),
+                              clipvalue=self.params.get('CLIP_V', 0.))
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])
@@ -189,6 +235,7 @@ class TranslationModel(Model_Wrapper):
         src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding',
                                   W_regularizer=l2(params['WEIGHT_DECAY']),
+                                  init=params['INIT_FUNCTION'],
                                   trainable=self.src_embedding_weights_trainable, weights=self.src_embedding_weights,
                                   mask_zero=True)(src_text)
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
@@ -203,6 +250,7 @@ class TranslationModel(Model_Wrapper):
                                                                      'USE_RECURRENT_DROPOUT'] else None,
                                                                  dropout_U=params['RECURRENT_DROPOUT_P'] if params[
                                                                      'USE_RECURRENT_DROPOUT'] else None,
+                                                                 init=params['INIT_FUNCTION'],
                                                                  return_sequences=True),
                                         name='bidirectional_encoder_' + params['RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
@@ -216,6 +264,7 @@ class TranslationModel(Model_Wrapper):
                                                    dropout_U=params['RECURRENT_DROPOUT_P'] if params[
                                                        'USE_RECURRENT_DROPOUT'] else None,
                                                    return_sequences=True,
+                                                   init=params['INIT_FUNCTION'],
                                                    name='encoder_' + params['RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
@@ -231,6 +280,7 @@ class TranslationModel(Model_Wrapper):
                                                                          params['USE_RECURRENT_DROPOUT'] else None,
                                                                          dropout_U=params['RECURRENT_DROPOUT_P'] if
                                                                          params['USE_RECURRENT_DROPOUT'] else None,
+                                                                         init=params['INIT_FUNCTION'],
                                                                          return_sequences=True,
                                                                          ),
                                                 merge_mode='concat',
@@ -245,6 +295,7 @@ class TranslationModel(Model_Wrapper):
         state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
                                 name='target_word_embedding',
                                 W_regularizer=l2(params['WEIGHT_DECAY']),
+                                init=params['INIT_FUNCTION'],
                                 trainable=self.trg_embedding_weights_trainable, weights=self.trg_embedding_weights,
                                 mask_zero=True)(next_words)
         state_below = Regularize(state_below, params, name='state_below')
@@ -256,12 +307,14 @@ class TranslationModel(Model_Wrapper):
         if len(params['INIT_LAYERS']) > 0:
             for n_layer_init in range(len(params['INIT_LAYERS']) - 1):
                 ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d' % n_layer_init,
+                                 init=params['INIT_FUNCTION'],
                                  W_regularizer=l2(params['WEIGHT_DECAY']),
                                  activation=params['INIT_LAYERS'][n_layer_init]
                                  )(ctx_mean)
                 ctx_mean = Regularize(ctx_mean, params, name='ctx' + str(n_layer_init))
 
             initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
+                                  init=params['INIT_FUNCTION'],
                                   W_regularizer=l2(params['WEIGHT_DECAY']),
                                   activation=params['INIT_LAYERS'][-1]
                                   )(ctx_mean)
@@ -270,6 +323,7 @@ class TranslationModel(Model_Wrapper):
 
             if params['RNN_TYPE'] == 'LSTM':
                 initial_memory = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_memory',
+                                       init=params['INIT_FUNCTION'],
                                        W_regularizer=l2(params['WEIGHT_DECAY']),
                                        activation=params['INIT_LAYERS'][-1])(ctx_mean)
                 initial_memory = Regularize(initial_memory, params, name='initial_memory')
@@ -299,6 +353,7 @@ class TranslationModel(Model_Wrapper):
                                                                          'USE_DROPOUT'] else None,
                                                                      dropout_Ua=params['DROPOUT_P'] if params[
                                                                          'USE_DROPOUT'] else None,
+                                                                     init=params['INIT_FUNCTION'],
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,
                                                                      return_states=True,
@@ -331,12 +386,14 @@ class TranslationModel(Model_Wrapper):
             annotations = merge([annotations, current_annotations], mode='sum')
 
         # 3.5. Skip connections between encoder and output layer
-        shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+        shared_FC_mlp = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
+                                              init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear',
                                               ), name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
-        shared_FC_ctx = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+        shared_FC_ctx = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
+                                              init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear',
                                               ), name='logit_ctx')
@@ -344,7 +401,8 @@ class TranslationModel(Model_Wrapper):
 
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
-        shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+        shared_FC_emb = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
+                                              init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear'),
                                         name='logit_emb')
@@ -369,10 +427,12 @@ class TranslationModel(Model_Wrapper):
         for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
             if activation.lower() == 'maxout':
                 shared_deep_list.append(TimeDistributed(MaxoutDense(dimension,
+                                                                    init=params['INIT_FUNCTION'],
                                                                     W_regularizer=l2(params['WEIGHT_DECAY'])),
                                                         name='maxout_%d' % i))
             else:
                 shared_deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
+                                                              init=params['INIT_FUNCTION'],
                                                               W_regularizer=l2(params['WEIGHT_DECAY'])),
                                                         name=activation + '_%d' % i))
             out_layer = shared_deep_list[-1](out_layer)
@@ -393,107 +453,107 @@ class TranslationModel(Model_Wrapper):
         self.model = Model(input=[src_text, next_words], output=softout)
 
         ##################################################################
-        #                     BEAM SEARCH MODEL                          #
+        #                         SAMPLING MODEL                         #
         ##################################################################
         # Now that we have the basic training model ready, let's prepare the model for applying decoding
         # The beam-search model will include all the minimum required set of layers (decoder stage) which offer the
         # possibility to generate the next state in the sequence given a pre-processed input (encoder stage)
-        if params['BEAM_SEARCH']:
-            # First, we need a model that outputs the preprocessed input + initial h state
-            # for applying the initial forward pass
-            model_init_input = [src_text, next_words]
-            model_init_output = [softout, annotations, h_state]
-            if params['RNN_TYPE'] == 'LSTM':
-                model_init_output.append(h_memory)
-            if params['POS_UNK']:
-                model_init_output.append(alphas)
 
-            self.model_init = Model(input=model_init_input, output=model_init_output)
+        # First, we need a model that outputs the preprocessed input + initial h state
+        # for applying the initial forward pass
+        model_init_input = [src_text, next_words]
+        model_init_output = [softout, annotations, h_state]
+        if params['RNN_TYPE'] == 'LSTM':
+            model_init_output.append(h_memory)
+        if params['POS_UNK']:
+            model_init_output.append(alphas)
 
-            # Store inputs and outputs names for model_init
-            self.ids_inputs_init = self.ids_inputs
-            # first output must be the output probs.
-            self.ids_outputs_init = self.ids_outputs + ['preprocessed_input', 'next_state']
-            if params['RNN_TYPE'] == 'LSTM':
-                self.ids_outputs_init.append('next_memory')
+        self.model_init = Model(input=model_init_input, output=model_init_output)
 
-            # Second, we need to build an additional model with the capability to have the following inputs:
-            #   - preprocessed_input
-            #   - prev_word
-            #   - prev_state
-            # and the following outputs:
-            #   - softmax probabilities
-            #   - next_state
-            preprocessed_size = params['ENCODER_HIDDEN_SIZE'] * 2 if \
-                params['BIDIRECTIONAL_ENCODER'] \
-                else params['ENCODER_HIDDEN_SIZE']
-            # Define inputs
-            preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
-            prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
-            input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_state]
+        # Store inputs and outputs names for model_init
+        self.ids_inputs_init = self.ids_inputs
+        # first output must be the output probs.
+        self.ids_outputs_init = self.ids_outputs + ['preprocessed_input', 'next_state']
+        if params['RNN_TYPE'] == 'LSTM':
+            self.ids_outputs_init.append('next_memory')
 
-            if params['RNN_TYPE'] == 'LSTM':
-                prev_h_memory = Input(name='prev_memory', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
-                input_attentional_decoder.append(prev_h_memory)
-            # Apply decoder
-            rnn_output = sharedAttRNNCond(input_attentional_decoder)
-            proj_h = rnn_output[0]
-            x_att = rnn_output[1]
-            alphas = rnn_output[2]
-            h_state = rnn_output[3]
-            if params['RNN_TYPE'] == 'LSTM':
-                h_memory = rnn_output[4]
-            for reg in shared_reg_proj_h:
-                proj_h = reg(proj_h)
+        # Second, we need to build an additional model with the capability to have the following inputs:
+        #   - preprocessed_input
+        #   - prev_word
+        #   - prev_state
+        # and the following outputs:
+        #   - softmax probabilities
+        #   - next_state
+        preprocessed_size = params['ENCODER_HIDDEN_SIZE'] * 2 if \
+            params['BIDIRECTIONAL_ENCODER'] \
+            else params['ENCODER_HIDDEN_SIZE']
+        # Define inputs
+        preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
+        prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
+        input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_state]
 
-            out_layer_mlp = shared_FC_mlp(proj_h)
-            out_layer_ctx = shared_FC_ctx(x_att)
-            out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
-            out_layer_emb = shared_FC_emb(state_below)
+        if params['RNN_TYPE'] == 'LSTM':
+            prev_h_memory = Input(name='prev_memory', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
+            input_attentional_decoder.append(prev_h_memory)
+        # Apply decoder
+        rnn_output = sharedAttRNNCond(input_attentional_decoder)
+        proj_h = rnn_output[0]
+        x_att = rnn_output[1]
+        alphas = rnn_output[2]
+        h_state = rnn_output[3]
+        if params['RNN_TYPE'] == 'LSTM':
+            h_memory = rnn_output[4]
+        for reg in shared_reg_proj_h:
+            proj_h = reg(proj_h)
 
-            for (reg_out_layer_mlp, reg_out_layer_ctx, reg_out_layer_emb) in zip(shared_reg_out_layer_mlp,
-                                                                                 shared_reg_out_layer_ctx,
-                                                                                 shared_reg_out_layer_emb):
-                out_layer_mlp = reg_out_layer_mlp(out_layer_mlp)
-                out_layer_ctx = reg_out_layer_ctx(out_layer_ctx)
-                out_layer_emb = reg_out_layer_emb(out_layer_emb)
+        out_layer_mlp = shared_FC_mlp(proj_h)
+        out_layer_ctx = shared_FC_ctx(x_att)
+        out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
+        out_layer_emb = shared_FC_emb(state_below)
 
-            additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
-                                      mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input_model_next')
-            out_layer = shared_activation_tanh(additional_output)
+        for (reg_out_layer_mlp, reg_out_layer_ctx, reg_out_layer_emb) in zip(shared_reg_out_layer_mlp,
+                                                                             shared_reg_out_layer_ctx,
+                                                                             shared_reg_out_layer_emb):
+            out_layer_mlp = reg_out_layer_mlp(out_layer_mlp)
+            out_layer_ctx = reg_out_layer_ctx(out_layer_ctx)
+            out_layer_emb = reg_out_layer_emb(out_layer_emb)
 
-            for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
-                out_layer = deep_out_layer(out_layer)
-                for reg in reg_list:
-                    out_layer = reg(out_layer)
+        additional_output = merge([out_layer_mlp, out_layer_ctx, out_layer_emb],
+                                  mode=params['ADDITIONAL_OUTPUT_MERGE_MODE'], name='additional_input_model_next')
+        out_layer = shared_activation_tanh(additional_output)
 
-            # Softmax
-            softout = shared_FC_soft(out_layer)
-            model_next_inputs = [next_words, preprocessed_annotations, prev_h_state]
-            model_next_outputs = [softout, preprocessed_annotations, h_state]
-            if params['RNN_TYPE'] == 'LSTM':
-                model_next_inputs.append(prev_h_memory)
-                model_next_outputs.append(h_memory)
+        for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
+            out_layer = deep_out_layer(out_layer)
+            for reg in reg_list:
+                out_layer = reg(out_layer)
 
-            if params['POS_UNK']:
-                model_next_outputs.append(alphas)
+        # Softmax
+        softout = shared_FC_soft(out_layer)
+        model_next_inputs = [next_words, preprocessed_annotations, prev_h_state]
+        model_next_outputs = [softout, preprocessed_annotations, h_state]
+        if params['RNN_TYPE'] == 'LSTM':
+            model_next_inputs.append(prev_h_memory)
+            model_next_outputs.append(h_memory)
 
-            self.model_next = Model(input=model_next_inputs,
-                                    output=model_next_outputs)
+        if params['POS_UNK']:
+            model_next_outputs.append(alphas)
 
-            # Store inputs and outputs names for model_next
-            # first input must be previous word
-            self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input', 'prev_state']
-            # first output must be the output probs.
-            self.ids_outputs_next = self.ids_outputs + ['preprocessed_input', 'next_state']
+        self.model_next = Model(input=model_next_inputs,
+                                output=model_next_outputs)
 
-            # Input -> Output matchings from model_init to model_next and from model_next to model_next
-            self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input',
-                                           'next_state': 'prev_state'}
-            self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
-                                           'next_state': 'prev_state'}
-            if params['RNN_TYPE'] == 'LSTM':
-                self.ids_inputs_next.append('prev_memory')
-                self.ids_outputs_next.append('next_memory')
-                self.matchings_init_to_next['next_memory'] = 'prev_memory'
-                self.matchings_next_to_next['next_memory'] = 'prev_memory'
+        # Store inputs and outputs names for model_next
+        # first input must be previous word
+        self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input', 'prev_state']
+        # first output must be the output probs.
+        self.ids_outputs_next = self.ids_outputs + ['preprocessed_input', 'next_state']
+
+        # Input -> Output matchings from model_init to model_next and from model_next to model_next
+        self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input',
+                                       'next_state': 'prev_state'}
+        self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
+                                       'next_state': 'prev_state'}
+        if params['RNN_TYPE'] == 'LSTM':
+            self.ids_inputs_next.append('prev_memory')
+            self.ids_outputs_next.append('next_memory')
+            self.matchings_init_to_next['next_memory'] = 'prev_memory'
+            self.matchings_next_to_next['next_memory'] = 'prev_memory'

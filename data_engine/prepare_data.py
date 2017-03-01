@@ -4,15 +4,25 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 
-def update_dataset_from_file(ds, text_filename, params, splits=list('val'), remove_outputs=False):
+def update_dataset_from_file(ds,
+                             input_text_filename,
+                             params,
+                             splits=list('val'),
+                             output_text_filename=None,
+                             remove_outputs=False,
+                             compute_state_below=False):
     """
     Updates the dataset instance from a text file according to the given params.
     Used for sampling
 
     :param ds: Dataset instance
-    :param text_filename: Source language sentences
+    :param input_text_filename: Source language sentences
     :param params: Parameters for building the dataset
     :param splits: Splits to sample
+    :param output_text_filename: Target language sentences
+    :param remove_outputs: Remove outputs from dataset (if True, will ignore the output_text_filename parameter)
+    :param compute_state_below: Compute state below input (shifted target text for professor teaching)
+
     :return: Dataset object with the processed data
     """
     for split in splits:
@@ -20,9 +30,22 @@ def update_dataset_from_file(ds, text_filename, params, splits=list('val'), remo
             ds.removeOutput(split,
                             type='text',
                             id=params['OUTPUTS_IDS_DATASET'][0])
+        elif output_text_filename is not None:
+            ds.setOutput(output_text_filename,
+                         split,
+                         type='text',
+                         id=params['OUTPUTS_IDS_DATASET'][0],
+                         tokenization=params['TOKENIZATION_METHOD'],
+                         build_vocabulary=False,
+                         pad_on_batch=params['PAD_ON_BATCH'],
+                         sample_weights=params['SAMPLE_WEIGHTS'],
+                         max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
+                         max_words=params['OUTPUT_VOCABULARY_SIZE'],
+                         min_occ=params['MIN_OCCURRENCES_VOCAB'],
+                         overwrite_split=True)
 
         # INPUT DATA
-        ds.setInput(text_filename,
+        ds.setInput(input_text_filename,
                     split,
                     type='text',
                     id=params['INPUTS_IDS_DATASET'][0],
@@ -34,16 +57,31 @@ def update_dataset_from_file(ds, text_filename, params, splits=list('val'), remo
                     max_words=params['INPUT_VOCABULARY_SIZE'],
                     min_occ=params['MIN_OCCURRENCES_VOCAB'],
                     overwrite_split=True)
-
-        ds.setInput(None,
-                    split,
-                    type='ghost',
-                    id=params['INPUTS_IDS_DATASET'][-1],
-                    required=False,
-                    overwrite_split=True)
+        if compute_state_below:
+            # INPUT DATA
+            ds.setInput(output_text_filename,
+                        split,
+                        type='text',
+                        id=params['INPUTS_IDS_DATASET'][1],
+                        pad_on_batch=params['PAD_ON_BATCH'],
+                        tokenization=params['TOKENIZATION_METHOD'],
+                        build_vocabulary=False,
+                        offset=1,
+                        fill=params['FILL'],
+                        max_text_len=params['MAX_INPUT_TEXT_LEN'],
+                        max_words=params['INPUT_VOCABULARY_SIZE'],
+                        min_occ=params['MIN_OCCURRENCES_VOCAB'],
+                        overwrite_split=True)
+        else:
+            ds.setInput(None,
+                        split,
+                        type='ghost',
+                        id=params['INPUTS_IDS_DATASET'][-1],
+                        required=False,
+                        overwrite_split=True)
 
         if params['ALIGN_FROM_RAW']:
-            ds.setRawInput(text_filename,
+            ds.setRawInput(input_text_filename,
                            split,
                            type='file-name',
                            id='raw_' + params['INPUTS_IDS_DATASET'][0],
@@ -85,7 +123,7 @@ def build_dataset(params):
                      max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                      max_words=params['OUTPUT_VOCABULARY_SIZE'],
                      min_occ=params['MIN_OCCURRENCES_VOCAB'])
-        if params['ALIGN_FROM_RAW']:
+        if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
             ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                             'train',
                             type='file-name',
@@ -102,10 +140,11 @@ def build_dataset(params):
                              sample_weights=params['SAMPLE_WEIGHTS'],
                              max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                              max_words=params['OUTPUT_VOCABULARY_SIZE'])
-                ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
-                                split,
-                                type='file-name',
-                                id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
+                if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
+                    ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
+                                    split,
+                                    type='file-name',
+                                    id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
 
         # INPUT DATA
         # We must ensure that the 'train' split is the first (for building the vocabulary)
@@ -147,7 +186,7 @@ def build_dataset(params):
                                     type='ghost',
                                     id=params['INPUTS_IDS_DATASET'][-1],
                                     required=False)
-                if params['ALIGN_FROM_RAW']:
+                if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
                     ds.setRawInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
                                    split,
                                    type='file-name',
@@ -165,7 +204,8 @@ def build_dataset(params):
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '.pkl')
+        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME']
+                         + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     return ds
 
@@ -173,12 +213,16 @@ def build_dataset(params):
 def keep_n_captions(ds, repeat, n=1, set_names=None):
     """
     Keeps only n captions per image and stores the rest in dictionaries for a later evaluation
-    :param ds:
+    :param ds: Dataset object
     :param repeat:
     :param n:
     :param set_names:
     :return:
     """
+
+    n_samples = None
+    X = None
+    Y = None
 
     if set_names is None:
         set_names = ['val', 'test']
@@ -215,7 +259,7 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
             for i in range(0, n_samples, repeat):
                 dict_Y[count_samples] = []
                 for j in range(repeat):
-                    if (j < n):
+                    if j < n:
                         new_Y.append(Y[id_out][i + j])
                     dict_Y[count_samples].append(Y[id_out][i + j])
                 count_samples += 1
@@ -226,33 +270,3 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
         new_len = len(new_Y)
         exec ('ds.len_' + s + ' = new_len')
         logging.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')
-
-
-if __name__ == "__main__":
-    params = dict()
-
-    # Parameters (this should be externally provided from a config file)
-    params['RELOAD_DATASET'] = True  # build again or use stored instance
-    params['DATASET_NAME'] = 'Translation_toy'
-    params['DATA_ROOT_PATH'] = '/media/HDD_2TB/DATASETS/Translation_toy'
-    params['TOKENIZATION_METHOD'] = 'tokenize_basic'
-
-    params['TEXT_FILES'] = {'train': 'training.', 'val': 'val.', 'test': 'test.'}
-    params['INPUTS_IDS_DATASET'] = ['source_text']
-    params['OUTPUTS_IDS_DATASET'] = ['target_text']
-
-    params['MAX_INPUT_TEXT_LEN'] = 35
-    params['INPUT_VOCABULARY_SIZE'] = 0
-
-    params['MAX_OUTPUT_TEXT_LEN'] = 35
-    params['OUTPUT_VOCABULARY_SIZE'] = 0
-
-    params['SRC_LAN'] = 'en'
-    params['TRG_LAN'] = 'es'
-
-    params['VERBOSE'] = 1
-
-    ds = build_dataset(params)
-
-    logging.info('Sample data loaded correctly.')
-    print

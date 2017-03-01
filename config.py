@@ -6,15 +6,15 @@ def load_parameters():
     """
 
     # Input data params
-    DATASET_NAME = 'europarl'                       # Task name
+    DATASET_NAME = 'EuTrans'                        # Task name
     SRC_LAN = 'en'                                  # Language of the source text
     TRG_LAN = 'es'                                  # Language of the target text
-    DATA_ROOT_PATH = '%s/' % DATASET_NAME           # Path where data is stored
+    DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
-    TEXT_FILES = {'train': 'DATA/training.',        # Data files
-                  'val': 'DATA/dev.',
-                  'test': 'DATA/test.'}
+    TEXT_FILES = {'train': 'training.',        # Data files
+                  'val': 'dev.',
+                  'test': 'test.'}
 
     # Dataset class parameters
     INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
@@ -57,7 +57,7 @@ def load_parameters():
                                                   #        starts with a lowercase. Otherwise, copies the source word.
     ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
 
-    MAPPING = DATA_ROOT_PATH + '/DATA/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
+    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
@@ -89,7 +89,8 @@ def load_parameters():
 
     OPTIMIZER = 'Adam'                            # Optimizer
     LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
-    CLIP_C = 1.                                   # During training, clip gradients to this norm
+    CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
+    CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
@@ -98,10 +99,12 @@ def load_parameters():
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
     BATCH_SIZE = 30                               # Size of each minibatch
 
-    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths for every minibatch (Possibly buggy!)
-    PARALLEL_LOADERS = 8                          # Parallel data batch loaders
+    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
+    JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
+    PARALLEL_LOADERS = 1                          # Parallel data batch loaders
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
     WRITE_VALID_SAMPLES = True                    # Write valid samples in file
+    SAVE_EACH_EVALUATION = True                   # Save each time we evaluate the model
 
     # Early stop parameters
     EARLY_STOP = True                             # Turns on/off the early stop protocol
@@ -112,6 +115,7 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
     RNN_TYPE = 'GRU'                              # RNN unit type ('LSTM' and 'GRU' supported)
+    INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
 
     SOURCE_TEXT_EMBEDDING_SIZE = 300              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = '/media/HDD_2TB/antonio/pretrainedVectors/word2vecb.en.npy'  # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
@@ -134,7 +138,9 @@ def load_parameters():
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers (unimplemented)
-    ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip connections
+    ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
+    # Skip connections size
+    SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE
 
     # Fully-Connected layers for initializing the first RNN state
     #       Here we should only specify the activation function of each layer
@@ -145,7 +151,7 @@ def load_parameters():
     # Additional Fully-Connected layers's sizes applied before softmax.
     #       Here we should specify the activation function and the output dimension
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
-    DEEP_OUTPUT_LAYERS = [('maxout', TARGET_TEXT_EMBEDDING_SIZE/2)]
+    DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
 
     # Regularizers
     WEIGHT_DECAY = 1e-4                           # L2 regularization
