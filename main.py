@@ -12,7 +12,9 @@ from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from model_zoo import TranslationModel
-
+from keras.layers import Input, Lambda, RemoveMask
+from keras.models import Model
+from keras import backend as K
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.online_trainer import OnlineTrainer
@@ -43,6 +45,7 @@ def parse_args():
                         default="")
 
     return parser.parse_args()
+
 
 def train_model(params):
     """
@@ -123,6 +126,12 @@ def train_model(params):
     time_difference = total_end_time - total_start_time
     logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
 
+
+def new_loss(args):
+    y_pred, y_true, h_pred = args
+    return K.categorical_crossentropy(y_pred, y_true) - K.categorical_crossentropy(y_pred, h_pred)
+
+
 def train_model_online(params, source_filename, target_filename, models_path=None, dataset=None, store_hypotheses=None, verbose=0):
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
@@ -155,6 +164,14 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     else:
         raise Exception, 'Online mode requires an already trained model!'
 
+    ###### ADD INPUT LAYER TO MODELS IN ORDER TO TRAIN WITH CUSTOM LOSS FUNCTION ##
+    hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
+    yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
+
+    model_out = RemoveMask()(models[0].model.outputs[0])
+    loss_out = Lambda(new_loss, output_shape=(1,), name='new_loss', supports_masking=False)([model_out, yref_in, hyp_in])
+    trainer_model = Model(input=models[0].model.input + [yref_in, hyp_in], output=loss_out)
+    trainer_model.compile(loss={'new_loss': lambda y_true, y_pred: y_pred}, optimizer="sgd")
 
     for nmt_model in models:
         nmt_model.setParams(params)
@@ -206,7 +223,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Create trainer
     logging.info('Creating trainer...')
-    online_trainer = OnlineTrainer(models,
+    online_trainer = OnlineTrainer([trainer_model],
                                    dataset,
                                    beam_searcher,
                                    params_prediction,
