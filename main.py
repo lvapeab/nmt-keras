@@ -15,6 +15,7 @@ from model_zoo import TranslationModel
 from keras.layers import Input, Lambda, RemoveMask
 from keras.models import Model
 from keras import backend as K
+from keras.optimizers import Subgradient
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.online_trainer import OnlineTrainer
@@ -171,7 +172,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     model_out = RemoveMask()(models[0].model.outputs[0])
     loss_out = Lambda(new_loss, output_shape=(1,), name='new_loss', supports_masking=False)([model_out, yref_in, hyp_in])
     trainer_model = Model(input=models[0].model.input + [yref_in, hyp_in], output=loss_out)
-    trainer_model.compile(loss={'new_loss': lambda y_true, y_pred: y_pred}, optimizer="sgd")
+    subgradientOpt = Subgradient(lr=1.0)
+    trainer_model.compile(loss={'new_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
 
     for nmt_model in models:
         nmt_model.setParams(params)
