@@ -14,7 +14,8 @@ logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', dat
 logger = logging.getLogger(__name__)
 metric_name = 'Bleu_4'
 maximize = True  # Select whether we want to maximize the metric or minimize it
-
+d = dict(os.environ.copy())
+d['LC_NUMERIC'] = 'en_US.utf-8'
 def invoke_model(parameters):
 
     model_params = load_parameters()
@@ -34,16 +35,15 @@ def invoke_model(parameters):
     results_path = model_params['STORE_PATH'] + '/' + model_params['EVAL_ON_SETS'][0] + '.' + model_params['METRICS'][0]
 
     # Recover the highest metric score
-    metric_pos_cmd = "head -n 1" + results_path + \
+    metric_pos_cmd = "head -n 1 " + results_path + \
                      " |awk -v metric=" + metric_name + \
                      " 'BEGIN{FS=\",\"}" \
                      "{for (i=1; i<=NF; i++) if ($i == metric) print i;}'"
-    metric_pos = subprocess.Popen(metric_pos_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    metric_pos = subprocess.Popen(metric_pos_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True).communicate()[0][:-1]
     cmd = "tail -n +2 " + results_path + \
           " |awk -v m_pos=" + str(metric_pos) + \
           " 'BEGIN{FS=\",\"}{print $m_pos}'|sort -gr|head -n 1"
-
-    ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, env=d)
     metric_value = float(ps.communicate()[0])
     print "Best %s: %f" % (metric_name, metric_value)
 

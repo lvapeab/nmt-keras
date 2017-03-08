@@ -387,13 +387,13 @@ class TranslationModel(Model_Wrapper):
             annotations = merge([annotations, current_annotations], mode='sum')
 
         # 3.5. Skip connections between encoder and output layer
-        shared_FC_mlp = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+        shared_FC_mlp = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear',
                                               ), name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
-        shared_FC_ctx = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+        shared_FC_ctx = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear',
@@ -402,7 +402,7 @@ class TranslationModel(Model_Wrapper):
 
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
-        shared_FC_emb = TimeDistributed(Dense(params['TARGET_TEXT_EMBEDDING_SIZE'],
+        shared_FC_emb = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
                                               activation='linear'),

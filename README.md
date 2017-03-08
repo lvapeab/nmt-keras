@@ -34,6 +34,7 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
  * MLPs for initializing the RNN hidden and memory state.
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks (WIP).
+ * N-best list generation (as byproduct of the beam search process).
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
