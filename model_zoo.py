@@ -1,9 +1,4 @@
-from keras.engine import Input
-from keras.engine.topology import merge
-from keras.layers import TimeDistributed, Bidirectional
-from keras.layers.embeddings import Embedding
-from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
-from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral, MaskLayer
+from keras.layers import *
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
 from keras.regularizers import l2
@@ -186,7 +181,8 @@ class TranslationModel(Model_Wrapper):
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])
-        self.model.compile(optimizer=optimizer, loss=self.params['LOSS'], metrics=self.params['KERAS_METRICS'],
+        self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
+                           metrics=self.params.get('KERAS_METRICS', []),
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
 
     def __str__(self):
