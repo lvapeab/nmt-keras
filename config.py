@@ -60,8 +60,10 @@ def load_parameters():
     MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
     # Word representation params
-    TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
+    TOKENIZATION_METHOD = 'tokenize_none_char'    # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
+    DETOKENIZATION_METHOD = 'detokenize_none_char'# Select which de-tokenization method we'll apply
+    TOKENIZE_HYPOTHESES = False 		  # Whether we tokenize the hypotheses using the previously defined tokenization method
     # Input image parameters
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
 
@@ -74,14 +76,14 @@ def load_parameters():
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
-    MAX_INPUT_TEXT_LEN = 50                       # Maximum length of the input sequence
+    MAX_INPUT_TEXT_LEN = 300                      # Maximum length of the input sequence
 
     # Output text parameters
     OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
-    MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
+    MAX_OUTPUT_TEXT_LEN = 300                     # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
-    MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
+    MAX_OUTPUT_TEXT_LEN_TEST = 300                # Maximum length of the output sequence during test time
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
@@ -97,7 +99,7 @@ def load_parameters():
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
-    BATCH_SIZE = 30                               # Size of each minibatch
+    BATCH_SIZE = 20                               # Size of each minibatch
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
@@ -108,7 +110,7 @@ def load_parameters():
 
     # Early stop parameters
     EARLY_STOP = True                             # Turns on/off the early stop protocol
-    PATIENCE = 6                                 # We'll stop if the val STOP_METRIC does not improve after this
+    PATIENCE = 15                                 # We'll stop if the val STOP_METRIC does not improve after this
                                                   # number of evaluations
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop
 
@@ -117,8 +119,8 @@ def load_parameters():
     RNN_TYPE = 'GRU'                              # RNN unit type ('LSTM' and 'GRU' supported)
     INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 300              # Source language word embedding size.
-    SRC_PRETRAINED_VECTORS = '/media/HDD_2TB/antonio/pretrainedVectors/word2vecb.en.npy'  # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
+    SOURCE_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
+    SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
