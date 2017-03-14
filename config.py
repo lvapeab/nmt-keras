@@ -6,10 +6,10 @@ def load_parameters():
     """
 
     # Input data params
-    DATASET_NAME = 'EuTrans'                        # Task name
+    DATASET_NAME = 'xerox'                        # Task name
     SRC_LAN = 'en'                                  # Language of the source text
     TRG_LAN = 'es'                                  # Language of the target text
-    DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
+    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/enes/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'training.',        # Data files
@@ -64,6 +64,7 @@ def load_parameters():
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
     DETOKENIZATION_METHOD = 'detokenize_none_char'# Select which de-tokenization method we'll apply
     TOKENIZE_HYPOTHESES = False 		  # Whether we tokenize the hypotheses using the previously defined tokenization method
+    TOKENIZE_REFERENCES = False                   # Whether we tokenize the references using the previously defined tokenization method
     # Input image parameters
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
 
