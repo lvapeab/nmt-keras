@@ -6,10 +6,10 @@ def load_parameters():
     """
 
     # Input data params
-    DATASET_NAME = 'xerox'                        # Task name
+    DATASET_NAME = 'xerox'                          #Task name
     SRC_LAN = 'en'                                  # Language of the source text
     TRG_LAN = 'es'                                  # Language of the target text
-    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/enes/' % DATASET_NAME  # Path where data is stored
+    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/enes' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'training.',        # Data files
@@ -60,7 +60,7 @@ def load_parameters():
     MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
 
     # Word representation params
-    TOKENIZATION_METHOD = 'tokenize_none_char'    # Select which tokenization we'll apply.
+    TOKENIZATION_METHOD = 'tokenize_none'    # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
     DETOKENIZATION_METHOD = 'tokenize_none'     # Select which de-tokenization method we'll apply
     TOKENIZE_HYPOTHESES = True   		  # Whether we tokenize the hypotheses using the previously defined tokenization method
