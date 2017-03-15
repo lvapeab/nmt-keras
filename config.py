@@ -62,9 +62,9 @@ def load_parameters():
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none_char'    # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'detokenize_none_char'# Select which de-tokenization method we'll apply
-    TOKENIZE_HYPOTHESES = False 		  # Whether we tokenize the hypotheses using the previously defined tokenization method
-    TOKENIZE_REFERENCES = False                   # Whether we tokenize the references using the previously defined tokenization method
+    DETOKENIZATION_METHOD = 'tokenize_none'     # Select which de-tokenization method we'll apply
+    TOKENIZE_HYPOTHESES = True   		  # Whether we tokenize the hypotheses using the previously defined tokenization method
+    TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
     # Input image parameters
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
 
@@ -77,14 +77,14 @@ def load_parameters():
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
                                                   # Set to 0 for using them all.
-    MAX_INPUT_TEXT_LEN = 300                      # Maximum length of the input sequence
+    MAX_INPUT_TEXT_LEN = 50                      # Maximum length of the input sequence
 
     # Output text parameters
     OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
-    MAX_OUTPUT_TEXT_LEN = 300                     # Maximum length of the output sequence
+    MAX_OUTPUT_TEXT_LEN = 50                     # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
-    MAX_OUTPUT_TEXT_LEN_TEST = 300                # Maximum length of the output sequence during test time
+    MAX_OUTPUT_TEXT_LEN_TEST = 50                # Maximum length of the output sequence during test time
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
