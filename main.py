@@ -114,7 +114,11 @@ def apply_NMT_model(params):
         # Evaluate training
         extra_vars = {'language': params.get('TRG_LAN', 'en'),
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
+                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
+		      'detokenize_f': eval('dataset.' +params['DETOKENIZATION_METHOD']),
+                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
+		      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                      'tokenize_references': params['TOKENIZE_REFERENCES']}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         extra_vars[s] = dict()
         extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
@@ -182,7 +186,11 @@ def buildCallbacks(params, model, dataset):
         # Evaluate training
         extra_vars = {'language': params.get('TRG_LAN', 'en'),
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
+                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
+ 		      'detokenize_f': eval('dataset.' +params['DETOKENIZATION_METHOD']),
+                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                      'tokenize_references': params['TOKENIZE_REFERENCES']}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:
             extra_vars[s] = dict()
@@ -337,7 +345,7 @@ if __name__ == "__main__":
     check_params(parameters)
     if parameters['MODE'] == 'training':
         logging.info('Running training.')
-        train_model(parameters)
+	train_model(parameters)
     elif parameters['MODE'] == 'sampling':
         logging.info('Running sampling.')
         apply_NMT_model(parameters)
