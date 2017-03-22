@@ -6,10 +6,10 @@ def load_parameters():
     """
 
     # Input data params
-    DATASET_NAME = 'xerox'                          #Task name
+    DATASET_NAME = 'EuTrans'                          #Task name
     SRC_LAN = 'en'                                  # Language of the source text
     TRG_LAN = 'es'                                  # Language of the target text
-    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/enes' % DATASET_NAME  # Path where data is stored
+    DATA_ROOT_PATH = 'examples/%s' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'training.',        # Data files
@@ -63,6 +63,9 @@ def load_parameters():
     TOKENIZATION_METHOD = 'tokenize_none'    # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
     DETOKENIZATION_METHOD = 'tokenize_none'     # Select which de-tokenization method we'll apply
+    
+    APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method 
+
     TOKENIZE_HYPOTHESES = True   		  # Whether we tokenize the hypotheses using the previously defined tokenization method
     TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
     # Input image parameters
@@ -84,7 +87,7 @@ def load_parameters():
                                                   # otherwise it will be truncated to these most frequent words.
     MAX_OUTPUT_TEXT_LEN = 50                     # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
-    MAX_OUTPUT_TEXT_LEN_TEST = 50                # Maximum length of the output sequence during test time
+    MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
@@ -100,7 +103,7 @@ def load_parameters():
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
-    BATCH_SIZE = 20                               # Size of each minibatch
+    BATCH_SIZE = 50                               # Size of each minibatch
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
@@ -111,7 +114,7 @@ def load_parameters():
 
     # Early stop parameters
     EARLY_STOP = True                             # Turns on/off the early stop protocol
-    PATIENCE = 15                                 # We'll stop if the val STOP_METRIC does not improve after this
+    PATIENCE = 20                                 # We'll stop if the val STOP_METRIC does not improve after this
                                                   # number of evaluations
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop
 
@@ -188,7 +191,7 @@ def load_parameters():
 
     MODEL_NAME += EXTRA_NAME
 
-    STORE_PATH = '/media/HDD_2TB/antonio/trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
+    STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
     DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list' or 'vqa'
