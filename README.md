@@ -13,7 +13,7 @@ Neural Machine Translation with Keras (+ Theano backend)
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.
  * Support for GRU/LSTM networks.
- * Multilayered residual GRU/LSTM networks (WIP).
+ * Multilayered residual GRU/LSTM networks.
  * N-best list generation (as byproduct of the beam search process).
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
@@ -105,4 +105,4 @@ To see other projects following the philosophy of NMT-Keras, take a look here:
 
 ## Warning 
 
-NMT-Keras is under development. There are many features still unimplemented/possibly buggy. If you find a bug or desire a specific feature, please do not hesitate to contact me.
+NMT-Keras is under development. There are many features still unimplemented. If you find a bug or desire a specific feature, please do not hesitate to contact me.
