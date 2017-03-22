@@ -344,7 +344,7 @@ if __name__ == "__main__":
 
     check_params(parameters)
     if parameters['MODE'] == 'training':
-        logging.info('Running training.')      	
+        logging.info('Running training.')
 	train_model(parameters)
     elif parameters['MODE'] == 'sampling':
         logging.info('Running sampling.')
