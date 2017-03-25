@@ -16,14 +16,10 @@ def Regularize(layer, params, shared_layers=False, name=''):
     """
     shared_layers_list = []
 
-    if params.get('USE_NOISE') and params['USE_NOISE']:
-        if params.get('NOISE_AMOUNT'):
-            shared_layers_list.append(GaussianNoise(params['NOISE_AMOUNT'], name=name + '_gaussian_noise'))
+    if params.get('USE_NOISE', False):
+        shared_layers_list.append(GaussianNoise(params.get('NOISE_AMOUNT', 0.01), name=name + '_gaussian_noise'))
 
-        else:
-            shared_layers_list.append(GaussianNoise(0.01))
-
-    if params.get('USE_BATCH_NORMALIZATION') and params['USE_BATCH_NORMALIZATION']:
+    if params.get('USE_BATCH_NORMALIZATION', False):
         if params.get('WEIGHT_DECAY'):
             l2_gamma_reg = l2(params['WEIGHT_DECAY'])
             l2_beta_reg = l2(params['WEIGHT_DECAY'])
@@ -31,25 +27,19 @@ def Regularize(layer, params, shared_layers=False, name=''):
             l2_gamma_reg = None
             l2_beta_reg = None
 
-        if params.get('BATCH_NORMALIZATION_MODE'):
-            bn_mode = params['BATCH_NORMALIZATION_MODE']
-        else:
-            bn_mode = 0
+        bn_mode = params.get('BATCH_NORMALIZATION_MODE', 0)
         shared_layers_list.append(BatchNormalization(mode=bn_mode,
                                                      gamma_regularizer=l2_gamma_reg,
                                                      beta_regularizer=l2_beta_reg,
                                                      name=name + '_batch_normalization'))
 
-    if params.get('USE_PRELU') and params['USE_PRELU']:
+    if params.get('USE_PRELU', False):
         shared_layers_list.append(PReLU(name=name + '_PReLU'))
 
-    if params.get('USE_DROPOUT') and params['USE_DROPOUT']:
-        if params.get('DROPOUT_P'):
-            shared_layers_list.append(Dropout(params['DROPOUT_P'], name=name + '_dropout'))
-        else:
-            shared_layers_list.append(Dropout(0.5, name=name + '_dropout'))
+    if params.get('USE_DROPOUT', False) :
+        shared_layers_list.append(Dropout(params.get('DROPOUT_P', 0.5), name=name + '_dropout'))
 
-    if params.get('USE_L2') and params['USE_L2']:
+    if params.get('USE_L2', False):
         shared_layers_list.append(Lambda(L2_norm, name=name + '_L2_norm'))
 
     # Apply all the previously built shared layers

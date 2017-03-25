@@ -327,7 +327,8 @@ class TranslationModel(Model_Wrapper):
                 input_attentional_decoder.append(initial_memory)
         else:
             input_attentional_decoder = [state_below, annotations]
-
+            initial_state = None
+            initial_memory = None
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
                                                                      W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
@@ -363,24 +364,49 @@ class TranslationModel(Model_Wrapper):
         h_state = rnn_output[3]
         if params['RNN_TYPE'] == 'LSTM':
             h_memory = rnn_output[4]
+        shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
 
         [proj_h, shared_reg_proj_h] = Regularize(proj_h, params, shared_layers=True, name='proj_h0')
 
         # 3.4. Possibly deep decoder
-        shared_decoder_list = []
-        for n_layer in range(1, params['N_LAYERS_DECODER']):
-            raise NotImplementedError, 'Multilayered decoder still not implemented!'
-            shared_decoder_list.append(GRU(params['DECODER_HIDDEN_SIZE'],
-                                           W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                           U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                           b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                           return_sequences=True,
-                                           name='decoder_' + str(n_layer)))
-            current_annotations = shared_decoder_list[-1](proj_h)
-            current_proj_h = Regularize(out_layer, params, name='out_layer' + str(activation))
+        shared_proj_h_list = []
+        shared_reg_proj_h_list = []
 
-            current_annotations = Regularize(current_proj_h, params, name='proj_h_' + str(n_layer))
-            annotations = merge([annotations, current_annotations], mode='sum')
+        h_states_list = [h_state]
+        if params['RNN_TYPE'] == 'LSTM':
+            h_memories_list = [h_memory]
+
+        for n_layer in range(1, params['N_LAYERS_DECODER']):
+            shared_proj_h_list.append(eval(params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
+                                                                     W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                     U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                     V_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                     b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                     dropout_W=params['RECURRENT_DROPOUT_P'] if params[
+                                                                         'USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if params[
+                                                                         'USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_V=params['RECURRENT_DROPOUT_P'] if params[
+                                                                         'USE_RECURRENT_DROPOUT'] else None,
+                                                                     init=params['INIT_FUNCTION'],
+                                                                     return_sequences=True,
+                                                                     return_states=True,
+                                                                     name='decoder_' + params['RNN_TYPE'] +
+                                                                          'Cond' + str(n_layer)))
+
+            current_rnn_input = [proj_h, shared_Lambda_Permute(x_att), initial_state]
+            if params['RNN_TYPE'] == 'LSTM':
+                current_rnn_input.append(initial_memory)
+            current_rnn_output = shared_proj_h_list[-1](current_rnn_input)
+            current_proj_h = current_rnn_output[0]
+            h_states_list.append(current_rnn_output[1])
+            if params['RNN_TYPE'] == 'LSTM':
+                h_memories_list.append(current_rnn_output[2])
+            [current_proj_h, shared_reg_proj_h] = Regularize(current_proj_h, params, shared_layers=True,
+                                                             name='proj_h' + str(n_layer))
+            shared_reg_proj_h_list.append(shared_reg_proj_h)
+
+            proj_h = merge([proj_h, current_proj_h], mode='sum')
 
         # 3.5. Skip connections between encoder and output layer
         shared_FC_mlp = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
@@ -395,8 +421,6 @@ class TranslationModel(Model_Wrapper):
                                               activation='linear',
                                               ), name='logit_ctx')
         out_layer_ctx = shared_FC_ctx(x_att)
-
-        shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
         shared_FC_emb = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               init=params['INIT_FUNCTION'],
@@ -455,25 +479,25 @@ class TranslationModel(Model_Wrapper):
         # Now that we have the basic training model ready, let's prepare the model for applying decoding
         # The beam-search model will include all the minimum required set of layers (decoder stage) which offer the
         # possibility to generate the next state in the sequence given a pre-processed input (encoder stage)
-
         # First, we need a model that outputs the preprocessed input + initial h state
         # for applying the initial forward pass
         model_init_input = [src_text, next_words]
-        model_init_output = [softout, annotations, h_state]
+        model_init_output = [softout, annotations] + h_states_list
         if params['RNN_TYPE'] == 'LSTM':
-            model_init_output.append(h_memory)
+            model_init_output += h_memories_list
         if params['POS_UNK']:
             model_init_output.append(alphas)
-
         self.model_init = Model(input=model_init_input, output=model_init_output)
 
         # Store inputs and outputs names for model_init
         self.ids_inputs_init = self.ids_inputs
-        # first output must be the output probs.
-        self.ids_outputs_init = self.ids_outputs + ['preprocessed_input', 'next_state']
-        if params['RNN_TYPE'] == 'LSTM':
-            self.ids_outputs_init.append('next_memory')
+        ids_states_names = ['next_state_' + str(i) for i in range(len(h_states_list))]
 
+        # first output must be the output probs.
+        self.ids_outputs_init = self.ids_outputs + ['preprocessed_input'] + ids_states_names
+        if params['RNN_TYPE'] == 'LSTM':
+            ids_memories_names = ['next_memory_' + str(i) for i in range(len(h_memories_list))]
+            self.ids_outputs_init += ids_memories_names
         # Second, we need to build an additional model with the capability to have the following inputs:
         #   - preprocessed_input
         #   - prev_word
@@ -485,24 +509,46 @@ class TranslationModel(Model_Wrapper):
             params['BIDIRECTIONAL_ENCODER'] \
             else params['ENCODER_HIDDEN_SIZE']
         # Define inputs
+        n_deep_decoder_layer_idx =  0
         preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]))
-        prev_h_state = Input(name='prev_state', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
-        input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_state]
+        prev_h_states_list = [Input(name='prev_state_' + str(i),
+                                    shape=tuple([params['DECODER_HIDDEN_SIZE']]))
+                              for i in range(len(h_states_list))]
+
+        input_attentional_decoder = [state_below, preprocessed_annotations, prev_h_states_list[n_deep_decoder_layer_idx]]
 
         if params['RNN_TYPE'] == 'LSTM':
-            prev_h_memory = Input(name='prev_memory', shape=tuple([params['DECODER_HIDDEN_SIZE']]))
-            input_attentional_decoder.append(prev_h_memory)
+            prev_h_memories_list = [Input(name='prev_memory_' + str(i),
+                                    shape=tuple([params['DECODER_HIDDEN_SIZE']]))
+                              for i in range(len(h_memories_list))]
+
+            input_attentional_decoder.append(prev_h_memories_list[n_deep_decoder_layer_idx])
         # Apply decoder
         rnn_output = sharedAttRNNCond(input_attentional_decoder)
         proj_h = rnn_output[0]
         x_att = rnn_output[1]
         alphas = rnn_output[2]
-        h_state = rnn_output[3]
+        h_states_list = [rnn_output[3]]
         if params['RNN_TYPE'] == 'LSTM':
-            h_memory = rnn_output[4]
+            h_memories_list = [rnn_output[4]]
         for reg in shared_reg_proj_h:
             proj_h = reg(proj_h)
 
+        for (rnn_decoder_layer, proj_h_reg) in zip(shared_proj_h_list, shared_reg_proj_h_list):
+            n_deep_decoder_layer_idx += 1
+            input_rnn_decoder_layer = [proj_h, shared_Lambda_Permute(x_att),
+                                       prev_h_states_list[n_deep_decoder_layer_idx]]
+            if params['RNN_TYPE'] == 'LSTM':
+                input_rnn_decoder_layer.append(prev_h_memories_list[n_deep_decoder_layer_idx])
+
+            current_rnn_output = rnn_decoder_layer(input_rnn_decoder_layer)
+            current_proj_h = current_rnn_output[0]
+            h_states_list.append(current_rnn_output[1]) # h_state
+            if params['RNN_TYPE'] == 'LSTM':
+                h_memories_list.append(current_rnn_output[2]) # h_memory
+            for reg in proj_h_reg:
+                current_proj_h = reg(current_proj_h)
+            proj_h = merge([proj_h, current_proj_h], mode='sum')
         out_layer_mlp = shared_FC_mlp(proj_h)
         out_layer_ctx = shared_FC_ctx(x_att)
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
@@ -526,31 +572,36 @@ class TranslationModel(Model_Wrapper):
 
         # Softmax
         softout = shared_FC_soft(out_layer)
-        model_next_inputs = [next_words, preprocessed_annotations, prev_h_state]
-        model_next_outputs = [softout, preprocessed_annotations, h_state]
+        model_next_inputs = [next_words, preprocessed_annotations] + prev_h_states_list
+        model_next_outputs = [softout, preprocessed_annotations] + h_states_list
         if params['RNN_TYPE'] == 'LSTM':
-            model_next_inputs.append(prev_h_memory)
-            model_next_outputs.append(h_memory)
+            model_next_inputs += prev_h_memories_list
+            model_next_outputs += h_memories_list
 
         if params['POS_UNK']:
             model_next_outputs.append(alphas)
 
         self.model_next = Model(input=model_next_inputs,
                                 output=model_next_outputs)
-
         # Store inputs and outputs names for model_next
         # first input must be previous word
-        self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input', 'prev_state']
+        self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input']
         # first output must be the output probs.
-        self.ids_outputs_next = self.ids_outputs + ['preprocessed_input', 'next_state']
-
+        self.ids_outputs_next = self.ids_outputs + ['preprocessed_input']
         # Input -> Output matchings from model_init to model_next and from model_next to model_next
-        self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input',
-                                       'next_state': 'prev_state'}
-        self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input',
-                                       'next_state': 'prev_state'}
+        self.matchings_init_to_next = {'preprocessed_input': 'preprocessed_input'}
+        self.matchings_next_to_next = {'preprocessed_input': 'preprocessed_input'}
+        # append all next states and matchings
+
+        for n_state in range(len(prev_h_states_list)):
+            self.ids_inputs_next.append('prev_state_' + str(n_state))
+            self.ids_outputs_next.append('next_state_' + str(n_state))
+            self.matchings_init_to_next['next_state_' + str(n_state)] = 'prev_state_' + str(n_state)
+            self.matchings_next_to_next['next_state_' + str(n_state)] = 'prev_state_' + str(n_state)
+
         if params['RNN_TYPE'] == 'LSTM':
-            self.ids_inputs_next.append('prev_memory')
-            self.ids_outputs_next.append('next_memory')
-            self.matchings_init_to_next['next_memory'] = 'prev_memory'
-            self.matchings_next_to_next['next_memory'] = 'prev_memory'
+            for n_memory in range(len(prev_h_memories_list)):
+                self.ids_inputs_next.append('prev_memory_' + str(n_memory))
+                self.ids_outputs_next.append('next_memory_' + str(n_memory))
+                self.matchings_init_to_next['next_memory_' + str(n_memory)] = 'prev_memory_' + str(n_memory)
+                self.matchings_next_to_next['next_memory_' + str(n_memory)] = 'prev_memory_' + str(n_memory)

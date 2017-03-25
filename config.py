@@ -65,6 +65,12 @@ def load_parameters():
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
+    DETOKENIZATION_METHOD = 'tokenize_none'       # Select which de-tokenization method we'll apply
+    
+    APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method 
+
+    TOKENIZE_HYPOTHESES = True   		  # Whether we tokenize the hypotheses using the previously defined tokenization method
+    TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
     # Input image parameters
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
 
