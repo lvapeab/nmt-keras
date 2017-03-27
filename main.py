@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=False)
     parser.add_argument("-trg", "--references", help="Reference sentence", required=False)
     parser.add_argument("-hyp", "--hypotheses", required=False, help="Store hypothesis to this file")
-    parser.add_argument("-v", "--verbose", required=False, default=False, action='store_true', help="Verbosity level")
+    parser.add_argument("-v", "--verbose", required=False, default=0, type=int, help="Verbosity level")
     parser.add_argument("-ch", "--changes",  nargs="*", help="Changes to config, following the syntax Key=Value",
                         default="")
 
@@ -274,7 +274,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                    pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
                                    words_so_far=False,
                                    loading_X=True)[0]
-        if verbose > 0:
+        if verbose > 1:
             logging.info('Input sentence:  %s' % str(src_seq))
             logging.info('Parsed sentence: %s' % str(map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0])))
         state_below = dataset.loadText([target_line],
@@ -295,11 +295,11 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                          words_so_far=False,
                                          sample_weights=params['SAMPLE_WEIGHTS'],
                                          loading_X=False)
-        if verbose > 0:
+        if verbose > 1:
             logging.info('Output sentence:  %s' % str(target_line))
             logging.info('Parsed sentence (state below): %s ' % map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
-        online_trainer.sample_and_train_online([src_seq, state_below], trg_seq)
+        online_trainer.sample_and_train_online([src_seq, state_below], trg_seq, src_words=[source_line])
         sys.stdout.write('\r')
         sys.stdout.write("Processed %d/%d  -  ETA: %ds " % ((n_line + 1) , n_lines, int(eta)))
         sys.stdout.flush()
@@ -333,7 +333,11 @@ def apply_NMT_model(params):
         # Evaluate training
         extra_vars = {'language': params.get('TRG_LAN', 'en'),
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
+                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
+		      'detokenize_f': eval('dataset.' +params['DETOKENIZATION_METHOD']),
+                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
+		      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                      'tokenize_references': params['TOKENIZE_REFERENCES']}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         extra_vars[s] = dict()
         extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
@@ -401,7 +405,11 @@ def buildCallbacks(params, model, dataset):
         # Evaluate training
         extra_vars = {'language': params.get('TRG_LAN', 'en'),
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD'])}
+                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
+ 		      'detokenize_f': eval('dataset.' +params['DETOKENIZATION_METHOD']),
+                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                      'tokenize_references': params['TOKENIZE_REFERENCES']}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:
             extra_vars[s] = dict()
@@ -549,11 +557,11 @@ if __name__ == "__main__":
         dataset = loadDataset(args.dataset)
         dataset = update_dataset_from_file(dataset, args.source, parameters,
                                            output_text_filename=args.references, splits=['train'], remove_outputs=False, compute_state_below=True)
-        train_model_online(parameters, args.source, args.references, models_path=args.models, dataset=dataset, store_hypotheses=args.hypotheses, verbose=int(args.verbose))
+        train_model_online(parameters, args.source, args.references, models_path=args.models, dataset=dataset, store_hypotheses=args.hypotheses, verbose=args.verbose)
 
     elif parameters['MODE'] == 'training':
         logging.info('Running training.')
-        train_model(parameters)
+	train_model(parameters)
     elif parameters['MODE'] == 'sampling':
         logging.info('Running sampling.')
         apply_NMT_model(parameters)

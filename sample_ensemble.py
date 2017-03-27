@@ -6,6 +6,7 @@ from keras_wrapper.dataset import loadDataset
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file
+from keras_wrapper.utils import decode_predictions_beam_search
 from keras_wrapper.extra.evaluation import select as evaluation_select
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
@@ -97,23 +98,24 @@ if __name__ == "__main__":
                 for preds in predictions[2]:
                     for src in preds[input_text_id]:
                         sources.append(src)
-                sources = models[0].decode_predictions_beam_search(sources,
-                                                                   vocab_src,
-                                                                   pad_sequences=True,
-                                                                   verbose=params['VERBOSE'])
+                sources = decode_predictions_beam_search(sources,
+                                                         vocab_src,
+                                                         pad_sequences=True,
+                                                         verbose=params['VERBOSE'])
                 heuristic = params_prediction['heuristic']
             else:
                 samples = predictions
                 alphas = None
                 heuristic = None
                 sources = None
-            predictions = models[0].decode_predictions_beam_search(samples,
-                                                                   index2word_y,
-                                                                   alphas=alphas,
-                                                                   x_text=sources,
-                                                                   heuristic=heuristic,
-                                                                   mapping=mapping,
-                                                                   verbose=params['VERBOSE'])
+
+            predictions = decode_predictions_beam_search(samples,
+                                                         index2word_y,
+                                                         alphas=alphas,
+                                                         x_text=sources,
+                                                         heuristic=heuristic,
+                                                         mapping=mapping,
+                                                         verbose=2)#params['VERBOSE'])
             if args.n_best:
                 n_best_predictions = []
                 if params_prediction['pos_unk']:

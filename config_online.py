@@ -13,7 +13,7 @@ def load_parameters():
     STORE_PATH = 'trained_models/retrained_model/'  # Models and evaluation results will be stored here
 
     OPTIMIZER = 'SGD'                             # Optimizer
-    USE_CUSTOM_LOSS = False                        # Set additional inputs to models if using a custom loss function
+    USE_CUSTOM_LOSS = True if 'Subgradient' in OPTIMIZER else False  # Set additional inputs to models if using a custom loss function
     C = 0.5                                       # Constant parameter for PAS and PPAS optimizer. Recommended value: PAS: 0.5 PPAS: 0.01
     LR = 0.01                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     CLIP_C = 10.                                  # During training, clip gradients to this norm
@@ -39,9 +39,7 @@ def load_parameters():
 
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
-    RNN_TYPE = 'GRU'                              # RNN unit type ('LSTM' and 'GRU' supported)
 
-    # Regularizers
     WEIGHT_DECAY = 0.                             # L2 regularization
     RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
 
@@ -51,7 +49,7 @@ def load_parameters():
     USE_RECURRENT_DROPOUT = False                 # Use dropout in recurrent layers # DANGEROUS!
     RECURRENT_DROPOUT_P = 0.5                     # Percentage of units to drop in recurrent layers
 
-    USE_NOISE = False                              # Use gaussian noise during training
+
     NOISE_AMOUNT = 0.0                         # Amount of noise
 
     USE_BATCH_NORMALIZATION = True                # If True it is recommended to deactivate Dropout
