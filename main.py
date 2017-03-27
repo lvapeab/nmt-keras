@@ -15,7 +15,7 @@ from model_zoo import TranslationModel
 from keras.layers import Input, Lambda, RemoveMask
 from keras.models import Model
 from keras import backend as K
-from keras.optimizers import Subgradient
+#from keras.optimizers import Subgradient
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.online_trainer import OnlineTrainer
@@ -165,15 +165,17 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     else:
         raise Exception, 'Online mode requires an already trained model!'
 
-    ###### ADD INPUT LAYER TO MODELS IN ORDER TO TRAIN WITH CUSTOM LOSS FUNCTION ##
-    hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
-    yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
+    if params['CUSTOM_LOSS']:
+        raise Exception, 'Still under implemntation'
+        ###### ADD INPUT LAYER TO MODELS IN ORDER TO TRAIN WITH CUSTOM LOSS FUNCTION ##
+        hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
+        yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
 
-    model_out = RemoveMask()(models[0].model.outputs[0])
-    loss_out = Lambda(new_loss, output_shape=(1,), name='new_loss', supports_masking=False)([model_out, yref_in, hyp_in])
-    trainer_model = Model(input=models[0].model.input + [yref_in, hyp_in], output=loss_out)
-    subgradientOpt = Subgradient(lr=1.0)
-    trainer_model.compile(loss={'new_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
+        model_out = RemoveMask()(models[0].model.outputs[0])
+        loss_out = Lambda(new_loss, output_shape=(1,), name='new_loss', supports_masking=False)([model_out, yref_in, hyp_in])
+        trainer_model = Model(input=models[0].model.input + [yref_in, hyp_in], output=loss_out)
+        subgradientOpt = eval('OPTIMIZER')(lr=params['LR'])
+        trainer_model.compile(loss={'new_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
 
     for nmt_model in models:
         nmt_model.setParams(params)
@@ -198,6 +200,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     params_training = {  #Traning params
                          'n_epochs': params['MAX_EPOCH'],
                          'shuffle': False,
+                         'custom_loss': params['CUSTOM_LOSS'],
                          'batch_size': params['BATCH_SIZE'],
                          'homogeneous_batches': False,
                          'lr_decay': params['LR_DECAY'],
@@ -225,7 +228,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Create trainer
     logging.info('Creating trainer...')
-    online_trainer = OnlineTrainer([trainer_model],
+    online_trainer = OnlineTrainer(models,
                                    dataset,
                                    beam_searcher,
                                    params_prediction,
@@ -285,7 +288,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             logging.info('Output sentence:  %s' % str(target_line))
             logging.info('Parsed sentence (state below): %s ' % map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
-        online_trainer.sample_and_train_online([src_seq, state_below], trg_seq)
+        online_trainer.sample_and_train_online([src_seq, state_below], trg_seq, src_words=[source_line])
         sys.stdout.write('\r')
         sys.stdout.write("Processed %d/%d  -  ETA: %ds " % ((n_line + 1) , n_lines, int(eta)))
         sys.stdout.flush()
