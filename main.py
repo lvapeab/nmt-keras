@@ -41,7 +41,7 @@ def parse_args():
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=False)
     parser.add_argument("-trg", "--references", help="Reference sentence", required=False)
     parser.add_argument("-hyp", "--hypotheses", required=False, help="Store hypothesis to this file")
-    parser.add_argument("-v", "--verbose", required=False, default=False, action='store_true', help="Verbosity level")
+    parser.add_argument("-v", "--verbose", required=False, default=0, type=int, help="Verbosity level")
     parser.add_argument("-ch", "--changes",  nargs="*", help="Changes to config, following the syntax Key=Value",
                         default="")
 
@@ -263,7 +263,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                    pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
                                    words_so_far=False,
                                    loading_X=True)[0]
-        if verbose > 0:
+        if verbose > 1:
             logging.info('Input sentence:  %s' % str(src_seq))
             logging.info('Parsed sentence: %s' % str(map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0])))
         state_below = dataset.loadText([target_line],
@@ -284,7 +284,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                          words_so_far=False,
                                          sample_weights=params['SAMPLE_WEIGHTS'],
                                          loading_X=False)
-        if verbose > 0:
+        if verbose > 1:
             logging.info('Output sentence:  %s' % str(target_line))
             logging.info('Parsed sentence (state below): %s ' % map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
@@ -546,7 +546,7 @@ if __name__ == "__main__":
         dataset = loadDataset(args.dataset)
         dataset = update_dataset_from_file(dataset, args.source, parameters,
                                            output_text_filename=args.references, splits=['train'], remove_outputs=False, compute_state_below=True)
-        train_model_online(parameters, args.source, args.references, models_path=args.models, dataset=dataset, store_hypotheses=args.hypotheses, verbose=int(args.verbose))
+        train_model_online(parameters, args.source, args.references, models_path=args.models, dataset=dataset, store_hypotheses=args.hypotheses, verbose=args.verbose)
 
     elif parameters['MODE'] == 'training':
         logging.info('Running training.')
