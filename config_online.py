@@ -13,6 +13,8 @@ def load_parameters():
     STORE_PATH = 'trained_models/retrained_model/'  # Models and evaluation results will be stored here
 
     OPTIMIZER = 'SGD'                             # Optimizer
+    USE_CUSTOM_LOSS = False                        # Set additional inputs to models if using a custom loss function
+    C = 0.5                                       # Constant parameter for PAS and PPAS optimizer. Recommended value: PAS: 0.5 PPAS: 0.01
     LR = 0.01                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     CLIP_C = 10.                                  # During training, clip gradients to this norm
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
