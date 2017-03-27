@@ -1,4 +1,3 @@
-import logging
 import sys
 import ast
 import argparse
@@ -6,7 +5,7 @@ import copy
 import time
 from timeit import default_timer as timer
 
-from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler, BeamSearchEnsemble
+from keras_wrapper.beam_search_interactive import BeamSearchEnsemble
 from utils.utils import *
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
@@ -15,14 +14,12 @@ from model_zoo import TranslationModel
 from keras.layers import Input, Lambda, RemoveMask
 from keras.models import Model
 from keras import backend as K
-#from keras.optimizers import Subgradient
+from keras.optimizers import PAS, PPAS
+from keras.objectives import log_diff
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
-from keras_wrapper.dataset import loadDataset, saveDataset
+from keras_wrapper.dataset import loadDataset
 from keras_wrapper.online_trainer import OnlineTrainer
-from keras_wrapper.extra.isles_utils import parse_input
-from keras_wrapper.extra.read_write import dict2pkl, list2file
 from keras_wrapper.extra.callbacks import *
-from keras_wrapper.extra.evaluation import select as evaluation_select
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -128,11 +125,6 @@ def train_model(params):
     logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
 
 
-def new_loss(args):
-    y_pred, y_true, h_pred = args
-    return K.categorical_crossentropy(y_pred, y_true) - K.categorical_crossentropy(y_pred, h_pred)
-
-
 def train_model_online(params, source_filename, target_filename, models_path=None, dataset=None, store_hypotheses=None, verbose=0):
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
@@ -165,21 +157,32 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     else:
         raise Exception, 'Online mode requires an already trained model!'
 
-    if params['CUSTOM_LOSS']:
-        raise Exception, 'Still under implemntation'
-        ###### ADD INPUT LAYER TO MODELS IN ORDER TO TRAIN WITH CUSTOM LOSS FUNCTION ##
-        hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
-        yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
+    trainer_models = []
+    if params['USE_CUSTOM_LOSS']:
+        ###### ADD ADDITIONAL INPUT LAYER TO MODELS IN ORDER TO TRAIN WITH CUSTOM LOSS FUNCTION ##
+        for nmt_model in models:
+            hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
+            yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
 
-        model_out = RemoveMask()(models[0].model.outputs[0])
-        loss_out = Lambda(new_loss, output_shape=(1,), name='new_loss', supports_masking=False)([model_out, yref_in, hyp_in])
-        trainer_model = Model(input=models[0].model.input + [yref_in, hyp_in], output=loss_out)
-        subgradientOpt = eval('OPTIMIZER')(lr=params['LR'])
-        trainer_model.compile(loss={'new_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
+            model_out = RemoveMask()(nmt_model.model.outputs[0])
+            loss_out = Lambda(log_diff, output_shape=(1,), name='custom_loss', supports_masking=False)([model_out, yref_in, hyp_in])
+            trainer_model = Model(input=nmt_model.model.input + [yref_in, hyp_in], output=loss_out)
 
-    for nmt_model in models:
-        nmt_model.setParams(params)
-        nmt_model.setOptimizer()
+            trainer_models.append(trainer_model)
+
+            # Set custom optimizer
+            weights = trainer_model.trainable_weights
+            weights.sort(key=lambda x: x.name if x.name else x.auto_name)
+            weights_shapes = [K.get_variable_shape(w) for w in weights]
+            subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes, lr=params['LR'], c=params['C'])
+            trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
+
+            for nmt_model in models:
+                nmt_model.setParams(params)
+    else:
+        for nmt_model in models:
+            nmt_model.setParams(params)
+            nmt_model.setOptimizer()
 
     # Apply model predictions
     params_prediction = {# Decoding params
@@ -200,7 +203,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     params_training = {  #Traning params
                          'n_epochs': params['MAX_EPOCH'],
                          'shuffle': False,
-                         'custom_loss': params['CUSTOM_LOSS'],
+                         'use_custom_loss': params['USE_CUSTOM_LOSS'],
                          'batch_size': params['BATCH_SIZE'],
                          'homogeneous_batches': False,
                          'lr_decay': params['LR_DECAY'],
@@ -228,12 +231,20 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Create trainer
     logging.info('Creating trainer...')
-    online_trainer = OnlineTrainer(models,
-                                   dataset,
-                                   beam_searcher,
-                                   params_prediction,
-                                   params_training,
-                                   verbose=verbose)
+    if params["USE_CUSTOM_LOSS"]:
+        online_trainer = OnlineTrainer(trainer_models,
+                                       dataset,
+                                       beam_searcher,
+                                       params_prediction,
+                                       params_training,
+                                       verbose=verbose)
+    else:
+        online_trainer = OnlineTrainer(models,
+                                       dataset,
+                                       beam_searcher,
+                                       params_prediction,
+                                       params_training,
+                                       verbose=verbose)
 
     # Open new data
     ftrg = open(target_filename, 'r')
