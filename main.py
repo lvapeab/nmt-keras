@@ -1,4 +1,3 @@
-import logging
 import sys
 import ast
 import argparse
@@ -6,7 +5,7 @@ import copy
 import time
 from timeit import default_timer as timer
 
-from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler, BeamSearchEnsemble
+from keras_wrapper.beam_search_interactive import BeamSearchEnsemble
 from utils.utils import *
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
@@ -15,14 +14,11 @@ from model_zoo import TranslationModel
 from keras.layers import Input, Lambda, RemoveMask
 from keras.models import Model
 from keras import backend as K
-from keras.optimizers import Subgradient
+from keras.optimizers import PASubgradient, PAProjSubgradient
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
-from keras_wrapper.dataset import loadDataset, saveDataset
+from keras_wrapper.dataset import loadDataset
 from keras_wrapper.online_trainer import OnlineTrainer
-from keras_wrapper.extra.isles_utils import parse_input
-from keras_wrapper.extra.read_write import dict2pkl, list2file
 from keras_wrapper.extra.callbacks import *
-from keras_wrapper.extra.evaluation import select as evaluation_select
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -172,12 +168,17 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     model_out = RemoveMask()(models[0].model.outputs[0])
     loss_out = Lambda(new_loss, output_shape=(1,), name='new_loss', supports_masking=False)([model_out, yref_in, hyp_in])
     trainer_model = Model(input=models[0].model.input + [yref_in, hyp_in], output=loss_out)
-    subgradientOpt = Subgradient(lr=1.0)
+
+    weights = trainer_model.trainable_weights
+    weights.sort(key=lambda x: x.name if x.name else x.auto_name)
+    weights_shapes = [K.get_variable_shape(w) for w in weights]
+    # subgradientOpt = PASubgradient(weights_shapes, lr=0.01, c=1.5)
+    subgradientOpt = PAProjSubgradient(weights_shapes, lr=0.01, b=0.003)
     trainer_model.compile(loss={'new_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
 
     for nmt_model in models:
         nmt_model.setParams(params)
-        nmt_model.setOptimizer()
+        #nmt_model.setOptimizer()
 
     # Apply model predictions
     params_prediction = {# Decoding params
