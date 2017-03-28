@@ -1,13 +1,14 @@
-import logging
 import argparse
-from data_engine.prepare_data import update_dataset_from_file, keep_n_captions
+import logging
+
 from config import load_parameters
-from keras_wrapper.dataset import loadDataset
-from keras_wrapper.cnn_model import loadModel
+from data_engine.prepare_data import update_dataset_from_file, keep_n_captions
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
+from keras_wrapper.cnn_model import loadModel
+from keras_wrapper.dataset import loadDataset
+from keras_wrapper.extra.evaluation import select as evaluation_select
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file
 from keras_wrapper.utils import decode_predictions_beam_search
-from keras_wrapper.extra.evaluation import select as evaluation_select
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -86,11 +87,13 @@ if __name__ == "__main__":
                 input_text_id = None
                 vocab_src = None
                 mapping = None
-            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, n_best=args.n_best, verbose=args.verbose)
+            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction,
+                                               n_best=args.n_best, verbose=int(args.verbose))
             if args.n_best:
                 predictions, n_best = beam_searcher.predictBeamSearchNet()[s]
             else:
                 predictions = beam_searcher.predictBeamSearchNet()[s]
+                n_best = None
             if params_prediction['pos_unk']:
                 samples = predictions[0]
                 alphas = predictions[1]
@@ -108,14 +111,13 @@ if __name__ == "__main__":
                 alphas = None
                 heuristic = None
                 sources = None
-
             predictions = decode_predictions_beam_search(samples,
                                                          index2word_y,
                                                          alphas=alphas,
                                                          x_text=sources,
                                                          heuristic=heuristic,
                                                          mapping=mapping,
-                                                         verbose=2)#params['VERBOSE'])
+                                                         verbose=params['VERBOSE'])
             if args.n_best:
                 n_best_predictions = []
                 if params_prediction['pos_unk']:
@@ -123,10 +125,10 @@ if __name__ == "__main__":
                     for preds in predictions[2]:
                         for src in preds[input_text_id]:
                             sources.append(src)
-                    sources = models[0].decode_predictions_beam_search(sources,
-                                                                       vocab_src,
-                                                                       pad_sequences=True,
-                                                                       verbose=params['VERBOSE'])
+                    sources = decode_predictions_beam_search(sources,
+                                                             vocab_src,
+                                                             pad_sequences=True,
+                                                             verbose=params['VERBOSE'])
                     heuristic = params_prediction['heuristic']
                 else:
                     alphas = None
@@ -136,13 +138,13 @@ if __name__ == "__main__":
                 for i, (n_best_preds, n_best_scores, n_best_alphas) in enumerate(n_best):
                     n_best_sample_score = []
                     for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
-                        pred = models[0].decode_predictions_beam_search([n_best_pred],
-                                                           index2word_y,
-                                                           alphas=n_best_alpha,
-                                                           x_text=sources,
-                                                           heuristic=heuristic,
-                                                           mapping=mapping,
-                                                           verbose=0)
+                        pred = decode_predictions_beam_search([n_best_pred],
+                                                              index2word_y,
+                                                              alphas=n_best_alpha,
+                                                              x_text=sources,
+                                                              heuristic=heuristic,
+                                                              mapping=mapping,
+                                                              verbose=0)
                         n_best_sample_score.append([i, pred, n_best_score])
                     n_best_predictions.append(n_best_sample_score)
         # Store result
