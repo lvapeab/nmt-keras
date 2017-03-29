@@ -157,17 +157,23 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     else:
         raise Exception, 'Online mode requires an already trained model!'
 
+    # Set additional inputs to models if using a custom loss function
+    params['USE_CUSTOM_LOSS'] = True if 'PAS' in params['OPTIMIZER'] else False
+
     trainer_models = []
     if params['USE_CUSTOM_LOSS']:
-        ###### ADD ADDITIONAL INPUT LAYER TO MODELS IN ORDER TO TRAIN WITH CUSTOM LOSS FUNCTION ##
+        logging.info('Using custom loss.')
+        # Add additional input layer to models in order to train with custom loss function
         for nmt_model in models:
             hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
             yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
-
             model_out = RemoveMask()(nmt_model.model.outputs[0])
-            loss_out = Lambda(log_diff, output_shape=(1,), name='custom_loss', supports_masking=False)([model_out, yref_in, hyp_in])
-            trainer_model = Model(input=nmt_model.model.input + [yref_in, hyp_in], output=loss_out)
+            loss_out = Lambda(log_diff,
+                              output_shape=(1,),
+                              name='custom_loss',
+                              supports_masking=False)([model_out, yref_in, hyp_in])
 
+            trainer_model = Model(input=nmt_model.model.input + [yref_in, hyp_in], output=loss_out)
             trainer_models.append(trainer_model)
 
             # Set custom optimizer
@@ -176,7 +182,6 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             weights_shapes = [K.get_variable_shape(w) for w in weights]
             subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes, lr=params['LR'], c=params['C'])
             trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
-
             for nmt_model in models:
                 nmt_model.setParams(params)
     else:

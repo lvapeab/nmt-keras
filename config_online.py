@@ -13,10 +13,9 @@ def load_parameters():
     STORE_PATH = 'trained_models/retrained_model/'  # Models and evaluation results will be stored here
 
     OPTIMIZER = 'SGD'                             # Optimizer
-    USE_CUSTOM_LOSS = True if 'Subgradient' in OPTIMIZER else False  # Set additional inputs to models if using a custom loss function
     C = 0.5                                       # Constant parameter for PAS and PPAS optimizer. Recommended value: PAS: 0.5 PPAS: 0.01
     LR = 0.01                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
-    CLIP_C = 10.                                  # During training, clip gradients to this norm
+    CLIP_C = 1.                                   # During training, clip gradients to this norm
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
