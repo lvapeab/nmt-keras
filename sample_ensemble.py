@@ -1,13 +1,14 @@
-import logging
 import argparse
-from data_engine.prepare_data import update_dataset_from_file, keep_n_captions
+import logging
+
 from config import load_parameters
-from keras_wrapper.dataset import loadDataset
-from keras_wrapper.cnn_model import loadModel
+from data_engine.prepare_data import update_dataset_from_file, keep_n_captions
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
+from keras_wrapper.cnn_model import loadModel
+from keras_wrapper.dataset import loadDataset
+from keras_wrapper.extra.evaluation import select as evaluation_select
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file
 from keras_wrapper.utils import decode_predictions_beam_search
-from keras_wrapper.extra.evaluation import select as evaluation_select
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -16,14 +17,14 @@ logger = logging.getLogger(__name__)
 def parse_args():
     parser = argparse.ArgumentParser("Apply several translation models for making predictions")
     parser.add_argument("-ds", "--dataset", required=True, help="Dataset instance with data")
-    parser.add_argument("-t", "--text", required=False, help="Text file with source sentences")
+    parser.add_argument("-t", "--text", required=True, help="Text file with source sentences")
     parser.add_argument("-s", "--splits", nargs='+', required=False, default=['val'], help="Splits to sample. "
                                                                                            "Should be already included"
                                                                                            "into the dataset object.")
     parser.add_argument("-d", "--dest", required=False, help="File to save translations in")
     parser.add_argument("--not-eval", action='store_true', default=False, help="Do not compute metrics for the output")
     parser.add_argument("-e", "--eval-output", required=False, help="Write evaluation results to file")
-    parser.add_argument("-v", "--verbose", required=False, action='store_true', default=False, help="Be verbose")
+    parser.add_argument("-v", "--verbose", required=False, default=0, type=int, help="Verbosity level")
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
@@ -46,8 +47,7 @@ if __name__ == "__main__":
         params = pkl2dict(args.config)
 
     dataset = loadDataset(args.dataset)
-    if args.text is not None:
-        dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=args.not_eval)
+    dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=args.not_eval)
 
     if args.eval_output:
         keep_n_captions(dataset, repeat=1, n=1, set_names=args.splits)  # Include extra variables (references)
@@ -86,22 +86,18 @@ if __name__ == "__main__":
                 input_text_id = None
                 vocab_src = None
                 mapping = None
-            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, n_best=args.n_best, verbose=args.verbose)
+            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction,
+                                               n_best=args.n_best, verbose=args.verbose)
             if args.n_best:
                 predictions, n_best = beam_searcher.predictBeamSearchNet()[s]
             else:
                 predictions = beam_searcher.predictBeamSearchNet()[s]
+                n_best = None
             if params_prediction['pos_unk']:
                 samples = predictions[0]
                 alphas = predictions[1]
-                sources = []
-                for preds in predictions[2]:
-                    for src in preds[input_text_id]:
-                        sources.append(src)
-                sources = decode_predictions_beam_search(sources,
-                                                         vocab_src,
-                                                         pad_sequences=True,
-                                                         verbose=params['VERBOSE'])
+                sources = map(lambda x: x.strip(), open(args.text, 'r').read().split('\n'))
+                sources = sources[:-1] if len(sources[-1]) == 0 else sources
                 heuristic = params_prediction['heuristic']
             else:
                 samples = predictions
@@ -115,18 +111,11 @@ if __name__ == "__main__":
                                                          x_text=sources,
                                                          heuristic=heuristic,
                                                          mapping=mapping,
-                                                         verbose=2)#params['VERBOSE'])
+                                                         verbose=args.verbose)
             if args.n_best:
                 n_best_predictions = []
                 if params_prediction['pos_unk']:
-                    sources = []
-                    for preds in predictions[2]:
-                        for src in preds[input_text_id]:
-                            sources.append(src)
-                    sources = models[0].decode_predictions_beam_search(sources,
-                                                                       vocab_src,
-                                                                       pad_sequences=True,
-                                                                       verbose=params['VERBOSE'])
+                    sources = map(lambda x: x.strip().split(), open(args.text, 'r').read().split('\n'))
                     heuristic = params_prediction['heuristic']
                 else:
                     alphas = None
@@ -136,13 +125,13 @@ if __name__ == "__main__":
                 for i, (n_best_preds, n_best_scores, n_best_alphas) in enumerate(n_best):
                     n_best_sample_score = []
                     for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
-                        pred = models[0].decode_predictions_beam_search([n_best_pred],
-                                                           index2word_y,
-                                                           alphas=n_best_alpha,
-                                                           x_text=sources,
-                                                           heuristic=heuristic,
-                                                           mapping=mapping,
-                                                           verbose=0)
+                        pred = decode_predictions_beam_search([n_best_pred],
+                                                              index2word_y,
+                                                              alphas=n_best_alpha,
+                                                              x_text=sources,
+                                                              heuristic=heuristic,
+                                                              mapping=mapping,
+                                                              verbose=args.verbose)
                         n_best_sample_score.append([i, pred, n_best_score])
                     n_best_predictions.append(n_best_sample_score)
         # Store result

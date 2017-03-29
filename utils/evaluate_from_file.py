@@ -11,6 +11,7 @@ from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.meteor.meteor import Meteor
+from pycocoevalcap.ter.ter import Ter
 from pycocoevalcap.vqa import vqaEval, visual_qa
 
 # ROOT_PATH = '/home/lvapeab/smt/tasks/image_desc/'
@@ -66,6 +67,7 @@ def CocoScore(ref, hypo, language='en'):
     scorers = [
         (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
         (Meteor(language), "METEOR"),
+        (Ter(), "TER"),
         (Rouge(), "ROUGE_L"),
         (Cider(), "CIDEr")
     ]
