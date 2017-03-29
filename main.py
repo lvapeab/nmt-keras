@@ -157,17 +157,23 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     else:
         raise Exception, 'Online mode requires an already trained model!'
 
+    # Set additional inputs to models if using a custom loss function
+    params['USE_CUSTOM_LOSS'] = True if 'PAS' in params['OPTIMIZER'] else False
+
     trainer_models = []
     if params['USE_CUSTOM_LOSS']:
-        ###### ADD ADDITIONAL INPUT LAYER TO MODELS IN ORDER TO TRAIN WITH CUSTOM LOSS FUNCTION ##
+        logging.info('Using custom loss.')
+        # Add additional input layer to models in order to train with custom loss function
         for nmt_model in models:
             hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
             yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
-
             model_out = RemoveMask()(nmt_model.model.outputs[0])
-            loss_out = Lambda(log_diff, output_shape=(1,), name='custom_loss', supports_masking=False)([model_out, yref_in, hyp_in])
-            trainer_model = Model(input=nmt_model.model.input + [yref_in, hyp_in], output=loss_out)
+            loss_out = Lambda(log_diff,
+                              output_shape=(1,),
+                              name='custom_loss',
+                              supports_masking=False)([model_out, yref_in, hyp_in])
 
+            trainer_model = Model(input=nmt_model.model.input + [yref_in, hyp_in], output=loss_out)
             trainer_models.append(trainer_model)
 
             # Set custom optimizer
@@ -176,7 +182,6 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             weights_shapes = [K.get_variable_shape(w) for w in weights]
             subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes, lr=params['LR'], c=params['C'])
             trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
-
             for nmt_model in models:
                 nmt_model.setParams(params)
     else:
@@ -334,9 +339,9 @@ def apply_NMT_model(params):
         extra_vars = {'language': params.get('TRG_LAN', 'en'),
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
                       'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
-		      'detokenize_f': eval('dataset.' +params['DETOKENIZATION_METHOD']),
+                      'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
                       'apply_detokenization': params['APPLY_DETOKENIZATION'],
-		      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
                       'tokenize_references': params['TOKENIZE_REFERENCES']}
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         extra_vars[s] = dict()
@@ -405,11 +410,12 @@ def buildCallbacks(params, model, dataset):
         # Evaluate training
         extra_vars = {'language': params.get('TRG_LAN', 'en'),
                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
- 		      'detokenize_f': eval('dataset.' +params['DETOKENIZATION_METHOD']),
-                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
-                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
-                      'tokenize_references': params['TOKENIZE_REFERENCES']}
+                      'tokenize_f': eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none')),
+                      'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none')),
+                      'apply_detokenization': params.get('APPLY_DETOKENIZATION', False),
+                      'tokenize_hypotheses': params.get('TOKENIZE_HYPOTHESES', True),
+                      'tokenize_references': params.get('TOKENIZE_REFERENCES', True)}
+
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:
             extra_vars[s] = dict()
@@ -470,7 +476,12 @@ def buildCallbacks(params, model, dataset):
         for s in params['EVAL_ON_SETS']:
             extra_vars[s] = dict()
             extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-            extra_vars[s]['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
+            extra_vars[s]['tokenize_f'] = eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none'))
+            extra_vars[s]['detokenize_f'] = eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none'))
+            extra_vars[s]['apply_detokenization'] = params.get('APPLY_DETOKENIZATION', False)
+            extra_vars[s]['tokenize_hypotheses'] = params.get('TOKENIZE_HYPOTHESES', True)
+            extra_vars[s]['tokenize_references'] = params.get('TOKENIZE_REFERENCES', True)
+
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
             extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
@@ -561,7 +572,7 @@ if __name__ == "__main__":
 
     elif parameters['MODE'] == 'training':
         logging.info('Running training.')
-	train_model(parameters)
+        train_model(parameters)
     elif parameters['MODE'] == 'sampling':
         logging.info('Running sampling.')
         apply_NMT_model(parameters)
