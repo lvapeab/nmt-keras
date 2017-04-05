@@ -120,7 +120,7 @@ def load_parameters():
 
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
-    RNN_TYPE = 'GRU'                              # RNN unit type ('LSTM' and 'GRU' supported)
+    RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
     INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
 
     SOURCE_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
