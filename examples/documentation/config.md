@@ -41,36 +41,31 @@
   * **START_SAMPLING_ON_EPOCH**: First epoch where to start the sampling counter
   * **SAMPLE_EACH_UPDATES**: Sampling frequency (always in #updates)
 
-    # Unknown words treatment
-    POS_UNK = False                                # Enable POS_UNK strategy for unknown words
-    HEURISTIC = 0                                 # Heuristic to follow:
-                                                  #     0: Replace the UNK by the correspondingly aligned source
-                                                  #     1: Replace the UNK by the translation (given by an external
-                                                  #        dictionary) of the correspondingly aligned source
-                                                  #     2: Replace the UNK by the translation (given by an external
-                                                  #        dictionary) of the correspondingly aligned source only if it
-                                                  #        starts with a lowercase. Otherwise, copies the source word.
-    ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
+   ##### Unknown words treatment
+   * POS_UNK: Enable unknown words replacement strategy.
+   * HEURISTIC: Heuristic followed for replacing unks:
+   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0: Replace the UNK by the correspondingly aligned source.
 
-    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1: Replace the UNK by the translation (given by an [external dictionary](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh)) of the aligned source.
 
-    # Word representation params
-    TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
-                                                  # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'tokenize_none'       # Select which de-tokenization method we'll apply
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  2: Replace the UNK by the translation (given by an  [external dictionary](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh)) of the aligned source &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; only if it starts with a lowercase. Otherwise, copies the source word.
+   * ALIGN_FROM_RAW: Align using the source files or the short-list model vocabulary.
 
-    APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method
+   * MAPPING: Mapping dictionary path (for heuristics 1 and 2). Obtained with the [build_mapping_file](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh) script.
 
-    TOKENIZE_HYPOTHESES = True   		  # Whether we tokenize the hypotheses using the previously defined tokenization method
-    TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
-    # Input image parameters
-    DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
+   #####  Word representation params
+   * TOKENIZATION_METHOD: Tokenization applied to the input and output text. 
+   * DETOKENIZATION_METHOD: Detokenization applied to the input and output text. 
+   * APPLY_DETOKENIZATION: Wheter we apply the detokenization method
+   * TOKENIZE_HYPOTHESES: Whether we tokenize the hypotheses (for computing metrics).
+   * TOKENIZE_REFERENCES = Whether we tokenize the references (for computing metrics).
 
-    # Text parameters
-    FILL = 'end'                                  # Whether we pad the 'end' or the 'start' of the sentence with 0s
-    PAD_ON_BATCH = True                           # Whether we take as many timesteps as the longest sequence of
-                                                  # the batch or a fixed size (MAX_OUTPUT_TEXT_LEN)
-    # Input text parameters
+    ##### Text parameters
+    * FILL: Padding mode: Insert zeroes at the 'start', 'center' or 'end'.
+    * PAD_ON_BATCH: Make batches of a fixed number of timesteps or pad to the maximum length of the minibatch.
+
+    ##### Input text parameters
     INPUT_VOCABULARY_SIZE = 0                     # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
