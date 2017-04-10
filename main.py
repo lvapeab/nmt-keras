@@ -204,6 +204,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                          'pos_unk': params['POS_UNK'],
                          'state_below_index': -1,
                          'output_text_index': 0,
+                         'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                         'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
     }
     params_training = {  #Traning params
                          'n_epochs': params['MAX_EPOCH'],
@@ -470,17 +472,19 @@ def buildCallbacks(params, model, dataset):
 
     if params['SAMPLE_ON_SETS']:
         # Write some samples
-        extra_vars = {'language': params['TRG_LAN'], 'n_parallel_loaders': params['PARALLEL_LOADERS']}
+        extra_vars = {'language': params['TRG_LAN'],
+                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                      'apply_detokenization': params.get('APPLY_DETOKENIZATION', False),
+                      'tokenize_hypotheses': params.get('TOKENIZE_HYPOTHESES', True),
+                      'tokenize_references': params.get('TOKENIZE_REFERENCES', True),
+                      'tokenize_f': eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none')),
+                      'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none'))
+                      }
         vocab_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words']
         vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:
             extra_vars[s] = dict()
             extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-            extra_vars[s]['tokenize_f'] = eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none'))
-            extra_vars[s]['detokenize_f'] = eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none'))
-            extra_vars[s]['apply_detokenization'] = params.get('APPLY_DETOKENIZATION', False)
-            extra_vars[s]['tokenize_hypotheses'] = params.get('TOKENIZE_HYPOTHESES', True)
-            extra_vars[s]['tokenize_references'] = params.get('TOKENIZE_REFERENCES', True)
 
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
