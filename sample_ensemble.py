@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
-    if params.get('apply_detokenization', False):
+    if params.get('APPLY_DETOKENIZATION', False):
         detokenize_function = eval('dataset.' + params['DETOKENIZATION_METHOD'])
 
     # Apply sampling
@@ -116,7 +116,7 @@ if __name__ == "__main__":
                                                          mapping=mapping,
                                                          verbose=args.verbose)
             # Apply detokenization function if needed
-            if params.get('apply_detokenization', False):
+            if params.get('APPLY_DETOKENIZATION', False):
                 predictions = map(detokenize_function, predictions)
 
             if args.n_best:
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                                                               mapping=mapping,
                                                               verbose=args.verbose)
                         # Apply detokenization function if needed
-                        if params.get('apply_detokenization', False):
+                        if params.get('APPLY_DETOKENIZATION', False):
                              pred = map(detokenize_function, pred)
 
                         n_best_sample_score.append([i, pred, n_best_score])
