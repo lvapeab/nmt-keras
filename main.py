@@ -204,6 +204,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                          'pos_unk': params['POS_UNK'],
                          'state_below_index': -1,
                          'output_text_index': 0,
+                         'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                         'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
     }
     params_training = {  #Traning params
                          'n_epochs': params['MAX_EPOCH'],

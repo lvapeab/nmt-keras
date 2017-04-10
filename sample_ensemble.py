@@ -54,6 +54,9 @@ if __name__ == "__main__":
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
+    if params.get('apply_detokenization', False):
+        detokenize_function = eval('dataset.' + params['DETOKENIZATION_METHOD'])
+
     # Apply sampling
     extra_vars = dict()
     extra_vars['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
@@ -112,6 +115,10 @@ if __name__ == "__main__":
                                                          heuristic=heuristic,
                                                          mapping=mapping,
                                                          verbose=args.verbose)
+            # Apply detokenization function if needed
+            if params.get('apply_detokenization', False):
+                predictions = map(detokenize_function, predictions)
+
             if args.n_best:
                 n_best_predictions = []
                 if params_prediction['pos_unk']:
@@ -132,6 +139,10 @@ if __name__ == "__main__":
                                                               heuristic=heuristic,
                                                               mapping=mapping,
                                                               verbose=args.verbose)
+                        # Apply detokenization function if needed
+                        if params.get('apply_detokenization', False):
+                             pred = map(detokenize_function, pred)
+
                         n_best_sample_score.append([i, pred, n_best_score])
                     n_best_predictions.append(n_best_sample_score)
         # Store result
@@ -143,29 +154,3 @@ if __name__ == "__main__":
                     nbest2file(filepath + '.nbest', n_best_predictions)
             else:
                 raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
-        if args.not_eval is False:
-            # Evaluate if any metric in params['METRICS']
-            for metric in params['METRICS']:
-                logging.info('Evaluating on metric ' + metric)
-                # Evaluate on the chosen metric
-                extra_vars[s] = dict()
-                extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-                extra_vars['language'] = params['TRG_LAN']
-                metrics = evaluation_select[metric](
-                    pred_list=predictions,
-                    verbose=1,
-                    extra_vars=extra_vars,
-                    split=s)
-                if args.eval_output is not None:
-                    filepath = args.eval_output  # results file
-                    # Print results to file
-                    with open(filepath, 'w') as f:
-                        header = ''
-                        line = ''
-                        for metric_ in sorted(metrics):
-                            value = metrics[metric_]
-                            header += metric_ + ','
-                            line += str(value) + ','
-                        f.write(header + '\n')
-                        f.write(line + '\n')
-                    logging.info('Done evaluating on metric ' + metric)
