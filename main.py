@@ -190,7 +190,8 @@ def buildCallbacks(params, model, dataset):
                       'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none')),
                       'apply_detokenization': params.get('APPLY_DETOKENIZATION', False),
                       'tokenize_hypotheses': params.get('TOKENIZE_HYPOTHESES', True),
-                      'tokenize_references': params.get('TOKENIZE_REFERENCES', True)}
+                      'tokenize_references': params.get('TOKENIZE_REFERENCES', True)
+                      }
 
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:
@@ -246,17 +247,19 @@ def buildCallbacks(params, model, dataset):
 
     if params['SAMPLE_ON_SETS']:
         # Write some samples
-        extra_vars = {'language': params['TRG_LAN'], 'n_parallel_loaders': params['PARALLEL_LOADERS']}
+        extra_vars = {'language': params['TRG_LAN'],
+                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                      'apply_detokenization': params.get('APPLY_DETOKENIZATION', False),
+                      'tokenize_hypotheses': params.get('TOKENIZE_HYPOTHESES', True),
+                      'tokenize_references': params.get('TOKENIZE_REFERENCES', True),
+                      'tokenize_f': eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none')),
+                      'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none'))
+                      }
         vocab_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words']
         vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:
             extra_vars[s] = dict()
             extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-            extra_vars[s]['tokenize_f'] = eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none'))
-            extra_vars[s]['detokenize_f'] = eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none'))
-            extra_vars[s]['apply_detokenization'] = params.get('APPLY_DETOKENIZATION', False)
-            extra_vars[s]['tokenize_hypotheses'] = params.get('TOKENIZE_HYPOTHESES', True)
-            extra_vars[s]['tokenize_references'] = params.get('TOKENIZE_REFERENCES', True)
 
         if params['BEAM_SIZE']:
             extra_vars['beam_size'] = params['BEAM_SIZE']
@@ -291,8 +294,7 @@ def buildCallbacks(params, model, dataset):
                                                in_pred_idx=params['INPUTS_IDS_DATASET'][0],
                                                sampling_type=params['SAMPLING'],  # text info
                                                beam_search=params['BEAM_SEARCH'],
-                                               start_sampling_on_epoch=params['START_SAMPLING'
-                                                                              '_ON_EPOCH'],
+                                               start_sampling_on_epoch=params['START_SAMPLING_ON_EPOCH'],
                                                verbose=params['VERBOSE'])
         callbacks.append(callback_sampling)
     return callbacks
