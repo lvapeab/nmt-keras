@@ -1,84 +1,71 @@
+# NMT-Keras' config file
 
-def load_parameters():
-    """
-    Loads the defined hyperparameters
-    :return parameters: Dictionary of loaded parameters
-    """
+ This document describes the available hyperparameters used for training NMT-Keras.
 
-    # Input data params
-    DATASET_NAME = 'EuTrans'                        # Task name
-    DATASET_NAME = 'xerox'                        # Task name
 
-    SRC_LAN = 'en'                                  # Language of the source text
-    TRG_LAN = 'es'                                  # Language of the target text
-    DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
-    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME  # Path where data is stored
+ ##### Input data params
 
-    # SRC_LAN or TRG_LAN will be added to the file names
-    TEXT_FILES = {'train': 'training.',        # Data files
-                  'val': 'dev.',
-                  'test': 'test.'}
+  * **DATASET_NAME**: Task name. Used for naming and for indexing files.
+  * **SRC_LAN**: Language of the source text. Used for naming.
+  * **TRG_LAN**: Language of the target text. Used for naming and for coputing language-dependent metrics (e.g. Meteor)
+  * **DATA_ROOT_PATH**: Path to the data
+  * **TEXT_FILES**: Dictionary containing the splits ('train/val/test) and the files corresponding to each one. The source/target languages will be appended to these files.
 
-    # Dataset class parameters
-    INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
-    OUTPUTS_IDS_DATASET = ['target_text']                   # Corresponding outputs of the dataset
-    INPUTS_IDS_MODEL = ['source_text', 'state_below']       # Corresponding inputs of the built model
-    OUTPUTS_IDS_MODEL = ['target_text']                     # Corresponding outputs of the built model
+ ##### Input/output params
 
-    # Evaluation params
-    METRICS = ['coco']                            # Metric used for evaluating the model
-    EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator)
-    EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
-    START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation
-    EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates
-    EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates)
+  * **INPUTS_IDS_DATASET**: Name of the inputs of the Dataset class.
+  * **OUTPUTS_IDS_DATASET**: Name of the inputs of the Dataset class.
+  * **INPUTS_IDS_MODEL**:Name of the inputs of the Model.
+  * **OUTPUTS_IDS_MODEL**: Name of the inputs of the Model.
 
-    # Search parameters
-    SAMPLING = 'max_likelihood'                   # Possible values: multinomial or max_likelihood (recommended)
-    TEMPERATURE = 1                               # Multinomial sampling parameter
-    BEAM_SEARCH = True                            # Switches on-off the beam search procedure
-    BEAM_SIZE = 6                                 # Beam size (in case of BEAM_SEARCH == True)
-    OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
-    NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
-    ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
-                                                  # (see: arxiv.org/abs/1609.08144)
+  ##### Evaluation params
+  * **METRICS**: List of metric used for evaluating the model. The `coco` package is recommended.
+  * **EVAL_ON_SETS**: List of splits ('train', 'val', 'test') to evaluate with the metrics from METRICS. Typically: 'val'
+  * **EVAL_ON_SETS_KERAS**: List of splits ('train', 'val', 'test') to evaluate with the Keras metrics.
+  * **START_EVAL_ON_EPOCH**: The evaluation starts at this epoch.
+  * **EVAL_EACH_EPOCHS**: Whether the evaluation frequency units are epochs or updates.
+  * **EVAL_EACH**: Evaluation frequency.
 
-    # Sampling params: Show some samples during training
-    SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
-    N_SAMPLES = 5                                 # Number of samples generated
-    START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
-    SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
+  ##### Decoding parameters
+  * **SAMPLING**: Decoding mode. Only 'max_likelihood' tested.
+  * **TEMPERATURE**: Multinomial sampling temerature.
+  * **BEAM_SEARCH**: Switches on-off the beam search.
+  * **BEAM_SIZE**: Beam size.
+  * **OPTIMIZED_SEARCH**: Encode the source only once per sample (recommended).
+  * **NORMALIZE_SAMPLING**: Normalize hypotheses scores according to the length
+  * **ALPHA_FACTOR**: Normalization according to length^ALPHA_FACTOR ([source](arxiv.org/abs/1609.08144))
 
-    # Unknown words treatment
-    POS_UNK = False                                # Enable POS_UNK strategy for unknown words
-    HEURISTIC = 0                                 # Heuristic to follow:
-                                                  #     0: Replace the UNK by the correspondingly aligned source
-                                                  #     1: Replace the UNK by the translation (given by an external
-                                                  #        dictionary) of the correspondingly aligned source
-                                                  #     2: Replace the UNK by the translation (given by an external
-                                                  #        dictionary) of the correspondingly aligned source only if it
-                                                  #        starts with a lowercase. Otherwise, copies the source word.
-    ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
+  ##### Sampling params: Show some samples during training
+  * **SAMPLE_ON_SETS**: Splits from where we'll sample.
+  * **N_SAMPLES**: Number of samples generated
+  * **START_SAMPLING_ON_EPOCH**: First epoch where to start the sampling counter
+  * **SAMPLE_EACH_UPDATES**: Sampling frequency (always in #updates)
 
-    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
+   ##### Unknown words treatment
+   * POS_UNK: Enable unknown words replacement strategy.
+   * HEURISTIC: Heuristic followed for replacing unks:
+   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0: Replace the UNK by the correspondingly aligned source.
 
-    # Word representation params
-    TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
-                                                  # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'tokenize_none'       # Select which de-tokenization method we'll apply
-    
-    APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1: Replace the UNK by the translation (given by an [external dictionary](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh)) of the aligned source.
 
-    TOKENIZE_HYPOTHESES = True   		  # Whether we tokenize the hypotheses using the previously defined tokenization method
-    TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
-    # Input image parameters
-    DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  2: Replace the UNK by the translation (given by an  [external dictionary](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh)) of the aligned source &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; only if it starts with a lowercase. Otherwise, copies the source word.
+   * ALIGN_FROM_RAW: Align using the source files or the short-list model vocabulary.
 
-    # Text parameters
-    FILL = 'end'                                  # Whether we pad the 'end' or the 'start' of the sentence with 0s
-    PAD_ON_BATCH = True                           # Whether we take as many timesteps as the longest sequence of
-                                                  # the batch or a fixed size (MAX_OUTPUT_TEXT_LEN)
-    # Input text parameters
+   * MAPPING: Mapping dictionary path (for heuristics 1 and 2). Obtained with the [build_mapping_file](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh) script.
+
+   #####  Word representation params
+   * TOKENIZATION_METHOD: Tokenization applied to the input and output text. 
+   * DETOKENIZATION_METHOD: Detokenization applied to the input and output text. 
+   * APPLY_DETOKENIZATION: Wheter we apply the detokenization method
+   * TOKENIZE_HYPOTHESES: Whether we tokenize the hypotheses (for computing metrics).
+   * TOKENIZE_REFERENCES = Whether we tokenize the references (for computing metrics).
+
+    ##### Text parameters
+    * FILL: Padding mode: Insert zeroes at the 'start', 'center' or 'end'.
+    * PAD_ON_BATCH: Make batches of a fixed number of timesteps or pad to the maximum length of the minibatch.
+
+    ##### Input text parameters
     INPUT_VOCABULARY_SIZE = 0                     # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.

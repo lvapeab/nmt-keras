@@ -416,7 +416,8 @@ def buildCallbacks(params, model, dataset):
                       'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none')),
                       'apply_detokenization': params.get('APPLY_DETOKENIZATION', False),
                       'tokenize_hypotheses': params.get('TOKENIZE_HYPOTHESES', True),
-                      'tokenize_references': params.get('TOKENIZE_REFERENCES', True)}
+                      'tokenize_references': params.get('TOKENIZE_REFERENCES', True)
+                      }
 
         vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         for s in params['EVAL_ON_SETS']:
@@ -519,8 +520,7 @@ def buildCallbacks(params, model, dataset):
                                                in_pred_idx=params['INPUTS_IDS_DATASET'][0],
                                                sampling_type=params['SAMPLING'],  # text info
                                                beam_search=params['BEAM_SEARCH'],
-                                               start_sampling_on_epoch=params['START_SAMPLING'
-                                                                              '_ON_EPOCH'],
+                                               start_sampling_on_epoch=params['START_SAMPLING_ON_EPOCH'],
                                                verbose=params['VERBOSE'])
         callbacks.append(callback_sampling)
     return callbacks
