@@ -22,7 +22,7 @@ for algo, scores in algo_scores.iteritems():
         differences[algo][n_sents] = float(score)*multiplier - baseline_score*multiplier
 
 out_f = open(dest_filename, 'w')
-to_write = '#Sent ' + ' '.join([name for (name, filename) in files]) + '\n'
+to_write = 'Sentences ' + ' '.join([name for (name, filename) in files]) + '\n'
 out_f.write(to_write)
 for i in sorted([int(b[0]) for b in baseline]):
     to_write = str(i) + ' '
