@@ -93,6 +93,22 @@ def train_model(params):
                                      store_path=params['STORE_PATH'],
                                      set_optimizer=False,
                                      clear_dirs=False)
+
+        # Define the inputs and outputs mapping from our Dataset instance to our model
+        inputMapping = dict()
+        for i, id_in in enumerate(params['INPUTS_IDS_DATASET']):
+            pos_source = dataset.ids_inputs.index(id_in)
+            id_dest = nmt_model.ids_inputs[i]
+            inputMapping[id_dest] = pos_source
+        nmt_model.setInputsMapping(inputMapping)
+
+        outputMapping = dict()
+        for i, id_out in enumerate(params['OUTPUTS_IDS_DATASET']):
+            pos_target = dataset.ids_outputs.index(id_out)
+            id_dest = nmt_model.ids_outputs[i]
+            outputMapping[id_dest] = pos_target
+
+        nmt_model.setOutputsMapping(outputMapping)
         nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'])
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
