@@ -97,7 +97,7 @@ def train_model(params):
                        'extra_callbacks': callbacks, 'reload_epoch': params['RELOAD'], 'epoch_offset': params['RELOAD'],
                        'data_augmentation': params['DATA_AUGMENTATION'],
                        'patience': params.get('PATIENCE', 0),  # early stopping parameters
-                       'metric_check': params.get('STOP_METRIC', None),
+                       'metric_check': params.get('STOP_METRIC', None) if params.get('EARLY_STOP', False) else None,
                        'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
                        'each_n_epochs': params.get('EVAL_EACH', 1),
                        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)}
