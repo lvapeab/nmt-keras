@@ -7,8 +7,11 @@ multiplier = 100. # Set to 100. if you want percentages
 files = [('SGD', 'sgd'),
          ('Adagrad', 'adagrad'),
          ('Adadelta', 'adadelta'),
-         ('Adam','adam')]
-dest_filename = 'differences'
+         ('Adam','adam'),
+          ('PA','pa'),
+          ('PPA','ppa')
+         ]
+dest_filename = 'bleu_differences'
 algo_scores = {}
 for (algo, file_name) in files:
     algo_scores[algo] = map(lambda x: x.split(), open(file_name).read().split('\n')[:-1])
