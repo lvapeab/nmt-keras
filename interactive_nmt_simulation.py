@@ -183,7 +183,7 @@ if __name__ == "__main__":
                                  'model_outputs': params['OUTPUTS_IDS_MODEL'],
                                  'dataset_inputs': params['INPUTS_IDS_DATASET'],
                                  'dataset_outputs': params['OUTPUTS_IDS_DATASET'],
-                                 'normalize': params['NORMALIZE_SAMPLING'],
+                                 'normalize_probs': params['NORMALIZE_SAMPLING'],
                                  'alpha_factor': params['ALPHA_FACTOR'],
                                  'pos_unk': params['POS_UNK']}
 
