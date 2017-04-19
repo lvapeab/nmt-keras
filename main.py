@@ -5,6 +5,7 @@ from timeit import default_timer as timer
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
 from keras_wrapper.cnn_model import loadModel, updateModel
+from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.callbacks import *
 from model_zoo import TranslationModel
 from utils.utils import update_parameters
@@ -13,7 +14,19 @@ logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', dat
 logger = logging.getLogger(__name__)
 
 
-def train_model(params):
+def parse_args():
+    parser = argparse.ArgumentParser("Train or sample NMT models")
+    parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
+                                                               "If not specified, hyperparameters "
+                                                               "are read from config.py")
+    parser.add_argument("-ds", "--dataset", required=False, help="Dataset instance with data")
+    parser.add_argument("changes", nargs="*", help="Changes to config. "
+                                                   "Following the syntax Key=Value",
+                        default="")
+    return parser.parse_args()
+
+
+def train_model(params, load_dataset=None):
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
     :param params: Dictionary of network hyperparameters.
@@ -26,7 +39,11 @@ def train_model(params):
     check_params(params)
 
     # Load data
-    dataset = build_dataset(params)
+    if load_dataset is None:
+        dataset = build_dataset(params)
+    else:
+        dataset = loadDataset(load_dataset)
+
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
 
@@ -108,7 +125,7 @@ def train_model(params):
     logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
 
 
-def apply_NMT_model(params):
+def apply_NMT_model(params, load_dataset=None):
     """
     Sample from a previously trained model.
 
@@ -117,7 +134,10 @@ def apply_NMT_model(params):
     """
 
     # Load data
-    dataset = build_dataset(params)
+    if load_dataset is None:
+        dataset = build_dataset(params)
+    else:
+        dataset = loadDataset(load_dataset)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
 
@@ -334,18 +354,6 @@ def check_params(params):
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
 
 
-def parse_args():
-    parser = argparse.ArgumentParser("Train or sample NMT models")
-    parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
-                                                               "If not specified, hyperparameters "
-                                                               "are read from config.py")
-    parser.add_argument("-ds", "--dataset", required=False, help="Dataset instance with data")
-    parser.add_argument("changes", nargs="*", help="Changes to config. "
-                                                   "Following the syntax Key=Value",
-                        default="")
-    return parser.parse_args()
-
-
 if __name__ == "__main__":
     args = parse_args()
     parameters = load_parameters()
@@ -369,9 +377,9 @@ if __name__ == "__main__":
     check_params(parameters)
     if parameters['MODE'] == 'training':
         logging.info('Running training.')
-        train_model(parameters)
+        train_model(parameters, args.dataset)
     elif parameters['MODE'] == 'sampling':
         logging.info('Running sampling.')
-        apply_NMT_model(parameters)
+        apply_NMT_model(parameters, args.dataset)
 
     logging.info('Done!')
