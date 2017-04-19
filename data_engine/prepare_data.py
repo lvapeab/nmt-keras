@@ -41,7 +41,7 @@ def update_dataset_from_file(ds,
                          sample_weights=params['SAMPLE_WEIGHTS'],
                          max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                          max_words=params['OUTPUT_VOCABULARY_SIZE'],
-                         min_occ=params['MIN_OCCURRENCES_VOCAB'],
+                         min_occ=params['MIN_OCCURRENCES_OUTPUT_VOCAB'],
                          overwrite_split=True)
 
         # INPUT DATA
@@ -55,7 +55,7 @@ def update_dataset_from_file(ds,
                     fill=params['FILL'],
                     max_text_len=params['MAX_INPUT_TEXT_LEN'],
                     max_words=params['INPUT_VOCABULARY_SIZE'],
-                    min_occ=params['MIN_OCCURRENCES_VOCAB'],
+                    min_occ=params['MIN_OCCURRENCES_INPUT_VOCAB'],
                     overwrite_split=True)
         if compute_state_below:
             # INPUT DATA
@@ -70,7 +70,7 @@ def update_dataset_from_file(ds,
                         fill=params['FILL'],
                         max_text_len=params['MAX_INPUT_TEXT_LEN'],
                         max_words=params['INPUT_VOCABULARY_SIZE'],
-                        min_occ=params['MIN_OCCURRENCES_VOCAB'],
+                        min_occ=params['MIN_OCCURRENCES_OUTPUT_VOCAB'],
                         overwrite_split=True)
         else:
             ds.setInput(None,
@@ -122,7 +122,7 @@ def build_dataset(params):
                      sample_weights=params['SAMPLE_WEIGHTS'],
                      max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
                      max_words=params['OUTPUT_VOCABULARY_SIZE'],
-                     min_occ=params['MIN_OCCURRENCES_VOCAB'])
+                     min_occ=params['MIN_OCCURRENCES_OUTPUT_VOCAB'])
         if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
             ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                             'train',
@@ -164,7 +164,7 @@ def build_dataset(params):
                             fill=params['FILL'],
                             max_text_len=params['MAX_INPUT_TEXT_LEN'],
                             max_words=params['INPUT_VOCABULARY_SIZE'],
-                            min_occ=params['MIN_OCCURRENCES_VOCAB'])
+                            min_occ=params['MIN_OCCURRENCES_INPUT_VOCAB'])
 
                 if len(params['INPUTS_IDS_DATASET']) > 1:
                     if 'train' in split:

@@ -81,16 +81,17 @@ def load_parameters():
     # Input text parameters
     INPUT_VOCABULARY_SIZE = 0                     # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
-    MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
+    MIN_OCCURRENCES_INPUT_VOCAB = 0               # Minimum number of occurrences allowed for the words in the input vocabulary.
                                                   # Set to 0 for using them all.
     MAX_INPUT_TEXT_LEN = 50                       # Maximum length of the input sequence
 
     # Output text parameters
     OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
+    MIN_OCCURRENCES_INPUT_VOCAB = 0               # Minimum number of occurrences allowed for the words in the output vocabulary.
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
-    MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
+    MAX_OUTPUT_TEXT_LEN_TEST = MAX_OUTPUT_TEXT_LEN * 3  # Maximum length of the output sequence during test time
 
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
@@ -146,7 +147,7 @@ def load_parameters():
 
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
-    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers (unimplemented)
+    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
     # Skip connections size
     SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE
@@ -157,7 +158,7 @@ def load_parameters():
     #       (e.g INIT_LAYERS = ['tanh', 'relu'])
     INIT_LAYERS = ['tanh']
 
-    # Additional Fully-Connected layers's sizes applied before softmax.
+    # Additional Fully-Connected layers applied before softmax.
     #       Here we should specify the activation function and the output dimension
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
     DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
