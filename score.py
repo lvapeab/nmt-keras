@@ -69,7 +69,7 @@ if __name__ == "__main__":
             params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             params_prediction['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             params_prediction['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            params_prediction['normalize'] = params['NORMALIZE_SAMPLING']
+            params_prediction['normalize_probs'] = params['NORMALIZE_SAMPLING']
             params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
             params_prediction['pos_unk'] = params['POS_UNK']
             mapping = None if dataset.mapping == dict() else dataset.mapping
