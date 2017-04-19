@@ -85,7 +85,7 @@ def load_parameters():
     # Output text parameters
     OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
-    MIN_OCCURRENCES_INPUT_VOCAB = 0               # Minimum number of occurrences allowed for the words in the output vocabulary.
+    MIN_OCCURRENCES_OUTPUT_VOCAB = 0              # Minimum number of occurrences allowed for the words in the output vocabulary.
     MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
     MAX_OUTPUT_TEXT_LEN_TEST = MAX_OUTPUT_TEXT_LEN * 3  # Maximum length of the output sequence during test time
