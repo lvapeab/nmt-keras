@@ -3,22 +3,21 @@
  This document describes the available hyperparameters used for training NMT-Keras.
 
 
- ##### Input data params
-
+ #### Input data params: Naming the task and setting the paths to the data files.
   * **DATASET_NAME**: Task name. Used for naming and for indexing files.
   * **SRC_LAN**: Language of the source text. Used for naming.
   * **TRG_LAN**: Language of the target text. Used for naming and for coputing language-dependent metrics (e.g. Meteor)
   * **DATA_ROOT_PATH**: Path to the data
   * **TEXT_FILES**: Dictionary containing the splits ('train/val/test) and the files corresponding to each one. The source/target languages will be appended to these files.
 
- ##### Input/output params
-
+ #### Input/output params
+    Parameters for naming the task and setting the paths to the data files.
   * **INPUTS_IDS_DATASET**: Name of the inputs of the Dataset class.
   * **OUTPUTS_IDS_DATASET**: Name of the inputs of the Dataset class.
   * **INPUTS_IDS_MODEL**:Name of the inputs of the Model.
   * **OUTPUTS_IDS_MODEL**: Name of the inputs of the Model.
 
-  ##### Evaluation params
+  #### Evaluation params
   * **METRICS**: List of metric used for evaluating the model. The `coco` package is recommended.
   * **EVAL_ON_SETS**: List of splits ('train', 'val', 'test') to evaluate with the metrics from METRICS. Typically: 'val'
   * **EVAL_ON_SETS_KERAS**: List of splits ('train', 'val', 'test') to evaluate with the Keras metrics.
@@ -26,7 +25,7 @@
   * **EVAL_EACH_EPOCHS**: Whether the evaluation frequency units are epochs or updates.
   * **EVAL_EACH**: Evaluation frequency.
 
-  ##### Decoding parameters
+  #### Decoding parameters
   * **SAMPLING**: Decoding mode. Only 'max_likelihood' tested.
   * **TEMPERATURE**: Multinomial sampling temerature.
   * **BEAM_SEARCH**: Switches on-off the beam search.
@@ -35,168 +34,132 @@
   * **NORMALIZE_SAMPLING**: Normalize hypotheses scores according to the length
   * **ALPHA_FACTOR**: Normalization according to length^ALPHA_FACTOR ([source](arxiv.org/abs/1609.08144))
 
-  ##### Sampling params: Show some samples during training
+  #### Sampling params: Show some samples during training
   * **SAMPLE_ON_SETS**: Splits from where we'll sample.
   * **N_SAMPLES**: Number of samples generated
   * **START_SAMPLING_ON_EPOCH**: First epoch where to start the sampling counter
   * **SAMPLE_EACH_UPDATES**: Sampling frequency (always in #updates)
 
-   ##### Unknown words treatment
-   * POS_UNK: Enable unknown words replacement strategy.
-   * HEURISTIC: Heuristic followed for replacing unks:
+   #### Unknown words treatment
+   * **POS_UNK**: Enable unknown words replacement strategy.
+   * **HEURISTIC**: Heuristic followed for replacing unks:
    
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0: Replace the UNK by the correspondingly aligned source.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1: Replace the UNK by the translation (given by an [external dictionary](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh)) of the aligned source.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  2: Replace the UNK by the translation (given by an  [external dictionary](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh)) of the aligned source &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; only if it starts with a lowercase. Otherwise, copies the source word.
-   * ALIGN_FROM_RAW: Align using the source files or the short-list model vocabulary.
+   * **ALIGN_FROM_RAW**: Align using the source files or the short-list model vocabulary.
 
-   * MAPPING: Mapping dictionary path (for heuristics 1 and 2). Obtained with the [build_mapping_file](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh) script.
+   * **MAPPING**: Mapping dictionary path (for heuristics 1 and 2). Obtained with the [build_mapping_file](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh) script.
 
-   #####  Word representation params
-   * TOKENIZATION_METHOD: Tokenization applied to the input and output text. 
-   * DETOKENIZATION_METHOD: Detokenization applied to the input and output text. 
-   * APPLY_DETOKENIZATION: Wheter we apply the detokenization method
-   * TOKENIZE_HYPOTHESES: Whether we tokenize the hypotheses (for computing metrics).
-   * TOKENIZE_REFERENCES = Whether we tokenize the references (for computing metrics).
+   ####  Word representation params
+   * **TOKENIZATION_METHOD**: Tokenization applied to the input and output text. 
+   * **DETOKENIZATION_METHOD**: Detokenization applied to the input and output text. 
+   * **APPLY_DETOKENIZATION**: Wheter we apply the detokenization method
+   * **TOKENIZE_HYPOTHESES**: Whether we tokenize the hypotheses (for computing metrics).
+   * **TOKENIZE_REFERENCES**: Whether we tokenize the references (for computing metrics).
 
-    ##### Text parameters
-    * FILL: Padding mode: Insert zeroes at the 'start', 'center' or 'end'.
-    * PAD_ON_BATCH: Make batches of a fixed number of timesteps or pad to the maximum length of the minibatch.
+   #### Text parameters
+   * **FILL**: Padding mode: Insert zeroes at the 'start', 'center' or 'end'.
+   * **PAD_ON_BATCH**: Make batches of a fixed number of timesteps or pad to the maximum length of the minibatch.
 
-    ##### Input text parameters
-    INPUT_VOCABULARY_SIZE = 0                     # Size of the input vocabulary. Set to 0 for using all,
-                                                  # otherwise it will be truncated to these most frequent words.
-    MIN_OCCURRENCES_VOCAB = 0                     # Minimum number of occurrences allowed for the words in the vocabulay.
-                                                  # Set to 0 for using them all.
-    MAX_INPUT_TEXT_LEN = 50                       # Maximum length of the input sequence
+   #### Input text parameters
+   * **INPUT_VOCABULARY_SIZE**: Input vocabulary size. Set to 0 for using all, otherwise it will be truncated to these most frequent words.
+   * **MIN_OCCURRENCES_INPUT_VOCAB**: Discard all input words with a frequency below this threshold.
+   * **MAX_INPUT_TEXT_LEN**: Maximum length of the input sentences.
 
-    # Output text parameters
-    OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
-                                                  # otherwise it will be truncated to these most frequent words.
-    MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
-                                                  # set to 0 if we want to use the whole answer as a single class
-    MAX_OUTPUT_TEXT_LEN_TEST = 120                # Maximum length of the output sequence during test time
+   #### Output text parameters
+   * **INPUT_VOCABULARY_SIZE: Output vocabulary size. Set to 0 for using all, otherwise it will be truncated to these most frequent words.
+   * **MIN_OCCURRENCES_OUTPUT_VOCAB: Discard all output words with a frequency below this threshold.
+   * **MAX_INPUT_TEXT_LEN: Maximum length of the output sentences.
+   * **MAX_OUTPUT_TEXT_LEN_TEST**: Maximum length of the output sequence during test time.
 
-    # Optimizer parameters (see model.compile() function)
-    LOSS = 'categorical_crossentropy'
-    CLASSIFIER_ACTIVATION = 'softmax'
+   #### Optimizer parameters
+   * **LOSS**: Loss function to optimize.
+   * **CLASSIFIER_ACTIVATION**: Last layer activation function.
+   * **OPTIMIZER**: Optimizer to use. See the [available Keras optimizers](https://github.com/MarcBS/keras/blob/master/keras/optimizers.py).
+   * **LR**: Learning rate. 
+   * **CLIP_C**: During training, clip L2 norm of gradients to this value.
+   * **CLIP_V**: During training, clip absolute value of gradients to this value.
+   * **SAMPLE_WEIGHTS**: Apply a mask to the output sequence. Should be set to True.
+   * **LR_DECAY**: Reduce the learning rate each this number of epochs. Set to None if don't want to decay the learning rate
+   * **LR_GAMMA**: Decay rate.
 
-    OPTIMIZER = 'Adam'                            # Optimizer
-    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
-    CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
-    CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
-    SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
-    LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
-    LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
+   #### Training parameters
+   * **MAX_EPOCH**: Stop when computed this number of epochs.
+   * **BATCH_SIZE**: Size of each minibatch.
+   * **HOMOGENEOUS_BATCHES**: If activated, use batches with similar output lengths, in order to better profit parallel computations.
+   * **JOINT_BATCHES**: When using homogeneous batches, size of the maxibatch.
+   * **PARALLEL_LOADERS**: Parallel CPU data batch loaders.
+   * **EPOCHS_FOR_SAVE**: Save model each this number of epochs.
+   * **WRITE_VALID_SAMPLES**: Write validation samples in file.
+   * **SAVE_EACH_EVALUATION**: Save the model each time we evaluate.
 
-    # Training parameters
-    MAX_EPOCH = 500                               # Stop when computed this number of epochs
-    BATCH_SIZE = 50                               # Size of each minibatch
+   #### Early stop parameters
+   * **EARLY_STOP** = Turns on/off the early stop regularizer.
+   * **PATIENCE**: We'll stop if we don't improve after this number of evaluations
+   * **STOP_METRIC**: Stopping metric.
 
-    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
-    JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
-    PARALLEL_LOADERS = 1                          # Parallel data batch loaders
-    EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
-    WRITE_VALID_SAMPLES = True                    # Write valid samples in file
-    SAVE_EACH_EVALUATION = True                   # Save each time we evaluate the model
+   #### Model parameters
+   * **MODEL_TYPE**: Model to train. See the [model zoo](https://github.com/lvapeab/nmt-keras/blob/master/model_zoo.py) for the supported architectures.
+   * **RNN_TYPE**: RNN unit type ('LSTM' and 'GRU' supported).
+   * **INIT_FUNCTION**: Initialization function for matrices (see [keras/initializations](https://github.com/MarcBS/keras/blob/master/keras/initializations.py))
+   
+   ##### Source word embedding configuration
+   * **SOURCE_TEXT_EMBEDDING_SIZE**: Source language word embedding size.
+   * **SRC_PRETRAINED_VECTORS**: Path to source pretrained vectors. See the [utils](https://github.com/lvapeab/nmt-keras/tree/master/utils) folder for preprocessing scripts. Set to None if you don't want to use source pretrained vectors. When using pretrained word embeddings. this parameter must match with the source word embeddings size
+   * **SRC_PRETRAINED_VECTORS_TRAINABLE**: Finetune or not the target word embedding vectors.
 
-    # Early stop parameters
-    EARLY_STOP = True                             # Turns on/off the early stop protocol
-    PATIENCE = 20                                 # We'll stop if the val STOP_METRIC does not improve after this
-                                                  # number of evaluations
-    STOP_METRIC = 'Bleu_4'                        # Metric for the stop
+   ##### Target word embedding configuration
+   * **TARGET_TEXT_EMBEDDING_SIZE**: Source language word embedding size.
+   * **TRG_PRETRAINED_VECTORS**: Path to target pretrained vectors. See the [utils](https://github.com/lvapeab/nmt-keras/tree/master/utils) folder for preprocessing scripts. Set to None if you don't want to use source pretrained vectors. When using pretrained word embeddings. this parameter must match with the target word embeddings size
+   * **TRG_PRETRAINED_VECTORS_TRAINABLE**: Finetune or not the target word embedding vectors.
 
-    # Model parameters
-    MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
-    RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
-    INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
+   ##### Encoder configuration
+   * **ENCODER_HIDDEN_SIZE**: Encoder RNN size.
+   * **BIDIRECTIONAL_ENCODER**: Use a bidirectional encoder.
+   * **N_LAYERS_ENCODER**: Stack this number of encoding layers
+   * **BIDIRECTIONAL_DEEP_ENCODER**: Use bidirectional encoder in all stacked encoding layers
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
-    SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
-                                                  # Set to None if you don't want to use pretrained vectors.
-                                                  # When using pretrained word embeddings. this parameter must match with the word embeddings size
-    SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
+   ##### Decoder configuration
 
-    TARGET_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
-    TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
-                                                  # Set to None if you don't want to use pretrained vectors.
-                                                  # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
-    TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
+   * **DECODER_HIDDEN_SIZE**: Decoder RNN size.
+   * **N_LAYERS_DECODER**: Stack this number of decoding layers.
+   * **ADDITIONAL_OUTPUT_MERGE_MODE**: Merge mode for the [deep output layer](https://arxiv.org/abs/1312.6026).
+   * **SKIP_VECTORS_HIDDEN_SIZE**: Deep output layer size
+   * **INIT_LAYERS**: Initialize the first decoder state with these layers (from the encoder).
+   * **DEEP_OUTPUT_LAYERS**: Additional Fully-Connected layers applied before softmax.
 
-    # Encoder configuration
-    ENCODER_HIDDEN_SIZE = 600                     # For models with RNN encoder
-    BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
-    N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
-    BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
+   #### Regularizers
+   
+   * **WEIGHT_DECAY**: L2 regularization in non-recurrent layers.
+   * **RECURRENT_WEIGHT_DECAY**: L2 regularization in recurrent layers
+   * **USE_DROPOUT**: Use dropout in non-recurrent layers.
+   * **DROPOUT_P**: Percentage of units to drop in non-recurrent layers
 
-    # Decoder configuration
-    DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
-    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers (unimplemented)
-    ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
-    # Skip connections size
-    SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE
+   * **USE_RECURRENT_DROPOUT**: Use dropout in recurrent layers.
+   * **RECURRENT_DROPOUT_P**: Percentage of recurrent units to drop.
 
-    # Fully-Connected layers for initializing the first RNN state
-    #       Here we should only specify the activation function of each layer
-    #       (as they have a potentially fixed size)
-    #       (e.g INIT_LAYERS = ['tanh', 'relu'])
-    INIT_LAYERS = ['tanh']
+   * **USE_NOISE**: Apply gaussian noise during training.
+   * **NOISE_AMOUNT**: Amount of noise.
 
-    # Additional Fully-Connected layers's sizes applied before softmax.
-    #       Here we should specify the activation function and the output dimension
-    #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
-    DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
+   * **USE_BATCH_NORMALIZATION**:  Batch normalization regularization in non-recurrent layers and recurrent inputs. If True it is recommended to deactivate Dropout.
+   * **BATCH_NORMALIZATION_MODE**: Sample-wise or feature-wise BN mode. 
 
-    # Regularizers
-    WEIGHT_DECAY = 1e-4                           # L2 regularization
-    RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
+   * **USE_PRELU**: Apply use PReLU activations as regularizer.
+   * **USE_L2**: Apply L2 function on the features.
 
-    USE_DROPOUT = False                           # Use dropout
-    DROPOUT_P = 0.5                               # Percentage of units to drop
+   #### Storage and plotting parameters
 
-    USE_RECURRENT_DROPOUT = False                 # Use dropout in recurrent layers # DANGEROUS!
-    RECURRENT_DROPOUT_P = 0.5                     # Percentage of units to drop in recurrent layers
+   * **MODEL_NAME**: Name for the model.
+   * **EXTRA_NAME**: MODEL_NAME suffix
+   * **STORE_PATH**: Models and evaluation results will be stored here.
+   * **DATASET_STORE_PATH**: Dataset instance will be stored here.
 
-    USE_NOISE = True                              # Use gaussian noise during training
-    NOISE_AMOUNT = 0.01                           # Amount of noise
+   * **SAMPLING_SAVE_MODE**: Save evaluation outputs in this format. Set to 'list' for a raw file.
+   * **VERBOSE**: Verbosity level.
+   * **RELOAD**: Reload a stored model. If 0 start training from scratch, otherwise use the model from this epoch/update.
+   * **REBUILD_DATASET**: Build dataset again or use a stored instance.
+   * **MODE**: 'training' or 'sampling' (if 'sampling' then RELOAD must be greater than 0 and EVAL_ON_SETS will be used). For 'sampling' mode, is recommended to use the [sample_ensemble](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) script.
 
-    USE_BATCH_NORMALIZATION = True                # If True it is recommended to deactivate Dropout
-    BATCH_NORMALIZATION_MODE = 1                  # See documentation in Keras' BN
-
-    USE_PRELU = False                             # use PReLU activations as regularizer
-    USE_L2 = False                                # L2 normalization on the features
-
-    # Results plot and models storing parameters
-    EXTRA_NAME = ''                               # This will be appended to the end of the model name
-    MODEL_NAME = DATASET_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
-                 '_src_emb_' + str(SOURCE_TEXT_EMBEDDING_SIZE) + \
-                 '_bidir_' + str(BIDIRECTIONAL_ENCODER) + \
-                 '_enc_' + RNN_TYPE + '_' + str(ENCODER_HIDDEN_SIZE) + \
-                 '_dec_' + RNN_TYPE + '_' + str(DECODER_HIDDEN_SIZE) + \
-                 '_deepout_' + '_'.join([layer[0] for layer in DEEP_OUTPUT_LAYERS]) + \
-                 '_trg_emb_' + str(TARGET_TEXT_EMBEDDING_SIZE) + \
-                 '_' + OPTIMIZER + '_' + str(LR)
-
-    MODEL_NAME += EXTRA_NAME
-
-    STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
-    DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
-
-    SAMPLING_SAVE_MODE = 'list'                        # 'list' or 'vqa'
-    VERBOSE = 1                                        # Verbosity level
-    RELOAD = 0                                         # If 0 start training from scratch, otherwise the model
-                                                       # Saved on epoch 'RELOAD' will be used
-    REBUILD_DATASET = True                             # Build again or use stored instance
-    MODE = 'training'                                  # 'training' or 'sampling' (if 'sampling' then RELOAD must
-                                                       # be greater than 0 and EVAL_ON_SETS will be used)
-
-    # Extra parameters for special trainings
-    TRAIN_ON_TRAINVAL = False                          # train the model on both training and validation sets combined
-    FORCE_RELOAD_VOCABULARY = False                    # force building a new vocabulary from the training samples
-                                                       # applicable if RELOAD > 1
-
-    # ================================================ #
-    parameters = locals().copy()
-    return parameters
