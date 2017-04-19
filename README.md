@@ -125,4 +125,4 @@ To see other projects following the philosophy of NMT-Keras, take a look here:
 
 ## Warning 
 
-NMT-Keras is under development. There are many features still unimplemented. If you find a bug or desire a specific feature, please do not hesitate to contact me.
+NMT-Keras is under active development. There are many features still unimplemented. If you find a bug or desire a specific feature, please do not hesitate to contact me (lvapeab@prhlt.upv.es).
