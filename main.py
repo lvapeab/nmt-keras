@@ -49,7 +49,7 @@ def train_model(params, load_dataset=None):
 
     # Build model
     if params['RELOAD'] == 0:  # build new model
-        nmt_model = TranslationModel(params, type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
+        nmt_model = TranslationModel(params, model_type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
                                      model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
                                      store_path=params['STORE_PATH'])
         dict2pkl(params, params['STORE_PATH'] + '/config')
@@ -71,7 +71,7 @@ def train_model(params, load_dataset=None):
 
     else:  # resume from previously trained model
         nmt_model = TranslationModel(params,
-                                     type=params['MODEL_TYPE'],
+                                     model_type=params['MODEL_TYPE'],
                                      verbose=params['VERBOSE'],
                                      model_name=params['MODEL_NAME'],
                                      vocabularies=dataset.vocabulary,
