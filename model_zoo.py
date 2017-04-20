@@ -1,14 +1,9 @@
-from keras.engine import Input
-from keras.engine.topology import merge
-from keras.layers import TimeDistributed, Bidirectional
-from keras.layers.embeddings import Embedding
-from keras.layers.recurrent import GRU, GRUCond, AttGRUCond, LSTM, LSTMCond, AttLSTMCond
-from keras.layers.core import Dense, Activation, Lambda, MaxoutDense, MaskedMean, PermuteGeneral, MaskLayer
+from keras.layers import *
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
 from keras.regularizers import l2
 from keras_wrapper.cnn_model import Model_Wrapper
-from utils.regularize import Regularize
+from keras_wrapper.extra.regularize import Regularize
 import numpy as np
 import os
 import logging
