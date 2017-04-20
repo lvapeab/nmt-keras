@@ -33,6 +33,9 @@ class TranslationModel(Model_Wrapper):
                            (if None, then it will be assigned to current time as its name)
         :param vocabularies: vocabularies used for word embedding
         :param store_path: path to the folder where the temporal model packups will be stored
+        :param set_optimizer: Compile optimizer or not.
+        :param clear_dirs: Clean model directories or not.
+
         """
         super(self.__class__, self).__init__(type=model_type, model_name=model_name,
                                              silence=verbose == 0, models_path=store_path, inheritance=True)
@@ -123,8 +126,9 @@ class TranslationModel(Model_Wrapper):
         """
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
-            logging.info("Preparing optimizer: %s [LR: %s] and compiling." %
-                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01))))
+            logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s] and compiling." %
+                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01)),
+                          str(self.params.get('LOSS', 'categorical_crossentropy'))))
 
         if self.params['OPTIMIZER'].lower() == 'sgd':
             optimizer = SGD(lr=self.params.get('LR', 0.01),
@@ -181,6 +185,7 @@ class TranslationModel(Model_Wrapper):
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])
         self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
+                           metrics=self.params.get('KERAS_METRICS', []),
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
 
     def __str__(self):
