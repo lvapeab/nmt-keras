@@ -5,16 +5,16 @@ Neural Machine Translation with Keras (+ Theano backend).
 
 ## Features (in addition to the full Keras cosmos): 
 
- * Beam search decoding.
- * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
- * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
- * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
- * MLPs for initializing the RNN hidden and memory state.
+ * Beam search decoding.
+ * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks.
  * N-best list generation (as byproduct of the beam search process).
+ * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
+ * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
+ * MLPs for initializing the RNN hidden and memory state.
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
