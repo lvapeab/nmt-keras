@@ -3,6 +3,12 @@
 Neural Machine Translation with Keras (+ Theano backend).
 
 
+
+
+<div align="left">
+  <br><br><img src="https://raw.githubusercontent.com/lvapeab/nmt-keras/master/examples/documentation/attention_nmt_model.png?token=AEf6E5RhGVqGRSmYi87EbtiGZK7lPxrFks5ZAx-KwA%3D%3D"><br><br>
+</div>
+
 ## Features (in addition to the full Keras cosmos): 
 
  * Attention model over the input sequence of annotations.
