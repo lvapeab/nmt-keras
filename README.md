@@ -1,6 +1,6 @@
 # NMT-Keras
 
-Neural Machine Translation with Keras (+ Theano backend)
+Neural Machine Translation with Keras (+ Theano backend).
 
 
 ## Features (in addition to the full Keras cosmos): 
@@ -26,24 +26,28 @@ NMT-Keras requires the following libraries:
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
 
-## Instructions
+## Usage
 
-1) Set a model configuration in `config.py`. Each parameter is commented.
+### Training
+ 1) Set a training configuration in the `config.py` script. Each parameter is commented. See the [documentation file](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/config.md) for further info about each specific hyperparameter.
+ You can also specify the parameters when calling the `main.py`script following the syntax `Key=Value`
 
-2) Train!:
+ 2) Train!:
 
   ``
  python main.py
  ``
 
-3) We can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. 
+### Decoding
+ We can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. 
 In short, if we want to use the models from the first three epochs on the val split, just run:
  ```bash
   python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -t text_to_translate
   ```
  
+ ### Scoring
  
-* The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
+ The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
 ```
 python score.py --help
 usage: Use several translation models for scoring source--target pairs
@@ -68,7 +72,8 @@ optional arguments:
     --models MODELS [MODELS ...]
                             path to the models
   ```
- 
+ ### Advanced features
+ Other features such as online learning or interactive NMT protocols are implemented in the [interactiveNMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT) branch.
 
 
 ## Resources
@@ -104,7 +109,3 @@ To see other projects following the philosophy of NMT-Keras, take a look here:
 
 [Sentence SelectioNN for sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
 
-
-## Warning 
-
-NMT-Keras is under active development. There are many features still unimplemented. If you find a bug or desire a specific feature, please do not hesitate to contact me (lvapeab@prhlt.upv.es).
