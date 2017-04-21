@@ -22,7 +22,7 @@ Neural Machine Translation with Keras (+ Theano backend)
 NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.3 or newer, as it solves some issues)
- - [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper) (v. 0.7 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
+ - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 0.7 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
 
@@ -95,7 +95,9 @@ optional arguments:
 Much of this library has been developed together with [Marc Bolaños](https://github.com/MarcBS) ([web page](http://www.ub.edu/cvub/marcbolanos/)) for other sequence-to-sequence problems. 
 
 To see other projects following the philosophy of NMT-Keras, take a look here:
- 
+
+[TMA for egocentric captioning based on temporally-linked sequences](https://github.com/MarcBS/TMA).
+
 [VIBIKNet for visual question answering](https://github.com/MarcBS/VIBIKNet).
 
 [ABiViRNet for video description](https://github.com/lvapeab/ABiViRNet).
