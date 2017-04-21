@@ -30,7 +30,7 @@ NMT-Keras requires the following libraries:
 
 ### Training
  1) Set a training configuration in the `config.py` script. Each parameter is commented. See the [documentation file](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/config.md) for further info about each specific hyperparameter.
- You can also specify the parameters when calling the `main.py`script following the syntax `Key=Value`
+ You can also specify the parameters when calling the `main.py` script following the syntax `Key=Value`
 
  2) Train!:
 
@@ -38,12 +38,18 @@ NMT-Keras requires the following libraries:
  python main.py
  ``
 
+
 ### Decoding
  We can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. 
 In short, if we want to use the models from the first three epochs on the val split, just run:
  ```bash
-  python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -t text_to_translate
+  python sample_ensemble.py 
+              --models trained_models/tutorial_model/epoch_1 \ 
+                       trained_models/tutorial_model/epoch_2 \
+              --dataset datasets/Dataset_tutorial_dataset.pkl \
+              --text examples/EuTrans/test.en
   ```
+ 
  
  ### Scoring
  
@@ -72,6 +78,8 @@ optional arguments:
     --models MODELS [MODELS ...]
                             path to the models
   ```
+  
+  
  ### Advanced features
  Other features such as online learning or interactive NMT protocols are implemented in the [interactiveNMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT) branch.
 
@@ -91,10 +99,6 @@ optional arguments:
     4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a state-of-the-art NMT model with Keras in few (~50) lines. 
 
 
-## Contact
-
-Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
-
 ## Acknowledgement
 
 Much of this library has been developed together with [Marc Bolaños](https://github.com/MarcBS) ([web page](http://www.ub.edu/cvub/marcbolanos/)) for other sequence-to-sequence problems. 
@@ -108,4 +112,9 @@ To see other projects following the philosophy of NMT-Keras, take a look here:
 [ABiViRNet for video description](https://github.com/lvapeab/ABiViRNet).
 
 [Sentence SelectioNN for sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
+
+
+## Contact
+
+Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
 
