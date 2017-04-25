@@ -1,20 +1,24 @@
 # NMT-Keras
 
-Neural Machine Translation with Keras (+ Theano backend)
+Neural Machine Translation with Keras (+ Theano backend).
 
+
+<div align="left">
+  <br><br><img src="https://raw.githubusercontent.com/lvapeab/nmt-keras/master/examples/documentation/attention_nmt_model.png?token=AEf6E5RhGVqGRSmYi87EbtiGZK7lPxrFks5ZAx-KwA%3D%3D"><br><br>
+</div>
 
 ## Features (in addition to the full Keras cosmos): 
 
- * Beam search decoding.
- * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
- * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
- * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
- * MLPs for initializing the RNN hidden and memory state.
+ * Beam search decoding.
+ * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks.
  * N-best list generation (as byproduct of the beam search process).
+ * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
+ * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
+ * MLPs for initializing the RNN hidden and memory state.
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
 ## Requirements
@@ -22,28 +26,38 @@ Neural Machine Translation with Keras (+ Theano backend)
 NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.3 or newer, as it solves some issues)
- - [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper) (v. 0.7 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
+ - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 0.7 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
 
-## Instructions
+## Usage
 
-1) Set a model configuration in `config.py`. Each parameter is commented.
+### Training
+ 1) Set a training configuration in the `config.py` script. Each parameter is commented. See the [documentation file](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/config.md) for further info about each specific hyperparameter.
+ You can also specify the parameters when calling the `main.py` script following the syntax `Key=Value`
 
-2) Train!:
+ 2) Train!:
 
   ``
  python main.py
  ``
 
-3) We can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. 
-In short, if we want to use the models from the first three epochs on the val split, just run:
+
+### Decoding
+ Once we have our model trained, we can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details about this script. 
+In short, if we want to use the models from the first three epochs to translate the `examples/EuTrans/test.en` file, just run:
  ```bash
-  python sample_ensemble.py --models trained_models/tutorial_model/epoch_1  trained_models/tutorial_model/epoch_2 -ds datasets/Dataset_tutorial_dataset.pkl -t text_to_translate
+  python sample_ensemble.py 
+              --models trained_models/tutorial_model/epoch_1 \ 
+                       trained_models/tutorial_model/epoch_2 \
+              --dataset datasets/Dataset_tutorial_dataset.pkl \
+              --text examples/EuTrans/test.en
   ```
  
  
-* The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
+ ### Scoring
+ 
+ The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
 ```
 python score.py --help
 usage: Use several translation models for scoring source--target pairs
@@ -68,7 +82,10 @@ optional arguments:
     --models MODELS [MODELS ...]
                             path to the models
   ```
- 
+  
+  
+ ### Advanced features
+ Other features such as online learning or interactive NMT protocols are implemented in the [interactiveNMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT) branch.
 
 
 ## Resources
@@ -86,16 +103,14 @@ optional arguments:
     4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a state-of-the-art NMT model with Keras in few (~50) lines. 
 
 
-## Contact
-
-Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
-
 ## Acknowledgement
 
 Much of this library has been developed together with [Marc Bolaños](https://github.com/MarcBS) ([web page](http://www.ub.edu/cvub/marcbolanos/)) for other sequence-to-sequence problems. 
 
 To see other projects following the philosophy of NMT-Keras, take a look here:
- 
+
+[TMA for egocentric captioning based on temporally-linked sequences](https://github.com/MarcBS/TMA).
+
 [VIBIKNet for visual question answering](https://github.com/MarcBS/VIBIKNet).
 
 [ABiViRNet for video description](https://github.com/lvapeab/ABiViRNet).
@@ -103,6 +118,7 @@ To see other projects following the philosophy of NMT-Keras, take a look here:
 [Sentence SelectioNN for sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
 
 
-## Warning 
+## Contact
 
-NMT-Keras is under active development. There are many features still unimplemented. If you find a bug or desire a specific feature, please do not hesitate to contact me (lvapeab@prhlt.upv.es).
+Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
+
