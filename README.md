@@ -44,8 +44,8 @@ NMT-Keras requires the following libraries:
 
 
 ### Decoding
- We can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please, refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details of this script. 
-In short, if we want to use the models from the first three epochs on the val split, just run:
+ Once we have our model trained, we can translate new text using the [sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py) script. Please refer to the [ensembling_tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/ensembling_tutorial.md) for more details about this script. 
+In short, if we want to use the models from the first three epochs to translate the `examples/EuTrans/test.en` file, just run:
  ```bash
   python sample_ensemble.py 
               --models trained_models/tutorial_model/epoch_1 \ 
