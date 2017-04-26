@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', dat
 def update_dataset_from_file(ds,
                              input_text_filename,
                              params,
-                             splits=list('val'),
+                             splits=list(['val']),
                              output_text_filename=None,
                              remove_outputs=False,
                              compute_state_below=False):

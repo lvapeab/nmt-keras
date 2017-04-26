@@ -3,8 +3,13 @@ NMT-Keras
 
 Neural Machine Translation with Keras (+ Theano backend).
 
+.. image:: ../../examples/documentation/attention_nmt_model.png
+   :scale: 80 %
+   :alt: alternate text
+   :align: left
+
 Features
-========
+********
 
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
@@ -22,10 +27,8 @@ Features
 .. _Glove: http://nlp.stanford.edu/projects/glove/
 .. _Word2Vec: https://code.google.com/archive/p/word2vec/
 
-
-
 Guide
-*****
+=====
 .. toctree::
    :maxdepth: 3
 
@@ -33,6 +36,7 @@ Guide
    usage
    resources
    tutorial
+   modules
    help
 
 

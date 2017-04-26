@@ -1,3 +1,5 @@
+import argparse
+
 """
 Scores a file of hypothesis.
 Usage:
@@ -5,7 +7,6 @@ Usage:
     2. python evaluate_from_file.py -hyp hypothesis -r references
 """
 
-import argparse
 
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
@@ -26,6 +27,7 @@ parser.add_argument('-r', '--references', type=argparse.FileType('r'), nargs="+"
 def load_textfiles(references, hypothesis):
     """
     Loads the references and hypothesis text files.
+
     :param references: Path to the references files.
     :param hypothesis: Path to the hypotheses file.
     :return:

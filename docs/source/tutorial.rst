@@ -308,7 +308,7 @@ Once we loaded the model, we just have to invoke the sampling method (in this ca
     predictions = nmt_model.predictBeamSearchNet(dataset, params_prediction)['test']
 
 
-Up to this moment, in the variable 'predictions', we have the indices of the words of the hypotheses. We must decode them into words. For doing this, we'll use the dictionary stored in the dataset object:
+Up to this moment, in the variable 'predictions', we have the indices of the words of the hypotheses. We must decode them into words. For doing this, we'll use the dictionary stored in the dataset object::
 
     vocab = dataset.vocabulary['target_text']['idx2words']
     predictions = nmt_model.decode_predictions_beam_search(predictions,
