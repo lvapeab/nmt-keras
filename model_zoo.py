@@ -119,8 +119,7 @@ class TranslationModel(Model_Wrapper):
 
     def setOptimizer(self, **kwargs):
         """
-        Sets a new optimizer for the Translation_Model.
-
+        Sets and compiles a new optimizer for the Translation_Model.
         :param kwargs:
         :return:
         """
@@ -191,6 +190,8 @@ class TranslationModel(Model_Wrapper):
     def __str__(self):
         """
         Plots basic model information.
+
+        :return: String containing model information.
         """
         obj_str = '-----------------------------------------------------------------------------------\n'
         class_name = self.__class__.__name__

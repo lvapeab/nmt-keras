@@ -6,10 +6,11 @@ def load_parameters():
     """
 
     # Input data params
-    DATASET_NAME = 'EuTrans'                        # Task name
-    SRC_LAN = 'en'                                  # Language of the source text
-    TRG_LAN = 'es'                                  # Language of the target text
-    DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
+    DATASET_NAME = 'APE'                        # Task name
+    SRC_LAN = 'mt'                                  # Language of the source text
+    TRG_LAN = 'pe'                                  # Language of the target text
+    #DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
+    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/in-domain/joint_bpe/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'training.',        # Data files
@@ -62,7 +63,7 @@ def load_parameters():
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'tokenize_none'       # Select which de-tokenization method we'll apply
+    DETOKENIZATION_METHOD = 'detokenize_bpe'       # Select which de-tokenization method we'll apply
     
     APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method 
 
@@ -94,8 +95,8 @@ def load_parameters():
     LOSS = 'categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
 
-    OPTIMIZER = 'Adam'                            # Optimizer
-    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
+    OPTIMIZER = 'Adadelta'                        # Optimizer
+    LR = 1.                                       # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
@@ -117,33 +118,33 @@ def load_parameters():
     EARLY_STOP = True                             # Turns on/off the early stop protocol
     PATIENCE = 20                                 # We'll stop if the val STOP_METRIC does not improve after this
                                                   # number of evaluations
-    STOP_METRIC = 'Bleu_4'                        # Metric for the stop
+    STOP_METRIC = 'TER'                           # Metric for the stop
 
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
     RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
     INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
+    SOURCE_TEXT_EMBEDDING_SIZE = 300              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    TARGET_TEXT_EMBEDDING_SIZE = 420              # Source language word embedding size.
+    TARGET_TEXT_EMBEDDING_SIZE = 300              # Source language word embedding size.
     TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
     # Encoder configuration
-    ENCODER_HIDDEN_SIZE = 600                     # For models with RNN encoder
+    ENCODER_HIDDEN_SIZE = 256                     # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
 
     # Decoder configuration
-    DECODER_HIDDEN_SIZE = 600                     # For models with RNN decoder
+    DECODER_HIDDEN_SIZE = 256                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
     # Skip connections size
@@ -192,7 +193,7 @@ def load_parameters():
 
     MODEL_NAME += EXTRA_NAME
 
-    STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
+    STORE_PATH = '/media/HDD_2TB/MODELS/%s/trained_models/%s/' % (DATASET_NAME, MODEL_NAME) # Models and evaluation results will be stored here
     DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list' or 'vqa'

@@ -17,6 +17,11 @@ maximize = True  # Select whether we want to maximize the metric or minimize it
 d = dict(os.environ.copy())
 d['LC_NUMERIC'] = 'en_US.utf-8'
 def invoke_model(parameters):
+    """
+    Loads a model, trains it and evaluates it.
+    :param parameters: Model parameters
+    :return: Metric to minimize value.
+    """
 
     model_params = load_parameters()
     model_name = model_params["MODEL_TYPE"]
@@ -51,6 +56,12 @@ def invoke_model(parameters):
 
 
 def main(job_id, params):
+    """
+    Launches the spearmint job
+    :param job_id: Job identifier.
+    :param params: Model parameters.
+    :return: Metric to minimize value.
+    """
     print params
     return invoke_model(params)
 
