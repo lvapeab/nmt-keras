@@ -5,10 +5,8 @@ h5py
 -e git+https://github.com/lvapeab/coco-caption.git#egg=coco-caption
 matplotlib
 numpy
-pygpu
 scikit-image
 six
--e git+https://github.com/lvapeab/Spearmint@f8bf0486b69d4cfb0b4d6dc98a9d469f7a08f86b#egg=spearmint
 tables
 Theano
 toolz
