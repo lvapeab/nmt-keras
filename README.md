@@ -2,6 +2,7 @@
 
 Neural Machine Translation with Keras (+ Theano backend).
 
+Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.io)
 
 <div align="left">
   <br><br><img src="https://raw.githubusercontent.com/lvapeab/nmt-keras/master/examples/documentation/attention_nmt_model.png?token=AEf6E5RhGVqGRSmYi87EbtiGZK7lPxrFks5ZAx-KwA%3D%3D"><br><br>
