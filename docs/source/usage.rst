@@ -5,15 +5,15 @@ Training
 ********
 
 1) Set a training configuration in the config.py_ script. Each parameter is commented. See the `documentation file`_ for further info about each specific hyperparameter. You can also specify the parameters when calling the `main.py`_ script following the syntax `Key=Value`
-2) Train!:
+
+2) Train!::
 
     python main.py
-
 
 Decoding
 ********
 Once we have our model trained, we can translate new text using the `sample_ensemble.py`_ script. Please refer to the `ensembling tutorial`_ for more details about this script.
-In short, if we want to use the models from the first three epochs to translate the `examples/EuTrans/test.en` file, just run:::
+In short, if we want to use the models from the first three epochs to translate the `examples/EuTrans/test.en` file, just run::
 
     python sample_ensemble.py --models trained_models/tutorial_model/epoch_1 \
                                        trained_models/tutorial_model/epoch_2 \
@@ -21,9 +21,9 @@ In short, if we want to use the models from the first three epochs to translate 
                               --text examples/EuTrans/test.en
 
 Scoring
-********
+*******
 
-The `score.py`_ script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:::
+The `score.py`_ script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following::
 
     python score.py --help
     usage: Use several translation models for scoring source--target pairs

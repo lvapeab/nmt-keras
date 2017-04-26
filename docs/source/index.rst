@@ -32,6 +32,7 @@ Guide
    requirements
    usage
    resources
+   tutorial
    help
 
 

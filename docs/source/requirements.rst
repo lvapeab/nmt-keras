@@ -1,7 +1,7 @@
 Requirements
 ============
  - Our version of Keras_.
- - `Multimodal Keras Wrapper`_.::. See the documentation_ and tutorial_.
+ - `Multimodal Keras Wrapper`_. See the documentation_ and tutorial_.
  - Coco-caption_ evaluation package (Only required to perform evaluation).
 
 .. _Keras: https://github.com/MarcBS/keras
