@@ -12,10 +12,22 @@ from keras_wrapper.extra.regularize import Regularize
 class TranslationModel(Model_Wrapper):
     """
     Translation model class. Instance of the Model_Wrapper class (see staged_keras_wrapper).
-    """
 
-    def resumeTrainNet(self, ds, params, out_name=None):
-        pass
+    :param params: all hyperparams of the model.
+    :param model_type: network name type (corresponds to any method defined in the section 'MODELS' of this class).
+                 Only valid if 'structure_path' == None.
+    :param verbose: set to 0 if you don't want the model to output informative messages
+    :param structure_path: path to a Keras' model json file.
+                          If we speficy this parameter then 'type' will be only an informative parameter.
+    :param weights_path: path to the pre-trained weights file (if None, then it will be randomly initialized)
+    :param model_name: optional name given to the network
+                       (if None, then it will be assigned to current time as its name)
+    :param vocabularies: vocabularies used for word embedding
+    :param store_path: path to the folder where the temporal model packups will be stored
+    :param set_optimizer: Compile optimizer or not.
+    :param clear_dirs: Clean model directories or not.
+
+    """
 
     def __init__(self, params, model_type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
                  model_name=None, vocabularies=None, store_path=None, set_optimizer=True, clear_dirs=True):
@@ -218,14 +230,16 @@ class TranslationModel(Model_Wrapper):
     def GroundHogModel(self, params):
         """
         Neural machine translation with:
-            * BLSTM encoder
+            * BRNN encoder
             * Attention mechansim on input sequence of annotations
-            * Conditional LSTM for decoding
-            * Feed forward layers:
-                + Context projected to output
-                + Last word projected to output
+            * Conditional RNN for decoding
+            * Deep output layers:
+            * Context projected to output
+            * Last word projected to output
             * Possibly deep encoder/decoder
+
         See https://arxiv.org/abs/1409.0473 for an in-depth review of the model.
+
         :param params: Dictionary of params (see config.py)
         :return: None
         """
