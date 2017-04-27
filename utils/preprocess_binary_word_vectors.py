@@ -15,6 +15,12 @@ vectors_path = base_path + vectors_basename + language
 
 
 def word2vec2npy(v_path, base_path_save, dest_filename):
+    """
+    Preprocess pretrained binary vectors and stores them in a suitable format (.npy)
+    :param v_path: Path to the binary vectors file.
+    :param base_path_save: Path where the formatted vectors will be stored.
+    :param dest_filename: Filename of the formatted vectors.
+    """
     word_vecs = dict()
     print "Loading vectors from %s" % v_path
 

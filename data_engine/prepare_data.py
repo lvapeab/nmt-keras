@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', dat
 def update_dataset_from_file(ds,
                              input_text_filename,
                              params,
-                             splits=list('val'),
+                             splits=list(['val']),
                              output_text_filename=None,
                              remove_outputs=False,
                              compute_state_below=False):
@@ -214,9 +214,9 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
     """
     Keeps only n captions per image and stores the rest in dictionaries for a later evaluation
     :param ds: Dataset object
-    :param repeat:
-    :param n:
-    :param set_names:
+    :param repeat: Number of input samples per output
+    :param n: Number of outputs to keep.
+    :param set_names: Set name.
     :return:
     """
 

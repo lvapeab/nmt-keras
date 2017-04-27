@@ -1,3 +1,5 @@
+import argparse
+
 """
 Scores a file of hypothesis.
 Usage:
@@ -5,15 +7,12 @@ Usage:
     2. python evaluate_from_file.py -hyp hypothesis -r references
 """
 
-import argparse
 
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.ter.ter import Ter
-ROOT_PATH = '/media/HDD_2TB/DATASETS/'
-
 
 parser = argparse.ArgumentParser(
     description="""This takes two files and a path the references (source, references),
@@ -26,6 +25,13 @@ parser.add_argument('-r', '--references', type=argparse.FileType('r'), nargs="+"
 
 
 def load_textfiles(references, hypothesis):
+    """
+    Loads the references and hypothesis text files.
+
+    :param references: Path to the references files.
+    :param hypothesis: Path to the hypotheses file.
+    :return:
+    """
     print "The number of references is {}".format(len(references))
     hypo = {idx: [lines.strip()] for (idx, lines) in enumerate(hypothesis)}
     # take out newlines before creating dictionary
@@ -41,9 +47,12 @@ def load_textfiles(references, hypothesis):
 
 def CocoScore(ref, hypo, language='en'):
     """
-    ref, dictionary of reference sentences (id, sentence)
-    hypo, dictionary of hypothesis sentences (id, sentence)
-    score, dictionary of scores
+    Obtains the COCO scores from the references and hypotheses.
+
+    :param ref: Dictionary of reference sentences (id, sentence)
+    :param hypo: Dictionary of hypothesis sentences (id, sentence)
+    :param language: Language of the sentences (for METEOR)
+    :return: dictionary of scores
     """
     scorers = [
         (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),

@@ -545,7 +545,7 @@ def buildCallbacks(params, model, dataset):
 def check_params(params):
     """
     Checks some typical parameters and warns if something wrong was specified.
-    :param params:  Model instance on which to apply the callback.
+    :param params: Model instance on which to apply the callback.
     :return: None
     """
     if params['POS_UNK']:
