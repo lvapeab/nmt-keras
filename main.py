@@ -161,7 +161,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     if models_path is not None:
         logging.info('Loading models from %s'%str(models_path))
         model_instances = [TranslationModel(params,
-                                            type=params['MODEL_TYPE'],
+                                            model_type=params['MODEL_TYPE'],
                                             verbose=params['VERBOSE'],
                                             model_name=params['MODEL_NAME'] + '_' + str(i),
                                             vocabularies=dataset.vocabulary,
