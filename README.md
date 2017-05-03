@@ -37,7 +37,20 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
  * N-best list generation (as byproduct of the beam search process).
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
 
-## Requirements
+## Installation
+
+Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed, run:
+  
+  ```bash
+  git clone https://github.com/lvapeab/nmt-keras
+  cd nmt-keras
+  pip install -r requirements.txt
+  ```
+ 
+ for obtaining the required packages for running this library.
+ 
+
+### Requirements
 
 NMT-Keras requires the following libraries:
 

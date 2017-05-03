@@ -1,6 +1,6 @@
 import logging
 import os
-import numpy as np
+
 from keras.layers import *
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
@@ -358,18 +358,18 @@ class TranslationModel(Model_Wrapper):
                                                                      Wa_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      Ua_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                     dropout_W=params['RECURRENT_DROPOUT_P'] if params[
-                                                                         'USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if params[
-                                                                         'USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_V=params['RECURRENT_DROPOUT_P'] if params[
-                                                                         'USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_wa=params['DROPOUT_P'] if params[
-                                                                         'USE_DROPOUT'] else None,
-                                                                     dropout_Wa=params['DROPOUT_P'] if params[
-                                                                         'USE_DROPOUT'] else None,
-                                                                     dropout_Ua=params['DROPOUT_P'] if params[
-                                                                         'USE_DROPOUT'] else None,
+                                                                     dropout_W=params['RECURRENT_INPUT_DROPOUT_P'] if
+                                                                     params['USE_RECURRENT_INPUT_DROPOUT'] else None,
+                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if
+                                                                     params['USE_RECURRENT_DROPOUT'] else None,
+                                                                     dropout_V=params['RECURRENT_INPUT_DROPOUT_P'] if
+                                                                     params['USE_RECURRENT_INPUT_DROPOUT'] else None,
+                                                                     dropout_wa=params['DROPOUT_P']
+                                                                     if params['USE_DROPOUT'] else None,
+                                                                     dropout_Wa=params['DROPOUT_P']
+                                                                     if params['USE_DROPOUT'] else None,
+                                                                     dropout_Ua=params['DROPOUT_P']
+                                                                     if params['USE_DROPOUT'] else None,
                                                                      init=params['INIT_FUNCTION'],
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,

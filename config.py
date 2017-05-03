@@ -7,12 +7,9 @@ def load_parameters():
 
     # Input data params
     DATASET_NAME = 'EuTrans'                        # Task name
-    DATASET_NAME = 'xerox'                        # Task name
-
     SRC_LAN = 'en'                                  # Language of the source text
     TRG_LAN = 'es'                                  # Language of the target text
     DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
-    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'training.',        # Data files
@@ -169,6 +166,9 @@ def load_parameters():
 
     USE_DROPOUT = False                           # Use dropout
     DROPOUT_P = 0.5                               # Percentage of units to drop
+
+    USE_RECURRENT_INPUT_DROPOUT = False           # Use dropout in input cells of recurrent layers
+    RECURRENT_INPUT_DROPOUT_P = 0.5               # Percentage of units to drop in input cells of recurrent layers
 
     USE_RECURRENT_DROPOUT = False                 # Use dropout in recurrent layers # DANGEROUS!
     RECURRENT_DROPOUT_P = 0.5                     # Percentage of units to drop in recurrent layers

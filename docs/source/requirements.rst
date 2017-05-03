@@ -1,5 +1,17 @@
-Requirements
+Installation
 ============
+Assuming that you have pip_ installed, run::
+
+    git clone https://github.com/lvapeab/nmt-keras
+    cd nmt-keras
+    pip install -r requirements.txt
+
+for obtaining the required packages for running this library.
+
+Nevertheless, it is highly recommended to install and configure Theano_ with the GPU and speed optimizations enabled.
+
+Requirements
+^^^^^^^^^^^^
 
  - Our version of Keras_.
  - `Multimodal Keras Wrapper`_. See the documentation_ and tutorial_.
@@ -10,3 +22,5 @@ Requirements
 .. _documentation: http://marcbs.github.io/staged_keras_wrapper/
 .. _tutorial: http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html
 .. _Coco-caption: https://github.com/lvapeab/coco-caption
+.. _pip: https://en.wikipedia.org/wiki/Pip_(package_manager)
+.. _Theano: http://theano.readthedocs.io/en/0.8.x/install.html
