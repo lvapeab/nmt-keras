@@ -5,7 +5,7 @@ import copy
 import time
 from timeit import default_timer as timer
 
-from keras_wrapper.beam_search_interactive import BeamSearchEnsemble
+from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
 from utils.utils import *
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
@@ -181,23 +181,42 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         logging.info('Using custom loss.')
         # Add additional input layer to models in order to train with custom loss function
         for nmt_model in models:
+
             hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
+            preds_h = Input(name="pred_h", batch_shape=tuple([None, None, None]))
+
             yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
-            model_out = RemoveMask()(nmt_model.model.outputs[0])
+            preds_y = Input(name="pred_y", batch_shape=tuple([None, None, None]))
+
+            model_out_y = RemoveMask()(nmt_model.model.outputs[0])
+            model_out_h = RemoveMask()(nmt_model.model.outputs[0])
+
+            model_y = Model(input=nmt_model.model.inputs,
+                                 output=model_out_y)
+
+            model_h = Model(input=nmt_model.model.inputs,
+                                 output=model_out_h)
+
             loss_out = Lambda(log_diff,
                               output_shape=(1,),
                               name='custom_loss',
-                              supports_masking=False)([model_out, yref_in, hyp_in])
+                              supports_masking=False)([model_out_y, yref_in,
+                                                       model_out_h, hyp_in])
 
-            trainer_model = Model(input=nmt_model.model.input + [yref_in, hyp_in], output=loss_out)
-            trainer_models.append(trainer_model)
+            trainer_model = Model(input=nmt_model.model.inputs +
+                                        [preds_y, preds_h] + [yref_in, hyp_in],
+                                  output=loss_out)
+            trainer_models.append([trainer_model, model_y, model_h])
 
             # Set custom optimizer
             weights = trainer_model.trainable_weights
             weights.sort(key=lambda x: x.name if x.name else x.auto_name)
             weights_shapes = [K.get_variable_shape(w) for w in weights]
-            subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes, lr=params['LR'], c=params['C'])
-            trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred}, optimizer=subgradientOpt)
+            subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes,
+                                                       lr=params['LR'],
+                                                       c=params['C'])
+            trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred},
+                                  optimizer=subgradientOpt)
             for nmt_model in models:
                 nmt_model.setParams(params)
     else:
