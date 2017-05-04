@@ -14,6 +14,7 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
+ * Translation scoring ([score.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks.
  * N-best list generation (as byproduct of the beam search process).
