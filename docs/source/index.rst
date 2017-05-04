@@ -15,6 +15,7 @@ Features
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
  * Ensemble decoding.
+ * Translation scoring.
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks.
  * N-best list generation (as byproduct of the beam search process).
