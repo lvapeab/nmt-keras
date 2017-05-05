@@ -60,6 +60,7 @@ class TranslationModel(Model_Wrapper):
         self.vocabularies = vocabularies
         self.ids_inputs = params['INPUTS_IDS_MODEL']
         self.ids_outputs = params['OUTPUTS_IDS_MODEL']
+        self.return_alphas = params['COVERAGE_PENALTY'] or params['POS_UNK']
         # Sets the model name and prepares the folders for storing the models
         self.setName(model_name, models_path=store_path, clear_dirs=clear_dirs)
 
@@ -511,7 +512,7 @@ class TranslationModel(Model_Wrapper):
         model_init_output = [softout, annotations] + h_states_list
         if params['RNN_TYPE'] == 'LSTM':
             model_init_output += h_memories_list
-        if params['POS_UNK']:
+        if self.return_alphas:
             model_init_output.append(alphas)
         self.model_init = Model(input=model_init_input, output=model_init_output)
 
@@ -605,7 +606,7 @@ class TranslationModel(Model_Wrapper):
             model_next_inputs += prev_h_memories_list
             model_next_outputs += h_memories_list
 
-        if params['POS_UNK']:
+        if self.return_alphas:
             model_next_outputs.append(alphas)
 
         self.model_next = Model(input=model_next_inputs,
