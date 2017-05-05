@@ -36,9 +36,17 @@ def load_parameters():
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
     BEAM_SIZE = 6                                 # Beam size (in case of BEAM_SEARCH == True)
     OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
-    NORMALIZE_SAMPLING = True                     # Normalize hypotheses scores according to their length
-    ALPHA_FACTOR = .6                             # Normalization according to length**ALPHA_FACTOR
-                                                  # (see: arxiv.org/abs/1609.08144)
+
+    # Apply length and coverage decoding normalizations.
+    # See Section 7 from Wu et al. (2016) (https://arxiv.org/abs/1609.08144)
+    LENGTH_PENALTY = False                        # Apply length penalty
+    LENGTH_NORM_FACTOR = 0.2                      # Length penalty factor
+    COVERAGE_PENALTY = False                      # Apply source coverage penalty
+    COVERAGE_NORM_FACTOR = 0.2                    # Coverage penalty factor
+
+    # Alternative (simple) length normalization.
+    NORMALIZE_SAMPLING = False                    # Normalize hypotheses scores according to their length:
+    ALPHA_FACTOR = .6                             # Normalization according to |h|**ALPHA_FACTOR
 
     # Sampling params: Show some samples during training
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'

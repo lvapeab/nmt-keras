@@ -14,11 +14,14 @@ Features
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
+
+   - Featuring length and source coverage normalization.
+
  * Ensemble decoding.
  * Translation scoring.
+ * N-best list generation (as byproduct of the beam search process).
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks.
- * N-best list generation (as byproduct of the beam search process).
  * Unknown words replacement.
  * Use of pretrained (Glove_ or Word2Vec_) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.

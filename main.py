@@ -395,7 +395,11 @@ def apply_NMT_model(params):
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.)
+            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
+            extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
+            extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
+            extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
+            extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
             extra_vars['pos_unk'] = params['POS_UNK']
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -471,7 +475,12 @@ def buildCallbacks(params, model, dataset):
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
             extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
             extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.)
+            extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
+            extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
+            extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
+            extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
             extra_vars['pos_unk'] = params['POS_UNK']
+
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
                 input_text_id = params['INPUTS_IDS_DATASET'][0]
@@ -531,8 +540,13 @@ def buildCallbacks(params, model, dataset):
             extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize_probs'] = params['NORMALIZE_SAMPLING']
-            extra_vars['alpha_factor'] = params['ALPHA_FACTOR']
+            extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
+            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
+            extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
+            extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
+            extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
+            extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
+
             extra_vars['pos_unk'] = params['POS_UNK']
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -569,6 +583,9 @@ def check_params(params):
     """
     if params['POS_UNK']:
         assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
+                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+    if params['COVERAGE_PENALTY']:
+        assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
     if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
