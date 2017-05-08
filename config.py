@@ -70,7 +70,7 @@ def load_parameters():
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'tokenize_none'       # Select which de-tokenization method we'll apply
+    DETOKENIZATION_METHOD = 'detokenize_none'       # Select which de-tokenization method we'll apply
 
     APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method
 
