@@ -114,7 +114,7 @@ def load_parameters():
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
     BATCH_SIZE = 50                               # Size of each minibatch
 
-    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
+    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths (Dangerous!!)
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
     PARALLEL_LOADERS = 1                          # Parallel data batch loaders
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
