@@ -9,6 +9,8 @@ from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from keras import backend as K
+from keras.layers import Input, Lambda
+from keras.models import Model
 from keras.optimizers import PAS, PPAS
 from keras.objectives import log_diff
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
@@ -209,7 +211,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes,
                                                        lr=params['LR'],
                                                        c=params['C'])
-            trainer_model.compile(loss={'dummy_loss': lambda y_true, y_pred: y_pred},
+            trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred},
                                   optimizer=subgradientOpt)
             for nmt_model in models:
                 nmt_model.setParams(params)
