@@ -62,7 +62,7 @@ if __name__ == "__main__":
     extra_vars['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
     for s in args.splits:
         # Apply model predictions
-        params_prediction = {'batch_size': params['BATCH_SIZE'],
+        params_prediction = {'max_batch_size': params['BATCH_SIZE'],
                              'n_parallel_loaders': params['PARALLEL_LOADERS'],
                              'predict_on_sets': [s]}
 
@@ -77,8 +77,12 @@ if __name__ == "__main__":
             params_prediction['model_outputs'] = params['OUTPUTS_IDS_MODEL']
             params_prediction['dataset_inputs'] = params['INPUTS_IDS_DATASET']
             params_prediction['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            params_prediction['normalize_probs'] = params['NORMALIZE_SAMPLING']
-            params_prediction['alpha_factor'] = params['ALPHA_FACTOR']
+            params_prediction['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
+            params_prediction['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
+            params_prediction['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
+            params_prediction['length_penalty'] = params.get('LENGTH_PENALTY', False)
+            params_prediction['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
+            params_prediction['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
             params_prediction['pos_unk'] = params['POS_UNK']
             mapping = None if dataset.mapping == dict() else dataset.mapping
             if params['POS_UNK']:
