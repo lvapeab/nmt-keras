@@ -9,8 +9,7 @@ from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from keras import backend as K
-from keras.layers import Input, Lambda
-from keras.models import Model
+from keras.optimizers import PAS, PPAS
 from keras.objectives import log_diff
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
