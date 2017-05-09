@@ -188,20 +188,17 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
             preds_y = Input(name="pred_y", batch_shape=tuple([None, None, None]))
 
-            model_out_y = RemoveMask()(nmt_model.model.outputs[0])
-            model_out_h = RemoveMask()(nmt_model.model.outputs[0])
-
             model_y = Model(input=nmt_model.model.inputs,
-                                 output=model_out_y)
+                                 output=nmt_model.model.outputs[0])
 
             model_h = Model(input=nmt_model.model.inputs,
-                                 output=model_out_h)
+                                 output=nmt_model.model.outputs[0])
 
             loss_out = Lambda(log_diff,
                               output_shape=(1,),
                               name='custom_loss',
-                              supports_masking=False)([model_out_y, yref_in,
-                                                       model_out_h, hyp_in])
+                              supports_masking=False)([preds_y, yref_in,
+                                                       preds_h, hyp_in])
 
             trainer_model = Model(input=nmt_model.model.inputs +
                                         [preds_y, preds_h] + [yref_in, hyp_in],
