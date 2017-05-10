@@ -142,7 +142,7 @@ def apply_NMT_model(params, load_dataset=None):
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
 
     # Load model
-    nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'])
+    nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
     nmt_model.setOptimizer()
 
     for s in params["EVAL_ON_SETS"]:
