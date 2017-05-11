@@ -70,7 +70,7 @@ def load_parameters():
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'tokenize_none'       # Select which de-tokenization method we'll apply
+    DETOKENIZATION_METHOD = 'detokenize_bpe'       # Select which de-tokenization method we'll apply
 
     APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method
 
@@ -114,7 +114,7 @@ def load_parameters():
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
     BATCH_SIZE = 50                               # Size of each minibatch
 
-    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths
+    HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths (Dangerous!!)
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
     PARALLEL_LOADERS = 1                          # Parallel data batch loaders
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
@@ -210,6 +210,8 @@ def load_parameters():
     VERBOSE = 1                                        # Verbosity level
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model
                                                        # Saved on epoch 'RELOAD' will be used
+    RELOAD_EPOCH = True                                # Select whether we reload epoch or update number
+
     REBUILD_DATASET = True                             # Build again or use stored instance
     MODE = 'training'                                  # 'training' or 'sampling' (if 'sampling' then RELOAD must
                                                        # be greater than 0 and EVAL_ON_SETS will be used)

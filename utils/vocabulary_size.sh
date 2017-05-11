@@ -10,6 +10,6 @@ fi
 
 
 for file in  $* ;do
-  vocab=`cat $file |  tr " " '\n' | sort -u |wc -l`
+  vocab=`cat ${file} |  tr " " '\n' | sort -u |wc -l`
   echo "$file: $vocab"
 done

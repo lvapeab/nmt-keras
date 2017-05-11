@@ -7,7 +7,6 @@ Usage:
     2. python evaluate_from_file.py -hyp hypothesis -r references
 """
 
-
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.rouge.rouge import Rouge
@@ -81,7 +80,10 @@ if __name__ == "__main__":
     ref, hypo = load_textfiles(args.references, hypotheses)
     if step_size < 1:
         score = CocoScore(ref, hypo, language=language)
-        print "Score: ", score
+        print "Scores: "
+        max_score_name_len = max(map(lambda x: len(x), score.keys()))
+        for score_name in sorted(score.keys()):
+            print "\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" % score[score_name]
     else:
         n = 0
         while True:

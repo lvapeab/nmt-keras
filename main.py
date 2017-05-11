@@ -49,6 +49,7 @@ def train_model(params):
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
     :param params: Dictionary of network hyperparameters.
+    :param load_dataset: Load dataset from file or build it from the parameters.
     :return: None
     """
 
@@ -145,6 +146,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
     :param params: Dictionary of network hyperparameters.
+    :param load_dataset: Load dataset from file or build it from the parameters.
     :return: None
     """
 
@@ -367,7 +369,7 @@ def apply_NMT_model(params):
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
 
     # Load model
-    nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'])
+    nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
     nmt_model.setOptimizer()
 
     for s in params["EVAL_ON_SETS"]:
