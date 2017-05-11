@@ -72,16 +72,8 @@ if __name__ == "__main__":
     params_prediction['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
     params_prediction['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
     params_prediction['pos_unk'] = params.get('POS_UNK', False)
+    params_prediction['heuristic'] = params.get('HEURISTIC', 0)
     mapping = None if dataset.mapping == dict() else dataset.mapping
-
-    if params['POS_UNK']:
-        params_prediction['heuristic'] = params['HEURISTIC']
-        input_text_id = params['INPUTS_IDS_DATASET'][0]
-        vocab_src = dataset.vocabulary[input_text_id]['idx2words']
-    else:
-        input_text_id = None
-        vocab_src = None
-        mapping = None
 
     for s in args.splits:
         # Apply model predictions
