@@ -1,5 +1,7 @@
 # NMT-Keras
 
+[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+
 Neural Machine Translation with Keras (+ Theano backend).
 
 Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.io)

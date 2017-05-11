@@ -41,7 +41,7 @@ def update_dataset_from_file(ds,
                          fill=params.get('FILL', 'end'),
                          sample_weights=params.get('SAMPLE_WEIGHTS', True),
                          max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 100),
-                         max_words=params.get('OUTPUT_VOCABULARY_SIZE',0),
+                         max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                          min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
                          overwrite_split=True)
 

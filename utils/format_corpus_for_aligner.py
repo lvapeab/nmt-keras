@@ -1,5 +1,6 @@
 # Convert a tokenized parallel corpus into a format suitable for fast_align
-# Code partially from: https://github.com/sebastien-j/LV_groundhog/blob/master/experiments/nmt/utils/format_fast_align.py
+# Code partially taken from:
+#    https://github.com/sebastien-j/LV_groundhog/blob/master/experiments/nmt/utils/format_fast_align.py
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -23,6 +24,6 @@ if args.aligner == 'fast_align':
                     if (lline != '\n') and (rline != '\n'):
                         final.write(lline[:-1] + ' ||| ' + rline)
 elif args.aligner == 'giza':
-    raise NotImplementedError, 'Giza alignments still not supported'
+    raise NotImplementedError('Giza alignments still not supported')
 else:
-    raise AttributeError, 'Option %s not supported' % args.aligner
+    raise AttributeError('Option %s not supported' % args.aligner)
