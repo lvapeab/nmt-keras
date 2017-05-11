@@ -6,7 +6,6 @@ from data_engine.prepare_data import update_dataset_from_file, keep_n_captions
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.dataset import loadDataset
-from keras_wrapper.extra.evaluation import select as evaluation_select
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file
 from keras_wrapper.utils import decode_predictions_beam_search
 
@@ -22,8 +21,6 @@ def parse_args():
                                                                                            "Should be already included"
                                                                                            "into the dataset object.")
     parser.add_argument("-d", "--dest", required=False, help="File to save translations in")
-    parser.add_argument("--not-eval", action='store_true', default=False, help="Do not compute metrics for the output")
-    parser.add_argument("-e", "--eval-output", required=False, help="Write evaluation results to file")
     parser.add_argument("-v", "--verbose", required=False, default=0, type=int, help="Verbosity level")
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "
@@ -47,10 +44,7 @@ if __name__ == "__main__":
         params = pkl2dict(args.config)
 
     dataset = loadDataset(args.dataset)
-    dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=args.not_eval)
-
-    if args.eval_output:
-        keep_n_captions(dataset, repeat=1, n=1, set_names=args.splits)  # Include extra variables (references)
+    dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=True)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
