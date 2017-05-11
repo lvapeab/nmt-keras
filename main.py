@@ -30,6 +30,7 @@ def train_model(params, load_dataset=None):
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
     :param params: Dictionary of network hyperparameters.
+    :param load_dataset: Load dataset from file or build it from the parameters.
     :return: None
     """
 
@@ -130,6 +131,7 @@ def apply_NMT_model(params, load_dataset=None):
     Sample from a previously trained model.
 
     :param params: Dictionary of network hyperparameters.
+    :param load_dataset: Load dataset from file or build it from the parameters.
     :return: None
     """
 

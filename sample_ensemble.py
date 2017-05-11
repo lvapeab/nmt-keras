@@ -6,7 +6,6 @@ from data_engine.prepare_data import update_dataset_from_file, keep_n_captions
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.dataset import loadDataset
-from keras_wrapper.extra.evaluation import select as evaluation_select
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file
 from keras_wrapper.utils import decode_predictions_beam_search
 
@@ -145,7 +144,7 @@ if __name__ == "__main__":
                                                               verbose=args.verbose)
                         # Apply detokenization function if needed
                         if params.get('APPLY_DETOKENIZATION', False):
-                             pred = map(detokenize_function, pred)
+                            pred = map(detokenize_function, pred)
 
                         n_best_sample_score.append([i, pred, n_best_score])
                     n_best_predictions.append(n_best_sample_score)
