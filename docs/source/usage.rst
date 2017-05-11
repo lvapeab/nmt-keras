@@ -13,12 +13,12 @@ Training
 Decoding
 ********
 Once we have our model trained, we can translate new text using the `sample_ensemble.py`_ script. Please refer to the `ensembling tutorial`_ for more details about this script.
-In short, if we want to use the models from the first three epochs to translate the `examples/EuTrans/test.en` file, just run::
+In short, if we want to use the models from the first three epochs to translate the `examples/EuTrans/test.es` file, just run::
 
     python sample_ensemble.py --models trained_models/tutorial_model/epoch_1 \
                                        trained_models/tutorial_model/epoch_2 \
                               --dataset datasets/Dataset_tutorial_dataset.pkl \
-                              --text examples/EuTrans/test.en
+                              --text examples/EuTrans/test.es
 
 Scoring
 *******
