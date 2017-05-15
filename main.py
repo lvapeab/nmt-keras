@@ -185,24 +185,25 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         logging.info('Using custom loss.')
         # Add additional input layer to models in order to train with custom loss function
         for nmt_model in models:
-            hyp_in = Input(name="hyp_input", batch_shape=tuple([None, None, None]))
-            yref_in = Input(name="yref_input", batch_shape=tuple([None, None, None]))
+            hyp = Input(name="hyp", batch_shape=tuple([None, None, None]))
+            yref = Input(name="yref", batch_shape=tuple([None, None, None]))
 
-            preds_h = Input(name="pred_h", batch_shape=tuple([None, None, None]))
-            preds_y = Input(name="pred_y", batch_shape=tuple([None, None, None]))
+            state_y = Input(name="state_y", batch_shape=tuple([None, None]))
+            state_h = Input(name="state_h", batch_shape=tuple([None, None]))
 
-            predictor_model = Model(input=nmt_model.model.inputs,
-                                    output=nmt_model.model.outputs[0])
+            x = Input(name="x", batch_shape=tuple([None, None]))
+
+            preds_y = nmt_model.model([x, state_y])
+            preds_h = nmt_model.model([x, state_h])
 
             loss_out = Lambda(log_diff,
                               output_shape=(1,),
                               name='custom_loss',
-                              supports_masking=False)([predictor_model.outputs[0], yref_in,
-                                                       preds_h, hyp_in])
+                              supports_masking=False)([preds_y, yref, preds_h, hyp])
 
-            trainer_model = Model(input=nmt_model.model.inputs + [preds_y, preds_h] + [yref_in, hyp_in],
+            trainer_model = Model(input=[x, state_y, state_h, yref, hyp],
                                   output=loss_out)
-            trainer_models.append([trainer_model, predictor_model])
+            trainer_models.append(trainer_model)
 
             # Set custom optimizer
             weights = trainer_model.trainable_weights
@@ -636,3 +637,4 @@ if __name__ == "__main__":
         apply_NMT_model(parameters)
 
     logging.info('Done!')
+
