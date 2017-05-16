@@ -4,15 +4,9 @@ import copy
 import sys
 import time
 from timeit import default_timer as timer
-
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
-from keras import backend as K
-from keras.layers import Input, Lambda
-from keras.models import Model
-from keras.optimizers import PAS, PPAS
-from keras.objectives import log_diff
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset
@@ -20,10 +14,9 @@ from keras_wrapper.extra.callbacks import *
 from keras_wrapper.online_trainer import OnlineTrainer
 from model_zoo import TranslationModel
 from utils.utils import *
+from online_models import build_online_models
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
-logger = logging.getLogger(__name__)
-
 
 def parse_args():
     parser = argparse.ArgumentParser("Train or sample NMT models")
@@ -121,7 +114,7 @@ def train_model(params):
     # Training
     total_start_time = timer()
 
-    logger.debug('Starting training!')
+    logging.debug('Starting training!')
     training_params = {'n_epochs': params['MAX_EPOCH'],
                        'batch_size': params['BATCH_SIZE'],
                        'homogeneous_batches': params['HOMOGENEOUS_BATCHES'], 'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
@@ -180,52 +173,10 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     # Set additional inputs to models if using a custom loss function
     params['USE_CUSTOM_LOSS'] = True if 'PAS' in params['OPTIMIZER'] else False
 
-    trainer_models = []
-    if params['USE_CUSTOM_LOSS']:
-        logging.info('Using custom loss.')
-        # Add additional input layer to models in order to train with custom loss function
-        for nmt_model in models:
-            hyp = Input(name="hyp", batch_shape=tuple([None, None, None]))
-            yref = Input(name="yref", batch_shape=tuple([None, None, None]))
-
-            state_y = Input(name="state_y", batch_shape=tuple([None, None]))
-            state_h = Input(name="state_h", batch_shape=tuple([None, None]))
-
-            x = Input(name="x", batch_shape=tuple([None, None]))
-
-            preds_y = nmt_model.model([x, state_y])
-            preds_h = nmt_model.model([x, state_h])
-
-            loss_out = Lambda(log_diff,
-                              output_shape=(1,),
-                              name='custom_loss',
-                              supports_masking=False)([preds_y, yref, preds_h, hyp])
-
-            trainer_model = Model(input=[x, state_y, state_h, yref, hyp],
-                                  output=loss_out)
-            trainer_models.append(trainer_model)
-
-            # Set custom optimizer
-            weights = trainer_model.trainable_weights
-            if not weights:
-                logger.warning("You don't have any trainable weight!!")
-            weights.sort(key=lambda x: x.name if x.name else x.auto_name)
-            weights_shapes = [K.get_variable_shape(w) for w in weights]
-            subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes,
-                                                       lr=params['LR'],
-                                                       c=params['C'])
-            trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred},
-                                  optimizer=subgradientOpt)
-            for nmt_model in models:
-                nmt_model.setParams(params)
-    else:
-        for nmt_model in models:
-            nmt_model.setParams(params)
-            nmt_model.setOptimizer()
+    trainer_models = build_online_models(models, params)
 
     # Apply model predictions
     params_prediction = {  # Decoding params
-        # 'predict_on_sets': [s],
         'beam_size': params['BEAM_SIZE'],
         'maxlen': params['MAX_OUTPUT_TEXT_LEN_TEST'],
         'optimized_search': params['OPTIMIZED_SEARCH'],
@@ -244,11 +195,10 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     params_training = {  # Traning params
         'n_epochs': params['MAX_EPOCH'],
         'shuffle': False,
-        'use_custom_loss': params['USE_CUSTOM_LOSS'],
-        'batch_size': params['BATCH_SIZE'],
+        'batch_size': params.get('BATCH_SIZE', 1),
         'homogeneous_batches': False,
-        'lr_decay': params['LR_DECAY'],
-        'lr_gamma': params['LR_GAMMA'],
+        'lr_decay': params.get('LR_DECAY', None),
+        'lr_gamma': params.get('LR_GAMMA', 1.),
         'epochs_for_save': -1,
         'verbose': verbose,
         'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
@@ -273,19 +223,16 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     # Create trainer
     logging.info('Creating trainer...')
     if params["USE_CUSTOM_LOSS"]:
-        online_trainer = OnlineTrainer(trainer_models,
-                                       dataset,
-                                       beam_searcher,
-                                       params_prediction,
-                                       params_training,
-                                       verbose=verbose)
-    else:
-        online_trainer = OnlineTrainer(models,
-                                       dataset,
-                                       beam_searcher,
-                                       params_prediction,
-                                       params_training,
-                                       verbose=verbose)
+        # Update params_training:
+        params_training['use_custom_loss'] = params.get('USE_CUSTOM_LOSS', False)
+        params_training['h_y_optimization'] = params.get('USE_H_Y', False)
+
+    online_trainer = OnlineTrainer(trainer_models,
+                                   dataset,
+                                   beam_searcher,
+                                   params_prediction,
+                                   params_training,
+                                   verbose=verbose)
 
     # Open new data
     ftrg = open(target_filename, 'r')
@@ -350,7 +297,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     sys.stdout.write('The online training took: %f secs (Speed: %f sec/sample)\n' % ((time.time() - start_time), (
         time.time() - start_time) / n_lines))
-    saveModel(nmt_model, -1, path=params.get('STORE_PATH', 'retrained_model'), full_path=True)
+    [saveModel(nmt_model, -1, path=params.get('STORE_PATH', 'retrained_model'), full_path=True)
+     for nmt_model in models]
 
 
 def apply_NMT_model(params):
