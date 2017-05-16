@@ -35,7 +35,6 @@ def build_online_models(models, params):
 
                 trainer_model = Model(input=[x, state_y, state_h, yref, hyp],
                                       output=loss_out)
-                plot(trainer_model, to_file='model_y_h.png')
                 trainer_models.append(trainer_model)
             else:
                 # Alternative 2: Apply optimization on y, based on h and y loss.
@@ -51,9 +50,7 @@ def build_online_models(models, params):
 
                 trainer_model = Model(input=nmt_model.model.inputs + [preds_h] + [yref, hyp],
                                       output=loss_out)
-                plot(trainer_model, to_file='model_y.png')
                 trainer_models.append([trainer_model, nmt_model.model])
-            exit(1)
             # Set custom optimizer
             weights = trainer_model.trainable_weights
             if not weights:
