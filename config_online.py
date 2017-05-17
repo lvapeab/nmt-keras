@@ -10,10 +10,10 @@ def load_parameters():
 
     CLASSIFIER_ACTIVATION = 'softmax'
 
-    OPTIMIZER = 'SGD'                             # Optimizer
+    OPTIMIZER = 'PAS2'                             # Optimizer
     LR = 0.01                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     # PAS-like params
-    C = 0.5                                       # Constant parameter for PAS and PPAS optimizer. Recommended value: PAS: 0.5 PPAS: 0.01
+    C = 0.01                                       # Constant parameter for PAS and PPAS optimizer. Recommended value: PAS: 0.5 PPAS: 0.01
     USE_H_Y = True                               # Optimize according to h and y. If False, optimize according to y.
 
     # General params
