@@ -17,7 +17,7 @@ def load_parameters():
     USE_H_Y = True                               # Optimize according to h and y. If False, optimize according to y.
 
     # General params
-    CLIP_C = 1.                                   # During training, clip gradients to this norm
+    CLIP_C = 0.                                   # During training, clip gradients to this norm
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
 
