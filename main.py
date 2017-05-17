@@ -95,7 +95,7 @@ def train_model(params, load_dataset=None):
             outputMapping[id_dest] = pos_target
 
         nmt_model.setOutputsMapping(outputMapping)
-        nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'])
+        nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
 
