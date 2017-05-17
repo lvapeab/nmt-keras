@@ -18,6 +18,7 @@ from online_models import build_online_models
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
+
 def parse_args():
     parser = argparse.ArgumentParser("Train or sample NMT models")
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
@@ -225,7 +226,6 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     if params["USE_CUSTOM_LOSS"]:
         # Update params_training:
         params_training['use_custom_loss'] = params.get('USE_CUSTOM_LOSS', False)
-        params_training['h_y_optimization'] = params.get('USE_H_Y', False)
 
     online_trainer = OnlineTrainer(trainer_models,
                                    dataset,
