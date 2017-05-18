@@ -351,6 +351,7 @@ class TranslationModel(Model_Wrapper):
             initial_memory = None
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
+                                                                     att_dim=params['ATTENTION_SIZE'],
                                                                      W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                      U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                      V_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
