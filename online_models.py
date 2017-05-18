@@ -44,7 +44,10 @@ def build_online_models(models, params):
             weights_shapes = [K.get_variable_shape(w) for w in weights]
             subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes,
                                                        lr=params['LR'],
-                                                       c=params['C'])
+                                                       c=params['C'],
+                                                       clipnorm=params.get('CLIP_C', 0.),
+                                                       clipvalue=params.get('CLIP_V', 0.)
+                                                       )
             trainer_model.compile(loss={'custom_loss': lambda y_true, y_pred: y_pred},
                                   optimizer=subgradientOpt)
             for nmt_model in models:
