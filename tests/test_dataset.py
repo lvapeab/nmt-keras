@@ -9,11 +9,12 @@ class TestDataset(unittest.TestCase):
     def test_build_datset(self):
         params = load_parameters()
         params['REBUILD_DATASET'] = True
+        params['DATASET_STORE_PATH'] = './'
         ds = build_dataset(params)
         self.assertIsInstance(ds, Dataset)
 
     def test_load_dataset(self):
-        ds = loadDataset('datasets/Dataset_EuTrans_esen.pkl')
+        ds = loadDataset('./Dataset_'+ params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
         self.assertIsInstance(ds, Dataset)
         self.assertIsInstance(ds.vocabulary, dict)
         self.assertGreaterEqual(ds.vocabulary.keys(), 3)
