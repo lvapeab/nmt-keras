@@ -14,6 +14,7 @@ class TestDataset(unittest.TestCase):
         self.assertIsInstance(ds, Dataset)
 
     def test_load_dataset(self):
+        params = load_parameters()
         ds = loadDataset('./Dataset_'+ params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
         self.assertIsInstance(ds, Dataset)
         self.assertIsInstance(ds.vocabulary, dict)
