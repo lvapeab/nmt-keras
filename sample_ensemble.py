@@ -1,7 +1,6 @@
 import argparse
 import logging
 
-from config import load_parameters
 from data_engine.prepare_data import update_dataset_from_file
 from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel
@@ -30,7 +29,6 @@ def parse_args():
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
     return parser.parse_args()
 
-
 if __name__ == "__main__":
 
     args = parse_args()
@@ -39,6 +37,7 @@ if __name__ == "__main__":
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     if args.config is None:
         logging.info("Reading parameters from config.py")
+        from config import load_parameters
         params = load_parameters()
     else:
         logging.info("Loading parameters from %s" % str(args.config))
