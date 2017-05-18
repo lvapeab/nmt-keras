@@ -154,6 +154,7 @@ def load_parameters():
     DECODER_HIDDEN_SIZE = 128                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
+    ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
     # Skip connections size
     SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE
 
