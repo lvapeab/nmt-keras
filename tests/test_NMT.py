@@ -5,24 +5,29 @@ from keras_wrapper.dataset import Dataset
 from keras_wrapper.cnn_model import Model_Wrapper
 from model_zoo import TranslationModel
 
+
 class TestNMTConstruction(unittest.TestCase):
 
     def test_build_datset(self):
         params = load_parameters()
         params['REBUILD_DATASET'] = True
         dataset = build_dataset(params)
-        params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
-        params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
+        params['INPUT_VOCABULARY_SIZE'] = \
+            dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
+        params['OUTPUT_VOCABULARY_SIZE'] =\
+            dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
         for rnn_type in ['LSTM', 'GRU']:
             for n_layers in range(2):
                 params['N_LAYERS_DECODER'] = n_layers
                 params['N_LAYERS_ENCODER'] = n_layers
                 params['RNN_TYPE'] = rnn_type
-                nmt_model = TranslationModel(params, model_type=params['MODEL_TYPE'],
-                                             verbose=params['VERBOSE'],
-                                             model_name=params['MODEL_NAME'],
-                                             vocabularies=dataset.vocabulary,
-                                             store_path=params['STORE_PATH'])
+                nmt_model = \
+                    TranslationModel(params,
+                                     model_type=params['MODEL_TYPE'],
+                                     verbose=params['VERBOSE'],
+                                     model_name=params['MODEL_NAME'],
+                                     vocabularies=dataset.vocabulary,
+                                     store_path=params['STORE_PATH'])
                 self.assertIsInstance(nmt_model, Model_Wrapper)
 
         # Check Inputs

@@ -1,10 +1,11 @@
 # Convert a tokenized parallel corpus into a format suitable for fast_align
 # Code partially taken from:
-#    https://github.com/sebastien-j/LV_groundhog/blob/master/experiments/nmt/utils/format_fast_align.py
+#    https://github.com/sebastien-j/LV_groundhog/
+#    blob/master/experiments/nmt/utils/format_fast_align.py
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", type=str)  # Use the tokenized text files # Source
+parser.add_argument("--source", type=str)  # Source
 parser.add_argument("--target", type=str)  # Target
 parser.add_argument("--dest", type=str)
 parser.add_argument("--aligner", type=str, default='fast_align')

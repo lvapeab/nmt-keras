@@ -14,13 +14,24 @@ from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.ter.ter import Ter
 
 parser = argparse.ArgumentParser(
-    description="""This takes two files and a path the references (source, references),
-     computes bleu, meteor, rouge and cider metrics""", formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-t', '--hypotheses', type=str, help='Hypotheses file')
-parser.add_argument('-l', '--language', type=str, default='en', help='Meteor language')
-parser.add_argument('-s', '--step-size', type=int, default=0, help='Step size. 0 == Evaluate all sentences')
-parser.add_argument('-r', '--references', type=argparse.FileType('r'), nargs="+",
-                    help='Path to all the reference files (single-reference files)')
+    description="""This takes two files and a
+     path to the references (source, references),
+     and computes bleu, meteor,
+     rouge, cider and TER metrics""",
+    formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-t', '--hypotheses', type=str,
+                    help='Hypotheses file')
+parser.add_argument('-l', '--language', type=str,
+                    default='en',
+                    help='Meteor language')
+parser.add_argument('-s', '--step-size',
+                    type=int, default=0,
+                    help='Step size. 0 == Evaluate all sentences')
+parser.add_argument('-r', '--references',
+                    type=argparse.FileType('r'),
+                    nargs="+",
+                    help='Path to all the '
+                         'reference files (single-reference files)')
 
 
 def load_textfiles(references, hypothesis):
@@ -38,9 +49,11 @@ def load_textfiles(references, hypothesis):
     refs = {idx: rr for idx, rr in enumerate(raw_refs)}
     # sanity check that we have the same number of references as hypothesis
     if len(hypo) != len(refs):
-        raise ValueError("There is a sentence number mismatch between the inputs: \n"
+        raise ValueError("There is a sentence number mismatch between"
+                         " the inputs: \n"
                          "\t # sentences in references: %d\n"
-                         "\t # sentences in hypothesis: %d" % (len(refs), len(hypo)))
+                         "\t # sentences in hypothesis: %d" %
+                         (len(refs), len(hypo)))
     return refs, hypo
 
 
@@ -83,7 +96,8 @@ if __name__ == "__main__":
         print "Scores: "
         max_score_name_len = max(map(lambda x: len(x), score.keys()))
         for score_name in sorted(score.keys()):
-            print "\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" % score[score_name]
+            print "\t {0:{1}}".format(score_name, max_score_name_len) \
+                  + ": %.5f" % score[score_name]
     else:
         n = 0
         while True:

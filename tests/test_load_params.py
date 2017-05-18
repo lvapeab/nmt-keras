@@ -1,6 +1,7 @@
 import unittest
 from config import load_parameters
 
+
 class TestLoadParams(unittest.TestCase):
 
     def test_load_params(self):
@@ -241,9 +242,6 @@ class TestLoadParams(unittest.TestCase):
         self.assertIsInstance(params['MODE'], str)
         self.assertIsInstance(params['TRAIN_ON_TRAINVAL'], bool)
         self.assertIsInstance(params['FORCE_RELOAD_VOCABULARY'], bool)
-
-
-
 
 if __name__ == '__main__':
     unittest.main()

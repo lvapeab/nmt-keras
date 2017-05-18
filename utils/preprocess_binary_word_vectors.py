@@ -1,7 +1,8 @@
 import numpy as np
 
 """
-Preprocess pretrained binary vectors and stores them in a suitable format (.npy)
+Preprocess pretrained binary vectors
+and stores them in a suitable format (.npy)
 """
 
 # Parameters
@@ -16,7 +17,7 @@ vectors_path = base_path + vectors_basename + language
 
 def word2vec2npy(v_path, base_path_save, dest_filename):
     """
-    Preprocess pretrained binary vectors and stores them in a suitable format (.npy)
+    Preprocess pretrained binary vectors and stores them in a suitable format.
     :param v_path: Path to the binary vectors file.
     :param base_path_save: Path where the formatted vectors will be stored.
     :param dest_filename: Filename of the formatted vectors.
@@ -39,13 +40,16 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
                     break
                 if ch != '\n':
                     word.append(ch)
-            word_vecs[word] = np.fromstring(f.read(binary_len), dtype='float32')
+            word_vecs[word] = np.fromstring(f.read(binary_len),
+                                            dtype='float32')
             i += 1
             if i % 1000 == 0:
-                print "Processed %d vectors (%.2f %%)\r" % (i, 100 * float(i) / vocab_size),
+                print "Processed %d vectors (%.2f %%)\r" % \
+                      (i, 100 * float(i) / vocab_size),
 
     # Store dict
-    print "Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy')
+    print "Saving word vectors in %s" % \
+          (base_path_save + '/' + dest_filename + '.npy')
     np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
     print
 

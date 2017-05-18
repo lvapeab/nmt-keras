@@ -1,5 +1,7 @@
 # Uses T-tables made by Chris Dyer's Fast Align
-# Code adapted from: https://github.com/sebastien-j/LV_groundhog/blob/master/experiments/nmt/utils/convert_Ttables.py
+# Code adapted from:
+#  https://github.com/sebastien-j/LV_groundhog/blob/
+#   master/experiments/nmt/utils/convert_Ttables.py
 
 import numpy as np
 from keras_wrapper.extra.read_write import dict2pkl
