@@ -7,16 +7,14 @@ def load_parameters():
 
     # Input data params
     DATASET_NAME = 'EuTrans'                        # Task name
-    DATASET_NAME = 'e-com'                        # Task name
-
-    SRC_LAN = 'en'                                  # Language of the source text
-    TRG_LAN = 'es'                                  # Language of the target text
+    SRC_LAN = 'es'                                  # Language of the source text
+    TRG_LAN = 'en'                                  # Language of the target text
     DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
-    DATA_ROOT_PATH = '/media/HDD_2TB/DATASETS/%s/joint_bpe' % DATASET_NAME  # Path where data is stored
 
     # SRC_LAN or TRG_LAN will be added to the file names
     TEXT_FILES = {'train': 'training.',        # Data files
-                  'val': 'dev.'}
+                  'val': 'dev.',
+                  'test': 'test.'}
 
     # Dataset class parameters
     INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
@@ -29,8 +27,8 @@ def load_parameters():
     EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator)
     EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
     START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation
-    EVAL_EACH_EPOCHS = False                      # Select whether evaluate between N epochs or N updates
-    EVAL_EACH = 5000                              # Sets the evaluation frequency (epochs or updates)
+    EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates
+    EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates)
 
     # Search parameters
     SAMPLING = 'max_likelihood'                   # Possible values: multinomial or max_likelihood (recommended)
@@ -53,11 +51,11 @@ def load_parameters():
     # Sampling params: Show some samples during training
     SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
-    START_SAMPLING_ON_EPOCH = 2                   # First epoch where to start the sampling counter
-    SAMPLE_EACH_UPDATES = 3000                     # Sampling frequency (always in #updates)
+    START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
+    SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
-    POS_UNK = True                               # Enable POS_UNK strategy for unknown words
+    POS_UNK = False                               # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
                                                   #     1: Replace the UNK by the translation (given by an external
@@ -72,9 +70,9 @@ def load_parameters():
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'detokenize_bpe'      # Select which de-tokenization method we'll apply
+    DETOKENIZATION_METHOD = 'detokenize_bpe'       # Select which de-tokenization method we'll apply
 
-    APPLY_DETOKENIZATION = True                   # Wheter we apply a detokenization method
+    APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method
 
     TOKENIZE_HYPOTHESES = True   		          # Whether we tokenize the hypotheses using the previously defined tokenization method
     TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
@@ -90,13 +88,13 @@ def load_parameters():
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_INPUT_VOCAB = 0               # Minimum number of occurrences allowed for the words in the input vocabulary.
                                                   # Set to 0 for using them all.
-    MAX_INPUT_TEXT_LEN = 70                       # Maximum length of the input sequence
+    MAX_INPUT_TEXT_LEN = 50                       # Maximum length of the input sequence
 
     # Output text parameters
     OUTPUT_VOCABULARY_SIZE = 0                    # Size of the input vocabulary. Set to 0 for using all,
                                                   # otherwise it will be truncated to these most frequent words.
     MIN_OCCURRENCES_OUTPUT_VOCAB = 0              # Minimum number of occurrences allowed for the words in the output vocabulary.
-    MAX_OUTPUT_TEXT_LEN = 70                      # Maximum length of the output sequence
+    MAX_OUTPUT_TEXT_LEN = 50                      # Maximum length of the output sequence
                                                   # set to 0 if we want to use the whole answer as a single class
     MAX_OUTPUT_TEXT_LEN_TEST = MAX_OUTPUT_TEXT_LEN * 3  # Maximum length of the output sequence during test time
 
@@ -105,7 +103,7 @@ def load_parameters():
     CLASSIFIER_ACTIVATION = 'softmax'
 
     OPTIMIZER = 'Adam'                            # Optimizer
-    LR = 0.0002                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
+    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
@@ -114,7 +112,7 @@ def load_parameters():
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
-    BATCH_SIZE = 30                               # Size of each minibatch
+    BATCH_SIZE = 50                               # Size of each minibatch
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths (Dangerous!!)
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort
@@ -134,26 +132,26 @@ def load_parameters():
     RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
     INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 512              # Source language word embedding size.
+    SOURCE_TEXT_EMBEDDING_SIZE = 128              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    TARGET_TEXT_EMBEDDING_SIZE = 512              # Source language word embedding size.
+    TARGET_TEXT_EMBEDDING_SIZE = 128              # Source language word embedding size.
     TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
     # Encoder configuration
-    ENCODER_HIDDEN_SIZE = 512                     # For models with RNN encoder
+    ENCODER_HIDDEN_SIZE = 128                     # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
 
     # Decoder configuration
-    DECODER_HIDDEN_SIZE = 512                     # For models with RNN decoder
+    DECODER_HIDDEN_SIZE = 128                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
     # Skip connections size
@@ -206,7 +204,7 @@ def load_parameters():
     MODEL_NAME += EXTRA_NAME
 
     STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
-    DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
+    DATASET_STORE_PATH = STORE_PATH + '/'              # Dataset instance will be stored here
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list' or 'vqa'
     VERBOSE = 1                                        # Verbosity level
