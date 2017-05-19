@@ -20,12 +20,14 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file requirements-conda.txt
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
   - source activate test-environment
-  - pip install -r requirements.txt
+  - pip install -r req-travis-pip.txt
 
 # command to run tests
 script:
-  - nosetests tests/test_load_params.py
-  - nosetests tests/test_dataset.py
-  - nosetests tests/test_NMT.py
+  - coverage run nosetests tests/test_load_params.py
+  - coverage run nosetests tests/test_dataset.py
+  - coverage run nosetests tests/test_NMT.py
+after_success:
+  coveralls
