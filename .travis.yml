@@ -28,6 +28,6 @@ install:
 script:
   - nosetests --with-coverage --cover-package=config tests/test_load_params.py
   - nosetests --with-coverage --cover-package=dataset tests/test_dataset.py
-  - nosetests --with-coverage --cover-package=nmt-keras tests/test_NMT.py
+  - nosetests --with-coverage --cover-package=nmt-keras tests/te st_NMT.py
 after_success:
   coveralls
