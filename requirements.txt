@@ -2,3 +2,12 @@ cloud
 -e git+https://github.com/MarcBS/keras.git#egg=keras
 -e git+https://github.com/MarcBS/multimodal_keras_wrapper.git#egg=keras_wrapper
 -e git+https://github.com/lvapeab/coco-caption.git#egg=coco-caption
+h5py
+matplotlib
+numpy
+scikit-image
+scikit-learn
+six
+pytables
+Theano
+toolz
