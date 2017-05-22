@@ -98,6 +98,8 @@ def train_model(params, load_dataset=None):
         nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
+        params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
+            int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
 
     # Callbacks
     callbacks = buildCallbacks(params, nmt_model, dataset)
@@ -106,13 +108,20 @@ def train_model(params, load_dataset=None):
     total_start_time = timer()
 
     logger.debug('Starting training!')
-    training_params = {'n_epochs': params['MAX_EPOCH'], 'batch_size': params['BATCH_SIZE'],
-                       'homogeneous_batches': params['HOMOGENEOUS_BATCHES'], 'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
+    training_params = {'n_epochs': params['MAX_EPOCH'],
+                       'batch_size': params['BATCH_SIZE'],
+                       'homogeneous_batches': params['HOMOGENEOUS_BATCHES'],
+                       'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
                        'joint_batches': params['JOINT_BATCHES'],
-                       'lr_decay': params['LR_DECAY'], 'lr_gamma': params['LR_GAMMA'],
-                       'epochs_for_save': params['EPOCHS_FOR_SAVE'], 'verbose': params['VERBOSE'],
-                       'eval_on_sets': params['EVAL_ON_SETS_KERAS'], 'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                       'extra_callbacks': callbacks, 'reload_epoch': params['RELOAD'], 'epoch_offset': params['RELOAD'],
+                       'lr_decay': params['LR_DECAY'],
+                       'lr_gamma': params['LR_GAMMA'],
+                       'epochs_for_save': params['EPOCHS_FOR_SAVE'],
+                       'verbose': params['VERBOSE'],
+                       'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
+                       'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                       'extra_callbacks': callbacks,
+                       'reload_epoch': params['RELOAD'],
+                       'epoch_offset': params.get('EPOCH_OFFSET', 0),
                        'data_augmentation': params['DATA_AUGMENTATION'],
                        'patience': params.get('PATIENCE', 0),  # early stopping parameters
                        'metric_check': params.get('STOP_METRIC', None) if params.get('EARLY_STOP', False) else None,
