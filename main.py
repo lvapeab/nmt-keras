@@ -175,6 +175,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     params['USE_CUSTOM_LOSS'] = True if 'PAS' in params['OPTIMIZER'] else False
 
     trainer_models = build_online_models(models, params)
+    if params['N_BEST_OPTIMIZER']:
+        logging.info('Using N-best optimizer')
 
     # Apply model predictions
     params_prediction = {  # Decoding params
@@ -192,6 +194,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'output_text_index': 0,
         'apply_detokenization': params['APPLY_DETOKENIZATION'],
         'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
+        'n_best_optimizer': params['N_BEST_OPTIMIZER']
     }
     params_training = {  # Traning params
         'n_epochs': params['MAX_EPOCH'],
@@ -217,7 +220,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Create sampler
     logging.info('Creating sampler...')
-    beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=verbose)
+    beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction,
+                                       n_best=params['N_BEST_OPTIMIZER'],
+                                       verbose=verbose)
     params_prediction = copy.copy(params_prediction)
     params_prediction['store_hypotheses'] = store_hypotheses
 
@@ -266,6 +271,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             logging.info('Input sentence:  %s' % str(src_seq))
             logging.info('Parsed sentence: %s' % str(
                 map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0])))
+
         state_below = dataset.loadText([target_line],
                                        dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                        params['MAX_OUTPUT_TEXT_LEN_TEST'],
@@ -289,7 +295,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             logging.info('Parsed sentence (state below): %s ' % map(
                 lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
-        online_trainer.sample_and_train_online([src_seq, state_below], trg_seq, src_words=[source_line])
+        online_trainer.sample_and_train_online([src_seq, state_below], trg_seq,
+                                               src_words=[source_line], trg_words=[target_line])
         sys.stdout.write('\r')
         sys.stdout.write("Processed %d/%d  -  ETA: %ds " % ((n_line + 1), n_lines, int(eta)))
         sys.stdout.flush()
