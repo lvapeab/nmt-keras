@@ -36,6 +36,8 @@ def load_parameters():
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
     BEAM_SIZE = 6                                 # Beam size (in case of BEAM_SEARCH == True)
     OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
+    SEARCH_PRUNING = False                        # Apply pruning strategies to the beam search method.
+                                                  # It will likely increase decoding speed, but decrease quality.
 
     # Apply length and coverage decoding normalizations.
     # See Section 7 from Wu et al. (2016) (https://arxiv.org/abs/1609.08144)
