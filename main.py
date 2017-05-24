@@ -187,6 +187,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'model_outputs': params['OUTPUTS_IDS_MODEL'],
         'dataset_inputs': params['INPUTS_IDS_DATASET'],
         'dataset_outputs': params['OUTPUTS_IDS_DATASET'],
+        'search_pruning': params.get('SEARCH_PRUNING', False),
         'normalize_probs': params['NORMALIZE_SAMPLING'],
         'alpha_factor': params['ALPHA_FACTOR'],
         'pos_unk': params['POS_UNK'],
@@ -531,7 +532,7 @@ if __name__ == "__main__":
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
-            except ValueError:
+            except:
                 parameters[k] = v
     except ValueError:
         print 'Error processing arguments: (', k, ",", v, ")"
