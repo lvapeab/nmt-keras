@@ -358,7 +358,7 @@ if __name__ == "__main__":
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
-            except:
+            except ValueError:
                 parameters[k] = v
     except ValueError:
         print 'Error processing arguments: (', k, ",", v, ")"

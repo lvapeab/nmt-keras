@@ -243,7 +243,7 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
                         for j in range(n):
                             new_X.append(X[id_in][i + j])
                     exec ('ds.X_' + s + '[id_in] = new_X')
-                except:
+                except Exception:
                     pass
             else:
                 exec ('X = ds.X_' + s)

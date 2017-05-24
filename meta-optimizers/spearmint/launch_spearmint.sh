@@ -7,7 +7,7 @@ mkdir -p ${dest_dir}/db
 mkdir -p ${dest_dir}/logs
 
 #Launch mongodb if it is not already launched
-if [ `ps -wuax |grep mongod |wc -l` -lt 2 ]; then
+if [ $(ps -wuax |grep mongod |wc -l) -lt 2 ]; then
     mongod --fork --logpath ${dest_dir}/db/log --dbpath ${dest_dir}/db;
 fi
 

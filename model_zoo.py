@@ -49,7 +49,7 @@ class TranslationModel(Model_Wrapper):
         :param clear_dirs: Clean model directories or not.
 
         """
-        super(self.__class__, self).__init__(type=model_type, model_name=model_name,
+        super(TranslationModel, self).__init__(type=model_type, model_name=model_name,
                                              silence=verbose == 0, models_path=store_path, inheritance=True)
 
         self.__toprint = ['_model_type', 'name', 'model_path', 'verbose']

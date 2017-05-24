@@ -49,7 +49,7 @@ class TestNMT(unittest.TestCase):
         nmt_model.setOutputsMapping(outputMapping)
         return True
 
-
+    @classmethod
     def test_train_and_load(self):
         if theano.config.device == 'gpu':
             def test_train():

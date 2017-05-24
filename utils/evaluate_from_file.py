@@ -61,7 +61,7 @@ def CocoScore(ref, hypo, language='en'):
     final_scores = {}
     for scorer, method in scorers:
         score, _ = scorer.compute_score(ref, hypo)
-        if type(score) == list:
+        if isinstance(score, list):
             for m, s in zip(method, score):
                 final_scores[m] = s
         else:
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     if step_size < 1:
         score = CocoScore(ref, hypo, language=language)
         print "Scores: "
-        max_score_name_len = max(map(lambda x: len(x), score.keys()))
+        max_score_name_len = max([len(x) for x in score.keys()])
         for score_name in sorted(score.keys()):
             print "\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" % score[score_name]
     else:
