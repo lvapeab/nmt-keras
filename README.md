@@ -1,5 +1,6 @@
 # NMT-Keras
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1239923bcbba438b97b374ae8dc435be)](https://www.codacy.com/app/lvapeab/nmt-keras?utm_source=github.com&utm_medium=referral&utm_content=lvapeab/nmt-keras&utm_campaign=badger)
 [![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
 Neural Machine Translation with Keras (+ Theano backend).
