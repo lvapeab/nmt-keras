@@ -1,11 +1,9 @@
 import argparse
 
-"""
-Scores a file of hypothesis.
-Usage:
-    1. Set the references in this file.
-    2. python evaluate_from_file.py -hyp hypothesis -r references
-"""
+# Scores a file of hypothesis.
+# Usage:
+#     1. Set the references in this file.
+#     2. python evaluate_from_file.py -hyp hypothesis -r references
 
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
@@ -62,7 +60,7 @@ def CocoScore(ref, hypo, language='en'):
     ]
     final_scores = {}
     for scorer, method in scorers:
-        score, scores = scorer.compute_score(ref, hypo)
+        score, _ = scorer.compute_score(ref, hypo)
         if type(score) == list:
             for m, s in zip(method, score):
                 final_scores[m] = s

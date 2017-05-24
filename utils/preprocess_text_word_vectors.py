@@ -1,8 +1,7 @@
 import numpy as np
 
-"""
-Preprocess pretrained text vectors and stores them in a suitable format (.npy)
-"""
+# Preprocess pretrained text vectors
+# and stores them in a suitable format (.npy)
 
 # Parameters
 ROOT_PATH = '/media/HDD_2TB/DATASETS/'  # Data root path
@@ -16,7 +15,7 @@ vectors_path = base_path + vectors_basename + language
 
 def txtvec2npy(v_path, base_path_save, dest_filename):
     """
-    Preprocess pretrained text vectors and stores them in a suitable format (.npy)
+    Preprocess pretrained text vectors and stores them in a suitable format
     :param v_path: Path to the text vectors file.
     :param base_path_save: Path where the formatted vectors will be stored.
     :param dest_filename: Filename of the formatted vectors.
@@ -35,11 +34,13 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
         vecs_dict[word] = vec
         i += 1
         if i % 1000 == 0:
-            print "Processed %d vectors (%.2f %%)\r" % (i, 100 * float(i) / n_vecs),
+            print "Processed %d vectors (%.2f %%)\r" % \
+                  (i, 100 * float(i) / n_vecs),
 
     print
     # Store dict
-    print "Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy')
+    print "Saving word vectors in %s" %\
+          (base_path_save + '/' + dest_filename + '.npy')
     np.save(base_path_save + '/' + dest_filename + '.npy', vecs_dict)
     print
 

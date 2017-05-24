@@ -68,7 +68,7 @@ class TestNMT(unittest.TestCase):
                 params['DECODER_HIDDEN_SIZE'] = 2
                 params['ATTENTION_SIZE'] = 2
                 params['SKIP_VECTORS_HIDDEN_SIZE'] = 2
-                DEEP_OUTPUT_LAYERS = [('linear', 2)]
+                params['DEEP_OUTPUT_LAYERS'] = [('linear', 2)]
                 params['STORE_PATH'] = './'
                 nmt_model = \
                     TranslationModel(params,
