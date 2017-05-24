@@ -1,9 +1,7 @@
 import numpy as np
 
-"""
-Preprocess pretrained text vectors
-and stores them in a suitable format (.npy)
-"""
+# Preprocess pretrained text vectors
+# and stores them in a suitable format (.npy)
 
 # Parameters
 ROOT_PATH = '/media/HDD_2TB/DATASETS/'  # Data root path

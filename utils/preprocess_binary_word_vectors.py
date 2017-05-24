@@ -1,9 +1,7 @@
 import numpy as np
 
-"""
-Preprocess pretrained binary vectors
-and stores them in a suitable format (.npy)
-"""
+# Preprocess pretrained binary vectors
+# and stores them in a suitable format (.npy)
 
 # Parameters
 ROOT_PATH = '/media/HDD_2TB/DATASETS/'  # Data root path
@@ -31,7 +29,7 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
         binary_len = np.dtype('float32').itemsize * layer1_size
         i = 0
         print "Vector length:", layer1_size
-        for line in xrange(vocab_size):
+        for _ in xrange(vocab_size):
             word = []
             while True:
                 ch = f.read(1)

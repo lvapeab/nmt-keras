@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
-            except:
+            except ValueError:
                 params[k] = v
     except ValueError:
         print 'Error processing arguments: (', k, ",", v, ")"
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         if params_prediction['pos_unk']:
             samples = predictions[0]
             alphas = predictions[1]
-            sources = map(lambda x: x.strip(), open(args.text, 'r').read().split('\n'))
+            sources = [x.strip() for x in open(args.text, 'r').read().split('\n')]
             sources = sources[:-1] if len(sources[-1]) == 0 else sources
             heuristic = params_prediction['heuristic']
         else:
@@ -125,13 +125,6 @@ if __name__ == "__main__":
 
         if args.n_best:
             n_best_predictions = []
-            if params_prediction['pos_unk']:
-                sources = map(lambda x: x.strip().split(), open(args.text, 'r').read().split('\n'))
-                heuristic = params_prediction['heuristic']
-            else:
-                alphas = None
-                heuristic = None
-                sources = None
             i = 0
             for i, (n_best_preds, n_best_scores, n_best_alphas) in enumerate(n_best):
                 n_best_sample_score = []
