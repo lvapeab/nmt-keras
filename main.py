@@ -305,6 +305,10 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     sys.stdout.write('The online training took: %f secs (Speed: %f sec/sample)\n' % ((time.time() - start_time), (
         time.time() - start_time) / n_lines))
+
+    sys.stdout.write('We updated the model %d times for %d samples (%.3f%%)\n' %
+                     (online_trainer.get_n_updates(), n_lines,
+                      float(online_trainer.get_n_updates()) /n_lines))
     [saveModel(nmt_model, -1, path=params.get('STORE_PATH', 'retrained_model'), full_path=True)
      for nmt_model in models]
 
