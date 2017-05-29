@@ -2,7 +2,7 @@ import argparse
 import logging
 import ast
 from data_engine.prepare_data import update_dataset_from_file
-from keras_wrapper.beam_search_ensemble import BeamSearchEnsemble
+from keras_wrapper.model_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file, list2stdout

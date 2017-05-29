@@ -121,7 +121,7 @@ if __name__ == "__main__":
     if args.online:
         logging.info('Loading models from %s' % str(args.models))
         model_instances = [TranslationModel(params,
-                                            type=params['MODEL_TYPE'],
+                                            model_type=params['MODEL_TYPE'],
                                             verbose=params['VERBOSE'],
                                             model_name=params['MODEL_NAME'] + '_' + str(i),
                                             vocabularies=dataset.vocabulary,
