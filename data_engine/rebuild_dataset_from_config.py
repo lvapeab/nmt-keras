@@ -41,5 +41,5 @@ if __name__ == "__main__":
     except ValueError:
         print 'Error processing arguments: (', k, ",", v, ")"
         exit(2)
-
+    params['REBUILD_DATASET'] = True
     dataset = build_dataset(params)

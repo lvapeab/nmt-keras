@@ -134,26 +134,26 @@ def load_parameters():
     RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
     INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 128              # Source language word embedding size.
+    SOURCE_TEXT_EMBEDDING_SIZE = 64              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    TARGET_TEXT_EMBEDDING_SIZE = 128              # Source language word embedding size.
+    TARGET_TEXT_EMBEDDING_SIZE = 64              # Source language word embedding size.
     TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
     # Encoder configuration
-    ENCODER_HIDDEN_SIZE = 128                     # For models with RNN encoder
+    ENCODER_HIDDEN_SIZE = 64                     # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
 
     # Decoder configuration
-    DECODER_HIDDEN_SIZE = 128                     # For models with RNN decoder
+    DECODER_HIDDEN_SIZE = 64                     # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'sum'          # Merge mode for the skip-connections
     ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
