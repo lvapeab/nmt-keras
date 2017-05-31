@@ -87,7 +87,7 @@ if __name__ == "__main__":
     params_prediction['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
     params_prediction['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
     params_prediction['pos_unk'] = params.get('POS_UNK', False)
-    params_prediction['heuristic'] = params.get('HEURISTIC', 0)
+    heuristic = params.get('HEURISTIC', 0)
     mapping = None if dataset.mapping == dict() else dataset.mapping
 
     for s in args.splits:
@@ -105,7 +105,6 @@ if __name__ == "__main__":
             alphas = predictions[1]
             sources = [x.strip() for x in open(args.text, 'r').read().split('\n')]
             sources = sources[:-1] if len(sources[-1]) == 0 else sources
-            heuristic = params_prediction['heuristic']
         else:
             samples = predictions
             alphas = None
