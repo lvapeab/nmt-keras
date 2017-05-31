@@ -6,15 +6,13 @@ def load_parameters():
     """
     # Optimizer parameters (see model.compile() function)
     LOSS = 'categorical_crossentropy'
-    KERAS_METRICS = ['categorical_crossentropy']                            # Metric used for evaluating the model
-
     CLASSIFIER_ACTIVATION = 'softmax'
 
     OPTIMIZER = 'PAS'                             # Optimizer
-    LR = 0.01                                     # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
+    LR = 0.01                                     # Learning rate.
     # PAS-like params
     C = 0.01                                      # Constant parameter for PAS and PPAS optimizer.
-    N_BEST_OPTIMIZER = True                       # Optimize according to h and y. If False, optimize according to y.
+    N_BEST_OPTIMIZER = False                      # Use N-Best list-based optimization
 
     # General params
     CLIP_C = 0.                                   # During training, clip gradients to this norm
