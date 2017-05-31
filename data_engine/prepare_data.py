@@ -1,5 +1,5 @@
-from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
 import logging
+from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
@@ -117,14 +117,15 @@ def build_dataset(params):
                      'train',
                      type='text',
                      id=params['OUTPUTS_IDS_DATASET'][0],
-                     tokenization=params['TOKENIZATION_METHOD'],
+                     tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                      build_vocabulary=True,
-                     pad_on_batch=params['PAD_ON_BATCH'],
-                     sample_weights=params['SAMPLE_WEIGHTS'],
-                     max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
-                     max_words=params['OUTPUT_VOCABULARY_SIZE'],
-                     min_occ=params['MIN_OCCURRENCES_OUTPUT_VOCAB'])
-        if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
+                     pad_on_batch=params.get('PAD_ON_BATCH', True),
+                     sample_weights=params.get('SAMPLE_WEIGHTS', True),
+                     fill=params.get('FILL', 'end'),
+                     max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
+                     max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
+                     min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0))
+        if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
             ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                             'train',
                             type='file-name',
@@ -136,12 +137,12 @@ def build_dataset(params):
                              split,
                              type='text',
                              id=params['OUTPUTS_IDS_DATASET'][0],
-                             pad_on_batch=params['PAD_ON_BATCH'],
-                             tokenization=params['TOKENIZATION_METHOD'],
-                             sample_weights=params['SAMPLE_WEIGHTS'],
-                             max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
-                             max_words=params['OUTPUT_VOCABULARY_SIZE'])
-                if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
+                             pad_on_batch=params.get('PAD_ON_BATCH', True),
+                             tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
+                             sample_weights=params.get('SAMPLE_WEIGHTS', True),
+                             max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
+                             max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0))
+                if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
                     ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
                                     split,
                                     type='file-name',
@@ -159,13 +160,13 @@ def build_dataset(params):
                             split,
                             type='text',
                             id=params['INPUTS_IDS_DATASET'][0],
-                            pad_on_batch=params['PAD_ON_BATCH'],
-                            tokenization=params['TOKENIZATION_METHOD'],
+                            pad_on_batch=params.get('PAD_ON_BATCH', True),
+                            tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                             build_vocabulary=build_vocabulary,
-                            fill=params['FILL'],
-                            max_text_len=params['MAX_INPUT_TEXT_LEN'],
-                            max_words=params['INPUT_VOCABULARY_SIZE'],
-                            min_occ=params['MIN_OCCURRENCES_INPUT_VOCAB'])
+                            fill=params.get('FILL', 'end'),
+                            max_text_len=params.get('MAX_INPUT_TEXT_LEN', 70),
+                            max_words=params.get('INPUT_VOCABULARY_SIZE', 0),
+                            min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0))
 
                 if len(params['INPUTS_IDS_DATASET']) > 1:
                     if 'train' in split:
@@ -174,27 +175,27 @@ def build_dataset(params):
                                     type='text',
                                     id=params['INPUTS_IDS_DATASET'][1],
                                     required=False,
-                                    tokenization=params['TOKENIZATION_METHOD'],
-                                    pad_on_batch=params['PAD_ON_BATCH'],
+                                    tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
+                                    pad_on_batch=params.get('PAD_ON_BATCH', True),
                                     build_vocabulary=params['OUTPUTS_IDS_DATASET'][0],
                                     offset=1,
-                                    fill=params['FILL'],
-                                    max_text_len=params['MAX_OUTPUT_TEXT_LEN'],
-                                    max_words=params['OUTPUT_VOCABULARY_SIZE'])
+                                    fill=params.get('FILL', 'end'),
+                                    max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
+                                    max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0))
                     else:
                         ds.setInput(None,
                                     split,
                                     type='ghost',
                                     id=params['INPUTS_IDS_DATASET'][-1],
                                     required=False)
-                if params['ALIGN_FROM_RAW'] and not params['HOMOGENEOUS_BATCHES']:
+                if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
                     ds.setRawInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
                                    split,
                                    type='file-name',
                                    id='raw_' + params['INPUTS_IDS_DATASET'][0])
 
-        if params['POS_UNK']:
-            if params['HEURISTIC'] > 0:
+        if params.get('POS_UNK', False):
+            if params.get('HEURISTIC', 0) > 0:
                 ds.loadMapping(params['MAPPING'])
 
         # If we had multiple references per sentence
