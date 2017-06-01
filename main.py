@@ -3,9 +3,9 @@ import ast
 from timeit import default_timer as timer
 
 from config import load_parameters
-from data_engine.prepare_data import build_dataset
+from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from keras_wrapper.cnn_model import loadModel, updateModel
-from keras_wrapper.dataset import loadDataset
+from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.extra.callbacks import *
 from model_zoo import TranslationModel
 from utils.utils import update_parameters
@@ -33,17 +33,41 @@ def train_model(params, load_dataset=None):
     :param load_dataset: Load dataset from file or build it from the parameters.
     :return: None
     """
+    check_params(params)
 
     if params['RELOAD'] > 0:
         logging.info('Resuming training.')
+        # Load data
+        if load_dataset is None:
+            if params['REBUILD_DATASET']:
+                logging.info('Rebuilding dataset.')
+                dataset = build_dataset(params)
+            else:
+                logging.info('Updating dataset.')
+                dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['TASK_NAME']
+                                      + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
-    check_params(params)
+                for split, filename in params['TEXT_FILES'].iteritems():
+                    dataset = update_dataset_from_file(dataset,
+                                                       params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
+                                                       params,
+                                                       splits=list([split]),
+                                                       output_text_filename=params['DATA_ROOT_PATH'] + '/' + filename +
+                                                                            params['TRG_LAN'],
+                                                       remove_outputs=False,
+                                                       compute_state_below=True)
+                    dataset.name = params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
+                saveDataset(dataset, params['DATASET_STORE_PATH'])
 
-    # Load data
-    if load_dataset is None:
-        dataset = build_dataset(params)
+        else:
+            logging.info('Reloading and using dataset.')
+            dataset = loadDataset(load_dataset)
     else:
-        dataset = loadDataset(load_dataset)
+        # Load data
+        if load_dataset is None:
+            dataset = build_dataset(params)
+        else:
+            dataset = loadDataset(load_dataset)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
