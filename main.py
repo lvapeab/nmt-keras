@@ -4,12 +4,13 @@ import copy
 import sys
 import time
 from timeit import default_timer as timer
+
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from keras_wrapper.model_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
-from keras_wrapper.dataset import loadDataset
+from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.extra.callbacks import *
 from keras_wrapper.online_trainer import OnlineTrainer
 from model_zoo import TranslationModel
@@ -47,17 +48,41 @@ def train_model(params, load_dataset=None):
     :param load_dataset: Load dataset from file or build it from the parameters.
     :return: None
     """
+    check_params(params)
 
     if params['RELOAD'] > 0:
         logging.info('Resuming training.')
+        # Load data
+        if load_dataset is None:
+            if params['REBUILD_DATASET']:
+                logging.info('Rebuilding dataset.')
+                dataset = build_dataset(params)
+            else:
+                logging.info('Updating dataset.')
+                dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['TASK_NAME']
+                                      + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
-    check_params(params)
+                for split, filename in params['TEXT_FILES'].iteritems():
+                    dataset = update_dataset_from_file(dataset,
+                                                       params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
+                                                       params,
+                                                       splits=list([split]),
+                                                       output_text_filename=params['DATA_ROOT_PATH'] + '/' + filename +
+                                                                            params['TRG_LAN'],
+                                                       remove_outputs=False,
+                                                       compute_state_below=True)
+                    dataset.name = params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
+                saveDataset(dataset, params['DATASET_STORE_PATH'])
 
-    # Load data
-    if load_dataset is None:
-        dataset = build_dataset(params)
+        else:
+            logging.info('Reloading and using dataset.')
+            dataset = loadDataset(load_dataset)
     else:
-        dataset = loadDataset(load_dataset)
+        # Load data
+        if load_dataset is None:
+            dataset = build_dataset(params)
+        else:
+            dataset = loadDataset(load_dataset)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -147,6 +172,92 @@ def train_model(params, load_dataset=None):
     total_end_time = timer()
     time_difference = total_end_time - total_start_time
     logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
+
+
+def apply_NMT_model(params, load_dataset=None):
+    """
+    Sample from a previously trained model.
+
+    :param params: Dictionary of network hyperparameters.
+    :param load_dataset: Load dataset from file or build it from the parameters.
+    :return: None
+    """
+
+    # Load data
+    if load_dataset is None:
+        dataset = build_dataset(params)
+    else:
+        dataset = loadDataset(load_dataset)
+    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
+    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
+
+    # Load model
+    nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
+    nmt_model.setOptimizer()
+
+    for s in params["EVAL_ON_SETS"]:
+        # Evaluate training
+        extra_vars = {'language': params.get('TRG_LAN', 'en'),
+                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
+                      'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
+                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                      'tokenize_references': params['TOKENIZE_REFERENCES']}
+        vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
+        extra_vars[s] = dict()
+        extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
+        input_text_id = None
+        vocab_src = None
+        if params['BEAM_SIZE']:
+            extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
+            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
+            extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
+            extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
+            extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
+            extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
+            extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
+            extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
+            extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
+            extra_vars['search_pruning'] = params.get('SEARCH_PRUNING', False)
+            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
+            extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
+            extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
+            extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
+            extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
+            extra_vars['pos_unk'] = params['POS_UNK']
+            if params['POS_UNK']:
+                extra_vars['heuristic'] = params['HEURISTIC']
+                input_text_id = params['INPUTS_IDS_DATASET'][0]
+                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
+                if params['HEURISTIC'] > 0:
+                    extra_vars['mapping'] = dataset.mapping
+
+        callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(nmt_model,
+                                                                         dataset,
+                                                                         gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                                                         metric_name=params['METRICS'],
+                                                                         set_name=params['EVAL_ON_SETS'],
+                                                                         batch_size=params['BATCH_SIZE'],
+                                                                         each_n_epochs=params['EVAL_EACH'],
+                                                                         extra_vars=extra_vars,
+                                                                         reload_epoch=params['RELOAD'],
+                                                                         is_text=True,
+                                                                         input_text_id=input_text_id,
+                                                                         save_path=nmt_model.model_path,
+                                                                         index2word_y=vocab,
+                                                                         index2word_x=vocab_src,
+                                                                         sampling_type=params['SAMPLING'],
+                                                                         beam_search=params['BEAM_SEARCH'],
+                                                                         start_eval_on_epoch=params[
+                                                                             'START_EVAL_ON_EPOCH'],
+                                                                         write_samples=True,
+                                                                         write_type=params['SAMPLING_SAVE_MODE'],
+                                                                         eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                                                         save_each_evaluation=False,
+                                                                         verbose=params['VERBOSE'])
+
+        callback_metric.evaluate(params['RELOAD'], counter_name='epoch' if params['EVAL_EACH_EPOCHS'] else 'update')
 
 
 def train_model_online(params, source_filename, target_filename, models_path=None, dataset=None, store_hypotheses=None,
@@ -325,88 +436,6 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
      for nmt_model in models]
 
 
-def apply_NMT_model(params):
-    """
-    Sample from a previously trained model.
-
-    :param params: Dictionary of network hyperparameters.
-    :return: None
-    """
-
-    # Load data
-    dataset = build_dataset(params)
-    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
-    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
-
-    # Load model
-    nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
-    nmt_model.setOptimizer()
-
-    for s in params["EVAL_ON_SETS"]:
-        # Evaluate training
-        extra_vars = {'language': params.get('TRG_LAN', 'en'),
-                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
-                      'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
-                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
-                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
-                      'tokenize_references': params['TOKENIZE_REFERENCES']}
-        vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
-        extra_vars[s] = dict()
-        extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-        input_text_id = None
-        vocab_src = None
-        if params['BEAM_SIZE']:
-            extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
-            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
-            extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
-            extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
-            extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
-            extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
-            extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
-            extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['search_pruning'] = params.get('SEARCH_PRUNING', False)
-            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
-            extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
-            extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
-            extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
-            extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
-            extra_vars['pos_unk'] = params['POS_UNK']
-            if params['POS_UNK']:
-                extra_vars['heuristic'] = params['HEURISTIC']
-                input_text_id = params['INPUTS_IDS_DATASET'][0]
-                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
-                if params['HEURISTIC'] > 0:
-                    extra_vars['mapping'] = dataset.mapping
-
-        callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(nmt_model,
-                                                                         dataset,
-                                                                         gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                                         metric_name=params['METRICS'],
-                                                                         set_name=params['EVAL_ON_SETS'],
-                                                                         batch_size=params['BATCH_SIZE'],
-                                                                         each_n_epochs=params['EVAL_EACH'],
-                                                                         extra_vars=extra_vars,
-                                                                         reload_epoch=params['RELOAD'],
-                                                                         is_text=True,
-                                                                         input_text_id=input_text_id,
-                                                                         save_path=nmt_model.model_path,
-                                                                         index2word_y=vocab,
-                                                                         index2word_x=vocab_src,
-                                                                         sampling_type=params['SAMPLING'],
-                                                                         beam_search=params['BEAM_SEARCH'],
-                                                                         start_eval_on_epoch=params[
-                                                                             'START_EVAL_ON_EPOCH'],
-                                                                         write_samples=True,
-                                                                         write_type=params['SAMPLING_SAVE_MODE'],
-                                                                         eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                                         save_each_evaluation=False,
-                                                                         verbose=params['VERBOSE'])
-
-        callback_metric.evaluate(params['RELOAD'], counter_name='epoch' if params['EVAL_EACH_EPOCHS'] else 'update')
-
-
 def buildCallbacks(params, model, dataset):
     """
     Builds the selected set of callbacks run during the training of the model.
@@ -548,7 +577,7 @@ if __name__ == "__main__":
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
-            except:
+            except ValueError:
                 parameters[k] = v
     except ValueError:
         print 'Error processing arguments: (', k, ",", v, ")"
@@ -568,6 +597,6 @@ if __name__ == "__main__":
         train_model(parameters, args.dataset)
     elif parameters['MODE'] == 'sampling':
         logging.info('Running sampling.')
-        apply_NMT_model(parameters)
+        apply_NMT_model(parameters, args.dataset)
 
     logging.info('Done!')
