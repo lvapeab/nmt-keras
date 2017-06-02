@@ -6,7 +6,8 @@ def load_parameters():
     """
 
     # Input data params
-    DATASET_NAME = 'EuTrans'                        # Task name
+    TASK_NAME = 'EuTrans'                           # Task name
+    DATASET_NAME = TASK_NAME                        # Dataset name
     SRC_LAN = 'es'                                  # Language of the source text
     TRG_LAN = 'en'                                  # Language of the target text
     DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored
@@ -195,7 +196,7 @@ def load_parameters():
 
     # Results plot and models storing parameters
     EXTRA_NAME = ''                               # This will be appended to the end of the model name
-    MODEL_NAME = DATASET_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
+    MODEL_NAME = TASK_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
                  '_src_emb_' + str(SOURCE_TEXT_EMBEDDING_SIZE) + \
                  '_bidir_' + str(BIDIRECTIONAL_ENCODER) + \
                  '_enc_' + RNN_TYPE + '_' + str(ENCODER_HIDDEN_SIZE) + \
