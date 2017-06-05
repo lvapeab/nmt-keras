@@ -346,9 +346,14 @@ class TranslationModel(Model_Wrapper):
                 initial_memory = Regularize(initial_memory, params, name='initial_memory')
                 input_attentional_decoder.append(initial_memory)
         else:
+            # Initialize to zeros vector
             input_attentional_decoder = [state_below, annotations]
-            initial_state = None
-            initial_memory = None
+            initial_state = ZeroesLayer(params['DECODER_HIDDEN_SIZE'])(ctx_mean)
+            input_attentional_decoder.append(initial_state)
+            if params['RNN_TYPE'] == 'LSTM':
+                input_attentional_decoder.append(initial_state)
+
+
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
                                                                      att_dim=params.get('ATTENTION_SIZE', 0),
