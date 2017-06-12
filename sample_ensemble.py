@@ -87,6 +87,9 @@ if __name__ == "__main__":
     params_prediction['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
     params_prediction['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
     params_prediction['pos_unk'] = params.get('POS_UNK', False)
+    params_prediction['output_length_depending_on_x'] = params.get('PAD_HYPOTHESES_GIVEN_X', True)
+    params_prediction['output_length_depending_on_x_factor'] = params.get('LENGTH_Y_GIVEN_X_FACTOR', 3)
+
     heuristic = params.get('HEURISTIC', 0)
     mapping = None if dataset.mapping == dict() else dataset.mapping
 

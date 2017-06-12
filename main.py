@@ -194,7 +194,7 @@ def apply_NMT_model(params, load_dataset=None):
         extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
         input_text_id = None
         vocab_src = None
-        if params['BEAM_SIZE']:
+        if params['BEAM_SEARCH']:
             extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
             extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
             extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
@@ -211,6 +211,8 @@ def apply_NMT_model(params, load_dataset=None):
             extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
             extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
             extra_vars['pos_unk'] = params['POS_UNK']
+            extra_vars['output_length_depending_on_x'] = params.get('PAD_HYPOTHESES_GIVEN_X', True)
+            extra_vars['output_length_depending_on_x_factor'] = params.get('LENGTH_Y_GIVEN_X_FACTOR', 3)
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
                 input_text_id = params['INPUTS_IDS_DATASET'][0]
@@ -271,7 +273,7 @@ def buildCallbacks(params, model, dataset):
         input_text_id = params['INPUTS_IDS_DATASET'][0]
         vocab_x = dataset.vocabulary[input_text_id]['idx2words']
         vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
-        if params['BEAM_SIZE']:
+        if params['BEAM_SEARCH']:
             extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
             extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
             extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
@@ -288,6 +290,8 @@ def buildCallbacks(params, model, dataset):
             extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
             extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
             extra_vars['pos_unk'] = params['POS_UNK']
+            extra_vars['output_length_depending_on_x'] = params.get('PAD_HYPOTHESES_GIVEN_X', True)
+            extra_vars['output_length_depending_on_x_factor'] = params.get('LENGTH_Y_GIVEN_X_FACTOR', 3)
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
                 if params['HEURISTIC'] > 0:
