@@ -1,6 +1,6 @@
 # NMT-Keras
 
-[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1239923bcbba438b97b374ae8dc435be)](https://www.codacy.com/app/lvapeab/nmt-keras?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lvapeab/nmt-keras&amp;utm_campaign=Badge_Grade) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=interactive_NMT)](https://travis-ci.org/lvapeab/nmt-keras) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1239923bcbba438b97b374ae8dc435be)](https://www.codacy.com/app/lvapeab/nmt-keras?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lvapeab/nmt-keras&amp;utm_campaign=Badge_Grade) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=interactive_NMT)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
 Neural Machine Translation with Keras (+ Theano backend).
 
@@ -10,21 +10,27 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
   <br><br><img src="https://raw.githubusercontent.com/lvapeab/nmt-keras/master/examples/documentation/attention_nmt_model.png?token=AEf6E5RhGVqGRSmYi87EbtiGZK7lPxrFks5ZAx-KwA%3D%3D"><br><br>
 </div>
 
-# WARNING!!
+# Interactive & Online NMT
 
 You are now in the `InteractiveNMT` branch of NMT-Keras. This branch is designed to implement the interactive protocols described in the paper [Interactive Neural Machine Translation](http://www.sciencedirect.com/science/article/pii/S0885230816301000): 
 
-If you use this repository for any purpose, please the aforementioned paper:
+If you use this repository for this purpose, please the aforementioned paper:
  
 ```
 Interactive Neural Machine Translation
 Álvaro Peris, Miguel Domingo and Francisco Casacuberta.
-In Computer Speech & Language. In press, 2016.
+In Computer Speech & Language. 45:201–220. 2017.
 ```
 
 The interactive simulation is implemented at the `interactive_nmt_simulation.py` script. 
 
-In addition, this branch also supports online learning. Refer to the `main.py` for more information.
+In addition, this branch also supports online learning. Refer to the `main.py` for more information. If you use the online learning features, please cite the following paper:
+
+```
+ Online Learning for Neural Machine Translation Post-editing
+Álvaro Peris, Luis Cebrián and Francisco Casacuberta.
+In arxiv:1706.03196. 2017.
+```
 
 ## Requirements
     
