@@ -14,7 +14,7 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
 
 You are now in the `InteractiveNMT` branch of NMT-Keras. This branch is designed to implement the interactive protocols described in the paper [Interactive Neural Machine Translation](http://www.sciencedirect.com/science/article/pii/S0885230816301000): 
 
-If you use this repository for this purpose, please the aforementioned paper:
+If you use this repository for this purpose, please cite the aforementioned paper:
  
 ```
 Interactive Neural Machine Translation
@@ -24,7 +24,7 @@ In Computer Speech & Language. 45:201–220. 2017.
 
 The interactive simulation is implemented at the `interactive_nmt_simulation.py` script. 
 
-In addition, this branch also supports online learning. Refer to the `main.py` for more information. If you use the online learning features, please cite the following paper:
+In addition, this branch also supports [online learning protocols in a post-editing scenario](https://arxiv.org/abs/1706.03196). Refer to the `main.py` for more information. If you use the online learning features, please cite the following paper:
 
 ```
  Online Learning for Neural Machine Translation Post-editing
