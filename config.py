@@ -213,7 +213,7 @@ def load_parameters():
     STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
     DATASET_STORE_PATH = STORE_PATH + '/'              # Dataset instance will be stored here
 
-    SAMPLING_SAVE_MODE = 'list'                        # 'list' or 'vqa'
+    SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
     VERBOSE = 1                                        # Verbosity level
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model
                                                        # Saved on epoch 'RELOAD' will be used
