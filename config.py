@@ -116,8 +116,14 @@ def load_parameters():
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
-    LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
+    # Learning rate annealing
+    LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
+    LR_REDUCE_EACH_EPOCHS = False                 # Reduce each LR_DECAY number of epochs or updates
+    LR_START_REDUCTION_ON_EPOCH = 0               # Epoch to start the reduction
+    LR_REDUCER_TYPE = 'exponential'               # Function to reduce. 'linear' and 'exponential' implemented.
+    LR_REDUCER_EXP_BASE = 0.5                     # Base for the exponential decay
+    LR_HALF_LIFE = 5000                           # Factor for exponenital decay
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
