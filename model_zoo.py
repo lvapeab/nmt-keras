@@ -50,7 +50,7 @@ class TranslationModel(Model_Wrapper):
 
         """
         super(TranslationModel, self).__init__(type=model_type, model_name=model_name,
-                                             silence=verbose == 0, models_path=store_path, inheritance=True)
+                                               silence=verbose == 0, models_path=store_path, inheritance=True)
 
         self.__toprint = ['_model_type', 'name', 'model_path', 'verbose']
 
@@ -268,6 +268,7 @@ class TranslationModel(Model_Wrapper):
                                                                  dropout_U=params['RECURRENT_DROPOUT_P'] if params[
                                                                      'USE_RECURRENT_DROPOUT'] else None,
                                                                  init=params['INIT_FUNCTION'],
+                                                                 inner_init=params['INNER_INIT'],
                                                                  return_sequences=True),
                                         name='bidirectional_encoder_' + params['RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
@@ -282,6 +283,7 @@ class TranslationModel(Model_Wrapper):
                                                        'USE_RECURRENT_DROPOUT'] else None,
                                                    return_sequences=True,
                                                    init=params['INIT_FUNCTION'],
+                                                   inner_init=params['INNER_INIT'],
                                                    name='encoder_' + params['RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
@@ -298,6 +300,7 @@ class TranslationModel(Model_Wrapper):
                                                                          dropout_U=params['RECURRENT_DROPOUT_P'] if
                                                                          params['USE_RECURRENT_DROPOUT'] else None,
                                                                          init=params['INIT_FUNCTION'],
+                                                                         inner_init=params['INNER_INIT'],
                                                                          return_sequences=True,
                                                                          ),
                                                 merge_mode='concat',
@@ -353,7 +356,6 @@ class TranslationModel(Model_Wrapper):
             if params['RNN_TYPE'] == 'LSTM':
                 input_attentional_decoder.append(initial_state)
 
-
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
                                                                      att_dim=params.get('ATTENTION_SIZE', 0),
@@ -378,6 +380,8 @@ class TranslationModel(Model_Wrapper):
                                                                      dropout_Ua=params['DROPOUT_P']
                                                                      if params['USE_DROPOUT'] else None,
                                                                      init=params['INIT_FUNCTION'],
+                                                                     inner_init=params['INNER_INIT'],
+                                                                     init_att=params['INIT_ATT'],
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,
                                                                      return_states=True,
@@ -413,15 +417,13 @@ class TranslationModel(Model_Wrapper):
                                                                         b_regularizer=l2(
                                                                             params['RECURRENT_WEIGHT_DECAY']),
                                                                         dropout_W=params['RECURRENT_DROPOUT_P'] if
-                                                                        params[
-                                                                            'USE_RECURRENT_DROPOUT'] else None,
+                                                                        params['USE_RECURRENT_DROPOUT'] else None,
                                                                         dropout_U=params['RECURRENT_DROPOUT_P'] if
-                                                                        params[
-                                                                            'USE_RECURRENT_DROPOUT'] else None,
+                                                                        params['USE_RECURRENT_DROPOUT'] else None,
                                                                         dropout_V=params['RECURRENT_DROPOUT_P'] if
-                                                                        params[
-                                                                            'USE_RECURRENT_DROPOUT'] else None,
+                                                                        params['USE_RECURRENT_DROPOUT'] else None,
                                                                         init=params['INIT_FUNCTION'],
+                                                                        inner_init=params['INNER_INIT'],
                                                                         return_sequences=True,
                                                                         return_states=True,
                                                                         name='decoder_' + params['RNN_TYPE'] +
@@ -445,14 +447,14 @@ class TranslationModel(Model_Wrapper):
         shared_FC_mlp = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
-                                              activation='linear',
-                                              ), name='logit_lstm')
+                                              activation='linear'),
+                                        name='logit_lstm')
         out_layer_mlp = shared_FC_mlp(proj_h)
         shared_FC_ctx = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               init=params['INIT_FUNCTION'],
                                               W_regularizer=l2(params['WEIGHT_DECAY']),
-                                              activation='linear',
-                                              ), name='logit_ctx')
+                                              activation='linear'),
+                                        name='logit_ctx')
         out_layer_ctx = shared_FC_ctx(x_att)
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
         shared_FC_emb = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],

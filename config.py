@@ -40,7 +40,7 @@ def load_parameters():
     SEARCH_PRUNING = False                        # Apply pruning strategies to the beam search method.
                                                   # It will likely increase decoding speed, but decrease quality.
     PAD_HYPOTHESES_GIVEN_X = True                 # Generate translations of similar length to the source sentences
-    LENGTH_Y_GIVEN_X_FACTOR = 3                   # The hypotheses will have (as maximum) the number of words of the
+    LENGTH_Y_GIVEN_X_FACTOR = 2                   # The hypotheses will have (as maximum) the number of words of the
                                                   # source sentence * LENGTH_Y_GIVEN_X_FACTOR
 
     # Apply length and coverage decoding normalizations.
@@ -61,7 +61,7 @@ def load_parameters():
     SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
-    POS_UNK = False                               # Enable POS_UNK strategy for unknown words
+    POS_UNK = True                                # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
                                                   #     1: Replace the UNK by the translation (given by an external
@@ -71,7 +71,10 @@ def load_parameters():
                                                   #        starts with a lowercase. Otherwise, copies the source word.
     ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
 
-    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
+    # Source -- Target pkl mapping (used for heuristics 1--2). See utils/build_mapping_file.sh for further info.
+
+    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN)
+
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
@@ -136,7 +139,10 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
     RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
-    INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
+    # Initializers (see keras/initializations.py).
+    INIT_FUNCTION = 'glorot_uniform'              # General initialization function for matrices.
+    INNER_INIT = 'orthogonal'                     # Initialization function for inner RNN matrices.
+    INIT_ATT = 'glorot_uniform'                   # Initialization function for attention mechism matrices
 
     SOURCE_TEXT_EMBEDDING_SIZE = 64              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
