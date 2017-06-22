@@ -2,7 +2,7 @@ Tutorials
 =========
 
 
-This page contains some examples and tutorials showing how the library works. All tutorials have a `iPython notebook version`_.
+This page contains some examples and tutorials showing how the library works. All tutorials have an `iPython notebook version`_.
 
 .. _iPython notebook version: https://github.com/lvapeab/nmt-keras/blob/master/examples
 
