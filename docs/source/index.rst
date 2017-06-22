@@ -11,6 +11,7 @@ Neural Machine Translation with Keras (+ Theano backend).
 Features
 ********
 
+ * Online learning and Interactive neural machine translation (INMT). See `the interactive NMT branch`_. 
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
@@ -30,6 +31,7 @@ Features
 .. _Spearmint: https://github.com/HIPS/Spearmint
 .. _Glove: http://nlp.stanford.edu/projects/glove/
 .. _Word2Vec: https://code.google.com/archive/p/word2vec/
+.. _the interactive NMT branch: https://github.com/lvapeab/nmt-keras/tree/interactive_NMT
 
 Guide
 =====
