@@ -25,7 +25,8 @@ If you use this toolkit in your research, please cite:
 ```
 
 ## Features (in addition to the full Keras cosmos): 
-
+ 
+ * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
