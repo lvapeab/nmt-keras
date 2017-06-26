@@ -5,8 +5,7 @@ import logging
 import ast
 from collections import OrderedDict
 
-from keras_wrapper.extra.read_write import pkl2dict, list2file
-from utils.utils import *
+from utils.utils import update_parameters
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
@@ -16,6 +15,10 @@ from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *
+from keras_wrapper.extra.read_write import pkl2dict, list2file
+from keras_wrapper.utils import decode_predictions_beam_search
+from keras_wrapper.online_trainer import OnlineTrainer
+from online_models import build_online_models
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -48,37 +51,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def train_online(models, dataset, source_line, target_line, params_training):
-    src_seq = dataset.loadText([source_line],
-                               dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]],
-                               params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                               0,
-                               fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][0]],
-                               pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
-                               words_so_far=False,
-                               loading_X=True)[0]
-    state_below = dataset.loadText([target_line],
-                                   dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
-                                   params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                                   1,
-                                   fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
-                                   pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
-                                   words_so_far=False,
-                                   loading_X=True)[0]
-    trg_seq = dataset.loadTextOneHot([target_line],
-                                     vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
-                                     vocabulary_len=dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]],
-                                     max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                                     offset=0,
-                                     fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
-                                     pad_on_batch=dataset.pad_on_batch[params['OUTPUTS_IDS_DATASET'][0]],
-                                     words_so_far=False,
-                                     sample_weights=params['SAMPLE_WEIGHTS'],
-                                     loading_X=False)
-    for model in models:
-        model.trainNetFromSamples([src_seq, state_below], trg_seq[0], params_training)
-
-
 if __name__ == "__main__":
 
     args = parse_args()
@@ -91,14 +63,19 @@ if __name__ == "__main__":
         params = update_parameters(params, online_parameters)
 
     check_params(params)
+
+    dataset = loadDataset(args.dataset)
+    dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits, remove_outputs=True)
+
     if args.online:
-        params_training = {  # Traning params
+        params_training = {
+            # Traning params
             'n_epochs': params['MAX_EPOCH'],
             'shuffle': False,
-            'max_batch_size': params['BATCH_SIZE'],
+            'batch_size': params.get('BATCH_SIZE', 1),
             'homogeneous_batches': False,
-            'lr_decay': params['LR_DECAY'],
-            'lr_gamma': params['LR_GAMMA'],
+            'lr_decay': params.get('LR_DECAY', None),
+            'lr_gamma': params.get('LR_GAMMA', 1.),
             'epochs_for_save': -1,
             'verbose': args.verbose,
             'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
@@ -113,13 +90,15 @@ if __name__ == "__main__":
             'each_n_epochs': params.get('EVAL_EACH', 1),
             'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)
         }
-        dataset = loadDataset(args.dataset)
         dataset = update_dataset_from_file(dataset, args.source, params,
-                                           output_text_filename=args.references, splits=['train'], remove_outputs=False,
+                                           output_text_filename=args.references,
+                                           splits=['train'],
+                                           remove_outputs=False,
                                            compute_state_below=True)
     logger.info("<<< Using an ensemble of %d models >>>" % len(args.models))
     if args.online:
         logging.info('Loading models from %s' % str(args.models))
+
         model_instances = [TranslationModel(params,
                                             model_type=params['MODEL_TYPE'],
                                             verbose=params['VERBOSE'],
@@ -129,9 +108,19 @@ if __name__ == "__main__":
                                             set_optimizer=False)
                            for i in range(len(args.models))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
-        for nmt_model in models:
-            nmt_model.setParams(params)
-            nmt_model.setOptimizer()
+
+        # Set additional inputs to models if using a custom loss function
+        params['USE_CUSTOM_LOSS'] = True if 'PAS' in params['OPTIMIZER'] else False
+        trainer_models = build_online_models(models, params)
+        if params['N_BEST_OPTIMIZER']:
+            logging.info('Using N-best optimizer')
+
+        online_trainer = OnlineTrainer(trainer_models,
+                                       dataset,
+                                       None,
+                                       None,
+                                       params_training,
+                                       verbose=args.verbose)
     else:
         models = [loadModel(m, -1, full_path=True) for m in args.models]
 
@@ -149,8 +138,6 @@ if __name__ == "__main__":
     if target_lines[-1] == '':
         target_lines = target_lines[:-1]
 
-    dataset = loadDataset(args.dataset)
-    dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits, remove_outputs=True)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -227,7 +214,7 @@ if __name__ == "__main__":
                 seqin = line.strip()
                 src_seq, src_words = parse_input(seqin, dataset, word2index_x)
 
-                logger.debug("\n \n Processing sentence %d" % (n_line + 1))
+                logger.debug("\n\nProcessing sentence %d" % (n_line + 1))
                 logger.debug("Source: %s" % line[:-1])
                 logger.debug("Target: %s" % target_lines[n_line])
                 reference = target_lines[n_line].split()
@@ -242,14 +229,14 @@ if __name__ == "__main__":
                     heuristic = None
                     sources = None
 
-                hypothesis = models[0].decode_predictions_beam_search([trans_indices],
-                                                                      index2word_y,
-                                                                      alphas=alphas,
-                                                                      x_text=sources,
-                                                                      heuristic=heuristic,
-                                                                      mapping=mapping,
-                                                                      pad_sequences=True,
-                                                                      verbose=0)[0]
+                hypothesis = decode_predictions_beam_search([trans_indices],
+                                                            index2word_y,
+                                                            alphas=alphas,
+                                                            x_text=sources,
+                                                            heuristic=heuristic,
+                                                            mapping=mapping,
+                                                            pad_sequences=True,
+                                                            verbose=0)[0]
                 # Store result
                 if args.original_dest is not None:
                     filepath = args.original_dest  # results file
@@ -354,14 +341,14 @@ if __name__ == "__main__":
                                 alphas = [alphas]
                             else:
                                 alphas = None
-                            hypothesis = models[0].decode_predictions_beam_search([trans_indices],
-                                                                                  index2word_y,
-                                                                                  alphas=alphas,
-                                                                                  x_text=sources,
-                                                                                  heuristic=heuristic,
-                                                                                  mapping=mapping,
-                                                                                  pad_sequences=True,
-                                                                                  verbose=0)[0]
+                            hypothesis = decode_predictions_beam_search([trans_indices],
+                                                                        index2word_y,
+                                                                        alphas=alphas,
+                                                                        x_text=sources,
+                                                                        heuristic=heuristic,
+                                                                        mapping=mapping,
+                                                                        pad_sequences=True,
+                                                                        verbose=0)[0]
                             hypothesis = hypothesis.split()
                             hypothesis_number += 1
                             # UNK words management
@@ -418,7 +405,27 @@ if __name__ == "__main__":
                               float(total_mouse_actions) / total_words,
                               float(total_mouse_actions) / total_chars))
                 if args.online:
-                    train_online(models, dataset, line, " ".join(reference), params_training)
+                    state_below = dataset.loadText([" ".join(reference)],
+                                       dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                       params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                       1,
+                                       fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
+                                       pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
+                                       words_so_far=False,
+                                       loading_X=True)[0]
+
+                    trg_seq = dataset.loadTextOneHot([" ".join(reference)],
+                                         vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                         vocabulary_len=dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]],
+                                         max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                         offset=0,
+                                         fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
+                                         pad_on_batch=dataset.pad_on_batch[params['OUTPUTS_IDS_DATASET'][0]],
+                                         words_so_far=False,
+                                         sample_weights=params['SAMPLE_WEIGHTS'],
+                                         loading_X=False)
+
+                    online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[" ".join(reference)])
 
                 print >> ftrans, " ".join(hypothesis)
 

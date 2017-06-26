@@ -8,8 +8,8 @@ def load_parameters():
     LOSS = 'categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
 
-    OPTIMIZER = 'PAS'                             # Optimizer
-    LR = 0.01                                     # Learning rate.
+    OPTIMIZER = 'Adadelta'                             # Optimizer
+    LR = 0.1                                     # Learning rate.
     # PAS-like params
     C = 0.01                                      # Constant parameter for PAS and PPAS optimizer.
     N_BEST_OPTIMIZER = False                      # Use N-Best list-based optimization
@@ -21,7 +21,6 @@ def load_parameters():
 
     # Training parameters
     MAX_EPOCH = 1                                 # Stop when computed this number of epochs
-    BATCH_SIZE = 1                                # Size of each minibatch
 
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves
     WRITE_VALID_SAMPLES = True                    # Write valid samples in file
