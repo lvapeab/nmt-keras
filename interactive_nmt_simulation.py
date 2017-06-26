@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument("--max-n", type=int, default=5, help="Maximum number of words generated between isles")
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=True)
     parser.add_argument("-trg", "--references", help="Reference sentence (for simulation)", required=True)
-    parser.add_argument("-d", "--dest", required=False, help="File to save translations in")
+    parser.add_argument("-d", "--dest", required=True, help="File to save translations in")
     parser.add_argument("-od", "--original-dest", help="Save original hypotheses to this file", required=False)
     parser.add_argument("-p", "--prefix", action="store_true", default=False, help="Prefix-based post-edition")
     parser.add_argument("-o", "--online",
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         params_training = {  # Traning params
             'n_epochs': params['MAX_EPOCH'],
             'shuffle': False,
-            'batch_size': params['BATCH_SIZE'],
+            'max_batch_size': params['BATCH_SIZE'],
             'homogeneous_batches': False,
             'lr_decay': params['LR_DECAY'],
             'lr_gamma': params['LR_GAMMA'],
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     try:
         for s in args.splits:
             # Apply model predictions
-            params_prediction = {'batch_size': params['BATCH_SIZE'],
+            params_prediction = {'max_batch_size': params['BATCH_SIZE'],
                                  'n_parallel_loaders': params['PARALLEL_LOADERS'],
                                  'predict_on_sets': [s],
                                  'beam_size': params['BEAM_SIZE'],
@@ -185,7 +185,22 @@ if __name__ == "__main__":
                                  'dataset_outputs': params['OUTPUTS_IDS_DATASET'],
                                  'normalize_probs': params['NORMALIZE_SAMPLING'],
                                  'alpha_factor': params['ALPHA_FACTOR'],
-                                 'pos_unk': params['POS_UNK']}
+                                 'pos_unk': params['POS_UNK'],
+                                 'search_pruning': params.get('SEARCH_PRUNING', False),
+                                 'state_below_index': -1,
+                                 'output_text_index': 0,
+                                 'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                                 'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
+                                 'coverage_penalty': params.get('COVERAGE_PENALTY', False),
+                                 'length_penalty': params.get('LENGTH_PENALTY', False),
+                                 'length_norm_factor': params.get('LENGTH_NORM_FACTOR', 0.0),
+                                 'coverage_norm_factor': params.get('COVERAGE_NORM_FACTOR', 0.0),
+                                 'output_max_length_depending_on_x': params.get('MAXLEN_GIVEN_X', True),
+                                 'output_max_length_depending_on_x_factor': params.get('MAXLEN_GIVEN_X_FACTOR', 3),
+                                 'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
+                                 'output_min_length_depending_on_x_factor': params.get('MINLEN_GIVEN_X_FACTOR', 2),
+                                 'n_best_optimizer': params.get('N_BEST_OPTIMIZER', False)
+                                 }
 
             mapping = None if dataset.mapping == dict() else dataset.mapping
 
