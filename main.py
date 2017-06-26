@@ -216,8 +216,11 @@ def apply_NMT_model(params, load_dataset=None):
             extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
             extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
             extra_vars['pos_unk'] = params['POS_UNK']
-            extra_vars['output_length_depending_on_x'] = params.get('PAD_HYPOTHESES_GIVEN_X', True)
-            extra_vars['output_length_depending_on_x_factor'] = params.get('LENGTH_Y_GIVEN_X_FACTOR', 3)
+            extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
+            extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
+            extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
+            extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
                 input_text_id = params['INPUTS_IDS_DATASET'][0]
@@ -295,8 +298,11 @@ def buildCallbacks(params, model, dataset):
             extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
             extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
             extra_vars['pos_unk'] = params['POS_UNK']
-            extra_vars['output_length_depending_on_x'] = params.get('PAD_HYPOTHESES_GIVEN_X', True)
-            extra_vars['output_length_depending_on_x_factor'] = params.get('LENGTH_Y_GIVEN_X_FACTOR', 3)
+            extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
+            extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
+            extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
+            extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
                 if params['HEURISTIC'] > 0:

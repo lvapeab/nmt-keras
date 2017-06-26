@@ -39,9 +39,12 @@ def load_parameters():
     OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
     SEARCH_PRUNING = False                        # Apply pruning strategies to the beam search method.
                                                   # It will likely increase decoding speed, but decrease quality.
-    PAD_HYPOTHESES_GIVEN_X = True                 # Generate translations of similar length to the source sentences
-    LENGTH_Y_GIVEN_X_FACTOR = 2                   # The hypotheses will have (as maximum) the number of words of the
+    MAXLEN_GIVEN_X = True                         # Generate translations of similar length to the source sentences
+    MAXLEN_GIVEN_X_FACTOR = 2                     # The hypotheses will have (as maximum) the number of words of the
                                                   # source sentence * LENGTH_Y_GIVEN_X_FACTOR
+    MINLEN_GIVEN_X = True                         # Generate translations of similar length to the source sentences
+    MINLEN_GIVEN_X_FACTOR = 3                     # The hypotheses will have (as minimum) the number of words of the
+                                                  # source sentence / LENGTH_Y_GIVEN_X_FACTOR
 
     # Apply length and coverage decoding normalizations.
     # See Section 7 from Wu et al. (2016) (https://arxiv.org/abs/1609.08144)
