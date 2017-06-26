@@ -39,9 +39,12 @@ def load_parameters():
     OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
     SEARCH_PRUNING = False                        # Apply pruning strategies to the beam search method.
                                                   # It will likely increase decoding speed, but decrease quality.
-    PAD_HYPOTHESES_GIVEN_X = True                 # Generate translations of similar length to the source sentences
-    LENGTH_Y_GIVEN_X_FACTOR = 3                   # The hypotheses will have (as maximum) the number of words of the
+    MAXLEN_GIVEN_X = True                         # Generate translations of similar length to the source sentences
+    MAXLEN_GIVEN_X_FACTOR = 2                     # The hypotheses will have (as maximum) the number of words of the
                                                   # source sentence * LENGTH_Y_GIVEN_X_FACTOR
+    MINLEN_GIVEN_X = True                         # Generate translations of similar length to the source sentences
+    MINLEN_GIVEN_X_FACTOR = 3                     # The hypotheses will have (as minimum) the number of words of the
+                                                  # source sentence / LENGTH_Y_GIVEN_X_FACTOR
 
     # Apply length and coverage decoding normalizations.
     # See Section 7 from Wu et al. (2016) (https://arxiv.org/abs/1609.08144)
@@ -61,7 +64,7 @@ def load_parameters():
     SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
-    POS_UNK = False                               # Enable POS_UNK strategy for unknown words
+    POS_UNK = True                                # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
                                                   #     1: Replace the UNK by the translation (given by an external
@@ -71,7 +74,10 @@ def load_parameters():
                                                   #        starts with a lowercase. Otherwise, copies the source word.
     ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list
 
-    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN) # Source -- Target pkl mapping (used for heuristics 1--2)
+    # Source -- Target pkl mapping (used for heuristics 1--2). See utils/build_mapping_file.sh for further info.
+
+    MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN)
+
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
@@ -113,8 +119,14 @@ def load_parameters():
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
-    LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
+    # Learning rate annealing
+    LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
+    LR_REDUCE_EACH_EPOCHS = False                 # Reduce each LR_DECAY number of epochs or updates
+    LR_START_REDUCTION_ON_EPOCH = 0               # Epoch to start the reduction
+    LR_REDUCER_TYPE = 'exponential'               # Function to reduce. 'linear' and 'exponential' implemented.
+    LR_REDUCER_EXP_BASE = 0.5                     # Base for the exponential decay
+    LR_HALF_LIFE = 5000                           # Factor for exponenital decay
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs
@@ -136,7 +148,10 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
     RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
-    INIT_FUNCTION = 'glorot_uniform'              # Initialization function for matrices (see keras/initializations.py)
+    # Initializers (see keras/initializations.py).
+    INIT_FUNCTION = 'glorot_uniform'              # General initialization function for matrices.
+    INNER_INIT = 'orthogonal'                     # Initialization function for inner RNN matrices.
+    INIT_ATT = 'glorot_uniform'                   # Initialization function for attention mechism matrices
 
     SOURCE_TEXT_EMBEDDING_SIZE = 64              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
@@ -213,7 +228,7 @@ def load_parameters():
     STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
     DATASET_STORE_PATH = STORE_PATH + '/'              # Dataset instance will be stored here
 
-    SAMPLING_SAVE_MODE = 'list'                        # 'list' or 'vqa'
+    SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
     VERBOSE = 1                                        # Verbosity level
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model
                                                        # Saved on epoch 'RELOAD' will be used

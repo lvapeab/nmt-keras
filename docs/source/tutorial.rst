@@ -2,7 +2,7 @@ Tutorials
 =========
 
 
-This page contains some examples and tutorials showing how the library works. All tutorials have a `iPython notebook version`_.
+This page contains some examples and tutorials showing how the library works. All tutorials have an `iPython notebook version`_.
 
 .. _iPython notebook version: https://github.com/lvapeab/nmt-keras/blob/master/examples
 
@@ -287,13 +287,11 @@ Now, let's load the translation model. Suppose we want to load the model saved a
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     # Load model
     nmt_model = loadModel('trained_models/tutorial_model', 4)
-    nmt_model.setOptimizer()
-
 
 
 Once we loaded the model, we just have to invoke the sampling method (in this case, the Beam Search algorithm) for the 'test' split::
 
-    params_prediction = {'batch_size': 50,
+    params_prediction = {'max_batch_size': 50,
                          'n_parallel_loaders': 8,
                          'predict_on_sets': ['test'],
                          'beam_size': 12,
@@ -310,10 +308,11 @@ Once we loaded the model, we just have to invoke the sampling method (in this ca
 
 Up to this moment, in the variable 'predictions', we have the indices of the words of the hypotheses. We must decode them into words. For doing this, we'll use the dictionary stored in the dataset object::
 
+    from keras_wrapper.utils import decode_predictions_beam_search
     vocab = dataset.vocabulary['target_text']['idx2words']
-    predictions = nmt_model.decode_predictions_beam_search(predictions,
-                                                           vocab,
-                                                           verbose=params['VERBOSE'])
+    predictions = decode_predictions_beam_search(predictions,
+                                                 vocab,
+                                                 verbose=params['VERBOSE'])
 
 Finally, we store the system hypotheses::
 
@@ -348,6 +347,7 @@ Next, we call the evaluation system: The Coco-caption_ package. Although its mai
     # Apply sampling
     extra_vars = dict()
     extra_vars['tokenize_f'] = eval('dataset.' + 'tokenize_none')
+    extra_vars['language'] = params['TRG_LAN']
     extra_vars['test'] = dict()
     extra_vars['test']['references'] = dataset.extra_variables['test']['target_text']
     metrics = evaluation.select[metric](pred_list=predictions,

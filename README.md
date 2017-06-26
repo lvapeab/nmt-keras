@@ -10,6 +10,20 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
   <br><br><img src="https://raw.githubusercontent.com/lvapeab/nmt-keras/master/examples/documentation/attention_nmt_model.png?token=AEf6E5RhGVqGRSmYi87EbtiGZK7lPxrFks5ZAx-KwA%3D%3D"><br><br>
 </div>
 
+
+If you use this toolkit in your research, please cite:
+
+```
+@misc{nmt-keras2017,
+  author = {Álvaro Peris},
+  title = {NMT-Keras},
+  year = {2017},
+  publisher = {GitHub},
+  note = {GitHub repository},
+  howpublished = {\url{https://github.com/lvapeab/nmt-keras}},
+}
+```
+
 # Interactive & Online NMT
 
 You are now in the `InteractiveNMT` branch of NMT-Keras. This branch is designed to implement the interactive protocols described in the paper [Interactive Neural Machine Translation](http://www.sciencedirect.com/science/article/pii/S0885230816301000): 
@@ -38,7 +52,8 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
 
 
 ## Features (in addition to the full Keras cosmos): 
-
+ 
+ * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
