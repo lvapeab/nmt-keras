@@ -328,6 +328,14 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'output_text_index': 0,
         'apply_detokenization': params['APPLY_DETOKENIZATION'],
         'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
+        'coverage_penalty': params.get('COVERAGE_PENALTY', False),
+        'length_penalty': params.get('LENGTH_PENALTY', False),
+        'length_norm_factor': params.get('LENGTH_NORM_FACTOR', 0.0),
+        'coverage_norm_factor': params.get('COVERAGE_NORM_FACTOR', 0.0),
+        'output_max_length_depending_on_x': params.get('MAXLEN_GIVEN_X', True),
+        'output_max_length_depending_on_x_factor': params.get('MAXLEN_GIVEN_X_FACTOR', 3),
+        'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
+        'output_min_length_depending_on_x_factor': params.get('MINLEN_GIVEN_X_FACTOR', 2),
         'n_best_optimizer': params['N_BEST_OPTIMIZER']
     }
     params_training = {  # Traning params
