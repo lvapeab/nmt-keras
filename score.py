@@ -74,9 +74,12 @@ if __name__ == "__main__":
             params_prediction['length_penalty'] = params.get('LENGTH_PENALTY', False)
             params_prediction['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
             params_prediction['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
-            params_prediction['pos_unk'] = params['POS_UNK']
-            params_prediction['output_length_depending_on_x'] = params.get('PAD_HYPOTHESES_GIVEN_X', True)
-            params_prediction['output_length_depending_on_x_factor'] = params.get('LENGTH_Y_GIVEN_X_FACTOR', 3)
+            params_prediction['pos_unk'] = params.get('POS_UNK', False)
+            params_prediction['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
+            params_prediction['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
+            params_prediction['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
+            params_prediction['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+
             mapping = None if dataset.mapping == dict() else dataset.mapping
             if params['POS_UNK']:
                 params_prediction['heuristic'] = params['HEURISTIC']
