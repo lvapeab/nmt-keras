@@ -1,24 +1,23 @@
 import argparse
-import copy
-import time
-import logging
 import ast
+import copy
+import logging
+import time
 from collections import OrderedDict
 
-from utils.utils import update_parameters
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
-from data_engine.prepare_data import build_dataset, update_dataset_from_file
-from model_zoo import TranslationModel
-
+from data_engine.prepare_data import update_dataset_from_file
 from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
-from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
+from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *
 from keras_wrapper.extra.read_write import pkl2dict, list2file
-from keras_wrapper.utils import decode_predictions_beam_search
 from keras_wrapper.online_trainer import OnlineTrainer
+from keras_wrapper.utils import decode_predictions_beam_search
+from model_zoo import TranslationModel
 from online_models import build_online_models
+from utils.utils import update_parameters
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -48,6 +47,9 @@ def parse_args():
                         action='store_true', default=False, required=False,
                         help="Online training mode after postedition. ")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
+    parser.add_argument("-ch", "--changes", nargs="*", help="Changes to config, following the syntax Key=Value",
+                        default="")
+
     return parser.parse_args()
 
 
@@ -61,6 +63,21 @@ if __name__ == "__main__":
     if args.online:
         online_parameters = load_parameters_online()
         params = update_parameters(params, online_parameters)
+
+    try:
+        for arg in args.changes:
+            try:
+                k, v = arg.split('=')
+            except ValueError:
+                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                exit(1)
+            try:
+                parameters[k] = ast.literal_eval(v)
+            except ValueError:
+                parameters[k] = v
+    except ValueError:
+        print 'Error processing arguments: (', k, ",", v, ")"
+        exit(2)
 
     check_params(params)
 
@@ -137,7 +154,6 @@ if __name__ == "__main__":
     target_lines = ftrg.read().split('\n')
     if target_lines[-1] == '':
         target_lines = target_lines[:-1]
-
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -406,26 +422,29 @@ if __name__ == "__main__":
                               float(total_mouse_actions) / total_chars))
                 if args.online:
                     state_below = dataset.loadText([" ".join(reference)],
-                                       dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
-                                       params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                                       1,
-                                       fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
-                                       pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
-                                       words_so_far=False,
-                                       loading_X=True)[0]
+                                                   dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                                   params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                                   1,
+                                                   fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
+                                                   pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
+                                                   words_so_far=False,
+                                                   loading_X=True)[0]
 
                     trg_seq = dataset.loadTextOneHot([" ".join(reference)],
-                                         vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
-                                         vocabulary_len=dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]],
-                                         max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                                         offset=0,
-                                         fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
-                                         pad_on_batch=dataset.pad_on_batch[params['OUTPUTS_IDS_DATASET'][0]],
-                                         words_so_far=False,
-                                         sample_weights=params['SAMPLE_WEIGHTS'],
-                                         loading_X=False)
+                                                     vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                                     vocabulary_len=dataset.vocabulary_len[
+                                                         params['OUTPUTS_IDS_DATASET'][0]],
+                                                     max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                                     offset=0,
+                                                     fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
+                                                     pad_on_batch=dataset.pad_on_batch[
+                                                         params['OUTPUTS_IDS_DATASET'][0]],
+                                                     words_so_far=False,
+                                                     sample_weights=params['SAMPLE_WEIGHTS'],
+                                                     loading_X=False)
 
-                    online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[" ".join(reference)])
+                    online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq,
+                                                trg_words=[" ".join(reference)])
 
                 print >> ftrans, " ".join(hypothesis)
 

@@ -8,14 +8,14 @@ from timeit import default_timer as timer
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
-from keras_wrapper.model_ensemble import BeamSearchEnsemble
 from keras_wrapper.cnn_model import loadModel, saveModel, updateModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.extra.callbacks import *
+from keras_wrapper.model_ensemble import BeamSearchEnsemble
 from keras_wrapper.online_trainer import OnlineTrainer
 from model_zoo import TranslationModel
-from utils.utils import *
 from online_models import build_online_models
+from utils.utils import *
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
@@ -449,7 +449,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     sys.stdout.write('We updated the model %d times for %d samples (%.3f%%)\n' %
                      (online_trainer.get_n_updates(), n_lines,
-                      float(online_trainer.get_n_updates()) /n_lines))
+                      float(online_trainer.get_n_updates()) / n_lines))
     [saveModel(nmt_model, -1, path=params.get('STORE_PATH', 'retrained_model'), full_path=True)
      for nmt_model in models]
 
