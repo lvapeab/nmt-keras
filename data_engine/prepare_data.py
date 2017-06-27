@@ -43,6 +43,7 @@ def update_dataset_from_file(ds,
                          max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 100),
                          max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                          min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
+                         bpe_codes=params.get('BPE_CODES_PATH', None),
                          overwrite_split=True)
 
         # INPUT DATA
@@ -57,6 +58,7 @@ def update_dataset_from_file(ds,
                     max_text_len=params.get('MAX_INPUT_TEXT_LEN', 100),
                     max_words=params.get('INPUT_VOCABULARY_SIZE', 0),
                     min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0),
+                    bpe_codes=params.get('BPE_CODES_PATH', None),
                     overwrite_split=True)
         if compute_state_below:
             # INPUT DATA
@@ -72,6 +74,7 @@ def update_dataset_from_file(ds,
                         max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 100),
                         max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                         min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
+                        bpe_codes=params.get('BPE_CODES_PATH', None),
                         overwrite_split=True)
         else:
             ds.setInput(None,
@@ -124,7 +127,8 @@ def build_dataset(params):
                      fill=params.get('FILL', 'end'),
                      max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
                      max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
-                     min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0))
+                     min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
+                     bpe_codes=params.get('BPE_CODES_PATH', None))
         if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
             ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                             'train',
@@ -141,7 +145,8 @@ def build_dataset(params):
                              tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                              sample_weights=params.get('SAMPLE_WEIGHTS', True),
                              max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
-                             max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0))
+                             max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
+                             bpe_codes=params.get('BPE_CODES_PATH', None))
                 if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
                     ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
                                     split,
@@ -166,7 +171,8 @@ def build_dataset(params):
                             fill=params.get('FILL', 'end'),
                             max_text_len=params.get('MAX_INPUT_TEXT_LEN', 70),
                             max_words=params.get('INPUT_VOCABULARY_SIZE', 0),
-                            min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0))
+                            min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0),
+                            bpe_codes=params.get('BPE_CODES_PATH', None))
 
                 if len(params['INPUTS_IDS_DATASET']) > 1:
                     if 'train' in split:
@@ -181,7 +187,8 @@ def build_dataset(params):
                                     offset=1,
                                     fill=params.get('FILL', 'end'),
                                     max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
-                                    max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0))
+                                    max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
+                                    bpe_codes=params.get('BPE_CODES_PATH', None))
                     else:
                         ds.setInput(None,
                                     split,

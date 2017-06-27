@@ -82,12 +82,15 @@ def load_parameters():
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
                                                   # See Dataset class (from stager_keras_wrapper) for more info.
-    DETOKENIZATION_METHOD = 'detokenize_bpe'       # Select which de-tokenization method we'll apply
+    BPE_CODES_PATH = DATA_ROOT_PATH + '/training_codes.joint'    # If TOKENIZATION_METHOD = 'tokenize_bpe',
+                                                  # sets the path to the learned BPE codes.
+    DETOKENIZATION_METHOD = 'detokenize_none'     # Select which de-tokenization method we'll apply
 
     APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method
 
     TOKENIZE_HYPOTHESES = True   		          # Whether we tokenize the hypotheses using the previously defined tokenization method
     TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
+
     # Input image parameters
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
 
@@ -226,7 +229,7 @@ def load_parameters():
     MODEL_NAME += EXTRA_NAME
 
     STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
-    DATASET_STORE_PATH = STORE_PATH + '/'              # Dataset instance will be stored here
+    DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
     VERBOSE = 1                                        # Verbosity level
