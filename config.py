@@ -226,7 +226,7 @@ def load_parameters():
     MODEL_NAME += EXTRA_NAME
 
     STORE_PATH = 'trained_models/' + MODEL_NAME + '/'  # Models and evaluation results will be stored here
-    DATASET_STORE_PATH = STORE_PATH + '/'              # Dataset instance will be stored here
+    DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
     VERBOSE = 1                                        # Verbosity level
