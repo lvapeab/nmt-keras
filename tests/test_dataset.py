@@ -22,8 +22,8 @@ class TestDataset(unittest.TestCase):
         self.assertIsInstance(ds, Dataset)
         self.assertIsInstance(ds.vocabulary, dict)
         self.assertGreaterEqual(ds.vocabulary.keys(), 3)
-        [self.assertEqual(len(ds.vocabulary[voc].keys()), 2)
-         for voc in ds.vocabulary]
+        for voc in ds.vocabulary:
+            self.assertEqual(len(ds.vocabulary[voc].keys()), 2)
 
 if __name__ == '__main__':
     unittest.main()

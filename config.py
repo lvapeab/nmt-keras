@@ -88,8 +88,10 @@ def load_parameters():
 
     APPLY_DETOKENIZATION = False                  # Wheter we apply a detokenization method
 
-    TOKENIZE_HYPOTHESES = True   		          # Whether we tokenize the hypotheses using the previously defined tokenization method
-    TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the previously defined tokenization method
+    TOKENIZE_HYPOTHESES = True   		          # Whether we tokenize the hypotheses using the
+                                                  # previously defined tokenization method
+    TOKENIZE_REFERENCES = True                    # Whether we tokenize the references using the
+                                                  # previously defined tokenization method
 
     # Input image parameters
     DATA_AUGMENTATION = False                     # Apply data augmentation on input data (still unimplemented for text inputs)
