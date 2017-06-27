@@ -192,8 +192,13 @@ if __name__ == "__main__":
                                  'search_pruning': params.get('SEARCH_PRUNING', False),
                                  'state_below_index': -1,
                                  'output_text_index': 0,
-                                 'apply_detokenization': params['APPLY_DETOKENIZATION'],
-                                 'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
+                                 'apply_tokenization': params.get('APPLY_TOKENIZATION', True),
+                                 'tokenize_f': eval('dataset.' +
+                                                      params.get('TOKENIZATION_METHOD', 'tokenize_none')),
+
+                                 'apply_detokenization': params.get('APPLY_DETOKENIZATION', False),
+                                 'detokenize_f': eval('dataset.' +
+                                                      params.get('DETOKENIZATION_METHOD', 'detokenize_none')),
                                  'coverage_penalty': params.get('COVERAGE_PENALTY', False),
                                  'length_penalty': params.get('LENGTH_PENALTY', False),
                                  'length_norm_factor': params.get('LENGTH_NORM_FACTOR', 0.0),
@@ -228,12 +233,20 @@ if __name__ == "__main__":
                 unk_indices = []
 
                 seqin = line.strip()
+                if params_prediction.get('apply_tokenization'):
+                    seqin = params_prediction['tokenize_f'](seqin)
+
                 src_seq, src_words = parse_input(seqin, dataset, word2index_x)
 
                 logger.debug("\n\nProcessing sentence %d" % (n_line + 1))
                 logger.debug("Source: %s" % line[:-1])
                 logger.debug("Target: %s" % target_lines[n_line])
-                reference = target_lines[n_line].split()
+                reference = target_lines[n_line]#.split()
+                if params_prediction.get('apply_tokenization'):
+                    reference = params_prediction['tokenize_f'](reference).split()
+                else:
+                    reference = reference.split()
+
                 # 0. Get a first hypothesis
                 trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search_interactive(src_seq)
                 if params_prediction['pos_unk']:
@@ -253,15 +266,18 @@ if __name__ == "__main__":
                                                             mapping=mapping,
                                                             pad_sequences=True,
                                                             verbose=0)[0]
+
                 # Store result
+                hypothesis_to_print = params_prediction['detokenize_f'](hypothesis) \
+                    if params_prediction.get('apply_detokenization', False) else ' '.join(hypothesis)
                 if args.original_dest is not None:
                     filepath = args.original_dest  # results file
                     if params['SAMPLING_SAVE_MODE'] == 'list':
-                        list2file(filepath, [hypothesis + '\n'], permission='a')
+                        list2file(filepath, [hypothesis_to_print + '\n'], permission='a')
                     else:
                         raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
+                logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis_to_print))
                 hypothesis = hypothesis.split()
-                logger.debug("Hypo_%d: %s" % (hypothesis_number, " ".join(hypothesis)))
 
                 if hypothesis == reference:
                     # If the sentence is correct, we  validate it
@@ -273,6 +289,7 @@ if __name__ == "__main__":
                     unk_words = []
                     fixed_words_user = OrderedDict()  # {pos: word}
                     old_isles = []
+
                     while checked_index_r < len(reference):
                         validated_prefix = []
                         correction_made = False
@@ -282,7 +299,10 @@ if __name__ == "__main__":
                             hypothesis_isles = find_isles(hypothesis, reference)[0]
                             isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id), word))
                                             for index, word in hypothesis_isles]
-                            logger.debug("Isles: %s" % (str(hypothesis_isles)))
+                            hypothesis_isles_to_print = str([(index, params_prediction['detokenize_f'](' '.join(isle)))
+                                                            for index, isle in hypothesis_isles]) \
+                                if params_prediction.get('apply_detokenization', False) else str(isle_indices)
+                            logger.debug("Isles: %s" % (str(hypothesis_isles_to_print)))
                             # Count only for non selected isles
                             # Isles of length 1 account for 1 mouse action
                             mouse_actions_sentence += compute_mouse_movements(isle_indices,
@@ -365,6 +385,7 @@ if __name__ == "__main__":
                                                                         mapping=mapping,
                                                                         pad_sequences=True,
                                                                         verbose=0)[0]
+
                             hypothesis = hypothesis.split()
                             hypothesis_number += 1
                             # UNK words management
@@ -380,9 +401,11 @@ if __name__ == "__main__":
                                             hypothesis[index] = unk_words[i]
                                         else:
                                             hypothesis.append(unk_words[i])
+                            hypothesis_to_print = params_prediction['detokenize_f'](' '.join(hypothesis)) \
+                                if params_prediction.get('apply_detokenization', False) else ' '.join(hypothesis)
 
                             logger.debug("Target: %s" % target_lines[n_line])
-                            logger.debug("Hypo_%d: %s" % (hypothesis_number, " ".join(hypothesis)))
+                            logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis_to_print))
                         if hypothesis == reference:
                             break
                     # Final check: The reference is a subset of the hypothesis: Cut the hypothesis
@@ -403,7 +426,9 @@ if __name__ == "__main__":
                 total_words += len(hypothesis)
                 total_chars += chars_sentence
                 total_mouse_actions += mouse_actions_sentence
-                logger.debug("Final hypotesis: %s" % " ".join(hypothesis))
+                hypothesis_to_print = params_prediction['detokenize_f'](' '.join(hypothesis)) \
+                    if params_prediction.get('apply_detokenization', False) else ' '.join(hypothesis)
+                logger.debug("Final hypotesis: %s" % hypothesis_to_print)
                 logger.debug("%d errors. "
                              "Sentence WSR: %4f. "
                              "Sentence mouse strokes: %d "
