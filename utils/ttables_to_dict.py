@@ -13,6 +13,7 @@ parser.add_argument("--verbose", type=int)
 args = parser.parse_args()
 
 d = {}
+tmp_dict = dict()
 with open(args.fname, 'r') as f:
     i = -1
     cur_source = -1

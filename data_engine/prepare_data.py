@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', dat
 def update_dataset_from_file(ds,
                              input_text_filename,
                              params,
-                             splits=list(['val']),
+                             splits=None,
                              output_text_filename=None,
                              remove_outputs=False,
                              compute_state_below=False):
@@ -25,6 +25,10 @@ def update_dataset_from_file(ds,
 
     :return: Dataset object with the processed data
     """
+
+    if splits is None:
+        splits = ['val']
+
     for split in splits:
         if remove_outputs:
             ds.removeOutput(split,
