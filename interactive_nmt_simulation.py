@@ -1,3 +1,4 @@
+# encoding: utf-8
 import argparse
 import ast
 import copy
@@ -14,7 +15,7 @@ from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *
 from keras_wrapper.extra.read_write import pkl2dict, list2file
 from keras_wrapper.online_trainer import OnlineTrainer
-from keras_wrapper.utils import decode_predictions_beam_search
+from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_lists
 from model_zoo import TranslationModel
 from online_models import build_online_models
 from utils.utils import update_parameters
@@ -56,9 +57,12 @@ def parse_args():
 if __name__ == "__main__":
 
     args = parse_args()
-    params = load_parameters()
     if args.config is not None:
-        params = update_parameters(params, pkl2dict(args.config))
+        logger.info('Reading parameters from %s.' % args.config)
+        params = update_parameters({}, pkl2dict(args.config))
+    else:
+        logger.info('Reading parameters from config.py.')
+        params = load_parameters()
 
     if args.online:
         online_parameters = load_parameters_online()
@@ -80,10 +84,18 @@ if __name__ == "__main__":
         exit(2)
 
     check_params(params)
-
+    if args.verbose:
+        logging.info("params = " + str(params))
     dataset = loadDataset(args.dataset)
-    dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits, remove_outputs=True)
+    # Dataset backwards compatibility
+    bpe_separator = dataset.BPE_separator if hasattr(dataset, "BPE_separator") and dataset.BPE_separator is not None \
+        else '@@'
 
+    if 'bpe' in params['TOKENIZATION_METHOD'].lower():
+        if not dataset.BPE_built:
+            dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'),
+                              bpe_separator)
+    dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits, remove_outputs=True)
     if args.online:
         params_training = {
             # Traning params
@@ -160,7 +172,6 @@ if __name__ == "__main__":
     # Apply sampling
     extra_vars = dict()
     extra_vars['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
-    check_params(params)
 
     # Get word2index and index2word dictionaries
     index2word_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
@@ -194,7 +205,7 @@ if __name__ == "__main__":
                                  'output_text_index': 0,
                                  'apply_tokenization': params.get('APPLY_TOKENIZATION', True),
                                  'tokenize_f': eval('dataset.' +
-                                                      params.get('TOKENIZATION_METHOD', 'tokenize_none')),
+                                                    params.get('TOKENIZATION_METHOD', 'tokenize_none')),
 
                                  'apply_detokenization': params.get('APPLY_DETOKENIZATION', False),
                                  'detokenize_f': eval('dataset.' +
@@ -220,11 +231,22 @@ if __name__ == "__main__":
                 input_text_id = None
                 vocab_src = None
                 mapping = None
+            if 'bpe' in params['TOKENIZATION_METHOD'] and params_prediction['apply_detokenization'] and not args.prefix:
+                excluded_words = None
+                # [word2index_y[w] for w in filter(lambda x: x[-2:] == bpe_separator, word2index_y)]
+            else:
+                excluded_words = None
             interactive_beam_searcher = InteractiveBeamSearchSampler(models,
                                                                      dataset,
                                                                      params_prediction,
+                                                                     excluded_words=excluded_words,
                                                                      verbose=args.verbose)
             start_time = time.time()
+
+            if args.verbose:
+                logging.info("params_prediction = " + str(params_prediction))
+                if args.online:
+                    logging.info("Params training = " + str(params_training))
 
             for n_line, line in enumerate(fsrc):
                 errors_sentence = 0
@@ -241,11 +263,7 @@ if __name__ == "__main__":
                 logger.debug("\n\nProcessing sentence %d" % (n_line + 1))
                 logger.debug("Source: %s" % line[:-1])
                 logger.debug("Target: %s" % target_lines[n_line])
-                reference = target_lines[n_line]#.split()
-                if params_prediction.get('apply_tokenization'):
-                    reference = params_prediction['tokenize_f'](reference).split()
-                else:
-                    reference = reference.split()
+                reference = target_lines[n_line].split()
 
                 # 0. Get a first hypothesis
                 trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search_interactive(src_seq)
@@ -268,15 +286,15 @@ if __name__ == "__main__":
                                                             verbose=0)[0]
 
                 # Store result
-                hypothesis_to_print = params_prediction['detokenize_f'](hypothesis) \
-                    if params_prediction.get('apply_detokenization', False) else ' '.join(hypothesis)
+                hypothesis = params_prediction['detokenize_f'](hypothesis) \
+                    if params_prediction.get('apply_detokenization', False) else hypothesis
                 if args.original_dest is not None:
                     filepath = args.original_dest  # results file
                     if params['SAMPLING_SAVE_MODE'] == 'list':
-                        list2file(filepath, [hypothesis_to_print + '\n'], permission='a')
+                        list2file(filepath, [hypothesis + '\n'], permission='a')
                     else:
                         raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
-                logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis_to_print))
+                logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis))
                 hypothesis = hypothesis.split()
 
                 if hypothesis == reference:
@@ -289,7 +307,7 @@ if __name__ == "__main__":
                     unk_words = []
                     fixed_words_user = OrderedDict()  # {pos: word}
                     old_isles = []
-
+                    BPE_offset = 0
                     while checked_index_r < len(reference):
                         validated_prefix = []
                         correction_made = False
@@ -297,12 +315,25 @@ if __name__ == "__main__":
                         #   1. Select the multiple isles in the hypothesis.
                         if not args.prefix:
                             hypothesis_isles = find_isles(hypothesis, reference)[0]
-                            isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id), word))
-                                            for index, word in hypothesis_isles]
-                            hypothesis_isles_to_print = str([(index, params_prediction['detokenize_f'](' '.join(isle)))
-                                                            for index, isle in hypothesis_isles]) \
-                                if params_prediction.get('apply_detokenization', False) else str(isle_indices)
-                            logger.debug("Isles: %s" % (str(hypothesis_isles_to_print)))
+                            logger.debug("Isles: %s" % (str(hypothesis_isles)))
+                            isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id),
+                                                        flatten_list_of_lists(map(lambda y:
+                                                                                  extra_vars['tokenize_f'](y).split(),
+                                                                                  word))))
+                                            for index, word in hypothesis_isles] \
+                                if params_prediction['apply_tokenization'] else \
+                                [(index, map(lambda x: word2index_y.get(x, unk_id), word))
+                                 for index, word in hypothesis_isles]
+
+                            hypothesis_isles = [(index, flatten_list_of_lists(map(lambda y:
+                                                                                  extra_vars['tokenize_f'](y).split(),
+                                                                                  word)))
+                                                for index, word in hypothesis_isles] \
+                                if params_prediction['apply_tokenization'] else hypothesis_isles
+
+                            unks_in_isles = [(index, map(lambda w: word2index_y.get(w, unk_id), word), word)
+                                             for index, word in hypothesis_isles]
+
                             # Count only for non selected isles
                             # Isles of length 1 account for 1 mouse action
                             mouse_actions_sentence += compute_mouse_movements(isle_indices,
@@ -310,26 +341,30 @@ if __name__ == "__main__":
                                                                               last_checked_index)
                         else:
                             isle_indices = []
-                        # Stage 2: Regular post editing
+                        # Stage 2: INMT
                         # From left to right, we will correct the hypotheses, taking into account the isles info
                         # At each timestep, the user can make two operations:
                         # Insertion of a new word at the end of the hypothesis
                         # Substitution of a word by another
                         while checked_index_r < len(reference):  # We check all words in the reference
                             new_word = reference[checked_index_r]
+                            new_words = extra_vars['tokenize_f'](new_word).split() if \
+                                params_prediction['apply_tokenization'] else [new_word]
+                            if new_words[-1][-2:] == bpe_separator:  # Remove potential subwords in user feedback.
+                                new_words[-1] = new_words[-1][:-2]
                             if checked_index_h >= len(hypothesis):
                                 # Insertions (at the end of the sentence)
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
-                                new_word_index = word2index_y.get(new_word, unk_id)
-                                validated_prefix.append(new_word_index)
-                                fixed_words_user[checked_index_h] = new_word_index
+                                new_word_indices = [word2index_y.get(word, unk_id) for word in new_words]
+                                validated_prefix.append(new_word_indices)
+                                for n_word, new_subword in enumerate(new_words):
+                                    fixed_words_user[checked_index_h + BPE_offset + n_word] = new_word_indices[n_word]
+                                    if word2index_y.get(new_subword) is None:
+                                        if checked_index_h + BPE_offset + n_word not in unk_indices:
+                                            unk_words.append(new_subword)
+                                            unk_indices.append(checked_index_h + BPE_offset + n_word)
                                 correction_made = True
-                                if word2index_y.get(new_word) is None:
-                                    unk_words.append(new_word)
-                                    unk_indices.append(checked_index_h)
-                                # else:
-                                #    isle_indices[-1][1].append(word2index[new_word])
                                 logger.debug(
                                     '"%s" to position %d (end-of-sentence)' % (str(new_word), checked_index_h))
                                 last_checked_index = checked_index_h
@@ -338,28 +373,33 @@ if __name__ == "__main__":
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
                                 # Substitution
-                                new_word_index = word2index_y.get(new_word, unk_id)
-                                fixed_words_user[checked_index_h] = new_word_index
-                                validated_prefix.append(new_word_index)
+                                new_word_indices = [word2index_y.get(word, unk_id) for word in new_words]
+                                validated_prefix.append(new_word_indices)
+                                for n_word, new_subword in enumerate(new_words):
+                                    fixed_words_user[checked_index_h + BPE_offset + n_word] = new_word_indices[n_word]
+                                    if word2index_y.get(new_subword) is None:
+                                        if checked_index_h + BPE_offset + n_word not in unk_indices:
+                                            unk_words.append(new_subword)
+                                            unk_indices.append(checked_index_h + BPE_offset + n_word)
                                 correction_made = True
-                                if word2index_y.get(new_word) is None:
-                                    if checked_index_h not in unk_indices:
-                                        unk_words.append(new_word)
-                                        unk_indices.append(checked_index_h)
                                 logger.debug('"%s" to position %d' % (str(new_word), checked_index_h))
                                 last_checked_index = checked_index_h
                                 break
                             else:
                                 # No errors
-                                new_word_index = word2index_y.get(hypothesis[checked_index_h], unk_id)
-                                fixed_words_user[checked_index_h] = new_word_index
-                                validated_prefix.append(new_word_index)
-                                if word2index_y.get(new_word) is None:
-                                    if checked_index_h not in unk_indices:
-                                        unk_words.append(new_word)
-                                        unk_indices.append(checked_index_h)
+                                correct_words_h = extra_vars['tokenize_f'](hypothesis[checked_index_h]).split() if \
+                                    params_prediction['apply_tokenization'] else [hypothesis[checked_index_h]]
+                                new_word_indices = [word2index_y.get(word, unk_id) for word in correct_words_h]
+                                validated_prefix.append(new_word_indices)
+                                for n_word, new_subword in enumerate(new_words):
+                                    fixed_words_user[checked_index_h + BPE_offset + n_word] = new_word_indices[n_word]
+                                    if word2index_y.get(new_subword) is None:
+                                        if checked_index_h + BPE_offset + n_word not in unk_indices:
+                                            unk_words.append(new_subword)
+                                            unk_indices.append(checked_index_h + BPE_offset + n_word)
                                 checked_index_h += 1
                                 checked_index_r += 1
+                                BPE_offset += len(new_word_indices) - 1
                                 last_checked_index = checked_index_h
                         old_isles = [isle[1] for isle in isle_indices]
                         old_isles.append(validated_prefix)
@@ -373,10 +413,17 @@ if __name__ == "__main__":
                                                                max_N=args.max_n,
                                                                isles=isle_indices,
                                                                idx2word=index2word_y)
+                            unk_in_isles = []
+                            for isle_idx, isle_sequence, isle_words in unks_in_isles:
+                                if unk_id in isle_sequence:
+                                    unk_in_isles.append((subfinder(isle_sequence, list(trans_indices)), isle_words))
+
                             if params['POS_UNK']:
                                 alphas = [alphas]
                             else:
                                 alphas = None
+                            alphas = None
+
                             hypothesis = decode_predictions_beam_search([trans_indices],
                                                                         index2word_y,
                                                                         alphas=alphas,
@@ -387,7 +434,13 @@ if __name__ == "__main__":
                                                                         verbose=0)[0]
 
                             hypothesis = hypothesis.split()
+                            for (words_idx, starting_pos), words in unk_in_isles:
+                                for pos_unk_word, pos_hypothesis in enumerate(
+                                        range(starting_pos, starting_pos + len(words_idx))):
+                                    hypothesis[pos_hypothesis] = words[pos_unk_word]
+
                             hypothesis_number += 1
+
                             # UNK words management
                             if len(unk_indices) > 0:  # If we added some UNK word
                                 if len(hypothesis) < len(unk_indices):  # The full hypothesis will be made up UNK words:
@@ -401,11 +454,27 @@ if __name__ == "__main__":
                                             hypothesis[index] = unk_words[i]
                                         else:
                                             hypothesis.append(unk_words[i])
-                            hypothesis_to_print = params_prediction['detokenize_f'](' '.join(hypothesis)) \
-                                if params_prediction.get('apply_detokenization', False) else ' '.join(hypothesis)
-
+                            # Remove potential subwords in user feedback
+                            # TODO: We could do more accurate predictions taking this information in decoding time?
+                            # TODO: Or will it have an undesired border effect?
+                            # TODO: Is this good/useful?
+                            ############################################################################################
+                            """
+                            if params_prediction.get('apply_detokenization', False):
+                                for idx, isle in hypothesis_isles:
+                                    _, starting_pos = subfinder(isle, hypothesis)
+                                    if starting_pos > 0:
+                                        if hypothesis[starting_pos - 1][-2:] == bpe_separator:
+                                            hypothesis[starting_pos - 1] = hypothesis[starting_pos - 1][:-2]
+                            """
+                            ############################################################################################
+                            hypothesis = ' '.join(hypothesis)
+                            hypothesis = params_prediction['detokenize_f'](hypothesis) \
+                                if params_prediction.get('apply_detokenization', False) else hypothesis
                             logger.debug("Target: %s" % target_lines[n_line])
-                            logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis_to_print))
+                            logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis))
+                            hypothesis = hypothesis.split()
+                            correction_made = False
                         if hypothesis == reference:
                             break
                     # Final check: The reference is a subset of the hypothesis: Cut the hypothesis
@@ -426,9 +495,7 @@ if __name__ == "__main__":
                 total_words += len(hypothesis)
                 total_chars += chars_sentence
                 total_mouse_actions += mouse_actions_sentence
-                hypothesis_to_print = params_prediction['detokenize_f'](' '.join(hypothesis)) \
-                    if params_prediction.get('apply_detokenization', False) else ' '.join(hypothesis)
-                logger.debug("Final hypotesis: %s" % hypothesis_to_print)
+                logger.debug("Final hypotesis: %s" % hypothesis)
                 logger.debug("%d errors. "
                              "Sentence WSR: %4f. "
                              "Sentence mouse strokes: %d "
