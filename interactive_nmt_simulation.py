@@ -341,6 +341,7 @@ if __name__ == "__main__":
                                                                               last_checked_index)
                         else:
                             isle_indices = []
+                            unks_in_isles = []
                         # Stage 2: INMT
                         # From left to right, we will correct the hypotheses, taking into account the isles info
                         # At each timestep, the user can make two operations:
