@@ -35,6 +35,7 @@ If you use this toolkit in your research, please cite:
  * Translation scoring ([score.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks.
+ * :heavy_exclamation_mark: [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in decoder.
  * N-best list generation (as byproduct of the beam search process).
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
