@@ -19,20 +19,22 @@ class TestNMT(unittest.TestCase):
             dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
         params['OUTPUT_VOCABULARY_SIZE'] = \
             dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
-        for rnn_type in ['LSTM', 'GRU']:
-            for n_layers in range(2):
-                params['N_LAYERS_DECODER'] = n_layers
-                params['N_LAYERS_ENCODER'] = n_layers
-                params['RNN_TYPE'] = rnn_type
-                nmt_model = \
-                    TranslationModel(params,
-                                     model_type=params['MODEL_TYPE'],
-                                     verbose=params['VERBOSE'],
-                                     model_name=params['MODEL_NAME'],
-                                     vocabularies=dataset.vocabulary,
-                                     store_path=params['STORE_PATH'],
-                                     clear_dirs=False)
-                self.assertIsInstance(nmt_model, Model_Wrapper)
+        for encoder_rnn_type in ['LSTM', 'GRU']:
+            for decoder_rnn_type in ['LSTM', 'GRU', 'ConditionalLSTM', 'ConditionalGRU']:
+                params['ENCODER_RNN_TYPE'] = encoder_rnn_type
+                params['DECODER_RNN_TYPE'] = decoder_rnn_type
+                for n_layers in range(2):
+                    params['N_LAYERS_DECODER'] = n_layers
+                    params['N_LAYERS_ENCODER'] = n_layers
+                    nmt_model = \
+                        TranslationModel(params,
+                                         model_type=params['MODEL_TYPE'],
+                                         verbose=params['VERBOSE'],
+                                         model_name=params['MODEL_NAME'],
+                                         vocabularies=dataset.vocabulary,
+                                         store_path=params['STORE_PATH'],
+                                         clear_dirs=False)
+                    self.assertIsInstance(nmt_model, Model_Wrapper)
 
         # Check Inputs
         inputMapping = dict()
