@@ -259,7 +259,7 @@ class TranslationModel(Model_Wrapper):
 
         # 2.2. BRNN encoder (GRU/LSTM)
         if params['BIDIRECTIONAL_ENCODER']:
-            annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
+            annotations = Bidirectional(eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
                                                                  W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                  U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                  b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
@@ -270,10 +270,10 @@ class TranslationModel(Model_Wrapper):
                                                                  init=params['INIT_FUNCTION'],
                                                                  inner_init=params['INNER_INIT'],
                                                                  return_sequences=True),
-                                        name='bidirectional_encoder_' + params['RNN_TYPE'],
+                                        name='bidirectional_encoder_' + params['ENCODER_RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
         else:
-            annotations = eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
+            annotations = eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
                                                    W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                    U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                    b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
@@ -284,11 +284,11 @@ class TranslationModel(Model_Wrapper):
                                                    return_sequences=True,
                                                    init=params['INIT_FUNCTION'],
                                                    inner_init=params['INNER_INIT'],
-                                                   name='encoder_' + params['RNN_TYPE'])(src_embedding)
+                                                   name='encoder_' + params['ENCODER_RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
-            current_annotations = Bidirectional(eval(params['RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
+            current_annotations = Bidirectional(eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
                                                                          W_regularizer=l2(
                                                                              params['RECURRENT_WEIGHT_DECAY']),
                                                                          U_regularizer=l2(
@@ -341,7 +341,7 @@ class TranslationModel(Model_Wrapper):
             initial_state = Regularize(initial_state, params, name='initial_state')
             input_attentional_decoder = [state_below, annotations, initial_state]
 
-            if params['RNN_TYPE'] == 'LSTM':
+            if 'LSTM' in params['DECODER_RNN_TYPE']:
                 initial_memory = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_memory',
                                        init=params['INIT_FUNCTION'],
                                        W_regularizer=l2(params['WEIGHT_DECAY']),
@@ -353,11 +353,11 @@ class TranslationModel(Model_Wrapper):
             input_attentional_decoder = [state_below, annotations]
             initial_state = ZeroesLayer(params['DECODER_HIDDEN_SIZE'])(ctx_mean)
             input_attentional_decoder.append(initial_state)
-            if params['RNN_TYPE'] == 'LSTM':
+            if 'LSTM' in params['DECODER_RNN_TYPE']:
                 input_attentional_decoder.append(initial_state)
 
         # 3.3. Attentional decoder
-        sharedAttRNNCond = eval('Att' + params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
+        sharedAttRNNCond = eval('Att' + params['DECODER_RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
                                                                      att_dim=params.get('ATTENTION_SIZE', 0),
                                                                      W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                      U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
@@ -385,14 +385,14 @@ class TranslationModel(Model_Wrapper):
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,
                                                                      return_states=True,
-                                                                     name='decoder_Att' + params['RNN_TYPE'] + 'Cond')
+                                                                     name='decoder_Att' + params['DECODER_RNN_TYPE'] + 'Cond')
 
         rnn_output = sharedAttRNNCond(input_attentional_decoder)
         proj_h = rnn_output[0]
         x_att = rnn_output[1]
         alphas = rnn_output[2]
         h_state = rnn_output[3]
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             h_memory = rnn_output[4]
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
 
@@ -403,34 +403,39 @@ class TranslationModel(Model_Wrapper):
         shared_reg_proj_h_list = []
 
         h_states_list = [h_state]
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             h_memories_list = [h_memory]
 
         for n_layer in range(1, params['N_LAYERS_DECODER']):
-            shared_proj_h_list.append(eval(params['RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
-                                                                     W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                     U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                     V_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                     b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                     dropout_W=params['RECURRENT_DROPOUT_P'] if params[
-                                                                         'USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if params[
-                                                                         'USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_V=params['RECURRENT_DROPOUT_P'] if params[
-                                                                         'USE_RECURRENT_DROPOUT'] else None,
-                                                                     init=params['INIT_FUNCTION'],
-                                                                     return_sequences=True,
-                                                                     return_states=True,
-                                                                     name='decoder_' + params['RNN_TYPE'] +
-                                                                          'Cond' + str(n_layer)))
+            shared_proj_h_list.append(eval(params['DECODER_RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
+                                                                        W_regularizer=l2(
+                                                                            params['RECURRENT_WEIGHT_DECAY']),
+                                                                        U_regularizer=l2(
+                                                                            params['RECURRENT_WEIGHT_DECAY']),
+                                                                        V_regularizer=l2(
+                                                                            params['RECURRENT_WEIGHT_DECAY']),
+                                                                        b_regularizer=l2(
+                                                                            params['RECURRENT_WEIGHT_DECAY']),
+                                                                        dropout_W=params['RECURRENT_DROPOUT_P'] if
+                                                                        params['USE_RECURRENT_DROPOUT'] else None,
+                                                                        dropout_U=params['RECURRENT_DROPOUT_P'] if
+                                                                        params['USE_RECURRENT_DROPOUT'] else None,
+                                                                        dropout_V=params['RECURRENT_DROPOUT_P'] if
+                                                                        params['USE_RECURRENT_DROPOUT'] else None,
+                                                                        init=params['INIT_FUNCTION'],
+                                                                        inner_init=params['INNER_INIT'],
+                                                                        return_sequences=True,
+                                                                        return_states=True,
+                                                                        name='decoder_' + params['DECODER_RNN_TYPE'] +
+                                                                             'Cond' + str(n_layer)))
 
             current_rnn_input = [proj_h, shared_Lambda_Permute(x_att), initial_state]
-            if params['RNN_TYPE'] == 'LSTM':
+            if 'LSTM' in params['DECODER_RNN_TYPE']:
                 current_rnn_input.append(initial_memory)
             current_rnn_output = shared_proj_h_list[-1](current_rnn_input)
             current_proj_h = current_rnn_output[0]
             h_states_list.append(current_rnn_output[1])
-            if params['RNN_TYPE'] == 'LSTM':
+            if 'LSTM' in params['DECODER_RNN_TYPE']:
                 h_memories_list.append(current_rnn_output[2])
             [current_proj_h, shared_reg_proj_h] = Regularize(current_proj_h, params, shared_layers=True,
                                                              name='proj_h' + str(n_layer))
@@ -513,7 +518,7 @@ class TranslationModel(Model_Wrapper):
         # for applying the initial forward pass
         model_init_input = [src_text, next_words]
         model_init_output = [softout, annotations] + h_states_list
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             model_init_output += h_memories_list
         if self.return_alphas:
             model_init_output.append(alphas)
@@ -525,7 +530,7 @@ class TranslationModel(Model_Wrapper):
 
         # first output must be the output probs.
         self.ids_outputs_init = self.ids_outputs + ['preprocessed_input'] + ids_states_names
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             ids_memories_names = ['next_memory_' + str(i) for i in range(len(h_memories_list))]
             self.ids_outputs_init += ids_memories_names
         # Second, we need to build an additional model with the capability to have the following inputs:
@@ -548,7 +553,7 @@ class TranslationModel(Model_Wrapper):
         input_attentional_decoder = [state_below, preprocessed_annotations,
                                      prev_h_states_list[n_deep_decoder_layer_idx]]
 
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             prev_h_memories_list = [Input(name='prev_memory_' + str(i),
                                           shape=tuple([params['DECODER_HIDDEN_SIZE']]))
                                     for i in range(len(h_memories_list))]
@@ -560,7 +565,7 @@ class TranslationModel(Model_Wrapper):
         x_att = rnn_output[1]
         alphas = rnn_output[2]
         h_states_list = [rnn_output[3]]
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             h_memories_list = [rnn_output[4]]
         for reg in shared_reg_proj_h:
             proj_h = reg(proj_h)
@@ -569,13 +574,13 @@ class TranslationModel(Model_Wrapper):
             n_deep_decoder_layer_idx += 1
             input_rnn_decoder_layer = [proj_h, shared_Lambda_Permute(x_att),
                                        prev_h_states_list[n_deep_decoder_layer_idx]]
-            if params['RNN_TYPE'] == 'LSTM':
+            if 'LSTM' in params['DECODER_RNN_TYPE']:
                 input_rnn_decoder_layer.append(prev_h_memories_list[n_deep_decoder_layer_idx])
 
             current_rnn_output = rnn_decoder_layer(input_rnn_decoder_layer)
             current_proj_h = current_rnn_output[0]
             h_states_list.append(current_rnn_output[1])  # h_state
-            if params['RNN_TYPE'] == 'LSTM':
+            if 'LSTM' in params['DECODER_RNN_TYPE']:
                 h_memories_list.append(current_rnn_output[2])  # h_memory
             for reg in proj_h_reg:
                 current_proj_h = reg(current_proj_h)
@@ -605,7 +610,7 @@ class TranslationModel(Model_Wrapper):
         softout = shared_FC_soft(out_layer)
         model_next_inputs = [next_words, preprocessed_annotations] + prev_h_states_list
         model_next_outputs = [softout, preprocessed_annotations] + h_states_list
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             model_next_inputs += prev_h_memories_list
             model_next_outputs += h_memories_list
 
@@ -630,7 +635,7 @@ class TranslationModel(Model_Wrapper):
             self.matchings_init_to_next['next_state_' + str(n_state)] = 'prev_state_' + str(n_state)
             self.matchings_next_to_next['next_state_' + str(n_state)] = 'prev_state_' + str(n_state)
 
-        if params['RNN_TYPE'] == 'LSTM':
+        if 'LSTM' in params['DECODER_RNN_TYPE']:
             for n_memory in range(len(prev_h_memories_list)):
                 self.ids_inputs_next.append('prev_memory_' + str(n_memory))
                 self.ids_outputs_next.append('next_memory_' + str(n_memory))
