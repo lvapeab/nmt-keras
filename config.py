@@ -152,7 +152,9 @@ def load_parameters():
 
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
-    RNN_TYPE = 'LSTM'                             # RNN unit type ('LSTM' and 'GRU' supported)
+    ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
+    DECODER_RNN_TYPE = 'LSTM'                     # Decoder's RNN unit type
+                                                  # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
     # Initializers (see keras/initializations.py).
     INIT_FUNCTION = 'glorot_uniform'              # General initialization function for matrices.
     INNER_INIT = 'orthogonal'                     # Initialization function for inner RNN matrices.
@@ -222,8 +224,8 @@ def load_parameters():
     MODEL_NAME = TASK_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
                  '_src_emb_' + str(SOURCE_TEXT_EMBEDDING_SIZE) + \
                  '_bidir_' + str(BIDIRECTIONAL_ENCODER) + \
-                 '_enc_' + RNN_TYPE + '_' + str(ENCODER_HIDDEN_SIZE) + \
-                 '_dec_' + RNN_TYPE + '_' + str(DECODER_HIDDEN_SIZE) + \
+                 '_enc_' + ENCODER_RNN_TYPE + '_' + str(ENCODER_HIDDEN_SIZE) + \
+                 '_dec_' + DECODER_RNN_TYPE + '_' + str(DECODER_HIDDEN_SIZE) + \
                  '_deepout_' + '_'.join([layer[0] for layer in DEEP_OUTPUT_LAYERS]) + \
                  '_trg_emb_' + str(TARGET_TEXT_EMBEDDING_SIZE) + \
                  '_' + OPTIMIZER + '_' + str(LR)
