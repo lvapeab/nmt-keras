@@ -404,8 +404,8 @@ class TranslationModel(Model_Wrapper):
                                                                         b_regularizer=l2(
                                                                             params['RECURRENT_WEIGHT_DECAY']),
                                                                         dropout_W=params['RECURRENT_DROPOUT_P'],
-                                                                        dropout_U=params['RECURRENT_DROPOUT_P'],
-                                                                        dropout_V=params['RECURRENT_DROPOUT_P'],
+                                                                        dropout_U=params['RECURRENT_INPUT_DROPOUT_P'],
+                                                                        dropout_V=params['RECURRENT_INPUT_DROPOUT_P'],
                                                                         init=params['INIT_FUNCTION'],
                                                                         inner_init=params['INNER_INIT'],
                                                                         return_sequences=True,
