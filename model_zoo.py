@@ -263,10 +263,8 @@ class TranslationModel(Model_Wrapper):
                                                                  W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                  U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                  b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                 dropout_W=params['RECURRENT_DROPOUT_P'] if params[
-                                                                     'USE_RECURRENT_DROPOUT'] else None,
-                                                                 dropout_U=params['RECURRENT_DROPOUT_P'] if params[
-                                                                     'USE_RECURRENT_DROPOUT'] else None,
+                                                                 dropout_W=params['RECURRENT_INPUT_DROPOUT_P'],
+                                                                 dropout_U=params['RECURRENT_DROPOUT_P'],
                                                                  init=params['INIT_FUNCTION'],
                                                                  inner_init=params['INNER_INIT'],
                                                                  return_sequences=True),
@@ -277,10 +275,8 @@ class TranslationModel(Model_Wrapper):
                                                    W_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                    U_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                    b_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                   dropout_W=params['RECURRENT_DROPOUT_P'] if params[
-                                                       'USE_RECURRENT_DROPOUT'] else None,
-                                                   dropout_U=params['RECURRENT_DROPOUT_P'] if params[
-                                                       'USE_RECURRENT_DROPOUT'] else None,
+                                                   dropout_W=params['RECURRENT_INPUT_DROPOUT_P'],
+                                                   dropout_U=params['RECURRENT_DROPOUT_P'],
                                                    return_sequences=True,
                                                    init=params['INIT_FUNCTION'],
                                                    inner_init=params['INNER_INIT'],
@@ -295,10 +291,8 @@ class TranslationModel(Model_Wrapper):
                                                                              params['RECURRENT_WEIGHT_DECAY']),
                                                                          b_regularizer=l2(
                                                                              params['RECURRENT_WEIGHT_DECAY']),
-                                                                         dropout_W=params['RECURRENT_DROPOUT_P'] if
-                                                                         params['USE_RECURRENT_DROPOUT'] else None,
-                                                                         dropout_U=params['RECURRENT_DROPOUT_P'] if
-                                                                         params['USE_RECURRENT_DROPOUT'] else None,
+                                                                         dropout_W=params['RECURRENT_INPUT_DROPOUT_P'],
+                                                                         dropout_U=params['RECURRENT_DROPOUT_P'],
                                                                          init=params['INIT_FUNCTION'],
                                                                          inner_init=params['INNER_INIT'],
                                                                          return_sequences=True,
@@ -367,24 +361,17 @@ class TranslationModel(Model_Wrapper):
                                                                      Wa_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      Ua_regularizer=l2(params['WEIGHT_DECAY']),
                                                                      ba_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                     dropout_W=params['RECURRENT_INPUT_DROPOUT_P'] if
-                                                                     params['USE_RECURRENT_INPUT_DROPOUT'] else None,
-                                                                     dropout_U=params['RECURRENT_DROPOUT_P'] if
-                                                                     params['USE_RECURRENT_DROPOUT'] else None,
-                                                                     dropout_V=params['RECURRENT_INPUT_DROPOUT_P'] if
-                                                                     params['USE_RECURRENT_INPUT_DROPOUT'] else None,
-                                                                     dropout_wa=params['DROPOUT_P']
-                                                                     if params['USE_DROPOUT'] else None,
-                                                                     dropout_Wa=params['DROPOUT_P']
-                                                                     if params['USE_DROPOUT'] else None,
-                                                                     dropout_Ua=params['DROPOUT_P']
-                                                                     if params['USE_DROPOUT'] else None,
+                                                                     dropout_W=params['RECURRENT_INPUT_DROPOUT_P'],
+                                                                     dropout_U=params['RECURRENT_DROPOUT_P'],
+                                                                     dropout_V=params['RECURRENT_INPUT_DROPOUT_P'],
+                                                                     dropout_Wa=params['DROPOUT_P'],
                                                                      init=params['INIT_FUNCTION'],
                                                                      inner_init=params['INNER_INIT'],
                                                                      init_att=params['INIT_ATT'],
                                                                      return_sequences=True,
                                                                      return_extra_variables=True,
                                                                      return_states=True,
+                                                                     num_inputs=len(input_attentional_decoder),
                                                                      name='decoder_Att' + params['DECODER_RNN_TYPE'] + 'Cond')
 
         rnn_output = sharedAttRNNCond(input_attentional_decoder)
@@ -416,12 +403,9 @@ class TranslationModel(Model_Wrapper):
                                                                             params['RECURRENT_WEIGHT_DECAY']),
                                                                         b_regularizer=l2(
                                                                             params['RECURRENT_WEIGHT_DECAY']),
-                                                                        dropout_W=params['RECURRENT_DROPOUT_P'] if
-                                                                        params['USE_RECURRENT_DROPOUT'] else None,
-                                                                        dropout_U=params['RECURRENT_DROPOUT_P'] if
-                                                                        params['USE_RECURRENT_DROPOUT'] else None,
-                                                                        dropout_V=params['RECURRENT_DROPOUT_P'] if
-                                                                        params['USE_RECURRENT_DROPOUT'] else None,
+                                                                        dropout_W=params['RECURRENT_DROPOUT_P'],
+                                                                        dropout_U=params['RECURRENT_DROPOUT_P'],
+                                                                        dropout_V=params['RECURRENT_DROPOUT_P'],
                                                                         init=params['INIT_FUNCTION'],
                                                                         inner_init=params['INNER_INIT'],
                                                                         return_sequences=True,
