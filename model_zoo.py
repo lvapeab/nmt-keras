@@ -436,31 +436,24 @@ class TranslationModel(Model_Wrapper):
             h_memories_list = [h_memory]
 
         for n_layer in range(1, params['N_LAYERS_DECODER']):
-            shared_proj_h_list.append(eval(params['DECODER_RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
-                                                                                kernel_regularizer=l2(
-                                                                                    params['RECURRENT_WEIGHT_DECAY']),
-                                                                                recurrent_regularizer=l2(
-                                                                                    params['RECURRENT_WEIGHT_DECAY']),
-                                                                                conditional_regularizer=l2(
-                                                                                    params['RECURRENT_WEIGHT_DECAY']),
-                                                                                bias_regularizer=l2(
-                                                                                    params['RECURRENT_WEIGHT_DECAY']),
-                                                                                dropout=params['RECURRENT_DROPOUT_P'],
-                                                                                recurrent_dropout=params[
-                                                                                    'RECURRENT_INPUT_DROPOUT_P'],
-                                                                                conditional_dropout=params[
-                                                                                    'RECURRENT_INPUT_DROPOUT_P'],
-                                                                                kernel_initializer=params[
-                                                                                    'INIT_FUNCTION'],
-                                                                                recurrent_initializer=params[
-                                                                                    'INNER_INIT'],
-                                                                                return_sequences=True,
-                                                                                return_states=True,
-                                                                                name='decoder_' + params[
-                                                                                    'DECODER_RNN_TYPE'] +
-                                                                                     'Cond' + str(n_layer)))
-
             current_rnn_input = [proj_h, shared_Lambda_Permute(x_att), initial_state]
+            shared_proj_h_list.append(eval(params['DECODER_RNN_TYPE'].replace('Conditional', '') + 'Cond')(
+                params['DECODER_HIDDEN_SIZE'],
+                                       kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                       recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                       conditional_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                       bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                       dropout=params['RECURRENT_DROPOUT_P'],
+                                       recurrent_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
+                                       conditional_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
+                                       kernel_initializer=params['INIT_FUNCTION'],
+                                       recurrent_initializer=params['INNER_INIT'],
+                                       return_sequences=True,
+                                       return_states=True,
+                                       num_inputs=len(current_rnn_input),
+                                       name='decoder_' + params['DECODER_RNN_TYPE'].replace(
+                                           'Conditional', '') + 'Cond' + str(n_layer)))
+
             if 'LSTM' in params['DECODER_RNN_TYPE']:
                 current_rnn_input.append(initial_memory)
             current_rnn_output = shared_proj_h_list[-1](current_rnn_input)
@@ -505,7 +498,6 @@ class TranslationModel(Model_Wrapper):
         [out_layer_emb, shared_reg_out_layer_emb] = Regularize(out_layer_emb, params,
                                                                shared_layers=True, name='out_layer_emb')
 
-
         shared_additional_output_merge = eval(params['ADDITIONAL_OUTPUT_MERGE_MODE'])(name='additional_input')
         additional_output = shared_additional_output_merge([out_layer_mlp, out_layer_ctx, out_layer_emb])
         shared_activation_tanh = Activation('tanh')
@@ -538,7 +530,7 @@ class TranslationModel(Model_Wrapper):
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
 
-        self.model = Model(input=[src_text, next_words], output=softout)
+        self.model = Model(inputs=[src_text, next_words], outputs=softout)
 
         ##################################################################
         #                         SAMPLING MODEL                         #
@@ -554,7 +546,7 @@ class TranslationModel(Model_Wrapper):
             model_init_output += h_memories_list
         if self.return_alphas:
             model_init_output.append(alphas)
-        self.model_init = Model(input=model_init_input, output=model_init_output)
+        self.model_init = Model(inputs=model_init_input, outputs=model_init_output)
 
         # Store inputs and outputs names for model_init
         self.ids_inputs_init = self.ids_inputs
@@ -648,8 +640,8 @@ class TranslationModel(Model_Wrapper):
         if self.return_alphas:
             model_next_outputs.append(alphas)
 
-        self.model_next = Model(input=model_next_inputs,
-                                output=model_next_outputs)
+        self.model_next = Model(inputs=model_next_inputs,
+                                outputs=model_next_outputs)
         # Store inputs and outputs names for model_next
         # first input must be previous word
         self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input']
