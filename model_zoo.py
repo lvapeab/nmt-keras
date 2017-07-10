@@ -494,7 +494,7 @@ class TranslationModel(Model_Wrapper):
             out_layer = shared_deep_list[-1](out_layer)
             [out_layer, shared_reg_out_layer] = Regularize(out_layer,
                                                            params, shared_layers=True,
-                                                           name='out_layer' + str(activation))
+                                                           name='out_layer_' + str(activation) + '_%d' % i)
             shared_reg_deep_list.append(shared_reg_out_layer)
 
         # 3.7. Output layer: Softmax
