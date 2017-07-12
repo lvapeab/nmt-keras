@@ -153,7 +153,7 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
-    DECODER_RNN_TYPE = 'LSTM'                     # Decoder's RNN unit type
+    DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
     # Initializers (see keras/initializations.py).
     INIT_FUNCTION = 'glorot_uniform'              # General initialization function for matrices.
