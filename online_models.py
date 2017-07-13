@@ -32,16 +32,17 @@ def build_online_models(models, params):
                               name='custom_loss',
                               supports_masking=False)([preds_y, yref, preds_h, hyp])
 
-            trainer_model = Model(input=[x, state_y, state_h, yref, hyp],
-                                  output=loss_out)
+            trainer_model = Model(inputs=[x, state_y, state_h, yref, hyp],
+                                  outputs=loss_out)
             trainer_models.append(trainer_model)
 
             # Set custom optimizer
             weights = trainer_model.trainable_weights
             if not weights:
                 logging.warning("You don't have any trainable weight!!")
-            weights.sort(key=lambda x: x.name if x.name else x.auto_name)
-            weights_shapes = [K.get_variable_shape(w) for w in weights]
+            # Weights from Keras 2 are already (topologically) sorted!
+            #weights.sort(key=lambda x: x.name if x.name else x.auto_name)
+            weights_shapes = [(w.name, K.get_variable_shape(w)) for w in weights]
             subgradientOpt = eval(params['OPTIMIZER'])(weights_shapes,
                                                        lr=params['LR'],
                                                        c=params['C'],
