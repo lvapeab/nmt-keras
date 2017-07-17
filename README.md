@@ -15,12 +15,12 @@ If you use this toolkit in your research, please cite:
 
 ```
 @misc{nmt-keras2017,
-  author = {Álvaro Peris},
-  title = {NMT-Keras},
-  year = {2017},
-  publisher = {GitHub},
-  note = {GitHub repository},
-  howpublished = {\url{https://github.com/lvapeab/nmt-keras}},
+	author = {Peris, Álvaro},
+	title = {{NMT}-{K}eras},
+	year = {2017},
+	publisher = {GitHub},
+	note = {GitHub repository},
+	howpublished = {\url{https://github.com/lvapeab/nmt-keras}},
 }
 ```
 
