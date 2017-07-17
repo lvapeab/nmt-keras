@@ -439,20 +439,20 @@ class TranslationModel(Model_Wrapper):
             current_rnn_input = [proj_h, shared_Lambda_Permute(x_att), initial_state]
             shared_proj_h_list.append(eval(params['DECODER_RNN_TYPE'].replace('Conditional', '') + 'Cond')(
                 params['DECODER_HIDDEN_SIZE'],
-                                       kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                       recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                       conditional_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                       bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                       dropout=params['RECURRENT_DROPOUT_P'],
-                                       recurrent_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                       conditional_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                       kernel_initializer=params['INIT_FUNCTION'],
-                                       recurrent_initializer=params['INNER_INIT'],
-                                       return_sequences=True,
-                                       return_states=True,
-                                       num_inputs=len(current_rnn_input),
-                                       name='decoder_' + params['DECODER_RNN_TYPE'].replace(
-                                           'Conditional', '') + 'Cond' + str(n_layer)))
+                kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                conditional_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                dropout=params['RECURRENT_DROPOUT_P'],
+                recurrent_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
+                conditional_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
+                kernel_initializer=params['INIT_FUNCTION'],
+                recurrent_initializer=params['INNER_INIT'],
+                return_sequences=True,
+                return_states=True,
+                num_inputs=len(current_rnn_input),
+                name='decoder_' + params['DECODER_RNN_TYPE'].replace(
+                    'Conditional', '') + 'Cond' + str(n_layer)))
 
             if 'LSTM' in params['DECODER_RNN_TYPE']:
                 current_rnn_input.append(initial_memory)
