@@ -201,9 +201,9 @@ def load_parameters():
     WEIGHT_DECAY = 1e-4                           # L2 regularization
     RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
 
-    DROPOUT_P = 0                                 # Percentage of units to drop (0 means no dropout)
-    RECURRENT_INPUT_DROPOUT_P = 0                 # Percentage of units to drop in input cells of recurrent layers
-    RECURRENT_DROPOUT_P = 0                       # Percentage of units to drop in recurrent layers
+    DROPOUT_P = 0.                                 # Percentage of units to drop (0 means no dropout)
+    RECURRENT_INPUT_DROPOUT_P = 0.                 # Percentage of units to drop in input cells of recurrent layers
+    RECURRENT_DROPOUT_P = 0.                       # Percentage of units to drop in recurrent layers
 
     USE_NOISE = True                              # Use gaussian noise during training
     NOISE_AMOUNT = 0.01                           # Amount of noise
