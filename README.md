@@ -86,8 +86,8 @@ Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)
 
 NMT-Keras requires the following libraries:
 
- - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 1.2.3 or newer, as it solves some issues)
- - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 0.7 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
+ - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 2.0.6 or newer)
+ - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 2.0 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
 
