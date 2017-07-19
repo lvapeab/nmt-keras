@@ -34,14 +34,15 @@ If you use this toolkit in your research, please cite:
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
    - Featuring length and source coverage normalization ([reference](https://arxiv.org/abs/1609.08144)).
  * Translation scoring ([score.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
- * Support for GRU/LSTM networks.
- * Multilayered residual GRU/LSTM networks.
- * [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in decoder.
+ * Support for GRU/LSTM networks:
+   - Regular GRU/LSTM units.
+   - [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in the decoder.   
+   - Multilayered residual GRU/LSTM networks (and their Conditional version).
  * N-best list generation (as byproduct of the beam search process).
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.
- * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization
+ * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization.
 
 ## Installation
 
