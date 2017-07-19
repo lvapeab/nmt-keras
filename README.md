@@ -28,6 +28,7 @@ If you use this toolkit in your research, please cite:
  
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
+   - :heavy_exclamation_mark: Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
@@ -35,7 +36,7 @@ If you use this toolkit in your research, please cite:
  * Translation scoring ([score.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
  * Support for GRU/LSTM networks.
  * Multilayered residual GRU/LSTM networks.
- * :heavy_exclamation_mark: [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in decoder.
+ * [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in decoder.
  * N-best list generation (as byproduct of the beam search process).
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
