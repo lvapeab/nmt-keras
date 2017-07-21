@@ -15,7 +15,7 @@ If you use this toolkit in your research, please cite:
 
 ```
 @misc{nmt-keras2017,
-	author = {Peris, Álvaro},
+	author = {Peris, {\'A}lvaro},
 	title = {{NMT}-{K}eras},
 	year = {2017},
 	publisher = {GitHub},
