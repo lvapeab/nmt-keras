@@ -254,22 +254,24 @@ if __name__ == "__main__":
                 hypothesis_number = 0
                 unk_indices = []
 
-                seqin = line.strip()
+                tokenized_input = line.strip()
                 if params_prediction.get('apply_tokenization'):
-                    seqin = params_prediction['tokenize_f'](seqin)
+                    tokenized_input = params_prediction['tokenize_f'](tokenized_input)
 
-                src_seq, src_words = parse_input(seqin, dataset, word2index_x)
+                src_seq, src_words = parse_input(tokenized_input, dataset, word2index_x)
 
                 logger.debug("\n\nProcessing sentence %d" % (n_line + 1))
                 logger.debug("Source: %s" % line[:-1])
                 logger.debug("Target: %s" % target_lines[n_line])
                 reference = target_lines[n_line].split()
+                tokenized_output = params_prediction['tokenize_f'](target_lines[n_line]) if \
+                    params_prediction['apply_detokenization'] else target_lines[n_line]
 
                 # 0. Get a first hypothesis
                 trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search_interactive(src_seq)
                 if params_prediction['pos_unk']:
                     alphas = [alphas]
-                    sources = [seqin]
+                    sources = [tokenized_input]
                     heuristic = params_prediction['heuristic']
                 else:
                     alphas = None
@@ -514,7 +516,7 @@ if __name__ == "__main__":
                               float(total_mouse_actions) / total_words,
                               float(total_mouse_actions) / total_chars))
                 if args.online:
-                    state_below = dataset.loadText([" ".join(reference)],
+                    state_below = dataset.loadText([tokenized_output],
                                                    dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                                    params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                                    1,
@@ -523,7 +525,7 @@ if __name__ == "__main__":
                                                    words_so_far=False,
                                                    loading_X=True)[0]
 
-                    trg_seq = dataset.loadTextOneHot([" ".join(reference)],
+                    trg_seq = dataset.loadTextOneHot([tokenized_output],
                                                      vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                                      vocabulary_len=dataset.vocabulary_len[
                                                          params['OUTPUTS_IDS_DATASET'][0]],
