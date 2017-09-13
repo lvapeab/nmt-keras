@@ -13,9 +13,9 @@
  #### Input/output params
     Parameters for naming the task and setting the paths to the data files.
   * **INPUTS_IDS_DATASET**: Name of the inputs of the Dataset class.
-  * **OUTPUTS_IDS_DATASET**: Name of the inputs of the Dataset class.
-  * **INPUTS_IDS_MODEL**:Name of the inputs of the Model.
-  * **OUTPUTS_IDS_MODEL**: Name of the inputs of the Model.
+  * **OUTPUTS_IDS_DATASET**: Name of the outputs of the Dataset class.
+  * **INPUTS_IDS_MODEL**: Name of the inputs of the Model.
+  * **OUTPUTS_IDS_MODEL**: Name of the outputs of the Model.
 
   #### Evaluation params
   * **METRICS**: List of metric used for evaluating the model. The `coco` package is recommended.

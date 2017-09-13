@@ -201,9 +201,9 @@ def load_parameters():
     WEIGHT_DECAY = 1e-4                           # L2 regularization
     RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
 
-    DROPOUT_P = 0.                                 # Percentage of units to drop (0 means no dropout)
-    RECURRENT_INPUT_DROPOUT_P = 0.                 # Percentage of units to drop in input cells of recurrent layers
-    RECURRENT_DROPOUT_P = 0.                       # Percentage of units to drop in recurrent layers
+    DROPOUT_P = 0.                                # Percentage of units to drop (0 means no dropout)
+    RECURRENT_INPUT_DROPOUT_P = 0.                # Percentage of units to drop in input cells of recurrent layers
+    RECURRENT_DROPOUT_P = 0.                      # Percentage of units to drop in recurrent layers
 
     USE_NOISE = True                              # Use gaussian noise during training
     NOISE_AMOUNT = 0.01                           # Amount of noise
@@ -213,6 +213,8 @@ def load_parameters():
 
     USE_PRELU = False                             # use PReLU activations as regularizer
     USE_L2 = False                                # L2 normalization on the features
+
+    DOUBLE_STOCHASTIC_ATTENTION_REG = 0.0         # Doubly stochastic attention (Eq. 14 from arXiv:1502.03044)
 
     # Results plot and models storing parameters
     EXTRA_NAME = ''                               # This will be appended to the end of the model name

@@ -4,7 +4,7 @@ import os
 from keras.layers import *
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
-from keras.regularizers import l2
+from keras.regularizers import l2, AlphaRegularizer
 from keras_wrapper.cnn_model import Model_Wrapper
 from keras_wrapper.extra.regularize import Regularize
 
@@ -425,6 +425,9 @@ class TranslationModel(Model_Wrapper):
             h_memory = rnn_output[4]
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
 
+        if params['DOUBLE_STOCHASTIC_ATTENTION_REG'] > 0:
+            alpha_regularizer = AlphaRegularizer(alpha_factor=params['DOUBLE_STOCHASTIC_ATTENTION_REG'])(alphas)
+
         [proj_h, shared_reg_proj_h] = Regularize(proj_h, params, shared_layers=True, name='proj_h0')
 
         # 3.4. Possibly deep decoder
@@ -531,7 +534,8 @@ class TranslationModel(Model_Wrapper):
         softout = shared_FC_soft(out_layer)
 
         self.model = Model(inputs=[src_text, next_words], outputs=softout)
-
+        if params['DOUBLE_STOCHASTIC_ATTENTION_REG'] > 0.:
+            self.model.add_loss(alpha_regularizer)
         ##################################################################
         #                         SAMPLING MODEL                         #
         ##################################################################
