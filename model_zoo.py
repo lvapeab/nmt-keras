@@ -425,7 +425,7 @@ class TranslationModel(Model_Wrapper):
             h_memory = rnn_output[4]
         shared_Lambda_Permute = PermuteGeneral((1, 0, 2))
 
-        if params['DOUBLE_STOCHASTIC_ATTENTION_REG'] > 0:
+        if params.get('DOUBLE_STOCHASTIC_ATTENTION_REG', 0) > 0:
             alpha_regularizer = AlphaRegularizer(alpha_factor=params['DOUBLE_STOCHASTIC_ATTENTION_REG'])(alphas)
 
         [proj_h, shared_reg_proj_h] = Regularize(proj_h, params, shared_layers=True, name='proj_h0')
@@ -534,7 +534,7 @@ class TranslationModel(Model_Wrapper):
         softout = shared_FC_soft(out_layer)
 
         self.model = Model(inputs=[src_text, next_words], outputs=softout)
-        if params['DOUBLE_STOCHASTIC_ATTENTION_REG'] > 0.:
+        if params.get('DOUBLE_STOCHASTIC_ATTENTION_REG', 0) > 0.:
             self.model.add_loss(alpha_regularizer)
         ##################################################################
         #                         SAMPLING MODEL                         #

@@ -309,7 +309,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     trainer_models = build_online_models(models, params)
     if params['N_BEST_OPTIMIZER']:
-        logging.info('Using N-best optimizer')
+        logging.info('Using N-best optimizer with metric %s' % params['N_BEST_OPTIMIZER_METRIC'])
 
     # Apply model predictions
     params_prediction = {  # Decoding params
@@ -336,7 +336,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'output_max_length_depending_on_x_factor': params.get('MAXLEN_GIVEN_X_FACTOR', 3),
         'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
         'output_min_length_depending_on_x_factor': params.get('MINLEN_GIVEN_X_FACTOR', 2),
-        'n_best_optimizer': params['N_BEST_OPTIMIZER']
+        'n_best_optimizer': params['N_BEST_OPTIMIZER'],
+        'n_best_optimizer_metric': params['N_BEST_OPTIMIZER_METRIC']
     }
     params_training = {  # Traning params
         'n_epochs': params['MAX_EPOCH'],

@@ -41,6 +41,7 @@ def parse_args():
     parser.add_argument("--max-n", type=int, default=5, help="Maximum number of words generated between isles")
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=True)
     parser.add_argument("-trg", "--references", help="Reference sentence (for simulation)", required=True)
+    parser.add_argument("-bpe", "--detokenize-bpe", help="Revert BPE tokenization", action='store_true', default=True)
     parser.add_argument("-d", "--dest", required=True, help="File to save translations in")
     parser.add_argument("-od", "--original-dest", help="Save original hypotheses to this file", required=False)
     parser.add_argument("-p", "--prefix", action="store_true", default=False, help="Prefix-based post-edition")
@@ -76,9 +77,9 @@ if __name__ == "__main__":
                 print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
                 exit(1)
             try:
-                parameters[k] = ast.literal_eval(v)
+                params[k] = ast.literal_eval(v)
             except ValueError:
-                parameters[k] = v
+                params[k] = v
     except ValueError:
         print 'Error processing arguments: (', k, ",", v, ")"
         exit(2)
@@ -203,7 +204,7 @@ if __name__ == "__main__":
                                  'search_pruning': params.get('SEARCH_PRUNING', False),
                                  'state_below_index': -1,
                                  'output_text_index': 0,
-                                 'apply_tokenization': params.get('APPLY_TOKENIZATION', True),
+                                 'apply_tokenization': params.get('APPLY_TOKENIZATION', False),
                                  'tokenize_f': eval('dataset.' +
                                                     params.get('TOKENIZATION_METHOD', 'tokenize_none')),
 
@@ -260,12 +261,16 @@ if __name__ == "__main__":
 
                 src_seq, src_words = parse_input(tokenized_input, dataset, word2index_x)
 
+                if args.detokenize_bpe:
+                    line = params_prediction['detokenize_f'](line)
+
+                tokenized_reference = target_lines[n_line]
+                reference = params_prediction['detokenize_f'](tokenized_reference).split() if \
+                    args.detokenize_bpe else tokenized_reference.split()
+
                 logger.debug("\n\nProcessing sentence %d" % (n_line + 1))
-                logger.debug("Source: %s" % line[:-1])
-                logger.debug("Target: %s" % target_lines[n_line])
-                reference = target_lines[n_line].split()
-                tokenized_output = params_prediction['tokenize_f'](target_lines[n_line]) if \
-                    params_prediction['apply_detokenization'] else target_lines[n_line]
+                logger.debug("Source: %s" % line)
+                logger.debug("Target: %s" % ' '.join(reference))
 
                 # 0. Get a first hypothesis
                 trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search_interactive(src_seq)
@@ -474,7 +479,7 @@ if __name__ == "__main__":
                             hypothesis = ' '.join(hypothesis)
                             hypothesis = params_prediction['detokenize_f'](hypothesis) \
                                 if params_prediction.get('apply_detokenization', False) else hypothesis
-                            logger.debug("Target: %s" % target_lines[n_line])
+                            logger.debug("Target: %s" % ' '.join(reference))
                             logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis))
                             hypothesis = hypothesis.split()
                             correction_made = False
@@ -498,7 +503,7 @@ if __name__ == "__main__":
                 total_words += len(hypothesis)
                 total_chars += chars_sentence
                 total_mouse_actions += mouse_actions_sentence
-                logger.debug("Final hypotesis: %s" % hypothesis)
+                logger.debug("Final hypotesis: %s" % ' '.join(hypothesis))
                 logger.debug("%d errors. "
                              "Sentence WSR: %4f. "
                              "Sentence mouse strokes: %d "
@@ -516,7 +521,7 @@ if __name__ == "__main__":
                               float(total_mouse_actions) / total_words,
                               float(total_mouse_actions) / total_chars))
                 if args.online:
-                    state_below = dataset.loadText([tokenized_output],
+                    state_below = dataset.loadText([tokenized_reference],
                                                    dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                                    params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                                    1,
@@ -525,7 +530,7 @@ if __name__ == "__main__":
                                                    words_so_far=False,
                                                    loading_X=True)[0]
 
-                    trg_seq = dataset.loadTextOneHot([tokenized_output],
+                    trg_seq = dataset.loadTextOneHot([tokenized_reference],
                                                      vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                                      vocabulary_len=dataset.vocabulary_len[
                                                          params['OUTPUTS_IDS_DATASET'][0]],
@@ -563,7 +568,6 @@ if __name__ == "__main__":
         ftrans.close()
         if args.original_dest is not None:
             ftrans_ori.close()
-
     except KeyboardInterrupt:
         print 'Interrupted!'
         print "Total number of corrections (up to now):", total_errors
