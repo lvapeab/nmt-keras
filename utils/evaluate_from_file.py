@@ -1,79 +1,73 @@
 import argparse
 
-# Scores a file of hypothesis.
-# Usage:
-#     1. Set the references in this file.
-#     2. python evaluate_from_file.py -hyp hypothesis -r references
-
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
-from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.meteor.meteor import Meteor
+from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.ter.ter import Ter
 
 parser = argparse.ArgumentParser(
-    description="""This takes two files and a
-     path to the references (source, references),
-     and computes bleu, meteor,
-     rouge, cider and TER metrics""",
-    formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-t', '--hypotheses', type=str,
-                    help='Hypotheses file')
-parser.add_argument('-l', '--language', type=str,
-                    default='en',
-                    help='Meteor language')
-parser.add_argument('-s', '--step-size',
-                    type=int, default=0,
-                    help='Step size. 0 == Evaluate all sentences')
-parser.add_argument('-r', '--references',
-                    type=argparse.FileType('r'),
-                    nargs="+",
-                    help='Path to all the '
-                         'reference files (single-reference files)')
+    description="""This takes two files and a path the references (source, references),
+     computes bleu, meteor, rouge and cider metrics""", formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-t', '--hypotheses', type=str, help='Hypotheses file')
+parser.add_argument('-m', '--metrics', default=['bleu', 'ter', 'meteor', 'rouge_l', 'cider'], nargs='*',
+                    help='Metrics to evaluate on')
+parser.add_argument('-l', '--language', type=str, default='en', help='Meteor language')
+parser.add_argument('-s', '--step-size', type=int, default=0, help='Step size. 0 == Evaluate all sentences')
+parser.add_argument('-r', '--references', type=argparse.FileType('r'), nargs="+",
+                    help='Path to all the reference files (single-reference files)')
 
 
-def load_textfiles(references, hypothesis):
+def load_textfiles(references, hypotheses):
     """
     Loads the references and hypothesis text files.
 
     :param references: Path to the references files.
-    :param hypothesis: Path to the hypotheses file.
+    :param hypotheses: Path to the hypotheses file.
     :return:
     """
     print "The number of references is {}".format(len(references))
-    hypo = {idx: [lines.strip()] for (idx, lines) in enumerate(hypothesis)}
+    hypo = {idx: [lines.strip()] for (idx, lines) in enumerate(hypotheses)}
     # take out newlines before creating dictionary
     raw_refs = [map(str.strip, r) for r in zip(*references)]
     refs = {idx: rr for idx, rr in enumerate(raw_refs)}
     # sanity check that we have the same number of references as hypothesis
     if len(hypo) != len(refs):
-        raise ValueError("There is a sentence number mismatch between"
-                         " the inputs: \n"
+        raise ValueError("There is a sentence number mismatch between the inputs: \n"
                          "\t # sentences in references: %d\n"
-                         "\t # sentences in hypothesis: %d" %
-                         (len(refs), len(hypo)))
+                         "\t # sentences in hypothesis: %d" % (len(refs), len(hypo)))
     return refs, hypo
 
 
-def CocoScore(ref, hypo, language='en'):
+def CocoScore(ref, hyp, metrics_list=None, language='en'):
     """
     Obtains the COCO scores from the references and hypotheses.
 
     :param ref: Dictionary of reference sentences (id, sentence)
-    :param hypo: Dictionary of hypothesis sentences (id, sentence)
+    :param hyp: Dictionary of hypothesis sentences (id, sentence)
+    :param metrics_list: List of metrics to evaluate on
     :param language: Language of the sentences (for METEOR)
     :return: dictionary of scores
     """
-    scorers = [
-        (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
-        (Meteor(language), "METEOR"),
-        (Ter(), "TER"),
-        (Rouge(), "ROUGE_L"),
-        (Cider(), "CIDEr")
-    ]
+    if metrics_list is None:
+        metrics_list = ['bleu', 'ter', 'meteor', 'rouge_l', 'cider']
+
+    metrics_list = map(lambda x: x.lower(), metrics_list)
+    scorers = []
+    if 'bleu' in metrics_list:
+        scorers.append((Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]))
+    if 'meteor' in metrics_list:
+        scorers.append((Meteor(language), "METEOR"))
+    if 'ter' in metrics_list:
+        scorers.append((Ter(), "TER"))
+    if 'rouge_l' in metrics_list or 'rouge' in metrics_list:
+        scorers.append((Rouge(), "ROUGE_L"))
+    if 'cider' in metrics_list:
+        scorers.append((Cider(), "CIDEr"))
+
     final_scores = {}
     for scorer, method in scorers:
-        score, _ = scorer.compute_score(ref, hypo)
+        score, _ = scorer.compute_score(ref, hyp)
         if isinstance(score, list):
             for m, s in zip(method, score):
                 final_scores[m] = s
@@ -86,16 +80,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     language = args.language
-    hypotheses = open(args.hypotheses, 'r')
+    hypotheses_file = open(args.hypotheses, 'r')
     step_size = args.step_size
-    ref, hypo = load_textfiles(args.references, hypotheses)
+    ref, hypothesis = load_textfiles(args.references, hypotheses_file)
     if step_size < 1:
-        score = CocoScore(ref, hypo, language=language)
+        score = CocoScore(ref, hypothesis, metrics_list=args.metrics, language=language)
         print "Scores: "
         max_score_name_len = max([len(x) for x in score.keys()])
         for score_name in sorted(score.keys()):
-            print "\t {0:{1}}".format(score_name, max_score_name_len) \
-                  + ": %.5f" % score[score_name]
+            print "\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" % score[score_name]
     else:
         n = 0
         while True:
@@ -105,8 +98,8 @@ if __name__ == "__main__":
             partial_hyps = {}
             for i in indices:
                 partial_refs[i] = ref[i]
-                partial_hyps[i] = hypo[i]
-            score = CocoScore(partial_refs, partial_hyps, language=language)
+                partial_hyps[i] = hypothesis[i]
+            score = CocoScore(partial_refs, partial_hyps, metrics_list=args.metrics, language=language)
             print str(min(n, len(ref))) + " \tScore: ", score
             if n > len(ref):
                 break
