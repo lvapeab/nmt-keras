@@ -10,7 +10,8 @@ def update_dataset_from_file(ds,
                              splits=None,
                              output_text_filename=None,
                              remove_outputs=False,
-                             compute_state_below=False):
+                             compute_state_below=False,
+                             recompute_references=False):
     """
     Updates the dataset instance from a text file according to the given params.
     Used for sampling
@@ -94,6 +95,10 @@ def update_dataset_from_file(ds,
                            type='file-name',
                            id='raw_' + params['INPUTS_IDS_DATASET'][0],
                            overwrite_split=True)
+
+        # If we had multiple references per sentence
+        if recompute_references:
+            keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
 
     return ds
 
