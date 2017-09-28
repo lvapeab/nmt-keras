@@ -7,5 +7,5 @@ hash -r
 conda config --set always_yes yes --set changeps1 no
 conda update -q conda
 conda info -a
-conda create -q -n test-environment python=2.7 --file req-travis-conda.txt
+conda install --file req-travis-conda.txt
 pip install -r req-travis-pip.txt

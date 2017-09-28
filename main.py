@@ -44,7 +44,7 @@ def train_model(params, load_dataset=None):
                 dataset = build_dataset(params)
             else:
                 logging.info('Updating dataset.')
-                dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['TASK_NAME']
+                dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME']
                                       + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
                 for split, filename in params['TEXT_FILES'].iteritems():
@@ -55,7 +55,8 @@ def train_model(params, load_dataset=None):
                                                        output_text_filename=params['DATA_ROOT_PATH'] + '/' + filename +
                                                                             params['TRG_LAN'],
                                                        remove_outputs=False,
-                                                       compute_state_below=True)
+                                                       compute_state_below=True,
+                                                       recompute_references=True)
                     dataset.name = params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
                 saveDataset(dataset, params['DATASET_STORE_PATH'])
 
