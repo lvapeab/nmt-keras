@@ -93,7 +93,6 @@ def train_model(params, load_dataset=None):
         nmt_model = TranslationModel(params, model_type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
                                      model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
                                      store_path=params['STORE_PATH'])
-        dict2pkl(params, params['STORE_PATH'] + '/config')
 
         # Define the inputs and outputs mapping from our Dataset instance to our model
         inputMapping = dict()
@@ -140,6 +139,9 @@ def train_model(params, load_dataset=None):
         nmt_model.setOptimizer()
         params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
             int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+
+    # Store configuration as pkl
+    dict2pkl(params, params['STORE_PATH'] + '/config')
 
     # Callbacks
     callbacks = buildCallbacks(params, nmt_model, dataset)
