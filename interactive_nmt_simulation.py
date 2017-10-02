@@ -125,6 +125,9 @@ if __name__ == "__main__":
                                            splits=['train'],
                                            remove_outputs=False,
                                            compute_state_below=True)
+
+    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
+    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     logger.info("<<< Using an ensemble of %d models >>>" % len(args.models))
     if args.online:
         logging.info('Loading models from %s' % str(args.models))

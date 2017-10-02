@@ -27,6 +27,8 @@ def update_dataset_from_file(ds,
     :return: Dataset object with the processed data
     """
 
+    logging.info("<<< Updating Dataset instance " + ds.name + " ... >>>")
+
     if splits is None:
         splits = ['val']
 
