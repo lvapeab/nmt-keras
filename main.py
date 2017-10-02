@@ -306,8 +306,6 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         raise Exception, 'Online mode requires an already trained model!'
 
     # Set additional inputs to models if using a custom loss function
-    params['USE_CUSTOM_LOSS'] = True if 'PAS' in params['OPTIMIZER'] else False
-
     trainer_models = build_online_models(models, params)
     if params['N_BEST_OPTIMIZER']:
         logging.info('Using N-best optimizer with metric %s' % params['N_BEST_OPTIMIZER_METRIC'])
@@ -359,7 +357,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'metric_check': params.get('STOP_METRIC', None),
         'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
         'each_n_epochs': params.get('EVAL_EACH', 1),
-        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)
+        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
+        'k': params.get('K', 1),
+        'optimizer': params.get('OPTIMIZER', 'SGD')
     }
 
     # Create sampler
