@@ -120,7 +120,7 @@ def load_parameters():
     CLASSIFIER_ACTIVATION = 'softmax'
 
     OPTIMIZER = 'Adam'                            # Optimizer
-    LR = 0.0002                                   # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
+    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
