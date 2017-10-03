@@ -525,9 +525,9 @@ if __name__ == "__main__":
                               float(total_mouse_actions) / total_chars))
                 if args.online:
                     state_below = dataset.loadText([tokenized_reference],
-                                                   dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
-                                                   params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                                                   1,
+                                                   vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                                   max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                                   offset=1,
                                                    fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
                                                    pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
                                                    words_so_far=False,
