@@ -5,7 +5,7 @@ from keras import backend as K
 from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import *
-from keras.objectives import log_diff
+from keras.losses import *
 
 
 def setOptimizer(params):
@@ -100,7 +100,7 @@ def build_online_models(models, params):
             preds_y = nmt_model.model([x, state_y])
             preds_h = nmt_model.model([x, state_h])
 
-            loss_out = Lambda(log_diff,
+            loss_out = Lambda(eval(params['LOSS']),
                               output_shape=(1,),
                               name='custom_loss',
                               supports_masking=False)([preds_y, yref, preds_h, hyp])
@@ -120,7 +120,7 @@ def build_online_models(models, params):
             optimizer = setOptimizer(params)
             trainer_model.compile(loss=params['LOSS'],
                                   optimizer=optimizer,
-                                  sample_weight_mode=None, # As this is online training, we don't need sample weight
+                                  sample_weight_mode=None,  # As this is online training, we don't need sample weight
                                   metrics=params.get('KERAS_METRICS', []))
         return trainer_models
     else:

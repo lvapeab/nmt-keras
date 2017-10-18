@@ -336,7 +336,8 @@ class TranslationModel(Model_Wrapper):
                                 name='target_word_embedding',
                                 embeddings_regularizer=l2(params['WEIGHT_DECAY']),
                                 embeddings_initializer=params['INIT_FUNCTION'],
-                                trainable=self.trg_embedding_weights_trainable, weights=self.trg_embedding_weights,
+                                trainable=self.trg_embedding_weights_trainable,
+                                weights=self.trg_embedding_weights,
                                 mask_zero=True)(next_words)
         state_below = Regularize(state_below, params, name='state_below')
 
@@ -350,16 +351,14 @@ class TranslationModel(Model_Wrapper):
                                  kernel_initializer=params['INIT_FUNCTION'],
                                  kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                  bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                 activation=params['INIT_LAYERS'][n_layer_init]
-                                 )(ctx_mean)
+                                 activation=params['INIT_LAYERS'][n_layer_init])(ctx_mean)
                 ctx_mean = Regularize(ctx_mean, params, name='ctx' + str(n_layer_init))
 
             initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
                                   kernel_initializer=params['INIT_FUNCTION'],
                                   kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                   bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                  activation=params['INIT_LAYERS'][-1]
-                                  )(ctx_mean)
+                                  activation=params['INIT_LAYERS'][-1])(ctx_mean)
             initial_state = Regularize(initial_state, params, name='initial_state')
             input_attentional_decoder = [state_below, annotations, initial_state]
 

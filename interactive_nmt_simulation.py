@@ -144,11 +144,11 @@ if __name__ == "__main__":
 
         # Set additional inputs to models if using a custom loss function
         params['USE_CUSTOM_LOSS'] = True if 'PAS' in params['OPTIMIZER'] else False
-        trainer_models = build_online_models(models, params)
         if params['N_BEST_OPTIMIZER']:
             logging.info('Using N-best optimizer')
 
-        online_trainer = OnlineTrainer(trainer_models,
+        models = build_online_models(models, params)
+        online_trainer = OnlineTrainer(models,
                                        dataset,
                                        None,
                                        None,
@@ -523,6 +523,7 @@ if __name__ == "__main__":
                               float(total_errors) / total_words,
                               float(total_mouse_actions) / total_words,
                               float(total_mouse_actions) / total_chars))
+
                 if args.online:
                     state_below = dataset.loadText([tokenized_reference],
                                                    vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
