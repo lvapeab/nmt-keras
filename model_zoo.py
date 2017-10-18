@@ -228,7 +228,7 @@ class TranslationModel(Model_Wrapper):
     #       PREDEFINED MODELS
     # ------------------------------------------------------- #
 
-    def GroundHogModel(self, params):
+    def AttentionRNNEncoderDecoder(self, params):
         """
         Neural machine translation with:
             * BRNN encoder
@@ -668,3 +668,6 @@ class TranslationModel(Model_Wrapper):
                 self.ids_outputs_next.append('next_memory_' + str(n_memory))
                 self.matchings_init_to_next['next_memory_' + str(n_memory)] = 'prev_memory_' + str(n_memory)
                 self.matchings_next_to_next['next_memory_' + str(n_memory)] = 'prev_memory_' + str(n_memory)
+
+    # Backwards compatibility.
+    GroundHogModel = AttentionRNNEncoderDecoder

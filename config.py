@@ -151,7 +151,7 @@ def load_parameters():
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop
 
     # Model parameters
-    MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
+    MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
