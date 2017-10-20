@@ -51,8 +51,8 @@ def CocoScore(ref, hyp, metrics_list=None, language='en'):
     """
     if metrics_list is None:
         metrics_list = ['bleu', 'ter', 'meteor', 'rouge_l', 'cider']
-
-    metrics_list = map(lambda x: x.lower(), metrics_list)
+    else:
+        metrics_list = [metric.lower() for metric in metrics_list]
     scorers = []
     if 'bleu' in metrics_list:
         scorers.append((Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]))
