@@ -310,7 +310,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     # Set additional inputs to models if using a custom loss function
     trainer_models = build_online_models(models, params)
     if params['N_BEST_OPTIMIZER']:
-        logging.info('Using N-best optimizer with metric %s' % params['N_BEST_OPTIMIZER_METRIC'])
+        logging.info('Using N-best optimizer with metric %s' % params['OPTIMIZER_REGULARIZER'])
 
     # Apply model predictions
     params_prediction = {  # Decoding params
@@ -338,13 +338,16 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
         'output_min_length_depending_on_x_factor': params.get('MINLEN_GIVEN_X_FACTOR', 2),
         'n_best_optimizer': params['N_BEST_OPTIMIZER'],
-        'n_best_optimizer_metric': params['N_BEST_OPTIMIZER_METRIC']
+        'optimizer_regularizer': params['OPTIMIZER_REGULARIZER']
     }
     params_training = {  # Traning params
         'n_epochs': params['MAX_EPOCH'],
         'shuffle': False,
+        'loss': params.get('LOSS', 'categorical_crossentropy'),
         'batch_size': params.get('BATCH_SIZE', 1),
         'homogeneous_batches': False,
+        'optimizer': params.get('OPTIMIZER', 'SGD'),
+        'lr': params.get('LR', 0.1),
         'lr_decay': params.get('LR_DECAY', None),
         'lr_gamma': params.get('LR_GAMMA', 1.),
         'epochs_for_save': -1,
@@ -360,8 +363,10 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
         'each_n_epochs': params.get('EVAL_EACH', 1),
         'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
-        'k': params.get('K', 1),
-        'optimizer': params.get('OPTIMIZER', 'SGD')
+        'additional_training_settings': {'k': params.get('K', 1),
+                                         'tau': params.get('TAU', 1),
+                                         'lambda': params.get('LAMBDA', 0.5)
+                                         }
     }
 
     # Create sampler
