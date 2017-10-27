@@ -138,9 +138,15 @@ class TranslationModel(Model_Wrapper):
         """
         # compile differently depending if our model is 'Sequential' or 'Graph'
         if self.verbose > 0:
-            logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s] and compiling." %
-                         (str(self.params['OPTIMIZER']), str(self.params.get('LR', 0.01)),
-                          str(self.params.get('LOSS', 'categorical_crossentropy'))))
+            logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s - "
+                         "CLIP_C %s - CLIP_V  %s - LR_OPTIMIZER_DECAY %s] and compiling." %
+                         (str(self.params['OPTIMIZER']),
+                          str(self.params.get('LR', 0.01)),
+                          str(self.params.get('LOSS', 'categorical_crossentropy')),
+                          str(self.params.get('CLIP_C', 0.)),
+                          str(self.params.get('CLIP_V', 0.)),
+                          str(self.params.get('LR_OPTIMIZER_DECAY', 0.0))
+                          ))
 
         if self.params['OPTIMIZER'].lower() == 'sgd':
             optimizer = SGD(lr=self.params.get('LR', 0.01),
