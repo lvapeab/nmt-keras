@@ -277,6 +277,8 @@ class TranslationModel(Model_Wrapper):
                                                                              'RECURRENT_DROPOUT_P'],
                                                                          kernel_initializer=params['INIT_FUNCTION'],
                                                                          recurrent_initializer=params['INNER_INIT'],
+                                                                         layer_normalization=params[
+                                                                           'RECURRENT_LAYER_NORMALIZATION'],
                                                                          return_sequences=True),
                                         name='bidirectional_encoder_' + params['ENCODER_RNN_TYPE'],
                                         merge_mode='concat')(src_embedding)
@@ -289,6 +291,8 @@ class TranslationModel(Model_Wrapper):
                                                            recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                            kernel_initializer=params['INIT_FUNCTION'],
                                                            recurrent_initializer=params['INNER_INIT'],
+                                                           layer_normalization=params[
+                                                                           'RECURRENT_LAYER_NORMALIZATION'],
                                                            return_sequences=True,
                                                            name='encoder_' + params['ENCODER_RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
@@ -313,6 +317,8 @@ class TranslationModel(Model_Wrapper):
                                                                                          'INIT_FUNCTION'],
                                                                                      recurrent_initializer=params[
                                                                                          'INNER_INIT'],
+                                                                                     layer_normalization=params[
+                                                                                         'RECURRENT_LAYER_NORMALIZATION'],
                                                                                      return_sequences=True,
                                                                                      ),
                                                     merge_mode='concat',
@@ -329,6 +335,8 @@ class TranslationModel(Model_Wrapper):
                                                                        recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                                        kernel_initializer=params['INIT_FUNCTION'],
                                                                        recurrent_initializer=params['INNER_INIT'],
+                                                                       layer_normalization=params[
+                                                                           'RECURRENT_LAYER_NORMALIZATION'],
                                                                        return_sequences=True,
                                                                        name='encoder_' + str(n_layer))(annotations)
             current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
@@ -414,6 +422,8 @@ class TranslationModel(Model_Wrapper):
                                                                              recurrent_initializer=params['INNER_INIT'],
                                                                              attention_context_initializer=params[
                                                                                  'INIT_ATT'],
+                                                                             layer_normalization=params[
+                                                                                 'RECURRENT_LAYER_NORMALIZATION'],
                                                                              return_sequences=True,
                                                                              return_extra_variables=True,
                                                                              return_states=True,
@@ -458,6 +468,7 @@ class TranslationModel(Model_Wrapper):
                 recurrent_initializer=params['INNER_INIT'],
                 return_sequences=True,
                 return_states=True,
+                layer_normalization=params['RECURRENT_LAYER_NORMALIZATION'],
                 num_inputs=len(current_rnn_input),
                 name='decoder_' + params['DECODER_RNN_TYPE'].replace(
                     'Conditional', '') + 'Cond' + str(n_layer)))

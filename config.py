@@ -211,6 +211,8 @@ def load_parameters():
     USE_BATCH_NORMALIZATION = True                # If True it is recommended to deactivate Dropout
     BATCH_NORMALIZATION_MODE = 1                  # See documentation in Keras' BN
 
+    RECURRENT_LAYER_NORMALIZATION = True          # Recurrent layer normalization (https://arxiv.org/abs/1607.06450)
+
     USE_PRELU = False                             # use PReLU activations as regularizer
     USE_L2 = False                                # L2 normalization on the features
 
