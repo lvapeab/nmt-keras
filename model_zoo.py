@@ -459,7 +459,6 @@ class TranslationModel(Model_Wrapper):
                 recurrent_initializer=params['INNER_INIT'],
                 return_sequences=True,
                 return_states=True,
-                layer_normalization=params['RECURRENT_LAYER_NORMALIZATION'],
                 num_inputs=len(current_rnn_input),
                 name='decoder_' + params['DECODER_RNN_TYPE'].replace(
                     'Conditional', '') + 'Cond' + str(n_layer)))
