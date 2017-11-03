@@ -35,7 +35,7 @@ def load_textfiles(references, hypotheses):
     if len(hypo) != len(refs):
         raise ValueError("There is a sentence number mismatch between the inputs: \n"
                          "\t # sentences in references: %d\n"
-                         "\t # sentences in hypothesis: %d" % (len(refs), len(hypo)))
+                         "\t # sentences in hypotheses: %d" % (len(refs), len(hypo)))
     return refs, hypo
 
 
