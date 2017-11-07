@@ -80,7 +80,6 @@ class TestNMT(unittest.TestCase):
                                      vocabularies=dataset.vocabulary,
                                      store_path=params['STORE_PATH'],
                                      clear_dirs=False)
-
                 # Check Inputs
                 inputMapping = dict()
                 for i, id_in in enumerate(params['INPUTS_IDS_DATASET']):

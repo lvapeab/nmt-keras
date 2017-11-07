@@ -22,7 +22,6 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
     """
     word_vecs = dict()
     print "Loading vectors from %s" % v_path
-
     with open(v_path, "rb") as f:
         header = f.readline()
         vocab_size, layer1_size = map(int, header.split())

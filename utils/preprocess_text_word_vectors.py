@@ -20,9 +20,8 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
     :param base_path_save: Path where the formatted vectors will be stored.
     :param dest_filename: Filename of the formatted vectors.
     """
-    vecs_dict = dict()
+    word_vecs = dict()
     print "Loading vectors from %s" % v_path
-
     glove_vectors = [x[:-1] for x in open(v_path).readlines()]
     n_vecs = len(glove_vectors)
     print "Found %d vectors in %s" % (n_vecs, v_path)
@@ -31,7 +30,7 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
         v = vector.split()
         word = v[0]
         vec = np.asarray(v[1:], dtype='float32')
-        vecs_dict[word] = vec
+        word_vecs[word] = vec
         i += 1
         if i % 1000 == 0:
             print "Processed %d vectors (%.2f %%)\r" % \
@@ -41,7 +40,7 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
     # Store dict
     print "Saving word vectors in %s" %\
           (base_path_save + '/' + dest_filename + '.npy')
-    np.save(base_path_save + '/' + dest_filename + '.npy', vecs_dict)
+    np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
     print
 
 
