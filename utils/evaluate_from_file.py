@@ -35,7 +35,7 @@ def load_textfiles(references, hypotheses):
     if len(hypo) != len(refs):
         raise ValueError("There is a sentence number mismatch between the inputs: \n"
                          "\t # sentences in references: %d\n"
-                         "\t # sentences in hypothesis: %d" % (len(refs), len(hypo)))
+                         "\t # sentences in hypotheses: %d" % (len(refs), len(hypo)))
     return refs, hypo
 
 
@@ -76,9 +76,12 @@ def CocoScore(ref, hyp, metrics_list=None, language='en'):
     return final_scores
 
 
-if __name__ == "__main__":
-
-    args = parser.parse_args()
+def evaluate_from_file(args):
+    """
+    Evaluate translation hypotheses from a file or a list of files of references.
+    :param args: Evaluation parameters
+    :return: None
+    """
     language = args.language
     hypotheses_file = open(args.hypotheses, 'r')
     step_size = args.step_size
@@ -103,3 +106,8 @@ if __name__ == "__main__":
             print str(min(n, len(ref))) + " \tScore: ", score
             if n > len(ref):
                 break
+    return
+
+if __name__ == "__main__":
+    evaluate_from_file(parser.parse_args())
+

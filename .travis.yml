@@ -27,7 +27,8 @@ install:
 # command to run tests
 script:
   - nosetests --with-coverage --cover-package=config tests/test_load_params.py
-  - nosetests --with-coverage --cover-package=data_engine.prepare_data tests/test_dataset.py
-  - nosetests --with-coverage --cover-package=main tests/test_NMT.py
+  - nosetests --with-coverage --cover-package=dataset tests/data_engine/test_prepare_data.py
+  - nosetests --with-coverage --cover-package=utils tests/utils/test_utils.py tests/utils/test_evaluate_from_file.py tests/utils/test_process_word_vectors.py
+  - nosetests --with-coverage --cover-package=nmt-keras tests/test_NMT.py
 after_success:
   coveralls
