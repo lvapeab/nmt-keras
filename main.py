@@ -61,7 +61,8 @@ def train_model(params, load_dataset=None):
                 logging.info('Updating dataset.')
                 dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME']
                                       + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
-
+                params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
+                    int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
                 for split, filename in params['TEXT_FILES'].iteritems():
                     dataset = update_dataset_from_file(dataset,
                                                        params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
@@ -137,8 +138,9 @@ def train_model(params, load_dataset=None):
         nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
-        params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
-            int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+        if params.get('EPOCH_OFFSET') is None:
+            params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
+                int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
 
     # Store configuration as pkl
     dict2pkl(params, params['STORE_PATH'] + '/config')
