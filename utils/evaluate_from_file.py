@@ -7,8 +7,8 @@ from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.ter.ter import Ter
 
 parser = argparse.ArgumentParser(
-    description="""This takes two files and a path the references (source, references),
-     computes bleu, meteor, rouge and cider metrics""", formatter_class=argparse.RawTextHelpFormatter)
+    description="""Computes BLEU, TER, METEOR, ROUGE-L and CIDEr from a htypotheses file with respect to one
+    or more reference files.""", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-t', '--hypotheses', type=str, help='Hypotheses file')
 parser.add_argument('-m', '--metrics', default=['bleu', 'ter', 'meteor', 'rouge_l', 'cider'], nargs='*',
                     help='Metrics to evaluate on')
