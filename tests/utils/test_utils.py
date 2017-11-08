@@ -17,7 +17,7 @@ class TestUtils(unittest.TestCase):
             self.assertEqual(new_params[k], updates[k])
 
         new_params = update_parameters(params, updates, restrict=True)
-        for k, new_val in updates.iteritems():
+        for k, _ in updates.iteritems():
             self.assertEqual(new_params[k], params.get(k, 'new_value'))
         self.assertEqual(new_params['NEW_PARAMETER'], updates['NEW_PARAMETER'])
 
