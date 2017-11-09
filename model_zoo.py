@@ -446,6 +446,8 @@ class TranslationModel(Model_Wrapper):
 
         for n_layer in range(1, params['N_LAYERS_DECODER']):
             current_rnn_input = [proj_h, shared_Lambda_Permute(x_att), initial_state]
+            if 'LSTM' in params['DECODER_RNN_TYPE']:
+                current_rnn_input.append(initial_memory)
             shared_proj_h_list.append(eval(params['DECODER_RNN_TYPE'].replace('Conditional', '') + 'Cond')(
                 params['DECODER_HIDDEN_SIZE'],
                 kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
@@ -463,8 +465,6 @@ class TranslationModel(Model_Wrapper):
                 name='decoder_' + params['DECODER_RNN_TYPE'].replace(
                     'Conditional', '') + 'Cond' + str(n_layer)))
 
-            if 'LSTM' in params['DECODER_RNN_TYPE']:
-                current_rnn_input.append(initial_memory)
             current_rnn_output = shared_proj_h_list[-1](current_rnn_input)
             current_proj_h = current_rnn_output[0]
             h_states_list.append(current_rnn_output[1])
