@@ -14,7 +14,7 @@ def load_parameters():
     K = 1                                         # Number of iterations to perform per sample
     USE_CUSTOM_LOSS = False if 'categorical_crossentropy' in LOSS else True
     N_BEST_OPTIMIZER = False                      # Use N-Best list-based optimization
-    N_BEST_OPTIMIZER_METRIC = 'TER'               # Metric to optimize (BLEU or TER)
+    OPTIMIZER_REGULARIZER = ''               # Metric to optimize (BLEU or TER)
 
     # General params
     CLIP_C = 5.                                   # During training, clip gradients to this norm

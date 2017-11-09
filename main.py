@@ -68,8 +68,8 @@ def train_model(params, load_dataset=None):
                                                        params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
                                                        params,
                                                        splits=list([split]),
-                                                       output_text_filename=params['DATA_ROOT_PATH'] + '/' + filename +
-                                                                            params['TRG_LAN'],
+                                                       output_text_filename=params['DATA_ROOT_PATH'] + '/' +
+                                                                            filename + params['TRG_LAN'],
                                                        remove_outputs=False,
                                                        compute_state_below=True,
                                                        recompute_references=True)
@@ -279,9 +279,15 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                        verbose=0):
     """
     Training function. Sets the training parameters from params. Build or loads the model and launches the training.
+
     :param params: Dictionary of network hyperparameters.
-    :param load_dataset: Load dataset from file or build it from the parameters.
-    :return: None
+    :param source_filename: Filename with source sentences
+    :param target_filename: Filename with post-edited (reference) sentences
+    :param models_path: Paths to the models to load
+    :param dataset: Path to the dataset
+    :param store_hypotheses: Path for storing the model hypotheses
+    :param verbose: Verbosity level
+    :return:
     """
 
     logging.info('Starting online training.')
@@ -307,7 +313,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                            for i in range(len(models_path))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, models_path)]
     else:
-        raise Exception, 'Online mode requires an already trained model!'
+        raise BaseException('Online mode requires an already trained model!')
 
     # Set additional inputs to models if using a custom loss function
     trainer_models = build_online_models(models, params)
