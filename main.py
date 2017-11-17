@@ -373,7 +373,10 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
         'additional_training_settings': {'k': params.get('K', 1),
                                          'tau': params.get('TAU', 1),
-                                         'lambda': params.get('LAMBDA', 0.5)
+                                         'lambda': params.get('LAMBDA', 0.5),
+                                         'c': params.get('C', 0.5),
+                                         'd': params.get('D', 0.5)
+
                                          }
     }
 

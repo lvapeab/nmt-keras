@@ -11,6 +11,7 @@ def load_parameters():
     LR = 0.1                                      # Learning rate.
     # PAS-like params
     C = 0.1                                       # Constant parameter for PAS and PPAS optimizer.
+    D = 0.1                                       # Constant parameter for PAS and PPAS optimizer.
     K = 1                                         # Number of iterations to perform per sample
     USE_CUSTOM_LOSS = False if 'categorical_crossentropy' in LOSS else True
     N_BEST_OPTIMIZER = False                      # Use N-Best list-based optimization
