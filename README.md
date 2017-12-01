@@ -55,7 +55,7 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
  
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
-   - Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
+   - :heavy_exclamation_mark: Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
@@ -65,7 +65,6 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
    - Regular GRU/LSTM units.
    - [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in the decoder.   
    - Multilayered residual GRU/LSTM networks (and their Conditional version).
-   - :heavy_exclamation_mark: [Layer normalization](https://arxiv.org/pdf/1607.06450.pdf) available for all recurrent layers.
  * N-best list generation (as byproduct of the beam search process).
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
