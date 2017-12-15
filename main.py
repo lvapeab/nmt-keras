@@ -235,6 +235,8 @@ def apply_NMT_model(params, load_dataset=None):
             extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
             extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
             extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
+            extra_vars['state_below_maxlen'] = -1 if params.get('PAD_ON_BATCH', True) \
+                else params.get('MAX_OUTPUT_TEXT_LEN', 50)
             extra_vars['pos_unk'] = params['POS_UNK']
             extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
             extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
@@ -517,6 +519,8 @@ def buildCallbacks(params, model, dataset):
             extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
             extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
             extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
+            extra_vars['state_below_maxlen'] = -1 if params.get('PAD_ON_BATCH', True) \
+                else params.get('MAX_OUTPUT_TEXT_LEN', 50)
             extra_vars['pos_unk'] = params['POS_UNK']
             extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
             extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
@@ -601,6 +605,8 @@ def check_params(params):
     if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][:-1] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
+    if not params['PAD_ON_BATCH']:
+        warnings.warn('It is HIGHLY recommended to set the option "PAD_ON_BATCH = True."')
 
 
 if __name__ == "__main__":
