@@ -2,7 +2,7 @@
 
 [![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1239923bcbba438b97b374ae8dc435be)](https://www.codacy.com/app/lvapeab/nmt-keras?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lvapeab/nmt-keras&amp;utm_campaign=Badge_Grade) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
-Neural Machine Translation with Keras (+ Theano backend).
+Neural Machine Translation with Keras (Theano or Tensorflow backends).
 
 Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.io)
 
@@ -26,9 +26,10 @@ If you use this toolkit in your research, please cite:
 
 ## Features (in addition to the full Keras cosmos): 
  
+ * :heavy_exclamation_mark: Now supporting Tensorflow!
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
-   - :heavy_exclamation_mark: Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
+   - Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
@@ -61,7 +62,7 @@ Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)
 
 NMT-Keras requires the following libraries:
 
- - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 2.0.6 or newer)
+ - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 2.0.7 or newer)
  - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 2.0 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
 
