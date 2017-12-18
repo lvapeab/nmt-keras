@@ -20,18 +20,18 @@ NMT-Keras Output
 This is a brief explanation about the typical output produced by the training pipeline of NMT-Keras.
 Assuming that we launched NMT-Keras for the example from tutorials, we'll have the following tree of folders (after 1 epoch)::
 
-├── trained_models
-│   ├── EuTrans_GroundHogModel_src_emb_420_bidir_True_enc_600_dec_600_deepout_maxout_trg_emb_420_Adam_0.001
-│   │   ├── config.pkl
-│   │   ├── epoch_1_Model_Wrapper.pkl
-│   │   ├── epoch_1_structure_init.json
-│   │   ├── epoch_1_structure.json
-│   │   ├── epoch_1_structure_next.json
-│   │   ├── epoch_1_weights.h5
-│   │   ├── epoch_1_weights_init.h5
-│   │   ├── epoch_1_weights_next.h5
-│   │   ├── val.coco
-│   │   ├── val_epoch_1.pred
+   ├── trained_models
+   │   ├── EuTrans_GroundHogModel_src_emb_420_bidir_True_enc_600_dec_600_deepout_maxout_trg_emb_420_Adam_0.001
+   │   │   ├── config.pkl
+   │   │   ├── epoch_1_Model_Wrapper.pkl
+   │   │   ├── epoch_1_structure_init.json
+   │   │   ├── epoch_1_structure.json
+   │   │   ├── epoch_1_structure_next.json
+   │   │   ├── epoch_1_weights.h5
+   │   │   ├── epoch_1_weights_init.h5
+   │   │   ├── epoch_1_weights_next.h5
+   │   │   ├── val.coco
+   │   │   ├── val_epoch_1.pred
 
 Let's have a look to these files.
 
@@ -70,17 +70,17 @@ In this document, we'll set some parameters and explore some of the options that
 
 In the [configuration file] we have available the following tensorboard-related options::
 
-TENSORBOARD = True                       # Switches On/Off the tensorboard callback
-LOG_DIR = 'tensorboard_logs'             # Directory to store teh model. Will be created inside STORE_PATH
-EMBEDDINGS_FREQ = 1                      # Frequency (in epochs) at which selected embedding layers will be saved.
-EMBEDDINGS_LAYER_NAMES = [               # A list of names of layers to keep eye on. If None or empty list all the embedding layer will be watched.
-'source_word_embedding',
-'target_word_embedding']
-EMBEDDINGS_METADATA = None               # Dictionary which maps layer name to a file name in which metadata for this embedding layer is saved.
-LABEL_WORD_EMBEDDINGS_WITH_VOCAB = True  # Whether to use vocabularies as word embeddings labels (will overwrite EMBEDDINGS_METADATA)
-WORD_EMBEDDINGS_LABELS = [               # Vocabularies for labeling. Must match EMBEDDINGS_LAYER_NAMES
-                         'source_text',
-                         'target_text']
+   TENSORBOARD = True                       # Switches On/Off the tensorboard callback
+   LOG_DIR = 'tensorboard_logs'             # Directory to store teh model. Will be created inside STORE_PATH
+   EMBEDDINGS_FREQ = 1                      # Frequency (in epochs) at which selected embedding layers will be saved.
+   EMBEDDINGS_LAYER_NAMES = [               # A list of names of layers to keep eye on. If None or empty list all the embedding layer will be watched.
+   'source_word_embedding',
+   'target_word_embedding']
+   EMBEDDINGS_METADATA = None               # Dictionary which maps layer name to a file name in which metadata for this embedding layer is saved.
+   LABEL_WORD_EMBEDDINGS_WITH_VOCAB = True  # Whether to use vocabularies as word embeddings labels (will overwrite EMBEDDINGS_METADATA)
+   WORD_EMBEDDINGS_LABELS = [               # Vocabularies for labeling. Must match EMBEDDINGS_LAYER_NAMES
+                            'source_text',
+                            'target_text']
 
 With these options, we are telling Tensorboard where to store the data we want to visualize: loss curve, computation graph and word embeddings.
 Moreover, we are specifying the word embedding layers that we want to visualize. By setting the `WORD_EMBEDDINGS_LABELS` to the corresponding `Dataset` ids,
