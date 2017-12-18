@@ -39,7 +39,7 @@ $ tensorboard --logdir=tensorboard_logs
 TensorBoard 0.1.5 at http://localhost:6006 (Press CTRL+C to quit) 
 ```
 
-We can open Tensorboard in our browser with the NMT-Keras information:
+We can open Tensorboard in our browser (http://localhost:6006) and track NMT-Keras information:
 
 
 ### Loss curve

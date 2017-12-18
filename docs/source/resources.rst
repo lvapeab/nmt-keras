@@ -89,10 +89,10 @@ we can print labels in the word embedding visualization.
 
 Now, we run a regular training: `python main.py`. If we `cd` to the model directory, we'll see a directiory named `tensorboard_logs`. Now, we launch Tensorboard on this directory::
 
-$ tensorboard --logdir=tensorboard_logs
-TensorBoard 0.1.5 at http://localhost:6006 (Press CTRL+C to quit)
+   $ tensorboard --logdir=tensorboard_logs
+   TensorBoard 0.1.5 at http://localhost:6006 (Press CTRL+C to quit)
 
-We can open Tensorboard in our browser with the NMT-Keras information:
+We can open Tensorboard in our browser (http://localhost:6006) with the NMT-Keras information:
 
 
 Loss curve
