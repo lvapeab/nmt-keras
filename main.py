@@ -164,8 +164,8 @@ def train_model(params, load_dataset=None):
                        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
                        'tensorboard': params.get('TENSORBOARD', False),
                        'tensorboard_params': {'log_dir': params.get('LOG_DIR', 'tensorboard_logs'),
-                                              'histogram_freq': params.get('HISTOGRAM_FREQ', params['BATCH_SIZE']),
-                                              'batch_size': params.get('TENSORBOARD_BATCH_SIZE', 0),
+                                              'histogram_freq': params.get('HISTOGRAM_FREQ', 0),
+                                              'batch_size': params.get('TENSORBOARD_BATCH_SIZE', params['BATCH_SIZE']),
                                               'write_graph': params.get('WRITE_GRAPH', True),
                                               'write_grads': params.get('WRITE_GRADS', False),
                                               'write_images': params.get('WRITE_IMAGES', False),
@@ -174,7 +174,6 @@ def train_model(params, load_dataset=None):
                                               'embeddings_metadata': params.get('EMBEDDINGS_METADATA', None),
                                               'label_word_embeddings_with_vocab': params.get('LABEL_WORD_EMBEDDINGS_WITH_VOCAB', False),
                                               'word_embeddings_labels': params.get('WORD_EMBEDDINGS_LABELS', None),
-
                                               }
                        }
     nmt_model.trainNet(dataset, training_params)

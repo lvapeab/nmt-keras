@@ -233,13 +233,8 @@ def load_parameters():
     DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here
 
     # Tensorboard configuration. Only if the backend is Tensorflow. Otherwise, it will be ignored.
-    TENSORBOARD = False                      # Switches On/Off the tensorboard callback
+    TENSORBOARD = True                       # Switches On/Off the tensorboard callback
     LOG_DIR = 'tensorboard_logs'             # Directory to store teh model. Will be created inside STORE_PATH
-    HISTOGRAM_FREQ = 0                       # Frequency (in epochs) at which to compute activation and weight histograms
-    TENSORBOARD_BATCH_SIZE = BATCH_SIZE      # Size of batch of inputs to feed to the network for histograms computation.
-    WRITE_GRAPH = True                       # Whether to visualize the graph in TensorBoard
-    WRITE_GRADS = True                       # Whether to visualize gradient histograms in TensorBoard.
-    WRITE_IMAGES = True                      # Whether to write model weights to visualize as image in TensorBoard.
     EMBEDDINGS_FREQ = 1                      # Frequency (in epochs) at which selected embedding layers will be saved.
     EMBEDDINGS_LAYER_NAMES = [               # A list of names of layers to keep eye on. If None or empty list all the embedding layer will be watched.
         'source_word_embedding',

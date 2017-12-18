@@ -27,6 +27,7 @@ If you use this toolkit in your research, please cite:
 ## Features (in addition to the full Keras cosmos): 
  
  * :heavy_exclamation_mark: Now supporting Tensorflow!
+   - And [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
    - Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
