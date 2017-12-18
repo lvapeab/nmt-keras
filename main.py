@@ -161,7 +161,22 @@ def train_model(params, load_dataset=None):
                        'metric_check': params.get('STOP_METRIC', None) if params.get('EARLY_STOP', False) else None,
                        'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
                        'each_n_epochs': params.get('EVAL_EACH', 1),
-                       'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0)}
+                       'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
+                       'tensorboard': params.get('TENSORBOARD', False),
+                       'tensorboard_params': {'log_dir': params.get('LOG_DIR', 'tensorboard_logs'),
+                                              'histogram_freq': params.get('HISTOGRAM_FREQ', params['BATCH_SIZE']),
+                                              'batch_size': params.get('TENSORBOARD_BATCH_SIZE', 0),
+                                              'write_graph': params.get('WRITE_GRAPH', True),
+                                              'write_grads': params.get('WRITE_GRADS', False),
+                                              'write_images': params.get('WRITE_IMAGES', False),
+                                              'embeddings_freq': params.get('EMBEDDINGS_FREQ', 0),
+                                              'embeddings_layer_names': params.get('EMBEDDINGS_LAYER_NAMES', None),
+                                              'embeddings_metadata': params.get('EMBEDDINGS_METADATA', None),
+                                              'label_word_embeddings_with_vocab': params.get('LABEL_WORD_EMBEDDINGS_WITH_VOCAB', False),
+                                              'word_embeddings_labels': params.get('WORD_EMBEDDINGS_LABELS', None),
+
+                                              }
+                       }
     nmt_model.trainNet(dataset, training_params)
 
     total_end_time = timer()
