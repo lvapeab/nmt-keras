@@ -1,5 +1,6 @@
+############
 Installation
-============
+############
 Assuming that you have pip_ installed, run::
 
     git clone https://github.com/lvapeab/nmt-keras
@@ -11,8 +12,7 @@ for obtaining the required packages for running this library.
 Nevertheless, it is highly recommended to install and configure Theano_ or Tensorflow_ with the GPU and speed optimizations enabled.
 
 Requirements
-^^^^^^^^^^^^
-
+************
  - Our version of Keras_.
  - `Multimodal Keras Wrapper`_. See the documentation_ and tutorial_.
  - Coco-caption_ evaluation package (Only required to perform evaluation).

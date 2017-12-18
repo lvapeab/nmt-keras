@@ -1,4 +1,5 @@
-   NMT-Keras
+=========
+NMT-Keras
 =========
 
 Neural Machine Translation with Keras (Theano and Tensorflow).
@@ -8,6 +9,7 @@ Neural Machine Translation with Keras (Theano and Tensorflow).
    :alt: alternate text
    :align: left
 
+********
 Features
 ********
 
@@ -35,8 +37,9 @@ Features
 .. _Word2Vec: https://code.google.com/archive/p/word2vec/
 .. _the interactive NMT branch: https://github.com/lvapeab/nmt-keras/tree/interactive_NMT
 
+*****
 Guide
-=====
+*****
 .. toctree::
    :maxdepth: 2
 
@@ -47,9 +50,9 @@ Guide
    modules
    help
 
-
+******************
 Indices and tables
-==================
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`
