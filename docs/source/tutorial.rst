@@ -1,6 +1,6 @@
+#########
 Tutorials
-=========
-
+#########
 
 This page contains some examples and tutorials showing how the library works. All tutorials have an `iPython notebook version`_.
 
@@ -15,7 +15,7 @@ The translation task is *EuTrans* (`Amengual et al.`_), a toy-task mainly used f
 
 .. _Amengual et al.: http://link.springer.com/article/10.1023/A:1011116115948
 
-
+****************
 Dataset tutorial
 ****************
 
@@ -123,6 +123,7 @@ Finally, we can save our dataset instance for using it in other experiments::
     saveDataset(ds, 'datasets')
 
 
+*****************
 Training tutorial
 *****************
 Now, we'll create and train a Neural Machine Translation (NMT) model.
@@ -241,6 +242,7 @@ For a description of the training output, refer to the `typical output`_ documen
 
 .. _typical output: https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/typical_output.md
 
+*****************
 Decoding tutorial
 *****************
 
@@ -358,6 +360,7 @@ Next, we call the evaluation system: The Coco-caption_ package. Although its mai
 .. _Coco-caption: https://github.com/lvapeab/coco-caption
 
 
+******************
 NMT model tutorial
 ******************
 
@@ -500,7 +503,7 @@ Finally, we apply a softmax function for obtaining a probability distribution ov
 That's all! We built a NMT Model!
 
 NMT models for decoding
-^^^^^^^^^^^^^^^^^^^^^^^
+=======================
 
 Now, let's build the models required for sampling. Recall that we are building two models, one for encoding the inputs and the other one for advancing steps in the decoding stage.
 
