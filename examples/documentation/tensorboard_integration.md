@@ -5,6 +5,7 @@
 It can be accessed by NMT-Keras and provide visualization of the learning process, dynamic graphs of our training and metrics, as well representation of different layers (such as word embeddings). Of course, this tool is only available with the Tensorflow backend. 
 
 In this document, we'll set some parameters and explore some of the options that Tensorboard provides. We'll:
+
     * Configure Tensorboard and NMT-Keras.
     * Visualize the learning process (loss curves).
     * Visualize the computation graphs built by NMT Keras.
