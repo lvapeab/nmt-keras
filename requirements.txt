@@ -8,6 +8,6 @@ numpy
 scikit-image
 scikit-learn
 six
-tables
+pytables
 Theano
 toolz
