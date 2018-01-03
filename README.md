@@ -45,7 +45,10 @@ If you use this toolkit in your research, please cite:
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization.
-
+ * [Client-server](https://github.com/lvapeab/nmt-keras/tree/master/demo-web) architecture for web demos:
+    - Regular NMT.
+    - [Interactive NMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
+    
 ## Installation
 
 Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed, run:
