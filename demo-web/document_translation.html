@@ -1,0 +1,429 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<!--Header-->
+<head>
+    <meta charset="utf-8">
+    <title>NMT-Keras online demo</title>
+    <link rel="shortcut icon" href="images/logoPRHLT.png">
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!--[if lte IE 8]>
+    <script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="assets/css/main.css"/>
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="assets/css/ie9.css"/><![endif]-->
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="assets/css/ie8.css"/><![endif]-->
+
+    <script language="javascript" type="text/javascript">
+
+        function trimAll(sString) {
+            while (sString.substring(0, 1) == ' ') {
+                sString = sString.substring(1, sString.length);
+            }
+            while (sString.substring(sString.length - 1, sString.length) == ' ') {
+                sString = sString.substring(0, sString.length - 1);
+            }
+            return sString;
+        }
+
+        function write_tranlation() {
+            var source = document.forms.input.source.value;
+            if (trimAll(source) === '') {
+                var nmt_empty_string = $('#nmtemptystring');
+                nmt_empty_string.show();
+                nmt_empty_string.fadeOut(2000);
+            }
+            else {
+
+                var php_sampler_url = "sampler.php" + "?source=" + source;
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                document.getElementById('translation').innerHTML = xmlHttp.responseText;
+            }
+        }
+
+        function instructions() {
+            var instructions = $('#instructions');
+            instructions.show();
+        }
+
+        function write_interactive_tranlation(field_number) {
+            var source = document.getElementById('sourceinmt_' + field_number).value;
+            if (trimAll(source) === '') {
+                var inmt_empty_string = $('#inmtemptystring');
+                inmt_empty_string.show();
+                inmt_empty_string.fadeOut(2000);
+            }
+            else {
+
+                var php_sampler_url = "sampler.php" + "?source=" + source;
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                var hypothesis = document.getElementById('hypothesis_' + field_number)
+                hypothesis.innerHTML = xmlHttp.responseText;
+
+            hypothesis.donetyping = function (callback, delay) {
+                delay || (delay = 400);
+                var timeoutReference;
+                var doneTyping = function (elt) {
+                    if (!timeoutReference) return;
+                    timeoutReference = null;
+                    callback(elt);
+                };
+
+                $(document).each(function () {
+                    var self = $(hypothesis);
+                    self.is(':input') && self.on('keyup paste', function (e) {
+                        var code = (e.keyCode || e.which);
+                        if (code == 37 || code == 38 || code == 39 || code == 40) return;
+                        if (timeoutReference) clearTimeout(timeoutReference);
+                        timeoutReference = setTimeout(function () {
+                            doneTyping(self);
+                        }, delay);
+                    }).on('blur', function () {
+                        doneTyping(self);
+                    });
+                });
+                return hypothesis;
+            };
+            hypothesis.donetyping(function () {
+                var source = document.getElementById('sourceinmt_' + field_number).value;
+                var translation_inmt_field = hypothesis; // document.getElementById('hypothesis_' + field_number); //$('#translation-inmt');
+                var prefix = translation_inmt_field.value;
+                var startPosition = translation_inmt_field.selectionStart;
+                var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
+                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2;
+                var nHyp = 0;//parseInt($('#translation-inmt').getAttribute("nhypothesis"));
+
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                $(translation_inmt_field).val(xmlHttp.responseText);
+                translation_inmt_field.selectionStart = startPosition;
+                translation_inmt_field.selectionEnd = startPosition;
+//                nHyp += 1;
+//                translation_inmt_field.attr("valPosition", startPosition.toString());
+//                $('#valPos').text(' -- Validated till position: ' + startPosition);
+//                translation_inmt_field.attr("nhypothesis", nHyp.toString());
+//                $('#nHyp').text('Hypothesis #' + nHyp);
+
+            });
+            }
+        }
+
+        function accept_translation(field_number) {
+                var accept_alert = $('#accept');
+                accept_alert.show();
+                accept_alert.fadeOut(2000);
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+
+</head>
+<body>
+
+<!-- Sidebar -->
+<section id="sidebar" media="">
+    <div class="inner">
+        <nav>
+            <ul>
+                <li><a href="index.html#intro">Back to the main page</a></li>
+                <li><a href="#inmt">Interactive Neural Machine Translation</a></li>
+                <li><a href="#moreinfo">More info</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</section>
+
+<!-- Wrapper -->
+<div id="wrapper">
+    <!-- INMT-Demo  -->
+    <section id="inmt" class="wrapper style1 fullscreen fade-up">
+        <div class="inner">
+            <h1>Interactive NMT-Keras demo </h1>
+            <p>This is a demo of an interactive neural machine translation (INMT) system trained with the toolkit <a
+                    href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
+                Please select a document to translate. It should be a plain-text file with one sentence per line.</p>
+            <div class="container">
+                <div style='padding:4px'>
+                    <ul class="actions">
+                        <li><input type="file" id="files" name="file"/></li>
+                        <li>
+                            <button onclick="abortRead();">Cancel read</button>
+                        </li>
+                        <li>
+                            <button onclick="instructions();">Instructions</button>
+                            <p class="alert alert-info fade in" id="instructions"
+                               style="display:none;">
+                                Upload a file with the sentences to translate.
+                                Once loaded, click on each "Translate" button for obtaining the automatic translation.
+                                If the translation is not correct, you can make corrections. The system will react to
+                                these interactions, providing alternative translation hypotheses.
+                                Once you are satisfied with the translation, click in the "Validate" button and
+                                go to the next sentence.
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            </p>
+                        </li>
+                        <li><a href="index.html#moreinfo" class="button scrolly">More info</a></li>
+                    </ul>
+                </div>
+
+                <p class="alert alert-warning" id="abortread" style="display:none;">Reading interrupted.</p>
+                <p class="alert alert-error" id="errormissing" style="display:none;">File Not Found!</p>
+                <p class="alert alert-error" id="errorread" style="display:none;">File is not readable!</p>
+                <p class="alert alert-error" id="defaulterror" style="display:none;">An error occurred reading this
+                    file.</p>
+                <div id="progress_bar">
+                    <div class="percent">0%</div>
+                </div>
+
+                <div name="DisplayArea" class="tableDiv" id='DisplayArea'></div>
+            </div>
+        </div>
+<div class='container alert-bottom-fixed alert alert-success fade in' id='accept' style='display:none;'>
+    Sentence validated. <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+</div>
+    </section>
+
+    <!-- More info -->
+    <section id="moreinfo" class="wrapper style1 fullscreen fade-up">
+        <div class="inner">
+            <h1>More info</h1>
+            <p>All NMT systems were developed with NMT-Keras using Theano or Tensorflow. Everything is open-sourced.
+                For more info about the tool, please visit the <a href="https://github.com/lvapeab/nmt-keras">GitHub</a>
+                project. <br/>
+            <p>Interactive machine translation seeks to diminish the effort required for correcting translations from a
+                machine translation system.<br/>
+                For more info, look the following papers:</p>
+
+            <div class="features">
+                <p><a href="https://arxiv.org/abs/1706.03196" class="icon fa-file-pdf-o fa-2x" style="font-size:20px">
+                    Online Learning for Neural Machine Translation
+                    Post-editing</a><br/>
+                    Álvaro Peris, Luis Cebrian and Francisco Casacuberta. <br/>
+                    In <em> arXiv:1706.031963</em>, 2017.</p>
+            </div>
+            <div class="features">
+                <p>
+                    <a href="http://www.sciencedirect.com/science/article/pii/S0885230816301000"
+                       class="icon fa-file-pdf-o fa-2x" style="font-size:20px"> Interactive Neural Machine
+                        Translation</a><br/>
+                    Álvaro Peris, Miguel Domingo and Francisco Casacuberta. <br/>
+                    In <em> Computer Speech & Language, vol. 45, pp. 201-220</em>, 2017.
+
+                </p>
+            </div>
+
+
+            <div style='padding:15px'>
+
+                <ul class="actions">
+                    <li><a href="#contact" class="button scrolly">More</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- contact -->
+    <section id="contact" class="wrapper style1 fade-up">
+        <div class="inner">
+            <h1>Contact</h1>
+            <div class="container">
+                <p>Álvaro Peris.</p>
+            </div>
+
+            <ul class="icons">
+                <li><a href="mailto:lvapeab@gmail.com" class="fa-envelope-o fa-3x"><span class="label">Gmail</span></a>
+                </li>
+                <li><a href="https://www.prhlt.upv.es/u/lvapeab" class="fa-globe fa-3x"><span class="label">PRHLT</span></a>
+                </li>
+                <li><a href="https://github.com/lvapeab/nmt-keras" class="fa-github fa-3x"><span
+                        class="label">GitHub</span></a></li>
+            </ul>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer" class="wrapper style1-alt">
+        <div class="inner">
+            <ul class="menu">
+                <li>&copy; Álvaro Peris. All rights reserved.</li>
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </div>
+    </footer>
+</div>
+
+
+</body>
+<!-- Scripts -->
+<script>
+    var reader;
+    var progress = document.querySelector('.percent');
+    var sourceDisplayArea = document.getElementById('DisplayArea');
+    function abortRead() {
+        reader.abort();
+    }
+    function errorHandler(evt) {
+        switch (evt.target.error.code) {
+            case evt.target.error.NOT_FOUND_ERR:
+                var errormissing = $('#errormissing');
+                errormissing.show();
+                errormissing.fadeOut(2000);
+                break;
+            case evt.target.error.NOT_READABLE_ERR:
+                var errorread = $('#errorread');
+                errorread.show();
+                errorread.fadeOut(2000);
+                break;
+                break;
+            case evt.target.error.ABORT_ERR:
+                break; // noop
+            default:
+                var defaulterror = $('#defaulterror');
+                defaulterror.show();
+                defaulterror.fadeOut(2000);
+                break;
+        }
+    }
+    function updateProgress(evt) {
+        // evt is an ProgressEvent.
+        if (evt.lengthComputable) {
+            var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+            // Increase the progress bar length.
+            if (percentLoaded < 100) {
+                progress.style.width = percentLoaded + '%';
+                progress.textContent = percentLoaded + '%';
+            }
+        }
+    }
+
+    function handleFileSelect(evt) {
+        // Reset progress indicator on new file selection.
+        var srcfile = evt.target.files[0];
+        progress.style.width = '0%';
+        progress.textContent = '0%';
+        reader = new FileReader();
+        reader.onerror = errorHandler;
+        reader.onprogress = updateProgress;
+        reader.onabort = function (e) {
+            var abortread = $('#abortread');
+            abortread.show();
+            abortread.fadeOut(2000);
+        };
+        reader.onloadstart = function (e) {
+            document.getElementById('progress_bar').className = 'loading';
+        };
+        reader.onload = function (e) {
+            // Ensure that the progress bar displays 100% at the end.
+            progress.style.width = '100%';
+            progress.textContent = '100%';
+            setTimeout("document.getElementById('progress_bar').className='';", 2000);
+            var html_source = '<table  id="DisplayTable"  style="width:100%"  >';
+            var results = reader.result.split("\n");
+            for (var i = 0; i < results.length; i++) {
+                var source_line = results[i];
+                html_source += "<tr><td>" +
+                        "<form onsubmit='write_interactive_tranlation(" + i + "); return false;'>" +
+                        "<textarea rows='4' name='source_sentence_" + i + "' id='sourceinmt_" + i + "'>" +
+                        source_line + "</textarea>" +
+                        "<div style='padding:2px'></div>" +
+                        "<button type='submit' class='button'>Translate!</button>" +
+                        "</form>" +
+                        "</td></tr>";
+                html_source += "<tr><td>" +
+                        "<form onsubmit='accept_translation(" + i + "); return false;'>" +
+                        "<textarea rows='4' name='hypothesis_" + i + "' id='hypothesis_" + i +
+                        "' placeholder='Touch in the source sentence to obtain a translation of it.'>" + "</textarea>" +
+                        "<div style='padding:2px'></div>" +
+                        "<button type='submit' class='button'>Accept translation</button>" +
+                        "</form>" +
+                        "<div style='padding:10px'></div>" +
+                        "</td></tr>";
+
+            }
+            html_source += '</table>';
+            DisplayArea.innerHTML = html_source;// + html_hypotheses;
+        };
+        reader.readAsText(srcfile);
+    }
+    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+</script>
+
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/skel.min.js"></script>
+<script src="assets/js/util.js"></script>
+<!--[if lte IE 8]>
+<script src="assets/js/ie/respond.min.js"></script><![endif]-->
+<script src="assets/js/main.js"></script>
+</html>

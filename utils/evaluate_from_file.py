@@ -1,5 +1,5 @@
 import argparse
-
+import codecs
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.meteor.meteor import Meteor
@@ -83,7 +83,7 @@ def evaluate_from_file(args):
     :return: None
     """
     language = args.language
-    hypotheses_file = open(args.hypotheses, 'r')
+    hypotheses_file = codecs.open(args.hypotheses, 'r', encoding='utf-8')
     step_size = args.step_size
     ref, hypothesis = load_textfiles(args.references, hypotheses_file)
     if step_size < 1:
