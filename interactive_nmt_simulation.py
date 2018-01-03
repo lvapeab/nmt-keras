@@ -4,6 +4,7 @@ import ast
 import copy
 import logging
 import time
+import codecs
 from collections import OrderedDict
 
 from config import load_parameters
@@ -158,17 +159,17 @@ if __name__ == "__main__":
         models = [loadModel(m, -1, full_path=True) for m in args.models]
 
     # Load text files
-    fsrc = open(args.source, 'r')
-    ftrans = open(args.dest, 'w')
+    fsrc = codecs.open(args.source, 'r', encoding='utf-8')  # File with source sentences.
+    ftrans = codecs.open(args.dest, 'w', encoding='utf-8')  # Destination file of the (post edited) translations.
     logger.info("<<< Storing corrected hypotheses into: %s >>>" % str(args.dest))
 
     if args.original_dest is not None:
         logger.info("<<< Storing original hypotheses into: %s >>>" % str(args.original_dest))
         ftrans_ori = open(args.original_dest, 'w')
 
-    ftrg = open(args.references, 'r')
+    ftrg = codecs.open(args.references, 'r', encoding='utf-8')  # File with post-edited (or reference) sentences.
     target_lines = ftrg.read().split('\n')
-    if target_lines[-1] == '':
+    if target_lines[-1] == u'':
         target_lines = target_lines[:-1]
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
@@ -188,6 +189,7 @@ if __name__ == "__main__":
     total_words = 0
     total_chars = 0
     total_mouse_actions = 0
+    total_keystrokes = 0
     try:
         for s in args.splits:
             # Apply model predictions
@@ -254,6 +256,7 @@ if __name__ == "__main__":
 
             for n_line, line in enumerate(fsrc):
                 errors_sentence = 0
+                keystrokes_sentence=0
                 mouse_actions_sentence = 0
                 hypothesis_number = 0
                 unk_indices = []
@@ -271,9 +274,9 @@ if __name__ == "__main__":
                 reference = params_prediction['detokenize_f'](tokenized_reference).split() if \
                     args.detokenize_bpe else tokenized_reference.split()
 
-                logger.debug("\n\nProcessing sentence %d" % (n_line + 1))
-                logger.debug("Source: %s" % line)
-                logger.debug("Target: %s" % ' '.join(reference))
+                logger.debug(u"\n\nProcessing sentence %d" % (n_line + 1))
+                logger.debug(u"Source: %s" % line)
+                logger.debug(u"Target: %s" % ' '.join(reference))
 
                 # 0. Get a first hypothesis
                 trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search_interactive(src_seq)
@@ -304,7 +307,7 @@ if __name__ == "__main__":
                         list2file(filepath, [hypothesis + '\n'], permission='a')
                     else:
                         raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
-                logger.debug("Hypo_%d: %s" % (hypothesis_number, hypothesis))
+                logger.debug(u"Hypo_%d: %s" % (hypothesis_number, hypothesis))
                 hypothesis = hypothesis.split()
 
                 if hypothesis == reference:
@@ -325,7 +328,7 @@ if __name__ == "__main__":
                         #   1. Select the multiple isles in the hypothesis.
                         if not args.prefix:
                             hypothesis_isles = find_isles(hypothesis, reference)[0]
-                            logger.debug("Isles: %s" % (str(hypothesis_isles)))
+                            logger.debug(u"Isles: %s" % (str(hypothesis_isles)))
                             isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id),
                                                         flatten_list_of_lists(map(lambda y:
                                                                                   extra_vars['tokenize_f'](y).split(),
@@ -359,6 +362,7 @@ if __name__ == "__main__":
                         # Substitution of a word by another
                         while checked_index_r < len(reference):  # We check all words in the reference
                             new_word = reference[checked_index_r]
+                            new_word_len = len(new_word)
                             new_words = extra_vars['tokenize_f'](new_word).split() if \
                                 params_prediction['apply_tokenization'] else [new_word]
                             if new_words[-1][-2:] == bpe_separator:  # Remove potential subwords in user feedback.
@@ -367,6 +371,7 @@ if __name__ == "__main__":
                                 # Insertions (at the end of the sentence)
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
+                                keystrokes_sentence += new_word_len
                                 new_word_indices = [word2index_y.get(word, unk_id) for word in new_words]
                                 validated_prefix.append(new_word_indices)
                                 for n_word, new_subword in enumerate(new_words):
@@ -377,12 +382,13 @@ if __name__ == "__main__":
                                             unk_indices.append(checked_index_h + BPE_offset + n_word)
                                 correction_made = True
                                 logger.debug(
-                                    '"%s" to position %d (end-of-sentence)' % (str(new_word), checked_index_h))
+                                    u'"%s" to position %d (end-of-sentence)' % (new_word, checked_index_h))
                                 last_checked_index = checked_index_h
                                 break
                             elif hypothesis[checked_index_h] != reference[checked_index_r]:
                                 errors_sentence += 1
                                 mouse_actions_sentence += 1
+                                keystrokes_sentence += new_word_len
                                 # Substitution
                                 new_word_indices = [word2index_y.get(word, unk_id) for word in new_words]
                                 validated_prefix.append(new_word_indices)
@@ -393,7 +399,7 @@ if __name__ == "__main__":
                                             unk_words.append(new_subword)
                                             unk_indices.append(checked_index_h + BPE_offset + n_word)
                                 correction_made = True
-                                logger.debug('"%s" to position %d' % (str(new_word), checked_index_h))
+                                logger.debug(u'"%s" to position %d' % (new_word, checked_index_h))
                                 last_checked_index = checked_index_h
                                 break
                             else:
@@ -492,37 +498,45 @@ if __name__ == "__main__":
                     if len(reference) < len(hypothesis):
                         hypothesis = hypothesis[:len(reference)]
                         errors_sentence += 1
+                        keystrokes_sentence += 1
                         logger.debug("Cutting hypothesis")
 
                 assert hypothesis == reference, "Error: The final hypothesis does not match with the reference! \n" \
                                                 "\t Split: %s \n" \
                                                 "\t Sentence: %d \n" \
                                                 "\t Hypothesis: %s\n" \
-                                                "\t Reference: %s" % (str(s), n_line, hypothesis, reference)
-
+                                                "\t Reference: %s" % (str(s.encode('utf-8')), n_line + 1,
+                                                                      hypothesis.encode('utf-8'),
+                                                                      reference.encode('utf-8'))
                 mouse_actions_sentence += 1  # This +1 is the validation action
                 chars_sentence = sum(map(lambda x: len(x), hypothesis))
                 total_errors += errors_sentence
                 total_words += len(hypothesis)
                 total_chars += chars_sentence
+                total_keystrokes += keystrokes_sentence
                 total_mouse_actions += mouse_actions_sentence
-                logger.debug("Final hypotesis: %s" % ' '.join(hypothesis))
+                logger.debug(u"Final hypotesis: %s" % u' '.join(hypothesis))
                 logger.debug("%d errors. "
                              "Sentence WSR: %4f. "
                              "Sentence mouse strokes: %d "
                              "Sentence MAR: %4f. "
                              "Sentence MAR_c: %4f. "
+                             "Sentence **KSMR**: %4f. "
                              "Accumulated (should only be considered for debugging purposes!) WSR: %4f. "
                              "MAR: %4f. "
-                             "MAR_c: %4f.\n\n\n\n" %
+                             "MAR_c: %4f."
+                             "**KSMR**: %4f.\n\n\n\n" %
                              (errors_sentence,
                               float(errors_sentence) / len(hypothesis),
                               mouse_actions_sentence,
                               float(mouse_actions_sentence) / len(hypothesis),
                               float(mouse_actions_sentence) / chars_sentence,
+                              float(keystrokes_sentence + mouse_actions_sentence) / chars_sentence,
                               float(total_errors) / total_words,
                               float(total_mouse_actions) / total_words,
-                              float(total_mouse_actions) / total_chars))
+                              float(total_mouse_actions) / total_chars,
+                              float(total_keystrokes + total_mouse_actions) / total_chars,
+                              ))
 
                 if args.online:
                     state_below = dataset.loadText([tokenized_reference],
@@ -548,9 +562,9 @@ if __name__ == "__main__":
                                                      loading_X=False)
 
                     online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq,
-                                                trg_words=[" ".join(reference)])
+                                                trg_words=[reference])
 
-                print >> ftrans, " ".join(hypothesis)
+                print >> ftrans, u" ".join(hypothesis)
 
                 if (n_line + 1) % 50 == 0:
                     ftrans.flush()
@@ -561,12 +575,14 @@ if __name__ == "__main__":
                     logger.info("Current WSR is: %f" % (float(total_errors) / total_words))
                     logger.info("Current MAR is: %f" % (float(total_mouse_actions) / total_words))
                     logger.info("Current MAR_c is: %f" % (float(total_mouse_actions) / total_chars))
+                    logger.info("Current **KSMR** is: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars))
 
         print "Total number of errors:", total_errors
         print "Total number selections", total_mouse_actions
         print "WSR: %f" % (float(total_errors) / total_words)
         print "MAR: %f" % (float(total_mouse_actions) / total_words)
         print "MAR_c: %f" % (float(total_mouse_actions) / total_chars)
+        print "**KSMR**: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars)
 
         fsrc.close()
         ftrans.close()
@@ -577,3 +593,5 @@ if __name__ == "__main__":
         print "Total number of corrections (up to now):", total_errors
         print "WSR: %f" % (float(total_errors) / total_words)
         print "SR: %f" % (float(total_mouse_actions) / n_line)
+        print "**KSMR**: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars)
+
