@@ -1,17 +1,9 @@
 import numpy as np
+import argparse
+from os.path import basename, dirname
 
 # Preprocess pretrained text vectors
 # and stores them in a suitable format (.npy)
-
-# Parameters
-ROOT_PATH = '/media/HDD_2TB/DATASETS/'  # Data root path
-base_path = ROOT_PATH + 'cnn_polarity/DATA/'  # Binary vectors path
-vectors_basename = 'word2vec.'  # Name of the vectors file
-language = 'fr'  # Language
-dest_file = 'word2vec.' + language  # Destination file
-
-vectors_path = base_path + vectors_basename + language
-
 
 def txtvec2npy(v_path, base_path_save, dest_filename):
     """
@@ -43,6 +35,15 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
     np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
     print
 
+def parse_args():
+    parser = argparse.ArgumentParser("Preprocess pre-trained word embeddings.")
+    parser.add_argument("-v", "--vectors", required=True, help="Pre-trained word embeddings file.",
+                        default="GoogleNews-vectors-negative300.txt")
+    parser.add_argument("-d", "--destination", required=True, help="Destination file.", default='word2vec.en')
+    return parser.parse_args()
 
 if __name__ == "__main__":
-    txtvec2npy(vectors_path, base_path, dest_file)
+    args = parse_args()
+    dest_file = basename(args.destination)
+    base_path = dirname(args.destination)
+    txtvec2npy(args.vectors, base_path, dest_file)

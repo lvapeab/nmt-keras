@@ -1,10 +1,11 @@
+#######
 Contact
-=======
+#######
 
-If you have any trouble using NMT-Keras, please drop an email to: lvapeab@prhlt.upv.es
+If you have any trouble using NMT-Keras, please post a GitHub issue or drop an email to: lvapeab@prhlt.upv.es
 
 Acknowledgement
-^^^^^^^^^^^^^^^
+***************
 
 Much of this library has been developed together with `Marc Bolaños`_ for other multimodal projects.
 
