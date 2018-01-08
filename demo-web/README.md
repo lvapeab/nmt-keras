@@ -2,6 +2,8 @@
 
 This is a web demo of an interactive, adaptive neural machine translation system.
 
+![](https://github.com/lvapeab/nmt-keras/blob/master/demo-web/images/demo-system.gif)
+
 ## Structure
 
 The system follows a client-server architecture. The main files are:
