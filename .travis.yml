@@ -23,6 +23,7 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
   - source activate test-environment
   - pip install -r req-travis-pip.txt
+  - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
 
 # command to run tests
 script:
