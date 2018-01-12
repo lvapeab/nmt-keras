@@ -418,26 +418,28 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                    verbose=verbose)
 
     # Open new data
-    ftrg = open(target_filename, 'r')
-    target_lines = ftrg.read().split('\n')[:-1]
+    ftrg = codecs.open(target_filename, 'r', encoding='utf-8')  # File with post-edited (or reference) sentences.
+
+    target_lines = ftrg.read().split(u'\n')[:-1]
     ftrg.close()
-    fsrc = open(source_filename, 'r')
-    source_lines = fsrc.read().split('\n')[:-1]
+    fsrc = codecs.open(source_filename, 'r', encoding='utf-8')  # File with source sentences.
+    source_lines = fsrc.read().split(u'\n')[:-1]
     fsrc.close()
-    source_lines = source_lines[:-1] if source_lines[-1] == '' else source_lines
-    target_lines = target_lines[:-1] if target_lines[-1] == '' else target_lines
+    # Trim files
+    source_lines = source_lines[:-1] if source_lines[-1] == u'' else source_lines
+    target_lines = target_lines[:-1] if target_lines[-1] == u'' else target_lines
     n_lines = len(source_lines)
     assert len(source_lines) == len(target_lines), 'Number of source and target lines must match'
     # Empty dest file
     if store_hypotheses:
         logging.info('Storing htypotheses in: %s' % store_hypotheses)
-        open(store_hypotheses, 'w').close()
+        codecs.open(store_hypotheses, 'w', encoding='utf-8').close()
 
     start_time = time.time()
     eta = -1
     for n_line, (source_line, target_line) in enumerate(zip(source_lines, target_lines)):
 
-        src_seq = dataset.loadText([source_line],
+        src_seq = dataset.loadText([source_line.encode('utf-8')],
                                    dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]],
                                    params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                    0,
@@ -450,7 +452,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
             logging.info('Parsed sentence: %s' % str(
                 map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0])))
 
-        state_below = dataset.loadText([target_line],
+        state_below = dataset.loadText([target_line.encode('utf-8')],
                                        dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                        params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                        1,
@@ -458,7 +460,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                        pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
                                        words_so_far=False,
                                        loading_X=True)[0]
-        trg_seq = dataset.loadTextOneHot([target_line],
+        trg_seq = dataset.loadTextOneHot([target_line.encode('utf-8')],
                                          vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                          vocabulary_len=dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]],
                                          max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
