@@ -95,7 +95,7 @@ def build_online_models(models, params):
         # Add additional input layer to models in order to train with custom loss function
         for nmt_model in models:
             nmt_model.setParams(params)
-            if params['LOSS'] == 'log_diff':
+            if params['LOSS'] == 'log_diff' or params['LOSS'] == 'kl_diff':
                 x = Input(name="x", batch_shape=tuple([None, None]))
                 hyp = Input(name="hyp", batch_shape=tuple([None, None, None]))
                 yref = Input(name="yref", batch_shape=tuple([None, None, None]))
