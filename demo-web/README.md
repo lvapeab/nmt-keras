@@ -11,7 +11,6 @@ The system follows a client-server architecture. The main files are:
 - **index.html** and **document_translation.html**: HTML webpage. 
 - **sample_server.py** is an HTTP server version of the interactive sampler.
 - **sampler.php** and **inmt_sampler.php** query the server to get a translation (given a validated prefix or not).
-- **load_file.php** loads a plain-text file.
 - The `images` and `assets` directories contain some visual resources. 
 
 ##How to run a demo server
@@ -28,7 +27,7 @@ python ./sample_server.py --dataset datasets/Dataset.pkl --port=8888
         --config trained_models/config.pkl --models trained_models/update_15000
 ```
 
-Finally, we need to run our php server. For running it in localhost, we just execute:
+Finally, we need to run our php server. The php document root should point to the same `demo-web` folder. For running it in localhost, we just execute:
 ```
 php -S localhost:8000
 ```
