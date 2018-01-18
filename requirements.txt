@@ -12,5 +12,3 @@ six
 tables
 theano
 toolz
-tensorflow-gpu
-
