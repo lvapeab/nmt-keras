@@ -51,6 +51,10 @@ install:
   # install pydot for visualization tests
   - conda install pydot graphviz
 
+    # detect whether core files are changed or not (from Keras)
+  - export CORE_CHANGED=False;
+  - export APP_CHANGED=False;
+  
   #install open mpi
   - rm -rf ~/mpi
   - mkdir ~/mpi
@@ -59,6 +63,7 @@ install:
   - unzip ./openmpi_1.10-3.zip
   - sudo dpkg -i openmpi_1.10-3.deb
   - popd
+
 
 # command to run tests
 script:
