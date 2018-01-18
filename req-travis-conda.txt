@@ -10,6 +10,7 @@ numpy
 scipy
 pandas
 pytest
+pytest-pep8
 pytest-cache
 pytest-cov
 pytest-forked

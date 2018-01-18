@@ -70,5 +70,5 @@ script:
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest --pep8 -m pep8 -n0;
     else
-      PYTHONPATH=$PWD:$PYTHONPATH pytest tests/ --cov-config .coveragerc --cov=nmt-keras tests/;
+      PYTHONPATH=$PWD:$PYTHONPATH pytest tests/ ;
     fi
