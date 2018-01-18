@@ -1,6 +1,15 @@
+sudo: required
+dist: trusty
 language: python
-python:
-  - "2.7"
+matrix:
+    include:
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
+        - python: 2.7
+          env: KERAS_BACKEND=theano
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow
+
 # command to install dependencies
 install:
   - sudo apt-get update
@@ -22,13 +31,37 @@ install:
   # Replace dep1 dep2 ... with your dependencies
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
   - source activate test-environment
+  - conda install mkl mkl-service
   - pip install -r req-travis-pip.txt
+  - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
+
+  # install TensorFlow (CPU version).
+  - pip install tensorflow
+
+  # install pydot for visualization tests
+  - conda install pydot graphviz
+
+  #install open mpi
+  - rm -rf ~/mpi
+  - mkdir ~/mpi
+  - pushd ~/mpi
+  - wget http://cntk.ai/PythonWheel/ForKeras/depends/openmpi_1.10-3.zip
+  - unzip ./openmpi_1.10-3.zip
+  - sudo dpkg -i openmpi_1.10-3.deb
+  - popd
 
 # command to run tests
 script:
-  - nosetests --with-coverage --cover-package=config tests/test_load_params.py
-  - nosetests --with-coverage --cover-package=dataset tests/data_engine/test_prepare_data.py
-  - nosetests --with-coverage --cover-package=utils tests/utils/test_utils.py tests/utils/test_evaluate_from_file.py tests/utils/test_process_word_vectors.py
-  - nosetests --with-coverage --cover-package=nmt-keras tests/test_NMT.py
+  - export MKL_THREADING_LAYER="GNU"
+  # run keras backend init to initialize backend config
+  - python -c "import keras.backend"
+  - sed -i -e 's/"backend":[[:space:]]*"[^"]*/"backend":\ "'$KERAS_BACKEND'/g' ~/.keras/keras.json;
+
+  - if [[ "$TEST_MODE" == "PEP8" ]]; then
+      PYTHONPATH=$PWD:$PYTHONPATH py.test --pep8 -m pep8 -n0;
+    else
+      PYTHONPATH=$PWD:$PYTHONPATH py.test tests/ --cov-config .coveragerc --cov=nmt-keras tests/;
+    fi
+
 after_success:
   coveralls
