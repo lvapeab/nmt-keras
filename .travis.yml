@@ -33,6 +33,7 @@ install:
   - source activate test-environment
   - conda install mkl mkl-service
   - pip install -r req-travis-pip.txt
+  - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
 
   # install TensorFlow (CPU version).
   - pip install tensorflow
