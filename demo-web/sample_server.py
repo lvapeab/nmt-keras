@@ -138,8 +138,7 @@ class NMTSampler:
                 last_user_word = tokenized_validated_prefix.split()[-1]
                 filtered_idx2word = dict((self.word2index_y[candidate_word], candidate_word)
                                          for candidate_word in self.word2index_y
-                                         if candidate_word.decode('utf-8')[:len(last_user_word)]
-                                         == last_user_word)
+                                         if candidate_word.decode('utf-8')[:len(last_user_word)] == last_user_word)
                 if filtered_idx2word != dict():
                     del fixed_words_user[last_user_word_pos]
                     if last_user_word_pos in unk_words_dict.keys():

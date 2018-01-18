@@ -1,6 +1,8 @@
 import numpy as np
 import argparse
 from os.path import basename, dirname
+
+
 # Preprocess pretrained binary vectors
 # and stores them in a suitable format (.npy)
 
@@ -42,13 +44,13 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
     print
 
 
-
 def parse_args():
     parser = argparse.ArgumentParser("Preprocess pre-trained word embeddings.")
     parser.add_argument("-v", "--vectors", required=True, help="Pre-trained word embeddings file.",
                         default="GoogleNews-vectors-negative300.bin")
     parser.add_argument("-d", "--destination", required=True, help="Destination file.", default='word2vec.en')
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
