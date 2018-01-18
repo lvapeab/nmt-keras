@@ -10,4 +10,8 @@ numpy
 scipy
 pandas
 pytest
+pytest-cache
+pytest-cov
+pytest-forked
+pytest-xdist
 theano
