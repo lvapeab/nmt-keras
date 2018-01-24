@@ -398,11 +398,11 @@ def check_params(params):
     if params['COVERAGE_PENALTY']:
         assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
-    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
+    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][-4:] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
 
-    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][:-1] != '.npy':
+    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][-4:] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
     if not params['PAD_ON_BATCH']:
