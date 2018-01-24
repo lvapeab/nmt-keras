@@ -54,7 +54,7 @@ install:
     # detect whether core files are changed or not (from Keras)
   - export CORE_CHANGED=False;
   - export APP_CHANGED=False;
-  
+
   #install open mpi
   - rm -rf ~/mpi
   - mkdir ~/mpi
