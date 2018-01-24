@@ -40,15 +40,15 @@ def test_NMT_models():
                     params['N_LAYERS_DECODER'] = n_layers
                     params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
                     params['RELOAD'] = 0
-                    params['MODEL_NAME'] = params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + \
-                                           params['MODEL_TYPE'] + \
-                                           '_src_emb_' + str(params['SOURCE_TEXT_EMBEDDING_SIZE']) + \
-                                           '_bidir_' + str(params['BIDIRECTIONAL_ENCODER']) + \
-                                           '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(params['ENCODER_HIDDEN_SIZE']) + \
-                                           '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(params['DECODER_HIDDEN_SIZE']) + \
-                                           '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
-                                           '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
-                                           '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
+                    params['MODEL_NAME'] =\
+                        params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + params['MODEL_TYPE'] + \
+                        '_src_emb_' + str(params['SOURCE_TEXT_EMBEDDING_SIZE']) + \
+                        '_bidir_' + str(params['BIDIRECTIONAL_ENCODER']) + \
+                        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(params['ENCODER_HIDDEN_SIZE']) + \
+                        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(params['DECODER_HIDDEN_SIZE']) + \
+                        '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
+                        '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
+                        '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
                     params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
                     params['MAX_EPOCH'] = 2
                     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
@@ -56,8 +56,7 @@ def test_NMT_models():
                     params['RELOAD'] = 2
                     apply_NMT_model(params)
                     parser = argparse.ArgumentParser('Parser for unit testing')
-                    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + \
-                                     params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+                    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
 
                     parser.text = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
                     parser.splits = ['val']

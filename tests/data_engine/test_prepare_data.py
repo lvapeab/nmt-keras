@@ -62,8 +62,7 @@ def test_update_dataset_from_file():
                                    params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] + params['SRC_LAN'],
                                    params,
                                    splits=[split],
-                                   output_text_filename=params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] +
-                                                        params['TRG_LAN'],
+                                   output_text_filename=params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] + params['TRG_LAN'],
                                    remove_outputs=False,
                                    compute_state_below=True,
                                    recompute_references=True)

@@ -167,6 +167,4 @@ if __name__ == "__main__":
     except ValueError:
         print 'Error processing arguments: (', k, ",", v, ")"
         exit(2)
-    print "args.models ---> ", args
     sample_ensemble(args, params)
-

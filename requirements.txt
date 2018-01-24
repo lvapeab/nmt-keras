@@ -5,6 +5,7 @@ cloud
 h5py
 matplotlib
 numpy
+pytest
 scikit-image
 scikit-learn
 scipy
