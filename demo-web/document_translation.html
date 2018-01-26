@@ -186,7 +186,7 @@
 <body>
 
 <!-- Sidebar -->
-<section id="sidebar" media="">
+<section id="sidebar">
     <div class="inner">
         <nav>
             <ul>
@@ -389,7 +389,7 @@
             var results = reader.result.split("\n");
             for (var i = 0; i < results.length; i++) {
                 var source_line = results[i];
-                html_source += "<tr><td>" +
+                html_source += "<tr><td> Sentence #" + i +
                         "<form onsubmit='write_interactive_tranlation(" + i + "); return false;'>" +
                         "<textarea rows='4' name='source_sentence_" + i + "' id='sourceinmt_" + i + "'>" +
                         source_line + "</textarea>" +
