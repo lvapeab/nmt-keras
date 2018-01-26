@@ -379,8 +379,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
         'n_parallel_loaders': params['PARALLEL_LOADERS'],
         'extra_callbacks': [],  # callbacks,
-        'reload_epoch': params['RELOAD'],
-        'epoch_offset': params['RELOAD'],
+        'reload_epoch': 0,
+        'epoch_offset': 0,
         'data_augmentation': params['DATA_AUGMENTATION'],
         'patience': params.get('PATIENCE', 0),
         'metric_check': params.get('STOP_METRIC', None),
@@ -471,7 +471,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                          sample_weights=params['SAMPLE_WEIGHTS'],
                                          loading_X=False)
         if verbose > 1:
-            logging.info('Output sentence:  %s' % str(params_prediction['detokenize_f'](target_line)))
+            logging.info('Output sentence:  %s' % params_prediction['detokenize_f'](target_line))
             logging.info('Parsed sentence (state below): %s ' % map(
                 lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
