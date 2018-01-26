@@ -462,8 +462,7 @@ class TranslationModel(Model_Wrapper):
                 return_sequences=True,
                 return_states=True,
                 num_inputs=len(current_rnn_input),
-                name='decoder_' + params['DECODER_RNN_TYPE'].replace(
-                    'Conditional', '') + 'Cond' + str(n_layer)))
+                name='decoder_' + params['DECODER_RNN_TYPE'].replace('Conditional', '') + 'Cond' + str(n_layer)))
 
             current_rnn_output = shared_proj_h_list[-1](current_rnn_input)
             current_proj_h = current_rnn_output[0]

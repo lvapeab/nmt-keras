@@ -12,11 +12,11 @@ matrix:
 
 # command to install dependencies
 install:
-  - sudo apt-get update
+  # code below is taken from http://conda.pydata.org/docs/travis.html
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
     else
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
@@ -35,11 +35,25 @@ install:
   - pip install -r req-travis-pip.txt
   - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
 
+  # set library path
+  - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
+
+  # install PIL for preprocessing tests
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      conda install pil;
+    elif [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
+      conda install Pillow;
+    fi
+
   # install TensorFlow (CPU version).
   - pip install tensorflow
 
   # install pydot for visualization tests
   - conda install pydot graphviz
+
+    # detect whether core files are changed or not (from Keras)
+  - export CORE_CHANGED=False;
+  - export APP_CHANGED=False;
 
   #install open mpi
   - rm -rf ~/mpi
@@ -50,18 +64,16 @@ install:
   - sudo dpkg -i openmpi_1.10-3.deb
   - popd
 
+
 # command to run tests
 script:
   - export MKL_THREADING_LAYER="GNU"
   # run keras backend init to initialize backend config
   - python -c "import keras.backend"
   - sed -i -e 's/"backend":[[:space:]]*"[^"]*/"backend":\ "'$KERAS_BACKEND'/g' ~/.keras/keras.json;
-
+  - echo -e "Running tests with the following config:\n$(cat ~/.keras/keras.json)"
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
-      PYTHONPATH=$PWD:$PYTHONPATH py.test --pep8 -m pep8 -n0;
+      PYTHONPATH=$PWD:$PYTHONPATH pytest --pep8 -m pep8 -n0;
     else
-      PYTHONPATH=$PWD:$PYTHONPATH py.test tests/ --cov-config .coveragerc --cov=nmt-keras tests/;
+      PYTHONPATH=$PWD:$PYTHONPATH pytest tests/ ;
     fi
-
-after_success:
-  coveralls

@@ -153,7 +153,7 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
-    DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
+    DECODER_RNN_TYPE = 'LSTM'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
     # Initializers (see keras/initializations.py).
     INIT_FUNCTION = 'glorot_uniform'              # General initialization function for matrices.
@@ -175,12 +175,12 @@ def load_parameters():
     # Encoder configuration
     ENCODER_HIDDEN_SIZE = 64                      # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
-    N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
+    N_LAYERS_ENCODER = 2                          # Stack this number of encoding layers
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
 
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 64                      # For models with RNN decoder
-    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
+    N_LAYERS_DECODER = 2                              # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
     ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
     # Skip connections size
