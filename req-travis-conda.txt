@@ -5,5 +5,9 @@ scikit-image
 scikit-learn
 six
 pytables
-Theano
 toolz
+numpy
+scipy
+pandas
+pytest
+theano

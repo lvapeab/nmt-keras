@@ -15,11 +15,13 @@ def parse_args():
                         default="")
     return parser.parse_args()
 
+
 if __name__ == "__main__":
 
     args = parse_args()
     if args.config is None:
         from config import load_parameters
+
         params = load_parameters()
     else:
         params = pkl2dict(args.config)

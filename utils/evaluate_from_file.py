@@ -108,6 +108,6 @@ def evaluate_from_file(args):
                 break
     return
 
+
 if __name__ == "__main__":
     evaluate_from_file(parser.parse_args())
-

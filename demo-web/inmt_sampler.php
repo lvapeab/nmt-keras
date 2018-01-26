@@ -12,8 +12,7 @@ function file_get_contents_utf8($fn) {
 
 if (flock($fp, LOCK_EX))
 {
-	$source=$_GET['source'];
-	$prefix=$_GET['prefix'];
+	$source=$_GET['source']; $prefix=$_GET['prefix'];
 	$url = 'http://localhost:8888/?source='.urlencode($source).'&prefix='.urlencode($prefix);
     $out = file_get_contents($url);
 	echo $out;
