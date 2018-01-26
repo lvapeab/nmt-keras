@@ -57,7 +57,7 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         send_response_start_time = time.time()
 
-        self.send_response(200) # 200: ('OK', 'Request fulfilled, document follows')
+        self.send_response(200)  # 200: ('OK', 'Request fulfilled, document follows')
         self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(response.encode('utf-8'))
