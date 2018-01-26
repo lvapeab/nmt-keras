@@ -1,5 +1,6 @@
 import pytest
 import argparse
+from keras import backend as K
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
 from keras_wrapper.cnn_model import Model_Wrapper, loadModel
@@ -8,7 +9,6 @@ from main import train_model, apply_NMT_model
 from model_zoo import TranslationModel
 from sample_ensemble import sample_ensemble
 from score import score_corpus
-from keras import backend as K
 
 
 def test_NMT_models():
