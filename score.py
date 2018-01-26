@@ -28,19 +28,9 @@ def parse_args():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
-
-    args = parse_args()
-    models = args.models
+def score_corpus(args, params):
     print "Using an ensemble of %d models" % len(args.models)
     models = [loadModel(m, -1, full_path=True) for m in args.models]
-    if args.config is None:
-        print "Reading parameters from config.py"
-        params = load_parameters()
-    else:
-        print "Loading parameters from %s" % str(args.config)
-        params = pkl2dict(args.config)
-
     dataset = loadDataset(args.dataset)
     if args.source is not None:
         dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits,
@@ -56,9 +46,6 @@ if __name__ == "__main__":
         params_prediction = {'max_batch_size': params['BATCH_SIZE'],
                              'n_parallel_loaders': params['PARALLEL_LOADERS'],
                              'predict_on_sets': [s]}
-
-        # Convert predictions into sentences
-        index2word_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
 
         if params['BEAM_SEARCH']:
             params_prediction['beam_size'] = params['BEAM_SIZE']
@@ -81,16 +68,6 @@ if __name__ == "__main__":
             params_prediction['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
             params_prediction['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
             params_prediction['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
-
-            mapping = None if dataset.mapping == dict() else dataset.mapping
-            if params['POS_UNK']:
-                params_prediction['heuristic'] = params['HEURISTIC']
-                input_text_id = params['INPUTS_IDS_DATASET'][0]
-                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
-            else:
-                input_text_id = None
-                vocab_src = None
-                mapping = None
             beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=args.verbose)
             scores = beam_searcher.scoreNet()[s]
 
@@ -105,3 +82,14 @@ if __name__ == "__main__":
                 raise Exception('The sampling mode ' + params['SAMPLING_SAVE_MODE'] + ' is not currently supported.')
         else:
             print scores
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    if args.config is None:
+        print "Reading parameters from config.py"
+        params = load_parameters()
+    else:
+        print "Loading parameters from %s" % str(args.config)
+        params = pkl2dict(args.config)
+    score_corpus(args, params)

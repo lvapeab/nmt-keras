@@ -2,6 +2,7 @@ import numpy as np
 import argparse
 from os.path import basename, dirname
 
+
 # Preprocess pretrained text vectors
 # and stores them in a suitable format (.npy)
 
@@ -30,10 +31,11 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
 
     print
     # Store dict
-    print "Saving word vectors in %s" %\
+    print "Saving word vectors in %s" % \
           (base_path_save + '/' + dest_filename + '.npy')
     np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
     print
+
 
 def parse_args():
     parser = argparse.ArgumentParser("Preprocess pre-trained word embeddings.")
@@ -41,6 +43,7 @@ def parse_args():
                         default="GoogleNews-vectors-negative300.txt")
     parser.add_argument("-d", "--destination", required=True, help="Destination file.", default='word2vec.en')
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()

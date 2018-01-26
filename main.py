@@ -44,8 +44,9 @@ def train_model(params, load_dataset=None):
                 dataset = build_dataset(params)
             else:
                 logging.info('Updating dataset.')
-                dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME']
-                                      + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+                dataset = loadDataset(
+                    params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] +
+                    params['TRG_LAN'] + '.pkl')
                 params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
                     int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
                 for split, filename in params['TEXT_FILES'].iteritems():
@@ -53,8 +54,7 @@ def train_model(params, load_dataset=None):
                                                        params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
                                                        params,
                                                        splits=list([split]),
-                                                       output_text_filename=params['DATA_ROOT_PATH'] + '/' + filename +
-                                                                            params['TRG_LAN'],
+                                                       output_text_filename=params['DATA_ROOT_PATH'] + '/' + filename + params['TRG_LAN'],
                                                        remove_outputs=False,
                                                        compute_state_below=True,
                                                        recompute_references=True)
@@ -172,7 +172,8 @@ def train_model(params, load_dataset=None):
                                               'embeddings_freq': params.get('EMBEDDINGS_FREQ', 0),
                                               'embeddings_layer_names': params.get('EMBEDDINGS_LAYER_NAMES', None),
                                               'embeddings_metadata': params.get('EMBEDDINGS_METADATA', None),
-                                              'label_word_embeddings_with_vocab': params.get('LABEL_WORD_EMBEDDINGS_WITH_VOCAB', False),
+                                              'label_word_embeddings_with_vocab': params.get(
+                                                  'LABEL_WORD_EMBEDDINGS_WITH_VOCAB', False),
                                               'word_embeddings_labels': params.get('WORD_EMBEDDINGS_LABELS', None),
                                               }
                        }
@@ -397,11 +398,11 @@ def check_params(params):
     if params['COVERAGE_PENALTY']:
         assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
-    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
+    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][-4:] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
 
-    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][:-1] != '.npy':
+    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][-4:] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
     if not params['PAD_ON_BATCH']:
