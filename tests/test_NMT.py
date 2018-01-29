@@ -38,6 +38,8 @@ def test_NMT_models():
                     params['ENCODER_RNN_TYPE'] = encoder_type
                     params['DECODER_RNN_TYPE'] = decoder_type
                     params['N_LAYERS_DECODER'] = n_layers
+                    params['DECODER_HIDDEN_SIZE'] /= 4
+                    params['ENCODER_HIDDEN_SIZE'] /= 4
                     params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
                     params['RELOAD'] = 0
                     params['MODEL_NAME'] =\
