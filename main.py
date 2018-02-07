@@ -118,8 +118,8 @@ def train_model(params, load_dataset=None):
             pos_target = dataset.ids_outputs.index(id_out)
             id_dest = nmt_model.ids_outputs[i]
             outputMapping[id_dest] = pos_target
-
         nmt_model.setOutputsMapping(outputMapping)
+
         nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
@@ -203,7 +203,6 @@ def apply_NMT_model(params, load_dataset=None):
 
     # Load model
     nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
-    nmt_model.setOptimizer()
 
     # Evaluate training
     extra_vars = {'language': params.get('TRG_LAN', 'en'),
