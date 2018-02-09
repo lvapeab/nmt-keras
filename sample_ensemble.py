@@ -109,14 +109,13 @@ def sample_ensemble(args, params):
 
         if args.n_best:
             n_best_predictions = []
-            i = 0
             for i, (n_best_preds, n_best_scores, n_best_alphas) in enumerate(n_best):
                 n_best_sample_score = []
                 for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
                     pred = decode_predictions_beam_search([n_best_pred],
                                                           index2word_y,
-                                                          alphas=n_best_alpha,
-                                                          x_text=sources,
+                                                          alphas=[n_best_alpha],
+                                                          x_text=[sources[i]],
                                                           heuristic=heuristic,
                                                           mapping=mapping,
                                                           verbose=args.verbose)

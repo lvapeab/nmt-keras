@@ -133,8 +133,8 @@ def train_model(params, load_dataset=None):
             pos_target = dataset.ids_outputs.index(id_out)
             id_dest = nmt_model.ids_outputs[i]
             outputMapping[id_dest] = pos_target
-
         nmt_model.setOutputsMapping(outputMapping)
+
         nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
@@ -217,53 +217,52 @@ def apply_NMT_model(params, load_dataset=None):
 
     # Load model
     nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
-    nmt_model.setOptimizer()
+
+    # Evaluate training
+    extra_vars = {'language': params.get('TRG_LAN', 'en'),
+                  'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                  'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
+                  'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
+                  'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                  'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                  'tokenize_references': params['TOKENIZE_REFERENCES'],
+                  }
+
+    input_text_id = params['INPUTS_IDS_DATASET'][0]
+    vocab_x = dataset.vocabulary[input_text_id]['idx2words']
+    vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
+    if params['BEAM_SEARCH']:
+        extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
+        extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
+        extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
+        extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
+        extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
+        extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
+        extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
+        extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
+        extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
+        extra_vars['search_pruning'] = params.get('SEARCH_PRUNING', False)
+        extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
+        extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
+        extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
+        extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
+        extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
+        extra_vars['state_below_maxlen'] = -1 if params.get('PAD_ON_BATCH', True) \
+            else params.get('MAX_OUTPUT_TEXT_LEN', 50)
+        extra_vars['pos_unk'] = params['POS_UNK']
+        extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
+        extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
+        extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
+        extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+
+        if params['POS_UNK']:
+            extra_vars['heuristic'] = params['HEURISTIC']
+            if params['HEURISTIC'] > 0:
+                extra_vars['mapping'] = dataset.mapping
 
     for s in params["EVAL_ON_SETS"]:
-        # Evaluate training
-        extra_vars = {'language': params.get('TRG_LAN', 'en'),
-                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
-                      'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
-                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
-                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
-                      'tokenize_references': params['TOKENIZE_REFERENCES']}
-        vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         extra_vars[s] = dict()
         extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-        input_text_id = None
-        vocab_src = None
-        if params['BEAM_SEARCH']:
-            extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
-            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
-            extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
-            extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
-            extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
-            extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
-            extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
-            extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['search_pruning'] = params.get('SEARCH_PRUNING', False)
-            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
-            extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
-            extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
-            extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
-            extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
-            extra_vars['state_below_maxlen'] = -1 if params.get('PAD_ON_BATCH', True) \
-                else params.get('MAX_OUTPUT_TEXT_LEN', 50)
-            extra_vars['pos_unk'] = params['POS_UNK']
-            extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
-            extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
-            extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
-            extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
-
-            if params['POS_UNK']:
-                extra_vars['heuristic'] = params['HEURISTIC']
-                input_text_id = params['INPUTS_IDS_DATASET'][0]
-                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
-                if params['HEURISTIC'] > 0:
-                    extra_vars['mapping'] = dataset.mapping
-
         callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(nmt_model,
                                                                          dataset,
                                                                          gt_id=params['OUTPUTS_IDS_DATASET'][0],
@@ -276,12 +275,11 @@ def apply_NMT_model(params, load_dataset=None):
                                                                          is_text=True,
                                                                          input_text_id=input_text_id,
                                                                          save_path=nmt_model.model_path,
-                                                                         index2word_y=vocab,
-                                                                         index2word_x=vocab_src,
+                                                                         index2word_y=vocab_y,
+                                                                         index2word_x=vocab_x,
                                                                          sampling_type=params['SAMPLING'],
                                                                          beam_search=params['BEAM_SEARCH'],
-                                                                         start_eval_on_epoch=params[
-                                                                             'START_EVAL_ON_EPOCH'],
+                                                                         start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
                                                                          write_samples=True,
                                                                          write_type=params['SAMPLING_SAVE_MODE'],
                                                                          eval_on_epochs=params['EVAL_EACH_EPOCHS'],
