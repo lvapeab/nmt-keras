@@ -155,6 +155,10 @@ def load_parameters():
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
+
+    TRAINABLE_ENCODER = True                      # Whether the encoder's weights should be modified during training
+    TRAINABLE_DECODER = True                      # Whether the decoder's weights should be modified during training
+
     # Initializers (see keras/initializations.py).
     INIT_FUNCTION = 'glorot_uniform'              # General initialization function for matrices.
     INNER_INIT = 'orthogonal'                     # Initialization function for inner RNN matrices.
