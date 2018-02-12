@@ -153,7 +153,7 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
-    DECODER_RNN_TYPE = 'GRU'          # Decoder's RNN unit type
+    DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
 
     TRAINABLE_ENCODER = True                      # Whether the encoder's weights should be modified during training
@@ -164,27 +164,27 @@ def load_parameters():
     INNER_INIT = 'orthogonal'                     # Initialization function for inner RNN matrices.
     INIT_ATT = 'glorot_uniform'                   # Initialization function for attention mechism matrices
 
-    SOURCE_TEXT_EMBEDDING_SIZE = 64              # Source language word embedding size.
+    SOURCE_TEXT_EMBEDDING_SIZE = 32              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    TARGET_TEXT_EMBEDDING_SIZE = 64               # Source language word embedding size.
+    TARGET_TEXT_EMBEDDING_SIZE = 32               # Source language word embedding size.
     TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
     # Encoder configuration
-    ENCODER_HIDDEN_SIZE = 64                      # For models with RNN encoder
+    ENCODER_HIDDEN_SIZE = 32                      # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
-    N_LAYERS_ENCODER = 2                          # Stack this number of encoding layers
+    N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
 
     # Decoder configuration
-    DECODER_HIDDEN_SIZE = 64                      # For models with RNN decoder
-    N_LAYERS_DECODER = 2                          # Stack this number of decoding layers.
+    DECODER_HIDDEN_SIZE = 32                      # For models with RNN decoder
+    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
     ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
     # Skip connections size
@@ -203,11 +203,11 @@ def load_parameters():
 
     # Regularizers
     WEIGHT_DECAY = 1e-4                           # L2 regularization
-    RECURRENT_WEIGHT_DECAY = 0.04                   # L2 regularization in recurrent layers
+    RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
 
-    DROPOUT_P = 0.1                                # Percentage of units to drop (0 means no dropout)
-    RECURRENT_INPUT_DROPOUT_P = 0.1                # Percentage of units to drop in input cells of recurrent layers
-    RECURRENT_DROPOUT_P = 0.1                      # Percentage of units to drop in recurrent layers
+    DROPOUT_P = 0.                                # Percentage of units to drop (0 means no dropout)
+    RECURRENT_INPUT_DROPOUT_P = 0.                # Percentage of units to drop in input cells of recurrent layers
+    RECURRENT_DROPOUT_P = 0.                      # Percentage of units to drop in recurrent layers
 
     USE_NOISE = True                              # Use gaussian noise during training
     NOISE_AMOUNT = 0.01                           # Amount of noise
