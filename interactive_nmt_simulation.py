@@ -256,7 +256,7 @@ if __name__ == "__main__":
 
             for n_line, line in enumerate(fsrc):
                 errors_sentence = 0
-                keystrokes_sentence=0
+                keystrokes_sentence = 0
                 mouse_actions_sentence = 0
                 hypothesis_number = 0
                 unk_indices = []
@@ -594,4 +594,3 @@ if __name__ == "__main__":
         print "WSR: %f" % (float(total_errors) / total_words)
         print "SR: %f" % (float(total_mouse_actions) / n_line)
         print "**KSMR**: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars)
-

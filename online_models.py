@@ -174,9 +174,8 @@ def build_online_models(models, params):
                                                                                           weight2, constant],
                                       outputs=loss_out)
 
-
             elif isinstance(params['LOSS'], list):
-                raise NotImplementedError, 'WIP!'
+                raise Exception(NotImplementedError, 'WIP!')
                 state_below_h1 = Input(name="state_below_h1", batch_shape=tuple([None, None]))
                 preds_h1 = nmt_model.model([nmt_model.model.inputs[0], state_below_h1])
                 yref = Input(name="yref", batch_shape=tuple([None, None, None]))
@@ -202,7 +201,7 @@ def build_online_models(models, params):
                 params['LOSS'] = [{loss_name: lambda y_true, y_pred: y_pred} for loss_name in params['LOSS']]
                 if params.get('LOSS_WEIGHTS') is None:
                     logging.warning('Loss weights not given! Using the same weight for each loss')
-                    params['LOSS_WEIGHTS'] = [1./len(params['LOSS']) for _ in params['LOSS']]
+                    params['LOSS_WEIGHTS'] = [1. / len(params['LOSS']) for _ in params['LOSS']]
                 else:
                     assert len(params['LOSS_WEIGHTS']) == len(params['LOSS']), 'You should provide a weight' \
                                                                                'for each loss!'
