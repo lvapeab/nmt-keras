@@ -621,6 +621,8 @@ def check_params(params):
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
     if not params['PAD_ON_BATCH']:
         warnings.warn('It is HIGHLY recommended to set the option "PAD_ON_BATCH = True."')
+    if params.get('TRAINABLE_ENCODER', True) and params.get('TRAINABLE_DECODER', True):
+        warnings.warn('Non-trainable model!')
 
 
 if __name__ == "__main__":
