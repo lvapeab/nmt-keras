@@ -6,9 +6,41 @@ matrix:
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
         - python: 2.7
-          env: KERAS_BACKEND=theano
+          env: KERAS_BACKEND=theano TEST_MODE=GENERAL
         - python: 2.7
-          env: KERAS_BACKEND=tensorflow
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep
 
 # command to install dependencies
 install:
@@ -74,6 +106,9 @@ script:
   - echo -e "Running tests with the following config:\n$(cat ~/.keras/keras.json)"
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest --pep8 -m pep8 -n0;
+    elif [[ "$TEST_MODE" == "GENERAL" ]]; then
+      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/*py tests/utils/*py tests/data_engine/*py 2>&1 ;
     else
-      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/ 2>&1 ;
+      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DEPTH}*_${TEST_MODE}.py 2>&1 ;
+
     fi
