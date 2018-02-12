@@ -153,7 +153,7 @@ def load_parameters():
     # Model parameters
     MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
-    DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
+    DECODER_RNN_TYPE = 'GRU'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
 
     TRAINABLE_ENCODER = True                      # Whether the encoder's weights should be modified during training
@@ -179,12 +179,12 @@ def load_parameters():
     # Encoder configuration
     ENCODER_HIDDEN_SIZE = 64                      # For models with RNN encoder
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder
-    N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers
+    N_LAYERS_ENCODER = 2                          # Stack this number of encoding layers
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers
 
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 64                      # For models with RNN decoder
-    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
+    N_LAYERS_DECODER = 2                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
     ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
     # Skip connections size
@@ -203,11 +203,11 @@ def load_parameters():
 
     # Regularizers
     WEIGHT_DECAY = 1e-4                           # L2 regularization
-    RECURRENT_WEIGHT_DECAY = 0.                   # L2 regularization in recurrent layers
+    RECURRENT_WEIGHT_DECAY = 0.04                   # L2 regularization in recurrent layers
 
-    DROPOUT_P = 0.                                # Percentage of units to drop (0 means no dropout)
-    RECURRENT_INPUT_DROPOUT_P = 0.                # Percentage of units to drop in input cells of recurrent layers
-    RECURRENT_DROPOUT_P = 0.                      # Percentage of units to drop in recurrent layers
+    DROPOUT_P = 0.1                                # Percentage of units to drop (0 means no dropout)
+    RECURRENT_INPUT_DROPOUT_P = 0.1                # Percentage of units to drop in input cells of recurrent layers
+    RECURRENT_DROPOUT_P = 0.1                      # Percentage of units to drop in recurrent layers
 
     USE_NOISE = True                              # Use gaussian noise during training
     NOISE_AMOUNT = 0.01                           # Amount of noise
