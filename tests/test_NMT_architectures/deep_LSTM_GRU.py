@@ -42,7 +42,7 @@ def test_NMT_Bidir_deep_LSTM_GRU():
     # Current test params: Two-layered LSTM - GRU
     params['BIDIRECTIONAL_ENCODER'] = True
     params['N_LAYERS_ENCODER'] = 2
-    params['BIDIRECTIONAL_DEEP_ENCODER'] = Tue
+    params['BIDIRECTIONAL_DEEP_ENCODER'] = True
     params['ENCODER_RNN_TYPE'] = 'LSTM'
     params['DECODER_RNN_TYPE'] = 'GRU'
     params['N_LAYERS_DECODER'] = 2
