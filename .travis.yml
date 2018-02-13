@@ -16,13 +16,21 @@ matrix:
         - python: 2.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
         - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=unidir
         - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=unidir
         - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
         - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
         - python: 2.7
@@ -41,7 +49,22 @@ matrix:
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep
-
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
 # command to install dependencies
 install:
   # code below is taken from http://conda.pydata.org/docs/travis.html
@@ -109,6 +132,9 @@ script:
     elif [[ "$TEST_MODE" == "GENERAL" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/*py tests/utils/*py tests/data_engine/*py 2>&1 ;
     else
-      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DEPTH}*_${TEST_MODE}.py 2>&1 ;
-
+      if [[ "$TEST_MODE" == "SHALLOW" ]]; then
+        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DEPTH}*_${TEST_MODE}.py 2>&1 ;
+      else
+        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DIR}_${DEPTH}*_${TEST_MODE}.py 2>&1 ;
+      fi
     fi
