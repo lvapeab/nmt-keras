@@ -132,7 +132,7 @@ script:
     elif [[ "$TEST_MODE" == "GENERAL" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/*py tests/utils/*py tests/data_engine/*py 2>&1 ;
     else
-      if [[ "$TEST_MODE" == "SHALLOW" ]]; then
+      if [[ "$DEPTH" == "shallow" ]]; then
         PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DEPTH}*_${TEST_MODE}.py 2>&1 ;
       else
         PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DIR}_${DEPTH}*_${TEST_MODE}.py 2>&1 ;
