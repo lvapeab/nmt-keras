@@ -46,6 +46,13 @@ In addition, this branch also supports [online learning protocols in a post-edit
 In arxiv:1706.03196. 2017.
 ```
 
+The protocols described in [ Online Learning for Effort Reduction in Interactive Neural Machine Translation](https://arxiv.org/abs/1802.03594), are implemented in [this script](https://github.com/lvapeab/nmt-keras/blob/interactive_NMT/interactive_char_nmt_simulation.py). If you use this code, please cite:
+```
+ Online Learning for Effort Reduction in Interactive Neural Machine Translation
+Álvaro Peris and Francisco Casacuberta.
+In arXiv:1802.03594. 2018.
+```
+
 ## Requirements
     
 This branch requires—in addition to the regular NMT-Keras requirements—the `InteractiveNMT` branch from [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper/tree/Interactive_NMT).
