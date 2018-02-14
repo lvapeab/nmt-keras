@@ -313,6 +313,8 @@ class TranslationModel(Model_Wrapper):
                                                     merge_mode='concat',
                                                     trainable=params.get('TRAINABLE_ENCODER', True),
                                                     name='bidirectional_encoder_' + str(n_layer))(annotations)
+                current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
+                annotations = current_annotations if n_layer == 1 and not params['BIDIRECTIONAL_ENCODER'] else Add()([annotations, current_annotations])
             else:
                 current_annotations = eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
                                                                        kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
@@ -325,8 +327,8 @@ class TranslationModel(Model_Wrapper):
                                                                        return_sequences=True,
                                                                        trainable=params.get('TRAINABLE_ENCODER', True),
                                                                        name='encoder_' + str(n_layer))(annotations)
-            current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
-            annotations = Add()([annotations, current_annotations])
+                current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
+                annotations = current_annotations if n_layer == 1 and params['BIDIRECTIONAL_ENCODER'] else Add()([annotations, current_annotations])
 
         # 3. Decoder
         # 3.1.1. Previously generated words as inputs for training -> Teacher forcing
@@ -572,7 +574,7 @@ class TranslationModel(Model_Wrapper):
         #   - softmax probabilities
         #   - next_state
         preprocessed_size = params['ENCODER_HIDDEN_SIZE'] * 2 if \
-            params['BIDIRECTIONAL_ENCODER'] \
+            (params['BIDIRECTIONAL_ENCODER'] and params['N_LAYERS_ENCODER'] == 1) or (params['BIDIRECTIONAL_DEEP_ENCODER'] and params['N_LAYERS_ENCODER'] > 1) \
             else params['ENCODER_HIDDEN_SIZE']
         # Define inputs
         n_deep_decoder_layer_idx = 0
