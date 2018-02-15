@@ -116,7 +116,7 @@ def load_parameters():
     MAX_OUTPUT_TEXT_LEN_TEST = MAX_OUTPUT_TEXT_LEN * 3  # Maximum length of the output sequence during test time
 
     # Optimizer parameters (see model.compile() function)
-    LOSS = 'categorical_crossentropy'
+    LOSS = 'sparse_categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
 
     OPTIMIZER = 'Adam'                            # Optimizer
