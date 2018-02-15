@@ -15,7 +15,7 @@ def load_parameters():
     K = 1                                         # Number of iterations to perform per sample
     USE_CUSTOM_LOSS = False if 'categorical_crossentropy' in LOSS else True
     N_BEST_OPTIMIZER = False                      # Use N-Best list-based optimization
-    OPTIMIZER_REGULARIZER = ''               # Metric to optimize (BLEU or TER)
+    OPTIMIZER_REGULARIZER = ''                    # Metric to optimize (BLEU or TER)
 
     # General params
     CLIP_C = 5.                                   # During training, clip gradients to this norm
@@ -33,7 +33,7 @@ def load_parameters():
     EARLY_STOP = False                            # Turns on/off the early stop protocol
 
     # Model parameters
-    MODEL_TYPE = 'GroundHogModel'                 # Model to train. See model_zoo() for the supported architectures
+    MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     NOISE_AMOUNT = 0.0                            # Amount of noise
 
     STORE_PATH = 'trained_models/retrained_model2/'  # Models and evaluation results will be stored here
