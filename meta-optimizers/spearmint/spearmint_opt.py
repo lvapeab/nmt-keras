@@ -2,7 +2,8 @@ import logging
 import subprocess
 import os
 import sys
-#sys.path.append("../../") # Adds higher directory to python modules path.
+
+# sys.path.append("../../") # Adds higher directory to python modules path.
 sys.path.insert(1, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../../"))
 
@@ -10,12 +11,15 @@ print sys.path
 
 from config import load_parameters
 from main import check_params, train_model
+
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 metric_name = 'Bleu_4'
 maximize = True  # Select whether we want to maximize the metric or minimize it
 d = dict(os.environ.copy())
 d['LC_NUMERIC'] = 'en_US.utf-8'
+
+
 def invoke_model(parameters):
     """
     Loads a model, trains it and evaluates it.
@@ -44,7 +48,8 @@ def invoke_model(parameters):
                      " |awk -v metric=" + metric_name + \
                      " 'BEGIN{FS=\",\"}" \
                      "{for (i=1; i<=NF; i++) if ($i == metric) print i;}'"
-    metric_pos = subprocess.Popen(metric_pos_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True).communicate()[0][:-1]
+    metric_pos = subprocess.Popen(metric_pos_cmd,
+                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True).communicate()[0][:-1]
     cmd = "tail -n +2 " + results_path + \
           " |awk -v m_pos=" + str(metric_pos) + \
           " 'BEGIN{FS=\",\"}{print $m_pos}'|sort -gr|head -n 1"
@@ -64,6 +69,7 @@ def main(job_id, params):
     """
     print params
     return invoke_model(params)
+
 
 if __name__ == "__main__":
     # Testing function

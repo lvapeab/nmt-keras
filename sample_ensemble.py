@@ -31,33 +31,11 @@ def parse_args():
                         default="")
     return parser.parse_args()
 
-if __name__ == "__main__":
 
-    args = parse_args()
+def sample_ensemble(args, params):
     models = args.models
     logging.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
-    if args.config is None:
-        logging.info("Reading parameters from config.py")
-        from config import load_parameters
-        params = load_parameters()
-    else:
-        logging.info("Loading parameters from %s" % str(args.config))
-        params = pkl2dict(args.config)
-    try:
-        for arg in args.changes:
-            try:
-                k, v = arg.split('=')
-            except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
-                exit(1)
-            try:
-                params[k] = ast.literal_eval(v)
-            except ValueError:
-                params[k] = v
-    except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
-        exit(2)
     dataset = loadDataset(args.dataset)
     dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=True)
 
@@ -131,14 +109,13 @@ if __name__ == "__main__":
 
         if args.n_best:
             n_best_predictions = []
-            i = 0
             for i, (n_best_preds, n_best_scores, n_best_alphas) in enumerate(n_best):
                 n_best_sample_score = []
                 for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
                     pred = decode_predictions_beam_search([n_best_pred],
                                                           index2word_y,
-                                                          alphas=n_best_alpha,
-                                                          x_text=sources,
+                                                          alphas=[n_best_alpha],
+                                                          x_text=[sources[i]],
                                                           heuristic=heuristic,
                                                           mapping=mapping,
                                                           verbose=args.verbose)
@@ -162,3 +139,31 @@ if __name__ == "__main__":
             if args.n_best:
                 logging.info('Storing n-best sentences in ./' + s + '.nbest')
                 nbest2file('./' + s + '.nbest', n_best_predictions)
+        logging.info('Sampling finished')
+
+
+if __name__ == "__main__":
+
+    args = parse_args()
+    if args.config is None:
+        logging.info("Reading parameters from config.py")
+        from config import load_parameters
+        params = load_parameters()
+    else:
+        logging.info("Loading parameters from %s" % str(args.config))
+        params = pkl2dict(args.config)
+    try:
+        for arg in args.changes:
+            try:
+                k, v = arg.split('=')
+            except ValueError:
+                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                exit(1)
+            try:
+                params[k] = ast.literal_eval(v)
+            except ValueError:
+                params[k] = v
+    except ValueError:
+        print 'Error processing arguments: (', k, ",", v, ")"
+        exit(2)
+    sample_ensemble(args, params)

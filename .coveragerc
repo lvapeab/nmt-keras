@@ -1,0 +1,3 @@
+[report]
+fail_under = 30
+show_missing = True
