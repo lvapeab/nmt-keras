@@ -193,10 +193,12 @@ def load_parameters():
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 32                      # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
-    ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
-    ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
-    # Skip connections size
+    ATTENTION_SIZE = DECODER_HIDDEN_SIZE
+    # Skip connections parameters
+    # Hidden size
     SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE
+    ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
+    SKIP_VECTORS_SHARED_ACTIVATION = 'tanh'       # Activation for the skip vectors
 
     # Fully-Connected layers for initializing the first RNN state
     #       Here we should only specify the activation function of each layer
