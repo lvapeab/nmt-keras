@@ -202,7 +202,8 @@ class TranslationModel(Model_Wrapper):
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])
-        self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
+        self.model.compile(optimizer=optimizer,
+                           loss=self.params['LOSS'],
                            metrics=self.params.get('KERAS_METRICS', []),
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
 

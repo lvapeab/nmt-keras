@@ -118,12 +118,20 @@ def load_parameters():
     # Optimizer parameters (see model.compile() function)
     LOSS = 'sparse_categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
+    SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
 
-    OPTIMIZER = 'Adam'                            # Optimizer
-    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0
+    OPTIMIZER = 'Adam'                            # Optimizer. Supported optimizers: SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
+    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
-    SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
+
+    # Advanced parameters for optimizers. Default values are usually effective
+    MOMENTUM = 0.                                 # Momentum value (for SGD optimizer)
+    NESTEROV_MOMENTUM = False                     # Use Nesterov momentum (for SGD optimizer)
+    RHO = 0.9                                     # Rho value (for Adadelta and RMSprop optimizers)
+    BETA_1 = 0.9                                  # Beta 1 value (for Adam, Adamax Nadam optimizers)
+    BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers)
+
     # Learning rate annealing
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
