@@ -339,8 +339,7 @@ def buildCallbacks(params, model, dataset):
                                                                              sampling_type=params['SAMPLING'],
                                                                              beam_search=params['BEAM_SEARCH'],
                                                                              save_path=model.model_path,
-                                                                             start_eval_on_epoch=params[
-                                                                                 'START_EVAL_ON_EPOCH'],
+                                                                             start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
                                                                              write_samples=True,
                                                                              write_type=params['SAMPLING_SAVE_MODE'],
                                                                              eval_on_epochs=params['EVAL_EACH_EPOCHS'],
@@ -363,7 +362,8 @@ def buildCallbacks(params, model, dataset):
                                                    is_text=True,
                                                    index2word_x=vocab_x,
                                                    index2word_y=vocab_y,
-                                                   print_sources=True,
+                                                   print_sources='LM' not in params['MODEL_TYPE'],
+                                                   print_truths='LM' not in params['MODEL_TYPE'],
                                                    in_pred_idx=params['INPUTS_IDS_DATASET'][0],
                                                    sampling_type=params['SAMPLING'],  # text info
                                                    beam_search=params['BEAM_SEARCH'],

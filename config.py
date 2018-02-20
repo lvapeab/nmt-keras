@@ -18,15 +18,15 @@ def load_parameters():
                   'test': 'test.'}
 
     # Dataset class parameters
-    INPUTS_IDS_DATASET = ['source_text']     # Corresponding inputs of the dataset
+    INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
     OUTPUTS_IDS_DATASET = ['target_text']                   # Corresponding outputs of the dataset
-    INPUTS_IDS_MODEL = ['source_text']       # Corresponding inputs of the built model
+    INPUTS_IDS_MODEL = ['source_text', 'state_below']       # Corresponding inputs of the built model
     OUTPUTS_IDS_MODEL = ['target_text']                     # Corresponding outputs of the built model
 
     # Evaluation params
     METRICS = ['coco']                            # Metric used for evaluating the model
     EVAL_ON_SETS = []                        # Possible values: 'train', 'val' and 'test' (external evaluator)
-    EVAL_ON_SETS_KERAS = ['val']                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
+    EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
     START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation
     EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates
     EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates)
@@ -36,7 +36,7 @@ def load_parameters():
     TEMPERATURE = 1                               # Multinomial sampling parameter
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure
     BEAM_SIZE = 6                                 # Beam size (in case of BEAM_SEARCH == True)
-    OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample
+    OPTIMIZED_SEARCH = False                       # Compute annotations only a single time per sample
     SEARCH_PRUNING = False                        # Apply pruning strategies to the beam search method.
                                                   # It will likely increase decoding speed, but decrease quality.
     MAXLEN_GIVEN_X = True                         # Generate translations of similar length to the source sentences
@@ -58,13 +58,13 @@ def load_parameters():
     ALPHA_FACTOR = .6                             # Normalization according to |h|**ALPHA_FACTOR
 
     # Sampling params: Show some samples during training
-    SAMPLE_ON_SETS = []             # Possible values: 'train', 'val' and 'test'
+    SAMPLE_ON_SETS = ['val']             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
     SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
 
     # Unknown words treatment
-    POS_UNK = True                                # Enable POS_UNK strategy for unknown words
+    POS_UNK = False                                # Enable POS_UNK strategy for unknown words
     HEURISTIC = 0                                 # Heuristic to follow:
                                                   #     0: Replace the UNK by the correspondingly aligned source
                                                   #     1: Replace the UNK by the translation (given by an external
@@ -121,7 +121,7 @@ def load_parameters():
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
 
     OPTIMIZER = 'Adam'                            # Optimizer. Supported optimizers: SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
-    LR = 0.0002                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0
+    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
 
