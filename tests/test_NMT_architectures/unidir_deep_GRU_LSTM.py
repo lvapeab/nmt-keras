@@ -4,7 +4,7 @@ import pytest
 from keras import backend as K
 
 from config import load_parameters
-from data_engine.prepare_data import build_dataset
+from data_engine.prepare_data import build_tm_dataset
 from main import train_model, apply_NMT_model
 from sample_ensemble import sample_ensemble
 from score import score_corpus
@@ -47,7 +47,7 @@ def test_NMT_Unidir_deep_GRU_LSTM():
     params['N_LAYERS_DECODER'] = 2
 
     params['REBUILD_DATASET'] = True
-    dataset = build_dataset(params)
+    dataset = build_tm_dataset(params)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     params['MODEL_NAME'] = \

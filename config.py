@@ -18,15 +18,15 @@ def load_parameters():
                   'test': 'test.'}
 
     # Dataset class parameters
-    INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset
+    INPUTS_IDS_DATASET = ['source_text']     # Corresponding inputs of the dataset
     OUTPUTS_IDS_DATASET = ['target_text']                   # Corresponding outputs of the dataset
-    INPUTS_IDS_MODEL = ['source_text', 'state_below']       # Corresponding inputs of the built model
+    INPUTS_IDS_MODEL = ['source_text']       # Corresponding inputs of the built model
     OUTPUTS_IDS_MODEL = ['target_text']                     # Corresponding outputs of the built model
 
     # Evaluation params
     METRICS = ['coco']                            # Metric used for evaluating the model
-    EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator)
-    EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
+    EVAL_ON_SETS = []                        # Possible values: 'train', 'val' and 'test' (external evaluator)
+    EVAL_ON_SETS_KERAS = ['val']                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested.
     START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation
     EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates
     EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates)
@@ -58,7 +58,7 @@ def load_parameters():
     ALPHA_FACTOR = .6                             # Normalization according to |h|**ALPHA_FACTOR
 
     # Sampling params: Show some samples during training
-    SAMPLE_ON_SETS = ['train', 'val']             # Possible values: 'train', 'val' and 'test'
+    SAMPLE_ON_SETS = []             # Possible values: 'train', 'val' and 'test'
     N_SAMPLES = 5                                 # Number of samples generated
     START_SAMPLING_ON_EPOCH = 1                   # First epoch where to start the sampling counter
     SAMPLE_EACH_UPDATES = 300                     # Sampling frequency (always in #updates)
@@ -121,7 +121,7 @@ def load_parameters():
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
 
     OPTIMIZER = 'Adam'                            # Optimizer. Supported optimizers: SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
-    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0
+    LR = 0.0002                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated)
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated)
 
@@ -159,7 +159,7 @@ def load_parameters():
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop
 
     # Model parameters
-    MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
+    MODEL_TYPE = 'RNNLM'     # Model to train. See model_zoo() for the supported architectures
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
@@ -178,7 +178,7 @@ def load_parameters():
                                                   # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    TARGET_TEXT_EMBEDDING_SIZE = 32               # Source language word embedding size.
+    TARGET_TEXT_EMBEDDING_SIZE = 64               # Source language word embedding size.
     TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
@@ -194,9 +194,19 @@ def load_parameters():
     DECODER_HIDDEN_SIZE = 32                      # For models with RNN decoder
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
-    ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
-    # Skip connections size
-    SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE
+    ATTENTION_SIZE = DECODER_HIDDEN_SIZE          # Size of the attention model
+    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
+    ATTENTION_SIZE = DECODER_HIDDEN_SIZE
+
+    # LM configuration. Only used if MODEL_TYPE == 'RNNLM'
+    RNN_LM_SIZE = 64                              # Size of the RNN LM
+    LM_RNN_TYPE = 'LSTM'                          # LM RNN unit type ('LSTM' and 'GRU' supported)
+
+    # Skip connections parameters
+    SKIP_VECTORS_HIDDEN_SIZE =\
+        TARGET_TEXT_EMBEDDING_SIZE                # Skip connections size
+    SKIP_VECTORS_SHARED_ACTIVATION = 'tanh'       # Activation for the skip vectors
+    ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
 
     # Fully-Connected layers for initializing the first RNN state
     #       Here we should only specify the activation function of each layer
@@ -249,12 +259,10 @@ def load_parameters():
     LOG_DIR = 'tensorboard_logs'             # Directory to store teh model. Will be created inside STORE_PATH
     EMBEDDINGS_FREQ = 1                      # Frequency (in epochs) at which selected embedding layers will be saved.
     EMBEDDINGS_LAYER_NAMES = [               # A list of names of layers to keep eye on. If None or empty list all the embedding layer will be watched.
-        'source_word_embedding',
-        'target_word_embedding']
+        'word_embedding']
     EMBEDDINGS_METADATA = None               # Dictionary which maps layer name to a file name in which metadata for this embedding layer is saved.
     LABEL_WORD_EMBEDDINGS_WITH_VOCAB = True  # Whether to use vocabularies as word embeddings labels (will overwrite EMBEDDINGS_METADATA)
     WORD_EMBEDDINGS_LABELS = [               # Vocabularies for labeling. Must match EMBEDDINGS_LAYER_NAMES
-        'source_text',
         'target_text']
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.

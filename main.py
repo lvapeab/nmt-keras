@@ -3,7 +3,7 @@ import ast
 from timeit import default_timer as timer
 
 from config import load_parameters
-from data_engine.prepare_data import build_dataset, update_dataset_from_file
+from data_engine.prepare_data import build_tm_dataset, build_lm_dataset, update_dataset_from_file
 from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.dataset import loadDataset, saveDataset
 from keras_wrapper.extra.callbacks import *
@@ -41,12 +41,15 @@ def train_model(params, load_dataset=None):
         if load_dataset is None:
             if params['REBUILD_DATASET']:
                 logging.info('Rebuilding dataset.')
-                dataset = build_dataset(params)
+                if 'LM' in params['MODEL_TYPE']:
+                    dataset = build_lm_dataset(params)
+                else:
+                    dataset = build_tm_dataset(params)
             else:
                 logging.info('Updating dataset.')
-                dataset = loadDataset(
-                    params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] +
-                    params['TRG_LAN'] + '.pkl')
+                dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['TRG_LAN'] + '.pkl') if 'LM' in params['MODEL_TYPE'] else \
+                    loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+
                 params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
                     int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
                 for split, filename in params['TEXT_FILES'].iteritems():
@@ -58,16 +61,18 @@ def train_model(params, load_dataset=None):
                                                        remove_outputs=False,
                                                        compute_state_below=True,
                                                        recompute_references=True)
-                    dataset.name = params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
+                    dataset.name = params['DATASET_NAME'] + '_' + params['TRG_LAN'] if 'LM' in params['MODEL_TYPE'] else params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
                 saveDataset(dataset, params['DATASET_STORE_PATH'])
-
         else:
             logging.info('Reloading and using dataset.')
             dataset = loadDataset(load_dataset)
     else:
         # Load data
         if load_dataset is None:
-            dataset = build_dataset(params)
+            if 'LM' in params['MODEL_TYPE']:
+                dataset = build_lm_dataset(params)
+            else:
+                dataset = build_tm_dataset(params)
         else:
             dataset = loadDataset(load_dataset)
 
@@ -179,7 +184,7 @@ def apply_NMT_model(params, load_dataset=None):
 
     # Load data
     if load_dataset is None:
-        dataset = build_dataset(params)
+        dataset = build_tm_dataset(params)
     else:
         dataset = loadDataset(load_dataset)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
