@@ -26,10 +26,10 @@ If you use this toolkit in your research, please cite:
 
 ## Features (in addition to the full Keras cosmos): 
  
- * :heavy_exclamation_mark: Now supporting Tensorflow!
-   - And [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
+ * [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
+   - :heavy_exclamation_mark: [Bahdanau (Add)](https://arxiv.org/abs/1409.0473) and [Luong (Dot)](https://arxiv.org/abs/1508.04025) attention mechanisms.
    - Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
