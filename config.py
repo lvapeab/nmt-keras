@@ -163,7 +163,7 @@ def load_parameters():
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported)
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported)
-    ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau style) or 'dot' (Luong style).
+    ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau-style) or 'dot' (Luong-style).
 
     TRAINABLE_ENCODER = True                      # Whether the encoder's weights should be modified during training
     TRAINABLE_DECODER = True                      # Whether the decoder's weights should be modified during training
