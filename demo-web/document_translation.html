@@ -102,7 +102,7 @@
                 }
                 xmlHttp.open("GET", php_sampler_url, false);
                 xmlHttp.send();
-                var hypothesis = document.getElementById('hypothesis_' + field_number)
+                var hypothesis = document.getElementById('hypothesis_' + field_number);
                 hypothesis.innerHTML = xmlHttp.responseText;
 
             hypothesis.donetyping = function (callback, delay) {
@@ -135,7 +135,7 @@
                 var prefix = translation_inmt_field.value;
                 var startPosition = translation_inmt_field.selectionStart;
                 var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
-                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2;
+                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2+ '&learn=False';
                 var nHyp = 0;//parseInt($('#translation-inmt').getAttribute("nhypothesis"));
 
                 try {
@@ -170,9 +170,56 @@
         }
 
         function accept_translation(field_number) {
-                var accept_alert = $('#accept');
-                accept_alert.show();
-                accept_alert.fadeOut(2000);
+
+            var source = document.getElementById('sourceinmt_' + field_number).value;
+            var hypothesis = document.getElementById('hypothesis_' + field_number).value;
+            if (trimAll(source) === '' || trimAll(hypothesis) === '') {
+                var inmt_empty_string = $('#inmtemptystring');
+                inmt_empty_string.show();
+                inmt_empty_string.fadeOut(2000);
+            }
+            var learn_from_sample =  $('#ol_checkbox_' + field_number + ':checked').val();
+
+            if (learn_from_sample == 'True'){
+                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + hypothesis + '&learn=' + learn_from_sample;
+
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                $(translation_inmt_field).val(xmlHttp.responseText);
+                translation_inmt_field.selectionStart = startPosition;
+                translation_inmt_field.selectionEnd = startPosition;
+//                nHyp += 1;
+//                translation_inmt_field.attr("valPosition", startPosition.toString());
+//                $('#valPos').text(' -- Validated till position: ' + startPosition);
+//                translation_inmt_field.attr("nhypothesis", nHyp.toString());
+//                $('#nHyp').text('Hypothesis #' + nHyp);
+
+
+
+
+            }
+
+
+            var accept_alert = $('#accept');
+            accept_alert.text('Sentence #' + field_number + ' validated.');
+            accept_alert.show();
+            accept_alert.fadeOut(2000);
         }
     </script>
 
@@ -403,6 +450,7 @@
                         "' placeholder='Touch in the source sentence to obtain a translation of it.'>" + "</textarea>" +
                         "<div style='padding:2px'></div>" +
                         "<button type='submit' class='button'>Accept translation</button>" +
+                        "<input type='checkbox' name='OL-checkbox_'" + i +"' id='ol_checkbox_" + i + "' value='True' checked> Learn from sample<br>" +
                         "</form>" +
                         "<div style='padding:10px'></div>" +
                         "</td></tr>";

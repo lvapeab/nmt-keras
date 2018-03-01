@@ -31,6 +31,7 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         args = args.split('&')
         source_sentence = None
         validated_prefix = None
+        learn = False
         args_processing_start_time = time.time()
         for aa in args:
             cc = aa.split('=')
@@ -39,6 +40,10 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if cc[0] == 'prefix':
                 validated_prefix = cc[1]
                 validated_prefix = urllib.unquote_plus(validated_prefix)
+            if cc[0] == 'learn':
+                learn = cc[1]
+                learn = urllib.unquote_plus(learn)
+                learn = eval(learn)
             else:
                 validated_prefix = None
         if source_sentence is None:
@@ -49,22 +54,22 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         logger.log(2, 'args_processing time: %.6f' % (args_processing_end_time - args_processing_start_time))
 
         generate_sample_start_time = time.time()
-        hypothesis = self.server.sampler.generate_sample(source_sentence,
-                                                         validated_prefix=validated_prefix)
-        response = hypothesis + u'\n'
-        generate_sample_end_time = time.time()
-        logger.log(2, 'args_processing time: %.6f' % (generate_sample_end_time - generate_sample_start_time))
-
-        send_response_start_time = time.time()
-
-        self.send_response(200)  # 200: ('OK', 'Request fulfilled, document follows')
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(response.encode('utf-8'))
-        send_response_end_time = time.time()
-        logger.log(2, 'send_response time: %.6f' % (send_response_end_time - send_response_start_time))
-        do_GET_end_time = time.time()
-        logger.log(2, 'do_GET time: %.6f' % (do_GET_end_time - do_GET_start_time))
+        if learn and validated_prefix is not None and source_sentence is not None:
+            self.server.sampler.learn_from_sample(source_sentence, validated_prefix)
+        else:
+            hypothesis = self.server.sampler.generate_sample(source_sentence, validated_prefix=validated_prefix)
+            response = hypothesis + u'\n'
+            generate_sample_end_time = time.time()
+            logger.log(2, 'args_processing time: %.6f' % (generate_sample_end_time - generate_sample_start_time))
+            send_response_start_time = time.time()
+            self.send_response(200)  # 200: ('OK', 'Request fulfilled, document follows')
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+            send_response_end_time = time.time()
+            logger.log(2, 'send_response time: %.6f' % (send_response_end_time - send_response_start_time))
+            do_GET_end_time = time.time()
+            logger.log(2, 'do_GET time: %.6f' % (do_GET_end_time - do_GET_start_time))
 
 
 def parse_args():
@@ -91,12 +96,13 @@ def parse_args():
 
 
 class NMTSampler:
-    def __init__(self, models, dataset, params_prediction, model_tokenize_f, model_detokenize_f, general_tokenize_f,
+    def __init__(self, models, dataset, params_prediction, params_training, model_tokenize_f, model_detokenize_f, general_tokenize_f,
                  general_detokenize_f, mapping=None, word2index_x=None, word2index_y=None, index2word_y=None,
-                 excluded_words=None, unk_id=1, eos_symbol='/', verbose=0):
+                 excluded_words=None, unk_id=1, eos_symbol='/', online=False, verbose=0):
         self.models = models
         self.dataset = dataset
         self.params_prediction = params_prediction
+        self.params_training = params_training
         self.model_tokenize_f = model_tokenize_f
         self.model_detokenize_f = model_detokenize_f
         self.general_tokenize_f = general_tokenize_f
@@ -117,6 +123,14 @@ class NMTSampler:
                                                                       self.params_prediction,
                                                                       excluded_words=self.excluded_words,
                                                                       verbose=self.verbose)
+        self.online = online
+        if self.online:
+            self.online_trainer = OnlineTrainer(self.models, self.dataset, None, # Sampler
+                                                None, # Params prediction
+                                                params_training,
+                                                verbose=self.verbose)
+        else:
+            self.online_trainer = None
 
     def generate_sample(self, source_sentence, validated_prefix=None, max_N=5, isle_indices=None,
                         filtered_idx2word=None, unk_indices=None, unk_words=None):
@@ -255,6 +269,44 @@ class NMTSampler:
         return hypothesis
 
 
+    def learn_from_sample(self, source_sentence, target_sentence):
+
+        # Tokenize input
+        tokenized_input = self.general_tokenize_f(source_sentence)
+        tokenized_input = self.model_tokenize_f(tokenized_input)
+        src_seq, src_words = parse_input(tokenized_input, self.dataset, self.word2index_x)
+
+        # Tokenize output
+        tokenized_reference = self.general_tokenize_f(target_sentence)
+        tokenized_reference = self.model_tokenize_f(tokenized_reference)
+
+        # Build inputs/outpus of the system
+        state_below = dataset.loadText([tokenized_reference.encode('utf-8')],
+                                       vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                       max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                       offset=1,
+                                       fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][-1]],
+                                       pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][-1]],
+                                       words_so_far=False,
+                                       loading_X=True)[0]
+
+        # 4.1.3 Ground truth sample -> Interactively translated sentence
+        trg_seq = dataset.loadTextOneHot([tokenized_reference.encode('utf-8')],
+                                         vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
+                                         vocabulary_len=dataset.vocabulary_len[
+                                             params['OUTPUTS_IDS_DATASET'][0]],
+                                         max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                         offset=0,
+                                         fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
+                                         pad_on_batch=dataset.pad_on_batch[
+                                             params['OUTPUTS_IDS_DATASET'][0]],
+                                         words_so_far=False,
+                                         sample_weights=params['SAMPLE_WEIGHTS'],
+                                         loading_X=False)
+        # 4.2 Train online!
+        self.online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[target_sentence])
+
+
 def main():
     args = parse_args()
     server_address = ('', args.port)
@@ -333,7 +385,7 @@ def main():
         mapping = None if dataset.mapping == dict() else dataset.mapping
     else:
         mapping = None
-
+    params_training = dict()
     if args.online:
         logging.info('Loading models from %s' % str(args.models))
         params_training = {  # Traning params
@@ -383,12 +435,6 @@ def main():
             logging.info('Using N-best optimizer')
 
         models = build_online_models(models, params)
-        online_trainer = OnlineTrainer(models,
-                                       dataset,
-                                       None,
-                                       None,
-                                       params_training,
-                                       verbose=args.verbose)
     else:
         models = [loadModel(m, -1, full_path=True) for m in args.models]
 
@@ -402,12 +448,12 @@ def main():
     word2index_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['words2idx']
 
     excluded_words = None
-    interactive_beam_searcher = NMTSampler(models, dataset, params_prediction,
+    interactive_beam_searcher = NMTSampler(models, dataset, params_prediction, params_training,
                                            tokenize_f, detokenize_function,
                                            tokenize_general, detokenize_general,
                                            mapping=mapping, word2index_x=word2index_x, word2index_y=word2index_y,
                                            index2word_y=index2word_y, eos_symbol=args.eos_symbol,
-                                           excluded_words=excluded_words, verbose=args.verbose)
+                                           excluded_words=excluded_words, online=args.online, verbose=args.verbose)
 
     # Compile Theano sampling function by generating a fake sample # TODO: Find a better way of doing this
     logger.info('Compiling sampler...')

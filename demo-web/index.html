@@ -165,7 +165,7 @@
                 }
                 xmlHttp.open("GET", php_sampler_url, false);
                 xmlHttp.send();
-                console.log(translation_inmt_field)
+                console.log(translation_inmt_field);
                 translation_inmt_field.val(xmlHttp.responseText);
                 translation_inmt_field[0].selectionStart = startPosition;
                 translation_inmt_field[0].selectionEnd = startPosition;
@@ -262,9 +262,7 @@
                         <textarea name="source_sentence" id="sourceinmt" autocomplete="on"
                                   placeholder="Please enter a sentence in English here."></textarea>&nbsp;
                         <p class="alert alert-warning"
-                           id="inmtemptystring" style="display:none;">Please, write a text to translate in the box
-                            above.</p>
-
+                           id="inmtemptystring" style="display:none;">Please, write a text to translate in the box above.</p>
                         <div style='padding:5px'></div>
                         <button type="submit" class="btn btn-default">Translate!</button>
                     </div>
@@ -284,9 +282,9 @@
                 </div>
                 <div style='padding:5px'></div>
                 <button type="submit" class="btn btn-default">Validate translation</button>
-
-
+                <input type="checkbox" name="OL-checkbox" value="True" checked> Learn from sample<br>
             </div>
+
             <div style='padding:15px'>
                 <ul class="actions">
                     <li><a href="#moreinfo" class="button scrolly">More</a></li>
@@ -307,11 +305,10 @@
                 For more info, look the following papers:</p>
 
             <div class="features">
-                <p><a href="https://arxiv.org/abs/1706.03196" class="icon fa-file-pdf-o fa-2x" style="font-size:20px">
-                    Online Learning for Neural Machine Translation
-                    Post-editing</a><br/>
-                    Álvaro Peris, Luis Cebrian and Francisco Casacuberta. <br/>
-                    In <em> arXiv:1706.031963</em>, 2017.</p>
+                <p><a href="https://arxiv.org/abs/1802.03594" class="icon fa-file-pdf-o fa-2x" style="font-size:25px">
+                    Online Learning for Effort Reduction in Interactive Neural Machine Translation</a><br/>
+                    Álvaro Peris and Francisco Casacuberta. <br/>
+                    In <em>arXiv:1802.03594</em>, 2018.</p>
             </div>
             <div class="features">
                 <p>
