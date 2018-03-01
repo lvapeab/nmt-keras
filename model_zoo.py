@@ -26,7 +26,6 @@ class TranslationModel(Model_Wrapper):
     :param store_path: path to the folder where the temporal model packups will be stored
     :param set_optimizer: Compile optimizer or not.
     :param clear_dirs: Clean model directories or not.
-
     """
 
     def __init__(self, params, model_type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
@@ -388,6 +387,7 @@ class TranslationModel(Model_Wrapper):
 
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['DECODER_RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
+                                                                             attention_mode=params.get('ATTENTION_MODE', 'add'),
                                                                              att_units=params.get('ATTENTION_SIZE', 0),
                                                                              kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                              recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
