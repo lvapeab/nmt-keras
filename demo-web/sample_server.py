@@ -10,6 +10,7 @@ import copy
 import BaseHTTPServer
 import urllib
 from collections import OrderedDict
+
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
@@ -125,8 +126,8 @@ class NMTSampler:
                                                                       verbose=self.verbose)
         self.online = online
         if self.online:
-            self.online_trainer = OnlineTrainer(self.models, self.dataset, None, # Sampler
-                                                None, # Params prediction
+            self.online_trainer = OnlineTrainer(self.models, self.dataset, None,  # Sampler
+                                                None,  # Params prediction
                                                 params_training,
                                                 verbose=self.verbose)
         else:
@@ -267,7 +268,6 @@ class NMTSampler:
         logger.log(2, 'generate_sample time: %.6f' % (generate_sample_end_time - generate_sample_start_time))
 
         return hypothesis
-
 
     def learn_from_sample(self, source_sentence, target_sentence):
 
