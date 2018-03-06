@@ -4,7 +4,7 @@ import os
 from keras.layers import *
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
-from keras.regularizers import l1, l2, AlphaRegularizer
+from keras.regularizers import l1, l2, l1_l2, AlphaRegularizer
 from keras_wrapper.cnn_model import Model_Wrapper
 from keras_wrapper.extra.regularize import Regularize
 
@@ -100,7 +100,16 @@ class TranslationModel(Model_Wrapper):
             self.trg_embedding_weights_trainable = params.get('TRAINABLE_DECODER', True)
 
         # Set regularization function
-        self.reg_fn = l1 if params.get('REGULARIZATION_FN', 'L2').lower() == 'l1' else l2
+        if params.get('REGULARIZATION_FN') is not None:
+            if params['REGULARIZATION_FN'].lower() == 'l1':
+                self.reg_fn = l1
+            elif params['REGULARIZATION_FN'].lower() == 'l2':
+                self.reg_fn = l2
+            elif params['REGULARIZATION_FN'].lower() == 'l1_l2':
+                self.reg_fn = l1_l2
+            else:
+                logging.warn('Unknown REGULARIZATION_FN: "%s". NOT using any REGULARIZATION_FN.' % params['REGULARIZATION_FN'])
+                self.reg_fn = lambda l: None
 
         # Prepare model
         if structure_path:

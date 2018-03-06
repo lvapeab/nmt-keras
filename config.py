@@ -201,7 +201,7 @@ def load_parameters():
     DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
 
     # Regularizers
-    REGULARIZATION_FN = 'L2'                      # Regularization function. 'L1' or 'L2' supported.
+    REGULARIZATION_FN = 'L2'                      # Regularization function. 'L1', 'L2' and 'L1_L2' supported.
     WEIGHT_DECAY = 1e-4                           # Regularization coefficient.
     RECURRENT_WEIGHT_DECAY = 0.                   # Regularization coefficient in recurrent layers.
 
