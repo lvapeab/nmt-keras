@@ -201,20 +201,7 @@
                 }
                 xmlHttp.open("GET", php_sampler_url, false);
                 xmlHttp.send();
-                $(translation_inmt_field).val(xmlHttp.responseText);
-                translation_inmt_field.selectionStart = startPosition;
-                translation_inmt_field.selectionEnd = startPosition;
-//                nHyp += 1;
-//                translation_inmt_field.attr("valPosition", startPosition.toString());
-//                $('#valPos').text(' -- Validated till position: ' + startPosition);
-//                translation_inmt_field.attr("nhypothesis", nHyp.toString());
-//                $('#nHyp').text('Hypothesis #' + nHyp);
-
-
-
-
             }
-
 
             var accept_alert = $('#accept');
             accept_alert.text('Sentence #' + field_number + ' validated.');
