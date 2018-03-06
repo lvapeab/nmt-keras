@@ -214,7 +214,8 @@ class TranslationModel(Model_Wrapper):
         else:
             logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
             optimizer = eval(self.params['OPTIMIZER'])
-        self.model.compile(optimizer=optimizer, loss=self.params['LOSS'],
+        self.model.compile(optimizer=optimizer,
+                           loss=self.params['LOSS'],
                            metrics=self.params.get('KERAS_METRICS', []),
                            sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
 
@@ -395,6 +396,7 @@ class TranslationModel(Model_Wrapper):
 
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['DECODER_RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
+                                                                             attention_mode=params.get('ATTENTION_MODE', 'add'),
                                                                              att_units=params.get('ATTENTION_SIZE', 0),
                                                                              kernel_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
                                                                              recurrent_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
@@ -511,9 +513,9 @@ class TranslationModel(Model_Wrapper):
 
         shared_additional_output_merge = eval(params['ADDITIONAL_OUTPUT_MERGE_MODE'])(name='additional_input')
         additional_output = shared_additional_output_merge([out_layer_mlp, out_layer_ctx, out_layer_emb])
-        shared_activation_tanh = Activation('tanh')
+        shared_activation = Activation(params.get('SKIP_VECTORS_SHARED_ACTIVATION', 'tanh'))
 
-        out_layer = shared_activation_tanh(additional_output)
+        out_layer = shared_activation(additional_output)
 
         shared_deep_list = []
         shared_reg_deep_list = []
@@ -639,7 +641,7 @@ class TranslationModel(Model_Wrapper):
             out_layer_emb = reg_out_layer_emb(out_layer_emb)
 
         additional_output = shared_additional_output_merge([out_layer_mlp, out_layer_ctx, out_layer_emb])
-        out_layer = shared_activation_tanh(additional_output)
+        out_layer = shared_activation(additional_output)
 
         for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
             out_layer = deep_out_layer(out_layer)

@@ -118,12 +118,20 @@ def load_parameters():
     # Optimizer parameters (see model.compile() function).
     LOSS = 'sparse_categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
+    SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
 
-    OPTIMIZER = 'Adam'                            # Optimizer.
-    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.001 - Adadelta 1.0.
+    OPTIMIZER = 'Adam'                            # Optimizer. Supported optimizers: SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam.
+    LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0.
     CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated).
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated).
-    SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs.
+
+    # Advanced parameters for optimizers. Default values are usually effective.
+    MOMENTUM = 0.                                 # Momentum value (for SGD optimizer).
+    NESTEROV_MOMENTUM = False                     # Use Nesterov momentum (for SGD optimizer).
+    RHO = 0.9                                     # Rho value (for Adadelta and RMSprop optimizers).
+    BETA_1 = 0.9                                  # Beta 1 value (for Adam, Adamax Nadam optimizers).
+    BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
+
     # Learning rate annealing
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR.
@@ -155,6 +163,7 @@ def load_parameters():
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported).
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type.
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported).
+    ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau-style) or 'dot' (Luong-style).
 
     TRAINABLE_ENCODER = True                      # Whether the encoder's weights should be modified during training.
     TRAINABLE_DECODER = True                      # Whether the decoder's weights should be modified during training.
@@ -167,11 +176,11 @@ def load_parameters():
     SOURCE_TEXT_EMBEDDING_SIZE = 32              # Source language word embedding size.
     SRC_PRETRAINED_VECTORS = None                 # Path to pretrained vectors (e.g.: DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % SRC_LAN).
                                                   # Set to None if you don't want to use pretrained vectors.
-                                                  # When using pretrained word embeddings. this parameter must match with the word embeddings size.
+                                                  # When using pretrained word embeddings. this parameter must match with the word embeddings size
     SRC_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
     TARGET_TEXT_EMBEDDING_SIZE = 32               # Source language word embedding size.
-    TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN).
+    TRG_PRETRAINED_VECTORS = None                 # Path to pretrained vectors. (e.g. DATA_ROOT_PATH + '/DATA/word2vec.%s.npy' % TRG_LAN)
                                                   # Set to None if you don't want to use pretrained vectors.
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
@@ -185,10 +194,11 @@ def load_parameters():
     # Decoder configuration
     DECODER_HIDDEN_SIZE = 32                      # For models with RNN decoder.
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
-    ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py)
-    ATTENTION_SIZE = DECODER_HIDDEN_SIZE 
-    # Skip connections size
-    SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE
+    ATTENTION_SIZE = DECODER_HIDDEN_SIZE
+    # Skip connections parameters
+    SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE     # Hidden size.
+    ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py).
+    SKIP_VECTORS_SHARED_ACTIVATION = 'tanh'       # Activation for the skip vectors.
 
     # Fully-Connected layers for initializing the first RNN state.
     #       Here we should only specify the activation function of each layer (as they have a potentially fixed size)
@@ -196,7 +206,7 @@ def load_parameters():
     INIT_LAYERS = ['tanh']
 
     # Additional Fully-Connected layers applied before softmax.
-    #       Here we should specify the activation function and the output dimension;
+    #       Here we should specify the activation function and the output dimension.
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
     DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
 
