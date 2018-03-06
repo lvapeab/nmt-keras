@@ -4,7 +4,7 @@ import os
 from keras.layers import *
 from keras.models import model_from_json, Model
 from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
-from keras.regularizers import l2, AlphaRegularizer
+from keras.regularizers import l1, l2, AlphaRegularizer
 from keras_wrapper.cnn_model import Model_Wrapper
 from keras_wrapper.extra.regularize import Regularize
 
@@ -98,6 +98,9 @@ class TranslationModel(Model_Wrapper):
         else:
             self.trg_embedding_weights = None
             self.trg_embedding_weights_trainable = params.get('TRAINABLE_DECODER', True)
+
+        # Set regularization function
+        self.reg_fn = l1 if params.get('REGULARIZATION_FN', 'L2').lower() == 'l1' else l2
 
         # Prepare model
         if structure_path:
@@ -257,7 +260,7 @@ class TranslationModel(Model_Wrapper):
         # 2.1. Source word embedding
         src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding',
-                                  embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                                  embeddings_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                   embeddings_initializer=params['INIT_FUNCTION'],
                                   trainable=self.src_embedding_weights_trainable,
                                   weights=self.src_embedding_weights,
@@ -267,15 +270,11 @@ class TranslationModel(Model_Wrapper):
         # 2.2. BRNN encoder (GRU/LSTM)
         if params['BIDIRECTIONAL_ENCODER']:
             annotations = Bidirectional(eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                         kernel_regularizer=l2(
-                                                                             params['RECURRENT_WEIGHT_DECAY']),
-                                                                         recurrent_regularizer=l2(
-                                                                             params['RECURRENT_WEIGHT_DECAY']),
-                                                                         bias_regularizer=l2(
-                                                                             params['RECURRENT_WEIGHT_DECAY']),
+                                                                         kernel_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                         recurrent_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                         bias_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
                                                                          dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                                                         recurrent_dropout=params[
-                                                                             'RECURRENT_DROPOUT_P'],
+                                                                         recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                                          kernel_initializer=params['INIT_FUNCTION'],
                                                                          recurrent_initializer=params['INNER_INIT'],
                                                                          trainable=params.get('TRAINABLE_ENCODER', True),
@@ -285,9 +284,9 @@ class TranslationModel(Model_Wrapper):
                                         merge_mode='concat')(src_embedding)
         else:
             annotations = eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                           kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                           recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                           bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                           kernel_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                           recurrent_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                           bias_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
                                                            dropout=params['RECURRENT_INPUT_DROPOUT_P'],
                                                            recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                            kernel_initializer=params['INIT_FUNCTION'],
@@ -300,9 +299,9 @@ class TranslationModel(Model_Wrapper):
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
             if params['BIDIRECTIONAL_DEEP_ENCODER']:
                 current_annotations = Bidirectional(eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                                     kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                                     recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                                     bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                     kernel_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                     recurrent_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                     bias_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
                                                                                      dropout=params['RECURRENT_INPUT_DROPOUT_P'],
                                                                                      recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                                                      kernel_initializer=params['INIT_FUNCTION'],
@@ -317,9 +316,9 @@ class TranslationModel(Model_Wrapper):
                 annotations = current_annotations if n_layer == 1 and not params['BIDIRECTIONAL_ENCODER'] else Add()([annotations, current_annotations])
             else:
                 current_annotations = eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                       kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                       recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                       bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                       kernel_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                       recurrent_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                       bias_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
                                                                        dropout=params['RECURRENT_INPUT_DROPOUT_P'],
                                                                        recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                                        kernel_initializer=params['INIT_FUNCTION'],
@@ -336,7 +335,7 @@ class TranslationModel(Model_Wrapper):
         # 3.1.2. Target word embedding
         state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
                                 name='target_word_embedding',
-                                embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                                embeddings_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                 embeddings_initializer=params['INIT_FUNCTION'],
                                 trainable=self.trg_embedding_weights_trainable,
                                 weights=self.trg_embedding_weights,
@@ -351,8 +350,8 @@ class TranslationModel(Model_Wrapper):
             for n_layer_init in range(len(params['INIT_LAYERS']) - 1):
                 ctx_mean = Dense(params['DECODER_HIDDEN_SIZE'], name='init_layer_%d' % n_layer_init,
                                  kernel_initializer=params['INIT_FUNCTION'],
-                                 kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                 bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                 kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                 bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                  trainable=params.get('TRAINABLE_DECODER', True),
                                  activation=params['INIT_LAYERS'][n_layer_init]
                                  )(ctx_mean)
@@ -360,8 +359,8 @@ class TranslationModel(Model_Wrapper):
 
             initial_state = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_state',
                                   kernel_initializer=params['INIT_FUNCTION'],
-                                  kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                  bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                  kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                  bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                   trainable=params.get('TRAINABLE_DECODER', True),
                                   activation=params['INIT_LAYERS'][-1]
                                   )(ctx_mean)
@@ -371,8 +370,8 @@ class TranslationModel(Model_Wrapper):
             if 'LSTM' in params['DECODER_RNN_TYPE']:
                 initial_memory = Dense(params['DECODER_HIDDEN_SIZE'], name='initial_memory',
                                        kernel_initializer=params['INIT_FUNCTION'],
-                                       kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                       bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                       kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                       bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                        trainable=params.get('TRAINABLE_DECODER', True),
                                        activation=params['INIT_LAYERS'][-1])(ctx_mean)
                 initial_memory = Regularize(initial_memory, params, name='initial_memory')
@@ -388,14 +387,14 @@ class TranslationModel(Model_Wrapper):
         # 3.3. Attentional decoder
         sharedAttRNNCond = eval('Att' + params['DECODER_RNN_TYPE'] + 'Cond')(params['DECODER_HIDDEN_SIZE'],
                                                                              att_units=params.get('ATTENTION_SIZE', 0),
-                                                                             kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                             recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                             conditional_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                             bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                             attention_context_wa_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                             attention_recurrent_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                             attention_context_regularizer=l2(params['WEIGHT_DECAY']),
-                                                                             bias_ba_regularizer=l2(params['WEIGHT_DECAY']),
+                                                                             kernel_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                             recurrent_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                             conditional_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                             bias_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                                                                             attention_context_wa_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                                                             attention_recurrent_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                                                             attention_context_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                                                             bias_ba_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                                                              dropout=params['RECURRENT_INPUT_DROPOUT_P'],
                                                                              recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                                              conditional_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
@@ -438,10 +437,10 @@ class TranslationModel(Model_Wrapper):
                 current_rnn_input.append(initial_memory)
             shared_proj_h_list.append(eval(params['DECODER_RNN_TYPE'].replace('Conditional', '') + 'Cond')(
                 params['DECODER_HIDDEN_SIZE'],
-                kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                conditional_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                kernel_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                recurrent_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                conditional_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
+                bias_regularizer=self.reg_fn(params['RECURRENT_WEIGHT_DECAY']),
                 dropout=params['RECURRENT_DROPOUT_P'],
                 recurrent_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
                 conditional_dropout=params['RECURRENT_INPUT_DROPOUT_P'],
@@ -467,8 +466,8 @@ class TranslationModel(Model_Wrapper):
         # 3.5. Skip connections between encoder and output layer
         shared_FC_mlp = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               kernel_initializer=params['INIT_FUNCTION'],
-                                              kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                              bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                              kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                              bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                               trainable=params.get('TRAINABLE_DECODER', True),
                                               activation='linear'),
                                         trainable=params.get('TRAINABLE_DECODER', True),
@@ -476,8 +475,8 @@ class TranslationModel(Model_Wrapper):
         out_layer_mlp = shared_FC_mlp(proj_h)
         shared_FC_ctx = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               kernel_initializer=params['INIT_FUNCTION'],
-                                              kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                              bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                              kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                              bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                               trainable=params.get('TRAINABLE_DECODER', True),
                                               activation='linear'),
                                         trainable=params.get('TRAINABLE_DECODER', True),
@@ -486,8 +485,8 @@ class TranslationModel(Model_Wrapper):
         out_layer_ctx = shared_Lambda_Permute(out_layer_ctx)
         shared_FC_emb = TimeDistributed(Dense(params['SKIP_VECTORS_HIDDEN_SIZE'],
                                               kernel_initializer=params['INIT_FUNCTION'],
-                                              kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                              bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                              kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                              bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                               trainable=params.get('TRAINABLE_DECODER', True),
                                               activation='linear'),
                                         trainable=params.get('TRAINABLE_DECODER', True),
@@ -513,8 +512,8 @@ class TranslationModel(Model_Wrapper):
         for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
             shared_deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
                                                           kernel_initializer=params['INIT_FUNCTION'],
-                                                          kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                                          bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                                          kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                                          bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                                           trainable=params.get('TRAINABLE_DECODER', True),
                                                           ),
                                                     trainable=params.get('TRAINABLE_DECODER', True),
@@ -528,8 +527,8 @@ class TranslationModel(Model_Wrapper):
         # 3.7. Output layer: Softmax
         shared_FC_soft = TimeDistributed(Dense(params['OUTPUT_VOCABULARY_SIZE'],
                                                activation=params['CLASSIFIER_ACTIVATION'],
-                                               kernel_regularizer=l2(params['WEIGHT_DECAY']),
-                                               bias_regularizer=l2(params['WEIGHT_DECAY']),
+                                               kernel_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
+                                               bias_regularizer=self.reg_fn(params['WEIGHT_DECAY']),
                                                trainable=params.get('TRAINABLE_DECODER', True),
                                                name=params['CLASSIFIER_ACTIVATION']
                                                ),
