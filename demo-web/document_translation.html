@@ -105,67 +105,67 @@
                 var hypothesis = document.getElementById('hypothesis_' + field_number);
                 hypothesis.innerHTML = xmlHttp.responseText;
 
-            hypothesis.donetyping = function (callback, delay) {
-                delay || (delay = 400);
-                var timeoutReference;
-                var doneTyping = function (elt) {
-                    if (!timeoutReference) return;
-                    timeoutReference = null;
-                    callback(elt);
-                };
+                hypothesis.donetyping = function (callback, delay) {
+                    delay || (delay = 400);
+                    var timeoutReference;
+                    var doneTyping = function (elt) {
+                        if (!timeoutReference) return;
+                        timeoutReference = null;
+                        callback(elt);
+                    };
 
-                $(document).each(function () {
-                    var self = $(hypothesis);
-                    self.is(':input') && self.on('keyup paste', function (e) {
-                        var code = (e.keyCode || e.which);
-                        if (code == 37 || code == 38 || code == 39 || code == 40) return;
-                        if (timeoutReference) clearTimeout(timeoutReference);
-                        timeoutReference = setTimeout(function () {
+                    $(document).each(function () {
+                        var self = $(hypothesis);
+                        self.is(':input') && self.on('keyup paste', function (e) {
+                            var code = (e.keyCode || e.which);
+                            if (code == 37 || code == 38 || code == 39 || code == 40) return;
+                            if (timeoutReference) clearTimeout(timeoutReference);
+                            timeoutReference = setTimeout(function () {
+                                doneTyping(self);
+                            }, delay);
+                        }).on('blur', function () {
                             doneTyping(self);
-                        }, delay);
-                    }).on('blur', function () {
-                        doneTyping(self);
+                        });
                     });
-                });
-                return hypothesis;
-            };
-            hypothesis.donetyping(function () {
-                var source = document.getElementById('sourceinmt_' + field_number).value;
-                var translation_inmt_field = hypothesis; // document.getElementById('hypothesis_' + field_number); //$('#translation-inmt');
-                var prefix = translation_inmt_field.value;
-                var startPosition = translation_inmt_field.selectionStart;
-                var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
-                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2+ '&learn=False';
-                var nHyp = 0;//parseInt($('#translation-inmt').getAttribute("nhypothesis"));
+                    return hypothesis;
+                };
+                hypothesis.donetyping(function () {
+                    var source = document.getElementById('sourceinmt_' + field_number).value;
+                    var translation_inmt_field = hypothesis; // document.getElementById('hypothesis_' + field_number); //$('#translation-inmt');
+                    var prefix = translation_inmt_field.value;
+                    var startPosition = translation_inmt_field.selectionStart;
+                    var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
+                    var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2 + '&learn=False';
+                    var nHyp = 0;//parseInt($('#translation-inmt').getAttribute("nhypothesis"));
 
-                try {
-                    //Good Browsers
-                    var xmlHttp = new XMLHttpRequest();
-                } catch (e) {
-                    //Internet Explorer
                     try {
-                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                        //Good Browsers
+                        var xmlHttp = new XMLHttpRequest();
                     } catch (e) {
+                        //Internet Explorer
                         try {
-                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                            heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
                         } catch (e) {
-                            alert("Brower not supported");
-                            return false;
+                            try {
+                                heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                            } catch (e) {
+                                alert("Brower not supported");
+                                return false;
+                            }
                         }
                     }
-                }
-                xmlHttp.open("GET", php_sampler_url, false);
-                xmlHttp.send();
-                $(translation_inmt_field).val(xmlHttp.responseText);
-                translation_inmt_field.selectionStart = startPosition;
-                translation_inmt_field.selectionEnd = startPosition;
+                    xmlHttp.open("GET", php_sampler_url, false);
+                    xmlHttp.send();
+                    $(translation_inmt_field).val(xmlHttp.responseText);
+                    translation_inmt_field.selectionStart = startPosition;
+                    translation_inmt_field.selectionEnd = startPosition;
 //                nHyp += 1;
 //                translation_inmt_field.attr("valPosition", startPosition.toString());
 //                $('#valPos').text(' -- Validated till position: ' + startPosition);
 //                translation_inmt_field.attr("nhypothesis", nHyp.toString());
 //                $('#nHyp').text('Hypothesis #' + nHyp);
 
-            });
+                });
             }
         }
 
@@ -178,9 +178,9 @@
                 inmt_empty_string.show();
                 inmt_empty_string.fadeOut(2000);
             }
-            var learn_from_sample =  $('#ol_checkbox_' + field_number + ':checked').val();
+            var learn_from_sample = $('#ol_checkbox_' + field_number + ':checked').val();
 
-            if (learn_from_sample == 'True'){
+            if (learn_from_sample == 'True') {
                 var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + hypothesis + '&learn=' + learn_from_sample;
 
                 try {
@@ -220,7 +220,7 @@
 <body>
 
 <!-- Sidebar -->
-<section id="sidebar">
+<section id="sidebar-top">
     <div class="inner">
         <nav>
             <ul>
@@ -242,45 +242,46 @@
             <p>This is a demo of an interactive neural machine translation (INMT) system trained with the toolkit <a
                     href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
                 Please select a document to translate. It should be a plain-text file with one sentence per line.</p>
-            <div class="container">
-                <div style='padding:4px'>
-                    <ul class="actions">
-                        <li><input type="file" id="files" name="file"/></li>
-                        <li>
-                            <button onclick="abortRead();">Cancel read</button>
-                        </li>
-                        <li>
-                            <button onclick="instructions();">Instructions</button>
-                            <p class="alert alert-info fade in" id="instructions"
-                               style="display:none;">
-                                Upload a file with the sentences to translate.
-                                Once loaded, click on each "Translate" button for obtaining the automatic translation.
-                                If the translation is not correct, you can make corrections. The system will react to
-                                these interactions, providing alternative translation hypotheses.
-                                Once you are satisfied with the translation, click in the "Validate" button and
-                                go to the next sentence.
-                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            </p>
-                        </li>
-                        <li><a href="index.html#moreinfo" class="button scrolly">More info</a></li>
-                    </ul>
-                </div>
 
-                <p class="alert alert-warning" id="abortread" style="display:none;">Reading interrupted.</p>
-                <p class="alert alert-error" id="errormissing" style="display:none;">File Not Found!</p>
-                <p class="alert alert-error" id="errorread" style="display:none;">File is not readable!</p>
-                <p class="alert alert-error" id="defaulterror" style="display:none;">An error occurred reading this
-                    file.</p>
-                <div id="progress_bar">
-                    <div class="percent">0%</div>
-                </div>
+            <div style='padding:4px'>
+                <ul class="actions">
+                    <li><input type="file" id="files" name="file"/></li>
+                    <li>
+                        <button onclick="abortRead();">Cancel read</button>
+                    </li>
+                    <li>
+                        <button onclick="instructions();">Instructions</button>
+                        <p class="alert alert-info fade in" id="instructions"
+                           style="display:none;">
+                            Upload a file with the sentences to translate.
+                            Once loaded, click on each "Translate" button for obtaining the automatic translation.
+                            If the translation is not correct, you can make corrections. The system will react to
+                            these interactions, providing alternative translation hypotheses.
+                            Once you are satisfied with the translation, click in the "Validate" button and
+                            go to the next sentence.
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        </p>
+                    </li>
+                    <li><a href="index.html#moreinfo" class="button scrolly">More info</a></li>
+                </ul>
+            </div>
 
-                <div name="DisplayArea" class="tableDiv" id='DisplayArea'></div>
+            <p class="alert alert-warning" id="abortread" style="display:none;">Reading interrupted.</p>
+            <p class="alert alert-error" id="errormissing" style="display:none;">File Not Found!</p>
+            <p class="alert alert-error" id="errorread" style="display:none;">File is not readable!</p>
+            <p class="alert alert-error" id="defaulterror" style="display:none;">An error occurred reading this
+                file.</p>
+            <div id="progress_bar">
+                <div class="percent">0%</div>
             </div>
         </div>
-<div class='container alert-bottom-fixed alert alert-success fade in' id='accept' style='display:none;'>
-    Sentence validated. <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-</div>
+
+        <div class="container">
+            <div name="DisplayArea" class="tableDiv" id='DisplayArea'></div>
+        </div>
+        <div class='container alert-bottom-fixed alert alert-success fade in' id='accept' style='display:none;'>
+            Sentence validated. <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+        </div>
     </section>
 
     <!-- More info -->
@@ -423,28 +424,35 @@
             var results = reader.result.split("\n");
             for (var i = 0; i < results.length; i++) {
                 var source_line = results[i];
-                html_source += "<tr><td> Sentence #" + i +
-                        "<form onsubmit='write_interactive_tranlation(" + i + "); return false;'>" +
-                        "<textarea rows='4' name='source_sentence_" + i + "' id='sourceinmt_" + i + "'>" +
-                        source_line + "</textarea>" +
-                        "<div style='padding:2px'></div>" +
-                        "<button type='submit' class='button'>Translate!</button>" +
-                        "</form>" +
-                        "</td></tr>";
-                html_source += "<tr><td>" +
-                        "<form onsubmit='accept_translation(" + i + "); return false;'>" +
-                        "<textarea rows='4' name='hypothesis_" + i + "' id='hypothesis_" + i +
-                        "' placeholder='Touch in the source sentence to obtain a translation of it.'>" + "</textarea>" +
-                        "<div style='padding:2px'></div>" +
-                        "<button type='submit' class='button'>Accept translation</button>" +
-                        "<input type='checkbox' name='OL-checkbox_'" + i +"' id='ol_checkbox_" + i + "' value='True' checked> Learn from sample<br>" +
-                        "</form>" +
-                        "<div style='padding:10px'></div>" +
-                        "</td></tr>";
-
+                html_source +=
+                        "<tr>" +
+                            "<td>" +
+                                "<div style='margin-left:7%'>Sentence #" + i + "</div>" +
+                            "</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<td>" +
+                                "<form onsubmit='write_interactive_tranlation(" + i + "); return false;'>" +
+                                "<div style='margin-left:5%'><textarea rows='4' name='source_sentence_" + i + "' id='sourceinmt_" + i + "'>" + source_line + "</textarea></div>" +
+                                "<div style='padding:2px'></div>" +
+                                "<div style='float: right; margin-right:5%;'>" + "<button type='submit' class='button'>Translate!</button></div>" +
+                                "</form>" +
+                            "</td>" +
+                            "<td>" +
+                                "<form onsubmit='accept_translation(" + i + "); return false;'>" +
+                                "<div style='margin-right:5%'><textarea rows='4' name='hypothesis_" + i + "' id='hypothesis_" + i +
+                                "' placeholder='Touch in the source sentence to obtain a translation of it.'>" + "</textarea></div>" +
+                                "<div style='padding:2px'></div>" +
+                                "<div style='float: right; margin-right:5%;'>" + "<button type='submit' class='button'>Accept translation</button></div>" +
+                                "<div style='float: right; margin-right:5%;'>" +
+                                "<input type='checkbox' name='OL-checkbox_'" + i + "' id='ol_checkbox_" + i + "' value='True' checked></div>" +
+                                "<div style='float: right; margin-right:5%;'> Learn from sample<br></div>" +
+                                "</form>" +
+                            "</td>" +
+                        "</tr>";
             }
             html_source += '</table>';
-            DisplayArea.innerHTML = html_source;// + html_hypotheses;
+            DisplayArea.innerHTML = html_source;
         };
         reader.readAsText(srcfile);
     }
