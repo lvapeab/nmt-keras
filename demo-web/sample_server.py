@@ -298,25 +298,26 @@ class NMTSampler:
 
         # Build inputs/outpus of the system
         state_below = self.dataset.loadText([tokenized_reference.encode('utf-8')],
-                                       vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
-                                       max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                                       offset=1,
-                                       fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][-1]],
-                                       pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][-1]],
-                                       words_so_far=False,
-                                       loading_X=True)[0]
+                                            vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
+                                            max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                            offset=1,
+                                            fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][-1]],
+                                            pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][-1]],
+                                            words_so_far=False,
+                                            loading_X=True)[0]
 
         # 4.1.3 Ground truth sample -> Interactively translated sentence
+        #TODO: Load dense_text if necessary
         trg_seq = self.dataset.loadTextOneHot([tokenized_reference.encode('utf-8')],
-                                         vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
-                                         vocabulary_len=self.dataset.vocabulary_len[self.params['OUTPUTS_IDS_DATASET'][0]],
-                                         max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
-                                         offset=0,
-                                         fill=self.dataset.fill_text[self.params['OUTPUTS_IDS_DATASET'][0]],
-                                         pad_on_batch=self.dataset.pad_on_batch[self.params['OUTPUTS_IDS_DATASET'][0]],
-                                         words_so_far=False,
-                                         sample_weights=self.params['SAMPLE_WEIGHTS'],
-                                         loading_X=False)
+                                              vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
+                                              vocabulary_len=self.dataset.vocabulary_len[self.params['OUTPUTS_IDS_DATASET'][0]],
+                                              max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
+                                              offset=0,
+                                              fill=self.dataset.fill_text[self.params['OUTPUTS_IDS_DATASET'][0]],
+                                              pad_on_batch=self.dataset.pad_on_batch[self.params['OUTPUTS_IDS_DATASET'][0]],
+                                              words_so_far=False,
+                                              sample_weights=self.params['SAMPLE_WEIGHTS'],
+                                              loading_X=False)
         # 4.2 Train online!
         self.online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[target_sentence])
 
