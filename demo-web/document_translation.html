@@ -25,6 +25,9 @@
     <!--[if lte IE 8]>
     <link rel="stylesheet" href="assets/css/ie8.css"/><![endif]-->
 
+
+
+
     <script language="javascript" type="text/javascript">
 
         function trimAll(sString) {
@@ -74,16 +77,41 @@
             instructions.show();
         }
 
+        // function highlight_text(text) {
+        //     text.bgColor = "green";
+        // }
+
+
         function write_interactive_tranlation(field_number) {
-            var source = document.getElementById('sourceinmt_' + field_number).value;
-            if (trimAll(source) === '') {
+            // var source_field = document.getElementById('sourceinmt_' + field_number);
+            var source_text = document.getElementById('sourceinmt_' + field_number).value; //the text area's id
+            // highlight_text(source_field);
+            // var source_value = source.value; //value of text area
+            // console.log('chars_source: ' + source_value);
+            // // for (var index = 0; index < source_value.length; index++) {
+            //     console.log('index: ' + index + '. Letter: ' + source_value[index]);
+            //     source_value[index].addEvenListener("mouseover", highlight_text(source_value[index]), false);
+            // }
+            //   (function(index){
+            //     source[index].onmouseover = function(e){
+            //       console.log('You just hovered over this textarea: ', this);
+            //       if (this.value !== this.placeholder) {
+            //         console.log('Typed text:', this.value);
+            //       }
+            //       console.log('Your event object is:', e);
+            //     };
+            //   }(index))
+            // }
+
+
+            if (trimAll(source_text) === '') {
                 var inmt_empty_string = $('#inmtemptystring');
                 inmt_empty_string.show();
                 inmt_empty_string.fadeOut(2000);
             }
             else {
 
-                var php_sampler_url = "sampler.php" + "?source=" + source;
+                var php_sampler_url = "sampler.php" + "?source=" + source_text;
                 try {
                     //Good Browsers
                     var xmlHttp = new XMLHttpRequest();
@@ -213,7 +241,13 @@
     <script>
         $(document).ready(function () {
 
+
+
         });
+
+
+
+
     </script>
 
 </head>
@@ -240,9 +274,8 @@
         <div class="inner">
             <h1>Interactive NMT-Keras demo </h1>
             <p>This is a demo of an interactive neural machine translation (INMT) system trained with the toolkit <a
-                    href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
+                     ref="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
                 Please select a document to translate. It should be a plain-text file with one sentence per line.</p>
-
             <div style='padding:4px'>
                 <ul class="actions">
                     <li><input type="file" id="files" name="file"/></li>
@@ -441,12 +474,10 @@
                             "<td>" +
                                 "<form onsubmit='accept_translation(" + i + "); return false;'>" +
                                 "<div style='margin-right:5%'><textarea rows='4' name='hypothesis_" + i + "' id='hypothesis_" + i +
-                                "' placeholder='Touch in the source sentence to obtain a translation of it.'>" + "</textarea></div>" +
+                                "'placeholder='Click in the translate button to obtain a translation of it.'>" + "</textarea></div>" +
                                 "<div style='padding:2px'></div>" +
                                 "<div style='float: right; margin-right:5%;'>" + "<button type='submit' class='button'>Accept translation</button></div>" +
-                                "<div style='float: right; margin-right:5%;'>" +
-                                "<input type='checkbox' name='OL-checkbox_'" + i + "' id='ol_checkbox_" + i + "' value='True' checked></div>" +
-                                "<div style='float: right; margin-right:5%;'> Learn from sample<br></div>" +
+                                "<div style='float: right; margin-right:5%;'> Learn from sample <input type='checkbox' name='OL-checkbox_'" + i + "' id='ol_checkbox_" + i + "' value='True' checked></div>" +
                                 "</form>" +
                             "</td>" +
                         "</tr>";
