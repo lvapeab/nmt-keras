@@ -54,6 +54,7 @@ def update_dataset_from_file(ds,
                          max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                          min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
                          bpe_codes=params.get('BPE_CODES_PATH', None),
+                         label_smoothing=params.get('LABEL_SMOOTHING', 0.),
                          overwrite_split=True)
 
         # INPUT DATA
@@ -142,7 +143,8 @@ def build_dataset(params):
                      max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
                      max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                      min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
-                     bpe_codes=params.get('BPE_CODES_PATH', None))
+                     bpe_codes=params.get('BPE_CODES_PATH', None),
+                     label_smoothing=params.get('LABEL_SMOOTHING', 0.))
         if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
             ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                             'train',
@@ -160,7 +162,8 @@ def build_dataset(params):
                              sample_weights=params.get('SAMPLE_WEIGHTS', True),
                              max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
                              max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
-                             bpe_codes=params.get('BPE_CODES_PATH', None))
+                             bpe_codes=params.get('BPE_CODES_PATH', None),
+                             label_smoothing=0.)
                 if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
                     ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
                                     split,

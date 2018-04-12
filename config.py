@@ -116,9 +116,10 @@ def load_parameters():
     MAX_OUTPUT_TEXT_LEN_TEST = MAX_OUTPUT_TEXT_LEN * 3  # Maximum length of the output sequence during test time.
 
     # Optimizer parameters (see model.compile() function).
-    LOSS = 'sparse_categorical_crossentropy'
+    LOSS = 'categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
+    LABEL_SMOOTHING = 0.                          # Epsilon value for label smoothing. Only valid for 'categorical_crossentropy' loss. See arxiv.org/abs/1512.00567.
 
     OPTIMIZER = 'Adam'                            # Optimizer. Supported optimizers: SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam.
     LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0.
