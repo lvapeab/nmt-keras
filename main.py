@@ -376,23 +376,16 @@ def check_params(params):
     :param params: Model instance on which to apply the callback.
     :return: None
     """
-    if params['POS_UNK']:
-        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
-                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
-    if params['COVERAGE_PENALTY']:
-        assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
-                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
-    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][-4:] != '.npy':
+
+    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
 
-    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][-4:] != '.npy':
+    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][:-1] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
     if not params['PAD_ON_BATCH']:
         warnings.warn('It is HIGHLY recommended to set the option "PAD_ON_BATCH = True."')
-    if not params.get('TRAINABLE_ENCODER', True) and not params.get('TRAINABLE_DECODER', True):
-        warnings.warn('Non-trainable model!')
 
     if params['MODEL_TYPE'].lower() == 'transformer':
 
@@ -414,8 +407,13 @@ def check_params(params):
             '"MODEL_SIZE" should be a multiple of "N_HEADS". ' \
             'Currently: mod(%d, %d) == %d.' % (params['MODEL_SIZE'], params['N_HEADS'], params['MODEL_SIZE'] % params['N_HEADS'])
 
+    if params['POS_UNK']:
+        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
+                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+    if params['COVERAGE_PENALTY']:
+        assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
+                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
     return params
-
 
 if __name__ == "__main__":
     args = parse_args()
