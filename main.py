@@ -603,12 +603,7 @@ def check_params(params):
     :param params: Model instance on which to apply the callback.
     :return: None
     """
-    if params['POS_UNK']:
-        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
-                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
-    if params['COVERAGE_PENALTY']:
-        assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
-                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+
     if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
         warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                       'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
@@ -639,6 +634,12 @@ def check_params(params):
             '"MODEL_SIZE" should be a multiple of "N_HEADS". ' \
             'Currently: mod(%d, %d) == %d.' % (params['MODEL_SIZE'], params['N_HEADS'], params['MODEL_SIZE'] % params['N_HEADS'])
 
+    if params['POS_UNK']:
+        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
+                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+    if params['COVERAGE_PENALTY']:
+        assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
+                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
     return params
 
 
