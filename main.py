@@ -619,6 +619,28 @@ def check_params(params):
     if not params['PAD_ON_BATCH']:
         warnings.warn('It is HIGHLY recommended to set the option "PAD_ON_BATCH = True."')
 
+    if params['MODEL_TYPE'].lower() == 'transformer':
+
+        assert params['MODEL_SIZE'] == params['TARGET_TEXT_EMBEDDING_SIZE'], 'When using the Transformer model, ' \
+                                                                             'dimensions of "MODEL_SIZE" and "TARGET_TEXT_EMBEDDING_SIZE" must match. ' \
+                                                                             'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'])
+        assert params['MODEL_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE'], 'When using the Transformer model, ' \
+                                                                             'dimensions of "MODEL_SIZE" and "SOURCE_TEXT_EMBEDDING_SIZE" must match. ' \
+                                                                             'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'])
+        if params['OPTIMIZED_SEARCH']:
+            warnings.warn('The "OPTIMIZED_SEARCH" option is still untested for the "Transformer" model. Setting it to False.')
+            params['OPTIMIZED_SEARCH'] = False
+
+        if params['POS_UNK']:
+            warnings.warn('The "POS_UNK" option is still unimplemented for the "Transformer" model. '
+                          'Setting it to False.')
+            params['POS_UNK'] = False
+        assert params['MODEL_SIZE'] % params['N_HEADS'] == 0, \
+            '"MODEL_SIZE" should be a multiple of "N_HEADS". ' \
+            'Currently: mod(%d, %d) == %d.' % (params['MODEL_SIZE'], params['N_HEADS'], params['MODEL_SIZE'] % params['N_HEADS'])
+
+    return params
+
 
 if __name__ == "__main__":
     args = parse_args()
