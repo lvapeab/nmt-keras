@@ -16,239 +16,17 @@
     <!--[if lte IE 8]>
     <script src="assets/js/ie/html5shiv.js"></script><![endif]-->
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="assets/js/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+    <script src="assets/js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="assets/css/main.css"/>
     <!--[if lte IE 9]>
     <link rel="stylesheet" href="assets/css/ie9.css"/><![endif]-->
     <!--[if lte IE 8]>
     <link rel="stylesheet" href="assets/css/ie8.css"/><![endif]-->
+    <link rel="javascript" href="assets/js/itp-visualization.js"/>
 
-
-
-
-    <script language="javascript" type="text/javascript">
-
-        function trimAll(sString) {
-            while (sString.substring(0, 1) == ' ') {
-                sString = sString.substring(1, sString.length);
-            }
-            while (sString.substring(sString.length - 1, sString.length) == ' ') {
-                sString = sString.substring(0, sString.length - 1);
-            }
-            return sString;
-        }
-
-        function write_tranlation() {
-            var source = document.forms.input.source.value;
-            if (trimAll(source) === '') {
-                var nmt_empty_string = $('#nmtemptystring');
-                nmt_empty_string.show();
-                nmt_empty_string.fadeOut(2000);
-            }
-            else {
-
-                var php_sampler_url = "sampler.php" + "?source=" + source;
-                try {
-                    //Good Browsers
-                    var xmlHttp = new XMLHttpRequest();
-                } catch (e) {
-                    //Internet Explorer
-                    try {
-                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                    } catch (e) {
-                        try {
-                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                        } catch (e) {
-                            alert("Brower not supported");
-                            return false;
-                        }
-                    }
-                }
-                xmlHttp.open("GET", php_sampler_url, false);
-                xmlHttp.send();
-                document.getElementById('translation').innerHTML = xmlHttp.responseText;
-            }
-        }
-
-        function instructions() {
-            var instructions = $('#instructions');
-            instructions.show();
-        }
-
-        // function highlight_text(text) {
-        //     text.bgColor = "green";
-        // }
-
-
-        function write_interactive_tranlation(field_number) {
-            // var source_field = document.getElementById('sourceinmt_' + field_number);
-            var source_text = document.getElementById('sourceinmt_' + field_number).value; //the text area's id
-            // highlight_text(source_field);
-            // var source_value = source.value; //value of text area
-            // console.log('chars_source: ' + source_value);
-            // // for (var index = 0; index < source_value.length; index++) {
-            //     console.log('index: ' + index + '. Letter: ' + source_value[index]);
-            //     source_value[index].addEvenListener("mouseover", highlight_text(source_value[index]), false);
-            // }
-            //   (function(index){
-            //     source[index].onmouseover = function(e){
-            //       console.log('You just hovered over this textarea: ', this);
-            //       if (this.value !== this.placeholder) {
-            //         console.log('Typed text:', this.value);
-            //       }
-            //       console.log('Your event object is:', e);
-            //     };
-            //   }(index))
-            // }
-
-
-            if (trimAll(source_text) === '') {
-                var inmt_empty_string = $('#inmtemptystring');
-                inmt_empty_string.show();
-                inmt_empty_string.fadeOut(2000);
-            }
-            else {
-
-                var php_sampler_url = "sampler.php" + "?source=" + source_text;
-                try {
-                    //Good Browsers
-                    var xmlHttp = new XMLHttpRequest();
-                } catch (e) {
-                    //Internet Explorer
-                    try {
-                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                    } catch (e) {
-                        try {
-                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                        } catch (e) {
-                            alert("Brower not supported");
-                            return false;
-                        }
-                    }
-                }
-                xmlHttp.open("GET", php_sampler_url, false);
-                xmlHttp.send();
-                var hypothesis = document.getElementById('hypothesis_' + field_number);
-                hypothesis.innerHTML = xmlHttp.responseText;
-
-                hypothesis.donetyping = function (callback, delay) {
-                    delay || (delay = 400);
-                    var timeoutReference;
-                    var doneTyping = function (elt) {
-                        if (!timeoutReference) return;
-                        timeoutReference = null;
-                        callback(elt);
-                    };
-
-                    $(document).each(function () {
-                        var self = $(hypothesis);
-                        self.is(':input') && self.on('keyup paste', function (e) {
-                            var code = (e.keyCode || e.which);
-                            if (code == 37 || code == 38 || code == 39 || code == 40) return;
-                            if (timeoutReference) clearTimeout(timeoutReference);
-                            timeoutReference = setTimeout(function () {
-                                doneTyping(self);
-                            }, delay);
-                        }).on('blur', function () {
-                            doneTyping(self);
-                        });
-                    });
-                    return hypothesis;
-                };
-                hypothesis.donetyping(function () {
-                    var source = document.getElementById('sourceinmt_' + field_number).value;
-                    var translation_inmt_field = hypothesis; // document.getElementById('hypothesis_' + field_number); //$('#translation-inmt');
-                    var prefix = translation_inmt_field.value;
-                    var startPosition = translation_inmt_field.selectionStart;
-                    var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
-                    var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2 + '&learn=False';
-                    var nHyp = 0;//parseInt($('#translation-inmt').getAttribute("nhypothesis"));
-
-                    try {
-                        //Good Browsers
-                        var xmlHttp = new XMLHttpRequest();
-                    } catch (e) {
-                        //Internet Explorer
-                        try {
-                            heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                        } catch (e) {
-                            try {
-                                heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                            } catch (e) {
-                                alert("Brower not supported");
-                                return false;
-                            }
-                        }
-                    }
-                    xmlHttp.open("GET", php_sampler_url, false);
-                    xmlHttp.send();
-                    $(translation_inmt_field).val(xmlHttp.responseText);
-                    translation_inmt_field.selectionStart = startPosition;
-                    translation_inmt_field.selectionEnd = startPosition;
-//                nHyp += 1;
-//                translation_inmt_field.attr("valPosition", startPosition.toString());
-//                $('#valPos').text(' -- Validated till position: ' + startPosition);
-//                translation_inmt_field.attr("nhypothesis", nHyp.toString());
-//                $('#nHyp').text('Hypothesis #' + nHyp);
-
-                });
-            }
-        }
-
-        function accept_translation(field_number) {
-
-            var source = document.getElementById('sourceinmt_' + field_number).value;
-            var hypothesis = document.getElementById('hypothesis_' + field_number).value;
-            if (trimAll(source) === '' || trimAll(hypothesis) === '') {
-                var inmt_empty_string = $('#inmtemptystring');
-                inmt_empty_string.show();
-                inmt_empty_string.fadeOut(2000);
-            }
-            var learn_from_sample = $('#ol_checkbox_' + field_number + ':checked').val();
-
-            if (learn_from_sample == 'True') {
-                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + hypothesis + '&learn=' + learn_from_sample;
-
-                try {
-                    //Good Browsers
-                    var xmlHttp = new XMLHttpRequest();
-                } catch (e) {
-                    //Internet Explorer
-                    try {
-                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                    } catch (e) {
-                        try {
-                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                        } catch (e) {
-                            alert("Brower not supported");
-                            return false;
-                        }
-                    }
-                }
-                xmlHttp.open("GET", php_sampler_url, false);
-                xmlHttp.send();
-            }
-
-            var accept_alert = $('#accept');
-            accept_alert.text('Sentence #' + field_number + ' validated.');
-            accept_alert.show();
-            accept_alert.fadeOut(2000);
-        }
-    </script>
-
-    <script>
-        $(document).ready(function () {
-
-
-
-        });
-
-
-
-
-    </script>
+    <link rel="stylesheet" href="assets/css/jquery-ui.min.css">
 
 </head>
 <body>
@@ -272,37 +50,40 @@
     <!-- INMT-Demo  -->
     <section id="inmt" class="wrapper style1 fullscreen fade-up">
         <div class="inner">
-            <h1>Interactive NMT-Keras demo </h1>
-            <p>This is a demo of an interactive neural machine translation (INMT) system trained with the toolkit <a
-                     ref="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
-                Please select a document to translate. It should be a plain-text file with one sentence per line.</p>
+            <h1>Interactive NMT-Keras demo</h1>
+            <p>This is a demo of an interactive neural machine translation (INMT) system trained with the toolkit <a href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
+                Please select a document to translate.
+                <select id="document-list" name="document-list" onChange="handleDefaultFile(this.value)">
+                    <option disabled selected value> -- select a document -- </option>
+                    <option value="khresmoi">Medical text</option>
+                    <option value="ted">TED talk</option>
+                    <option value="xerox">Printer manual</option>
+                </select>
+            </p>
             <div style='padding:4px'>
+                <p>Alternatively, you can upload your own data. It should be a plain-text file with one sentence per line.</p>
                 <ul class="actions">
                     <li><input type="file" id="files" name="file"/></li>
-                    <li>
-                        <button onclick="abortRead();">Cancel read</button>
-                    </li>
-                    <li>
-                        <button onclick="instructions();">Instructions</button>
-                        <p class="alert alert-info fade in" id="instructions"
-                           style="display:none;">
-                            Upload a file with the sentences to translate.
-                            Once loaded, click on each "Translate" button for obtaining the automatic translation.
-                            If the translation is not correct, you can make corrections. The system will react to
-                            these interactions, providing alternative translation hypotheses.
-                            Once you are satisfied with the translation, click in the "Validate" button and
-                            go to the next sentence.
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                        </p>
-                    </li>
-                    <li><a href="index.html#moreinfo" class="button scrolly">More info</a></li>
+                    <li><button onclick="abortRead();">Cancel read</button></li>
                 </ul>
+            </div>
+            <div>
+                <button onclick="instructions();">Instructions</button>
+                <p class="alert alert-info fade in" id="instructions" style="display:none;">
+                    Upload a file with the sentences to translate.
+                    Once loaded, click on each "Translate" button for obtaining the automatic translation.
+                    If the translation is not correct, you can make corrections. The system will react to
+                    these interactions, providing alternative translation hypotheses.
+                    Once you are satisfied with the translation, click in the "Validate" button and go to the next sentence.
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                </p>
+                <a href="#moreinfo" class="button scrolly">More info</a>
             </div>
 
             <p class="alert alert-warning" id="abortread" style="display:none;">Reading interrupted.</p>
-            <p class="alert alert-error" id="errormissing" style="display:none;">File Not Found!</p>
-            <p class="alert alert-error" id="errorread" style="display:none;">File is not readable!</p>
-            <p class="alert alert-error" id="defaulterror" style="display:none;">An error occurred reading this
+            <p class="alert alert-error"   id="errormissing" style="display:none;">File Not Found!</p>
+            <p class="alert alert-error"   id="errorread" style="display:none;">File is not readable!</p>
+            <p class="alert alert-error"   id="defaulterror" style="display:none;">An error occurred reading this
                 file.</p>
             <div id="progress_bar">
                 <div class="percent">0%</div>
@@ -329,11 +110,10 @@
                 For more info, look the following papers:</p>
 
             <div class="features">
-                <p><a href="https://arxiv.org/abs/1706.03196" class="icon fa-file-pdf-o fa-2x" style="font-size:20px">
-                    Online Learning for Neural Machine Translation
-                    Post-editing</a><br/>
-                    Álvaro Peris, Luis Cebrian and Francisco Casacuberta. <br/>
-                    In <em> arXiv:1706.031963</em>, 2017.</p>
+                <p><a href="https://arxiv.org/abs/1802.03594" class="icon fa-file-pdf-o fa-2x" style="font-size:25px">
+                    Online Learning for Effort Reduction in Interactive Neural Machine Translation</a><br/>
+                    Álvaro Peris and Francisco Casacuberta. <br/>
+                    In <em>arXiv:1802.03594</em>, 2018.</p>
             </div>
             <div class="features">
                 <p>
@@ -391,6 +171,210 @@
 
 </body>
 <!-- Scripts -->
+
+<!--INMT-->
+<script language="javascript" type="text/javascript">
+    function trimAll(sString) {
+        while (sString.substring(0, 1) == ' ') {
+            sString = sString.substring(1, sString.length);
+        }
+        while (sString.substring(sString.length - 1, sString.length) == ' ') {
+            sString = sString.substring(0, sString.length - 1);
+        }
+        return sString;
+    }
+    function instructions() {
+        var instructions = $('#instructions');
+        instructions.show();
+    }
+    function write_interactive_tranlation(field_number) {
+        // var source_field = document.getElementById('sourceinmt_' + field_number);
+        var source_text = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text"); //the text area's id
+
+        if (trimAll(source_text) === '') {
+            var inmt_empty_string = $('#inmtemptystring');
+            inmt_empty_string.show();
+            inmt_empty_string.fadeOut(2000);
+        }
+        else {
+
+            var php_sampler_url = "sampler.php" + "?source=" + source_text;
+            try {
+                //Good Browsers
+                var xmlHttp = new XMLHttpRequest();
+            } catch (e) {
+                //Internet Explorer
+                try {
+                    heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    try {
+                        heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e) {
+                        alert("Brower not supported");
+                        return false;
+                    }
+                }
+            }
+            xmlHttp.open("GET", php_sampler_url, false);
+            xmlHttp.send();
+            var hypothesis = document.getElementById('hypothesis_' + field_number);
+            hypothesis.innerHTML = xmlHttp.responseText;
+
+            //hypothesis.textContent = split_line_into_spans(xmlHttp.responseText, 'hypothesis_' + field_number);
+            //hypothesis.innerHTML = split_line_into_spans(xmlHttp.responseText, 'hypothesis_' + field_number);
+            //split_line_into_spans(, 'hypothesis_' + field_number);
+
+            hypothesis.donetyping = function (callback, delay) {
+                delay || (delay = 400);
+                var timeoutReference;
+                var doneTyping = function (elt) {
+                    if (!timeoutReference) return;
+                    timeoutReference = null;
+                    callback(elt);
+                };
+
+                $(document).each(function () {
+                    var self = $(hypothesis);
+                    self.is(':input') && self.on('keyup paste', function (e) {
+                        var code = (e.keyCode || e.which);
+                        if (code == 37 || code == 38 || code == 39 || code == 40) return;
+                        if (timeoutReference) clearTimeout(timeoutReference);
+                        timeoutReference = setTimeout(function () {
+                            doneTyping(self);
+                        }, delay);
+                    }).on('blur', function () {
+                        doneTyping(self);
+                    });
+                });
+                return hypothesis;
+            };
+            hypothesis.donetyping(function () {
+                var source = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text"); //the text area's id
+                var translation_inmt_field = hypothesis; // document.getElementById('hypothesis_' + field_number); //$('#translation-inmt');
+                var prefix = translation_inmt_field.value;
+                var startPosition = translation_inmt_field.selectionStart;
+                var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
+                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2 + '&learn=False';
+                var nHyp = 0;//parseInt($('#translation-inmt').getAttribute("nhypothesis"));
+
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                $(translation_inmt_field).val(xmlHttp.responseText);
+                translation_inmt_field.selectionStart = startPosition;
+                translation_inmt_field.selectionEnd = startPosition;
+//                nHyp += 1;
+//                translation_inmt_field.attr("valPosition", startPosition.toString());
+//                $('#valPos').text(' -- Validated till position: ' + startPosition);
+//                translation_inmt_field.attr("nhypothesis", nHyp.toString());
+//                $('#nHyp').text('Hypothesis #' + nHyp);
+
+            });
+        }
+    }
+    function accept_translation(field_number) {
+
+        var source = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text");
+        var hypothesis = document.getElementById('hypothesis_' + field_number).value;
+        if (trimAll(source) === '' || trimAll(hypothesis) === '') {
+            var inmt_empty_string = $('#inmtemptystring');
+            inmt_empty_string.show();
+            inmt_empty_string.fadeOut(2000);
+        }
+        var learn_from_sample = $('#ol_checkbox_' + field_number + ':checked').val();
+
+        if (learn_from_sample == 'True') {
+            var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + hypothesis + '&learn=' + learn_from_sample;
+
+            try {
+                //Good Browsers
+                var xmlHttp = new XMLHttpRequest();
+            } catch (e) {
+                //Internet Explorer
+                try {
+                    heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    try {
+                        heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e) {
+                        alert("Brower not supported");
+                        return false;
+                    }
+                }
+            }
+            xmlHttp.open("GET", php_sampler_url, false);
+            xmlHttp.send();
+        }
+
+        var accept_alert = $('#accept');
+        accept_alert.text('Sentence #' + field_number + ' validated.');
+        accept_alert.show();
+        accept_alert.fadeOut(2000);
+    }
+    $(document).ready(function () {});
+    function showAlignments(aligs, classname) {
+      for (var j = 0; j < aligs.length; j++) {
+        $(aligs[j]).toggleClass(classname, true);
+      }
+    }
+    function hideAlignments(aligs, classname) {
+      for (var j = 0; j < aligs.length; j++) {
+        $(aligs[j]).toggleClass(classname, false);
+      }
+    }
+    // add alignment events so that aligned words are highlighted
+    function addAlignmentEvents($node, spans, aligids) {
+      // add mouseenter mouseleave events to token spans
+      for (var i = 0; i < spans.length; i++) {
+        var $span = $(spans[i]);
+        var data = $span.data('alignments');
+        if (!data) {
+          $span.off('.alignments');
+          $span.on('mouseenter.alignments', function (e) {
+            var aligs = $(e.target).data('alignments').alignedIds;
+            self.showAlignments(aligs, 'mouse-align');
+        $(this).toggleClass('mouse-align',true);
+          });
+          $span.on('mouseleave.alignments', function (e) {
+            var aligs = $(e.target).data('alignments').alignedIds;
+            self.hideAlignments(aligs, 'mouse-align');
+        $(this).toggleClass('mouse-align',false);
+          });
+        }
+        else {
+          $span[0].removeEventListener('DOMNodeRemoved', data.onremove, false);
+        }
+        data = { alignedIds: aligids[i] };
+        data.onremove = function(alignedIds) {
+          return function(e) { self.hideAlignments(alignedIds, 'mouse-align caret-align'); }
+        }(data.alignedIds);
+        $span[0].addEventListener('DOMNodeRemoved', data.onremove, false);
+        $span.data('alignments', data);
+      }
+    }
+    $(document).on("mouseover", ".editable-token", function () {
+          $(this).css("background-color", "yellow");
+  }).on('mouseout', '.editable-token', function () {
+          $(this).css("background-color", "transparent");
+      });
+</script>
+
+<!--Reader-->
 <script>
     var reader;
     var progress = document.querySelector('.percent');
@@ -431,10 +415,54 @@
             }
         }
     }
+    function split_line_into_spans(line, id){
+            var split_html = '';
+            var new_line = line.replace(/(\r\n\t|\n|\r\t)/gm,"");
+            var line_words = new_line.split(' ');
+            for (var j = 0; j < line_words.length; j++) {
+                var sentence_id = id + "_word_" + j;
+                split_html += '<span class="editable-token" id="' + sentence_id + '">' + line_words[j] + '</span>';
+                split_html += '<span class="editable-space" id="' + id + '_space_' + j + '">  </span>';
+            }
+            return split_html;
+    }
 
     function handleFileSelect(evt) {
+        readObjectFile(evt.target.files[0]);
+    }
+
+
+    function getTextFromURL() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/khresmoi.txt', true);
+        xhr.responseType = 'blob';
+        xhr.onload = function(e) {
+          if (this.status == 200) {
+            // Note: .response instead of .responseText
+            var blob = new Blob([this.responseText]);
+          }
+        };
+        xhr.send();
+    }
+
+    function handleDefaultFile(url) {
+        //        Hardcoded samples. TODO: Find a better way for doing this
+        var xerox_table = "<table  id='DisplayTable'  style='width: auto; overflow: auto; display: block;'  ><tr><td><div style='margin-left:7%'>Sentence #0</div></td></tr><tr><td><div class='editarea' original-text='Introduction vii'name='source_sentence_0' id='sourceinmt_0'><span class='editable-token' id='sourceinmt_0_word_0'>Introduction</span><span class='editable-space' id='sourceinmt_0_space_0'>  </span><span class='editable-token' id='sourceinmt_0_word_1'>vii</span><span class='editable-space' id='sourceinmt_0_space_1'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_0' id='hypothesis_0'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(0); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(0); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'0' id='ol_checkbox_0' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #1</div></td></tr><tr><td><div class='editarea' original-text='What is CentreWare ? 'name='source_sentence_1' id='sourceinmt_1'><span class='editable-token' id='sourceinmt_1_word_0'>What</span><span class='editable-space' id='sourceinmt_1_space_0'>  </span><span class='editable-token' id='sourceinmt_1_word_1'>is</span><span class='editable-space' id='sourceinmt_1_space_1'>  </span><span class='editable-token' id='sourceinmt_1_word_2'>CentreWare</span><span class='editable-space' id='sourceinmt_1_space_2'>  </span><span class='editable-token' id='sourceinmt_1_word_3'>?</span><span class='editable-space' id='sourceinmt_1_space_3'>  </span><span class='editable-token' id='sourceinmt_1_word_4'></span><span class='editable-space' id='sourceinmt_1_space_4'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_1' id='hypothesis_1'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(1); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(1); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'1' id='ol_checkbox_1' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #2</div></td></tr><tr><td><div class='editarea' original-text='Who Should Use This Guide ix'name='source_sentence_2' id='sourceinmt_2'><span class='editable-token' id='sourceinmt_2_word_0'>Who</span><span class='editable-space' id='sourceinmt_2_space_0'>  </span><span class='editable-token' id='sourceinmt_2_word_1'>Should</span><span class='editable-space' id='sourceinmt_2_space_1'>  </span><span class='editable-token' id='sourceinmt_2_word_2'>Use</span><span class='editable-space' id='sourceinmt_2_space_2'>  </span><span class='editable-token' id='sourceinmt_2_word_3'>This</span><span class='editable-space' id='sourceinmt_2_space_3'>  </span><span class='editable-token' id='sourceinmt_2_word_4'>Guide</span><span class='editable-space' id='sourceinmt_2_space_4'>  </span><span class='editable-token' id='sourceinmt_2_word_5'>ix</span><span class='editable-space' id='sourceinmt_2_space_5'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_2' id='hypothesis_2'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(2); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(2); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'2' id='ol_checkbox_2' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #3</div></td></tr><tr><td><div class='editarea' original-text='What's New in This Release ? ix'name='source_sentence_3' id='sourceinmt_3'><span class='editable-token' id='sourceinmt_3_word_0'>What's</span><span class='editable-space' id='sourceinmt_3_space_0'>  </span><span class='editable-token' id='sourceinmt_3_word_1'>New</span><span class='editable-space' id='sourceinmt_3_space_1'>  </span><span class='editable-token' id='sourceinmt_3_word_2'>in</span><span class='editable-space' id='sourceinmt_3_space_2'>  </span><span class='editable-token' id='sourceinmt_3_word_3'>This</span><span class='editable-space' id='sourceinmt_3_space_3'>  </span><span class='editable-token' id='sourceinmt_3_word_4'>Release</span><span class='editable-space' id='sourceinmt_3_space_4'>  </span><span class='editable-token' id='sourceinmt_3_word_5'>?</span><span class='editable-space' id='sourceinmt_3_space_5'>  </span><span class='editable-token' id='sourceinmt_3_word_6'>ix</span><span class='editable-space' id='sourceinmt_3_space_6'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_3' id='hypothesis_3'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(3); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(3); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'3' id='ol_checkbox_3' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #4</div></td></tr><tr><td><div class='editarea' original-text='CentreWare Scanning Documentation xi'name='source_sentence_4' id='sourceinmt_4'><span class='editable-token' id='sourceinmt_4_word_0'>CentreWare</span><span class='editable-space' id='sourceinmt_4_space_0'>  </span><span class='editable-token' id='sourceinmt_4_word_1'>Scanning</span><span class='editable-space' id='sourceinmt_4_space_1'>  </span><span class='editable-token' id='sourceinmt_4_word_2'>Documentation</span><span class='editable-space' id='sourceinmt_4_space_2'>  </span><span class='editable-token' id='sourceinmt_4_word_3'>xi</span><span class='editable-space' id='sourceinmt_4_space_3'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_4' id='hypothesis_4'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(4); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(4); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'4' id='ol_checkbox_4' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #5</div></td></tr><tr><td><div class='editarea' original-text='The CentreWare Network Scanning Services Installation Guide xi'name='source_sentence_5' id='sourceinmt_5'><span class='editable-token' id='sourceinmt_5_word_0'>The</span><span class='editable-space' id='sourceinmt_5_space_0'>  </span><span class='editable-token' id='sourceinmt_5_word_1'>CentreWare</span><span class='editable-space' id='sourceinmt_5_space_1'>  </span><span class='editable-token' id='sourceinmt_5_word_2'>Network</span><span class='editable-space' id='sourceinmt_5_space_2'>  </span><span class='editable-token' id='sourceinmt_5_word_3'>Scanning</span><span class='editable-space' id='sourceinmt_5_space_3'>  </span><span class='editable-token' id='sourceinmt_5_word_4'>Services</span><span class='editable-space' id='sourceinmt_5_space_4'>  </span><span class='editable-token' id='sourceinmt_5_word_5'>Installation</span><span class='editable-space' id='sourceinmt_5_space_5'>  </span><span class='editable-token' id='sourceinmt_5_word_6'>Guide</span><span class='editable-space' id='sourceinmt_5_space_6'>  </span><span class='editable-token' id='sourceinmt_5_word_7'>xi</span><span class='editable-space' id='sourceinmt_5_space_7'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_5' id='hypothesis_5'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(5); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(5); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'5' id='ol_checkbox_5' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #6</div></td></tr><tr><td><div class='editarea' original-text='The CentreWare Network Scanning Services User Guide xi'name='source_sentence_6' id='sourceinmt_6'><span class='editable-token' id='sourceinmt_6_word_0'>The</span><span class='editable-space' id='sourceinmt_6_space_0'>  </span><span class='editable-token' id='sourceinmt_6_word_1'>CentreWare</span><span class='editable-space' id='sourceinmt_6_space_1'>  </span><span class='editable-token' id='sourceinmt_6_word_2'>Network</span><span class='editable-space' id='sourceinmt_6_space_2'>  </span><span class='editable-token' id='sourceinmt_6_word_3'>Scanning</span><span class='editable-space' id='sourceinmt_6_space_3'>  </span><span class='editable-token' id='sourceinmt_6_word_4'>Services</span><span class='editable-space' id='sourceinmt_6_space_4'>  </span><span class='editable-token' id='sourceinmt_6_word_5'>User</span><span class='editable-space' id='sourceinmt_6_space_5'>  </span><span class='editable-token' id='sourceinmt_6_word_6'>Guide</span><span class='editable-space' id='sourceinmt_6_space_6'>  </span><span class='editable-token' id='sourceinmt_6_word_7'>xi</span><span class='editable-space' id='sourceinmt_6_space_7'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_6' id='hypothesis_6'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(6); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(6); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'6' id='ol_checkbox_6' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #7</div></td></tr><tr><td><div class='editarea' original-text='Network Scanning Services Help Centre xii'name='source_sentence_7' id='sourceinmt_7'><span class='editable-token' id='sourceinmt_7_word_0'>Network</span><span class='editable-space' id='sourceinmt_7_space_0'>  </span><span class='editable-token' id='sourceinmt_7_word_1'>Scanning</span><span class='editable-space' id='sourceinmt_7_space_1'>  </span><span class='editable-token' id='sourceinmt_7_word_2'>Services</span><span class='editable-space' id='sourceinmt_7_space_2'>  </span><span class='editable-token' id='sourceinmt_7_word_3'>Help</span><span class='editable-space' id='sourceinmt_7_space_3'>  </span><span class='editable-token' id='sourceinmt_7_word_4'>Centre</span><span class='editable-space' id='sourceinmt_7_space_4'>  </span><span class='editable-token' id='sourceinmt_7_word_5'>xii</span><span class='editable-space' id='sourceinmt_7_space_5'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_7' id='hypothesis_7'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(7); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(7); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'7' id='ol_checkbox_7' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #8</div></td></tr><tr><td><div class='editarea' original-text='Help xii'name='source_sentence_8' id='sourceinmt_8'><span class='editable-token' id='sourceinmt_8_word_0'>Help</span><span class='editable-space' id='sourceinmt_8_space_0'>  </span><span class='editable-token' id='sourceinmt_8_word_1'>xii</span><span class='editable-space' id='sourceinmt_8_space_1'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_8' id='hypothesis_8'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(8); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(8); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'8' id='ol_checkbox_8' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #9</div></td></tr><tr><td><div class='editarea' original-text='Where to Get CentreWare Support xiii'name='source_sentence_9' id='sourceinmt_9'><span class='editable-token' id='sourceinmt_9_word_0'>Where</span><span class='editable-space' id='sourceinmt_9_space_0'>  </span><span class='editable-token' id='sourceinmt_9_word_1'>to</span><span class='editable-space' id='sourceinmt_9_space_1'>  </span><span class='editable-token' id='sourceinmt_9_word_2'>Get</span><span class='editable-space' id='sourceinmt_9_space_2'>  </span><span class='editable-token' id='sourceinmt_9_word_3'>CentreWare</span><span class='editable-space' id='sourceinmt_9_space_3'>  </span><span class='editable-token' id='sourceinmt_9_word_4'>Support</span><span class='editable-space' id='sourceinmt_9_space_4'>  </span><span class='editable-token' id='sourceinmt_9_word_5'>xiii</span><span class='editable-space' id='sourceinmt_9_space_5'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_9' id='hypothesis_9'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(9); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(9); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'9' id='ol_checkbox_9' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #10</div></td></tr><tr><td><div class='editarea' original-text=''name='source_sentence_10' id='sourceinmt_10'><span class='editable-token' id='sourceinmt_10_word_0'></span><span class='editable-space' id='sourceinmt_10_space_0'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_10' id='hypothesis_10'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(10); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(10); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'10' id='ol_checkbox_10' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr></table>"
+        var ted_table = "<table  id='DisplayTable'  style='width: auto; overflow: auto; display: block;'  ><tr><td><div style='margin-left:7%'>Sentence #0</div></td></tr><tr><td><div class='editarea' original-text='  I'm a savant,  or more precisely,  a high-functioning  autistic savant.  'name='source_sentence_0' id='sourceinmt_0'><span class='editable-token' id='sourceinmt_0_word_0'></span><span class='editable-space' id='sourceinmt_0_space_0'>  </span><span class='editable-token' id='sourceinmt_0_word_1'></span><span class='editable-space' id='sourceinmt_0_space_1'>  </span><span class='editable-token' id='sourceinmt_0_word_2'>I'm</span><span class='editable-space' id='sourceinmt_0_space_2'>  </span><span class='editable-token' id='sourceinmt_0_word_3'>a</span><span class='editable-space' id='sourceinmt_0_space_3'>  </span><span class='editable-token' id='sourceinmt_0_word_4'>savant,</span><span class='editable-space' id='sourceinmt_0_space_4'>  </span><span class='editable-token' id='sourceinmt_0_word_5'></span><span class='editable-space' id='sourceinmt_0_space_5'>  </span><span class='editable-token' id='sourceinmt_0_word_6'>or</span><span class='editable-space' id='sourceinmt_0_space_6'>  </span><span class='editable-token' id='sourceinmt_0_word_7'>more</span><span class='editable-space' id='sourceinmt_0_space_7'>  </span><span class='editable-token' id='sourceinmt_0_word_8'>precisely,</span><span class='editable-space' id='sourceinmt_0_space_8'>  </span><span class='editable-token' id='sourceinmt_0_word_9'></span><span class='editable-space' id='sourceinmt_0_space_9'>  </span><span class='editable-token' id='sourceinmt_0_word_10'>a</span><span class='editable-space' id='sourceinmt_0_space_10'>  </span><span class='editable-token' id='sourceinmt_0_word_11'>high-functioning</span><span class='editable-space' id='sourceinmt_0_space_11'>  </span><span class='editable-token' id='sourceinmt_0_word_12'></span><span class='editable-space' id='sourceinmt_0_space_12'>  </span><span class='editable-token' id='sourceinmt_0_word_13'>autistic</span><span class='editable-space' id='sourceinmt_0_space_13'>  </span><span class='editable-token' id='sourceinmt_0_word_14'>savant.</span><span class='editable-space' id='sourceinmt_0_space_14'>  </span><span class='editable-token' id='sourceinmt_0_word_15'></span><span class='editable-space' id='sourceinmt_0_space_15'>  </span><span class='editable-token' id='sourceinmt_0_word_16'></span><span class='editable-space' id='sourceinmt_0_space_16'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_0' id='hypothesis_0'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(0); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(0); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'0' id='ol_checkbox_0' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #1</div></td></tr><tr><td><div class='editarea' original-text='  It's a rare condition.  'name='source_sentence_1' id='sourceinmt_1'><span class='editable-token' id='sourceinmt_1_word_0'></span><span class='editable-space' id='sourceinmt_1_space_0'>  </span><span class='editable-token' id='sourceinmt_1_word_1'></span><span class='editable-space' id='sourceinmt_1_space_1'>  </span><span class='editable-token' id='sourceinmt_1_word_2'>It's</span><span class='editable-space' id='sourceinmt_1_space_2'>  </span><span class='editable-token' id='sourceinmt_1_word_3'>a</span><span class='editable-space' id='sourceinmt_1_space_3'>  </span><span class='editable-token' id='sourceinmt_1_word_4'>rare</span><span class='editable-space' id='sourceinmt_1_space_4'>  </span><span class='editable-token' id='sourceinmt_1_word_5'>condition.</span><span class='editable-space' id='sourceinmt_1_space_5'>  </span><span class='editable-token' id='sourceinmt_1_word_6'></span><span class='editable-space' id='sourceinmt_1_space_6'>  </span><span class='editable-token' id='sourceinmt_1_word_7'></span><span class='editable-space' id='sourceinmt_1_space_7'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_1' id='hypothesis_1'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(1); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(1); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'1' id='ol_checkbox_1' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #2</div></td></tr><tr><td><div class='editarea' original-text='  And rarer still when accompanied,  as in my case,  by self-awareness  and a mastery of language.  'name='source_sentence_2' id='sourceinmt_2'><span class='editable-token' id='sourceinmt_2_word_0'></span><span class='editable-space' id='sourceinmt_2_space_0'>  </span><span class='editable-token' id='sourceinmt_2_word_1'></span><span class='editable-space' id='sourceinmt_2_space_1'>  </span><span class='editable-token' id='sourceinmt_2_word_2'>And</span><span class='editable-space' id='sourceinmt_2_space_2'>  </span><span class='editable-token' id='sourceinmt_2_word_3'>rarer</span><span class='editable-space' id='sourceinmt_2_space_3'>  </span><span class='editable-token' id='sourceinmt_2_word_4'>still</span><span class='editable-space' id='sourceinmt_2_space_4'>  </span><span class='editable-token' id='sourceinmt_2_word_5'>when</span><span class='editable-space' id='sourceinmt_2_space_5'>  </span><span class='editable-token' id='sourceinmt_2_word_6'>accompanied,</span><span class='editable-space' id='sourceinmt_2_space_6'>  </span><span class='editable-token' id='sourceinmt_2_word_7'></span><span class='editable-space' id='sourceinmt_2_space_7'>  </span><span class='editable-token' id='sourceinmt_2_word_8'>as</span><span class='editable-space' id='sourceinmt_2_space_8'>  </span><span class='editable-token' id='sourceinmt_2_word_9'>in</span><span class='editable-space' id='sourceinmt_2_space_9'>  </span><span class='editable-token' id='sourceinmt_2_word_10'>my</span><span class='editable-space' id='sourceinmt_2_space_10'>  </span><span class='editable-token' id='sourceinmt_2_word_11'>case,</span><span class='editable-space' id='sourceinmt_2_space_11'>  </span><span class='editable-token' id='sourceinmt_2_word_12'></span><span class='editable-space' id='sourceinmt_2_space_12'>  </span><span class='editable-token' id='sourceinmt_2_word_13'>by</span><span class='editable-space' id='sourceinmt_2_space_13'>  </span><span class='editable-token' id='sourceinmt_2_word_14'>self-awareness</span><span class='editable-space' id='sourceinmt_2_space_14'>  </span><span class='editable-token' id='sourceinmt_2_word_15'></span><span class='editable-space' id='sourceinmt_2_space_15'>  </span><span class='editable-token' id='sourceinmt_2_word_16'>and</span><span class='editable-space' id='sourceinmt_2_space_16'>  </span><span class='editable-token' id='sourceinmt_2_word_17'>a</span><span class='editable-space' id='sourceinmt_2_space_17'>  </span><span class='editable-token' id='sourceinmt_2_word_18'>mastery</span><span class='editable-space' id='sourceinmt_2_space_18'>  </span><span class='editable-token' id='sourceinmt_2_word_19'>of</span><span class='editable-space' id='sourceinmt_2_space_19'>  </span><span class='editable-token' id='sourceinmt_2_word_20'>language.</span><span class='editable-space' id='sourceinmt_2_space_20'>  </span><span class='editable-token' id='sourceinmt_2_word_21'></span><span class='editable-space' id='sourceinmt_2_space_21'>  </span><span class='editable-token' id='sourceinmt_2_word_22'></span><span class='editable-space' id='sourceinmt_2_space_22'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_2' id='hypothesis_2'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(2); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(2); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'2' id='ol_checkbox_2' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #3</div></td></tr><tr><td><div class='editarea' original-text='  Very often when I meet someone  and they learn this about me  there's a certain kind of awkwardness.  'name='source_sentence_3' id='sourceinmt_3'><span class='editable-token' id='sourceinmt_3_word_0'></span><span class='editable-space' id='sourceinmt_3_space_0'>  </span><span class='editable-token' id='sourceinmt_3_word_1'></span><span class='editable-space' id='sourceinmt_3_space_1'>  </span><span class='editable-token' id='sourceinmt_3_word_2'>Very</span><span class='editable-space' id='sourceinmt_3_space_2'>  </span><span class='editable-token' id='sourceinmt_3_word_3'>often</span><span class='editable-space' id='sourceinmt_3_space_3'>  </span><span class='editable-token' id='sourceinmt_3_word_4'>when</span><span class='editable-space' id='sourceinmt_3_space_4'>  </span><span class='editable-token' id='sourceinmt_3_word_5'>I</span><span class='editable-space' id='sourceinmt_3_space_5'>  </span><span class='editable-token' id='sourceinmt_3_word_6'>meet</span><span class='editable-space' id='sourceinmt_3_space_6'>  </span><span class='editable-token' id='sourceinmt_3_word_7'>someone</span><span class='editable-space' id='sourceinmt_3_space_7'>  </span><span class='editable-token' id='sourceinmt_3_word_8'></span><span class='editable-space' id='sourceinmt_3_space_8'>  </span><span class='editable-token' id='sourceinmt_3_word_9'>and</span><span class='editable-space' id='sourceinmt_3_space_9'>  </span><span class='editable-token' id='sourceinmt_3_word_10'>they</span><span class='editable-space' id='sourceinmt_3_space_10'>  </span><span class='editable-token' id='sourceinmt_3_word_11'>learn</span><span class='editable-space' id='sourceinmt_3_space_11'>  </span><span class='editable-token' id='sourceinmt_3_word_12'>this</span><span class='editable-space' id='sourceinmt_3_space_12'>  </span><span class='editable-token' id='sourceinmt_3_word_13'>about</span><span class='editable-space' id='sourceinmt_3_space_13'>  </span><span class='editable-token' id='sourceinmt_3_word_14'>me</span><span class='editable-space' id='sourceinmt_3_space_14'>  </span><span class='editable-token' id='sourceinmt_3_word_15'></span><span class='editable-space' id='sourceinmt_3_space_15'>  </span><span class='editable-token' id='sourceinmt_3_word_16'>there's</span><span class='editable-space' id='sourceinmt_3_space_16'>  </span><span class='editable-token' id='sourceinmt_3_word_17'>a</span><span class='editable-space' id='sourceinmt_3_space_17'>  </span><span class='editable-token' id='sourceinmt_3_word_18'>certain</span><span class='editable-space' id='sourceinmt_3_space_18'>  </span><span class='editable-token' id='sourceinmt_3_word_19'>kind</span><span class='editable-space' id='sourceinmt_3_space_19'>  </span><span class='editable-token' id='sourceinmt_3_word_20'>of</span><span class='editable-space' id='sourceinmt_3_space_20'>  </span><span class='editable-token' id='sourceinmt_3_word_21'>awkwardness.</span><span class='editable-space' id='sourceinmt_3_space_21'>  </span><span class='editable-token' id='sourceinmt_3_word_22'></span><span class='editable-space' id='sourceinmt_3_space_22'>  </span><span class='editable-token' id='sourceinmt_3_word_23'></span><span class='editable-space' id='sourceinmt_3_space_23'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_3' id='hypothesis_3'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(3); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(3); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'3' id='ol_checkbox_3' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #4</div></td></tr><tr><td><div class='editarea' original-text='  I can see it in their eyes.  'name='source_sentence_4' id='sourceinmt_4'><span class='editable-token' id='sourceinmt_4_word_0'></span><span class='editable-space' id='sourceinmt_4_space_0'>  </span><span class='editable-token' id='sourceinmt_4_word_1'></span><span class='editable-space' id='sourceinmt_4_space_1'>  </span><span class='editable-token' id='sourceinmt_4_word_2'>I</span><span class='editable-space' id='sourceinmt_4_space_2'>  </span><span class='editable-token' id='sourceinmt_4_word_3'>can</span><span class='editable-space' id='sourceinmt_4_space_3'>  </span><span class='editable-token' id='sourceinmt_4_word_4'>see</span><span class='editable-space' id='sourceinmt_4_space_4'>  </span><span class='editable-token' id='sourceinmt_4_word_5'>it</span><span class='editable-space' id='sourceinmt_4_space_5'>  </span><span class='editable-token' id='sourceinmt_4_word_6'>in</span><span class='editable-space' id='sourceinmt_4_space_6'>  </span><span class='editable-token' id='sourceinmt_4_word_7'>their</span><span class='editable-space' id='sourceinmt_4_space_7'>  </span><span class='editable-token' id='sourceinmt_4_word_8'>eyes.</span><span class='editable-space' id='sourceinmt_4_space_8'>  </span><span class='editable-token' id='sourceinmt_4_word_9'></span><span class='editable-space' id='sourceinmt_4_space_9'>  </span><span class='editable-token' id='sourceinmt_4_word_10'></span><span class='editable-space' id='sourceinmt_4_space_10'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_4' id='hypothesis_4'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(4); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(4); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'4' id='ol_checkbox_4' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #5</div></td></tr><tr><td><div class='editarea' original-text='  They want to ask me something.  'name='source_sentence_5' id='sourceinmt_5'><span class='editable-token' id='sourceinmt_5_word_0'></span><span class='editable-space' id='sourceinmt_5_space_0'>  </span><span class='editable-token' id='sourceinmt_5_word_1'></span><span class='editable-space' id='sourceinmt_5_space_1'>  </span><span class='editable-token' id='sourceinmt_5_word_2'>They</span><span class='editable-space' id='sourceinmt_5_space_2'>  </span><span class='editable-token' id='sourceinmt_5_word_3'>want</span><span class='editable-space' id='sourceinmt_5_space_3'>  </span><span class='editable-token' id='sourceinmt_5_word_4'>to</span><span class='editable-space' id='sourceinmt_5_space_4'>  </span><span class='editable-token' id='sourceinmt_5_word_5'>ask</span><span class='editable-space' id='sourceinmt_5_space_5'>  </span><span class='editable-token' id='sourceinmt_5_word_6'>me</span><span class='editable-space' id='sourceinmt_5_space_6'>  </span><span class='editable-token' id='sourceinmt_5_word_7'>something.</span><span class='editable-space' id='sourceinmt_5_space_7'>  </span><span class='editable-token' id='sourceinmt_5_word_8'></span><span class='editable-space' id='sourceinmt_5_space_8'>  </span><span class='editable-token' id='sourceinmt_5_word_9'></span><span class='editable-space' id='sourceinmt_5_space_9'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_5' id='hypothesis_5'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(5); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(5); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'5' id='ol_checkbox_5' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #6</div></td></tr><tr><td><div class='editarea' original-text='  And in the end, quite often,  the urge is stronger than they are  and they blurt it out:  'If I give you my date of birth,  can you tell me what day of the week I was born on?'  'name='source_sentence_6' id='sourceinmt_6'><span class='editable-token' id='sourceinmt_6_word_0'></span><span class='editable-space' id='sourceinmt_6_space_0'>  </span><span class='editable-token' id='sourceinmt_6_word_1'></span><span class='editable-space' id='sourceinmt_6_space_1'>  </span><span class='editable-token' id='sourceinmt_6_word_2'>And</span><span class='editable-space' id='sourceinmt_6_space_2'>  </span><span class='editable-token' id='sourceinmt_6_word_3'>in</span><span class='editable-space' id='sourceinmt_6_space_3'>  </span><span class='editable-token' id='sourceinmt_6_word_4'>the</span><span class='editable-space' id='sourceinmt_6_space_4'>  </span><span class='editable-token' id='sourceinmt_6_word_5'>end,</span><span class='editable-space' id='sourceinmt_6_space_5'>  </span><span class='editable-token' id='sourceinmt_6_word_6'>quite</span><span class='editable-space' id='sourceinmt_6_space_6'>  </span><span class='editable-token' id='sourceinmt_6_word_7'>often,</span><span class='editable-space' id='sourceinmt_6_space_7'>  </span><span class='editable-token' id='sourceinmt_6_word_8'></span><span class='editable-space' id='sourceinmt_6_space_8'>  </span><span class='editable-token' id='sourceinmt_6_word_9'>the</span><span class='editable-space' id='sourceinmt_6_space_9'>  </span><span class='editable-token' id='sourceinmt_6_word_10'>urge</span><span class='editable-space' id='sourceinmt_6_space_10'>  </span><span class='editable-token' id='sourceinmt_6_word_11'>is</span><span class='editable-space' id='sourceinmt_6_space_11'>  </span><span class='editable-token' id='sourceinmt_6_word_12'>stronger</span><span class='editable-space' id='sourceinmt_6_space_12'>  </span><span class='editable-token' id='sourceinmt_6_word_13'>than</span><span class='editable-space' id='sourceinmt_6_space_13'>  </span><span class='editable-token' id='sourceinmt_6_word_14'>they</span><span class='editable-space' id='sourceinmt_6_space_14'>  </span><span class='editable-token' id='sourceinmt_6_word_15'>are</span><span class='editable-space' id='sourceinmt_6_space_15'>  </span><span class='editable-token' id='sourceinmt_6_word_16'></span><span class='editable-space' id='sourceinmt_6_space_16'>  </span><span class='editable-token' id='sourceinmt_6_word_17'>and</span><span class='editable-space' id='sourceinmt_6_space_17'>  </span><span class='editable-token' id='sourceinmt_6_word_18'>they</span><span class='editable-space' id='sourceinmt_6_space_18'>  </span><span class='editable-token' id='sourceinmt_6_word_19'>blurt</span><span class='editable-space' id='sourceinmt_6_space_19'>  </span><span class='editable-token' id='sourceinmt_6_word_20'>it</span><span class='editable-space' id='sourceinmt_6_space_20'>  </span><span class='editable-token' id='sourceinmt_6_word_21'>out:</span><span class='editable-space' id='sourceinmt_6_space_21'>  </span><span class='editable-token' id='sourceinmt_6_word_22'></span><span class='editable-space' id='sourceinmt_6_space_22'>  </span><span class='editable-token' id='sourceinmt_6_word_23'>'If</span><span class='editable-space' id='sourceinmt_6_space_23'>  </span><span class='editable-token' id='sourceinmt_6_word_24'>I</span><span class='editable-space' id='sourceinmt_6_space_24'>  </span><span class='editable-token' id='sourceinmt_6_word_25'>give</span><span class='editable-space' id='sourceinmt_6_space_25'>  </span><span class='editable-token' id='sourceinmt_6_word_26'>you</span><span class='editable-space' id='sourceinmt_6_space_26'>  </span><span class='editable-token' id='sourceinmt_6_word_27'>my</span><span class='editable-space' id='sourceinmt_6_space_27'>  </span><span class='editable-token' id='sourceinmt_6_word_28'>date</span><span class='editable-space' id='sourceinmt_6_space_28'>  </span><span class='editable-token' id='sourceinmt_6_word_29'>of</span><span class='editable-space' id='sourceinmt_6_space_29'>  </span><span class='editable-token' id='sourceinmt_6_word_30'>birth,</span><span class='editable-space' id='sourceinmt_6_space_30'>  </span><span class='editable-token' id='sourceinmt_6_word_31'></span><span class='editable-space' id='sourceinmt_6_space_31'>  </span><span class='editable-token' id='sourceinmt_6_word_32'>can</span><span class='editable-space' id='sourceinmt_6_space_32'>  </span><span class='editable-token' id='sourceinmt_6_word_33'>you</span><span class='editable-space' id='sourceinmt_6_space_33'>  </span><span class='editable-token' id='sourceinmt_6_word_34'>tell</span><span class='editable-space' id='sourceinmt_6_space_34'>  </span><span class='editable-token' id='sourceinmt_6_word_35'>me</span><span class='editable-space' id='sourceinmt_6_space_35'>  </span><span class='editable-token' id='sourceinmt_6_word_36'>what</span><span class='editable-space' id='sourceinmt_6_space_36'>  </span><span class='editable-token' id='sourceinmt_6_word_37'>day</span><span class='editable-space' id='sourceinmt_6_space_37'>  </span><span class='editable-token' id='sourceinmt_6_word_38'>of</span><span class='editable-space' id='sourceinmt_6_space_38'>  </span><span class='editable-token' id='sourceinmt_6_word_39'>the</span><span class='editable-space' id='sourceinmt_6_space_39'>  </span><span class='editable-token' id='sourceinmt_6_word_40'>week</span><span class='editable-space' id='sourceinmt_6_space_40'>  </span><span class='editable-token' id='sourceinmt_6_word_41'>I</span><span class='editable-space' id='sourceinmt_6_space_41'>  </span><span class='editable-token' id='sourceinmt_6_word_42'>was</span><span class='editable-space' id='sourceinmt_6_space_42'>  </span><span class='editable-token' id='sourceinmt_6_word_43'>born</span><span class='editable-space' id='sourceinmt_6_space_43'>  </span><span class='editable-token' id='sourceinmt_6_word_44'>on?'</span><span class='editable-space' id='sourceinmt_6_space_44'>  </span><span class='editable-token' id='sourceinmt_6_word_45'></span><span class='editable-space' id='sourceinmt_6_space_45'>  </span><span class='editable-token' id='sourceinmt_6_word_46'></span><span class='editable-space' id='sourceinmt_6_space_46'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_6' id='hypothesis_6'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(6); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(6); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'6' id='ol_checkbox_6' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #7</div></td></tr><tr><td><div class='editarea' original-text='  Or they mention cube roots  or ask me to recite a long number or long text.  'name='source_sentence_7' id='sourceinmt_7'><span class='editable-token' id='sourceinmt_7_word_0'></span><span class='editable-space' id='sourceinmt_7_space_0'>  </span><span class='editable-token' id='sourceinmt_7_word_1'></span><span class='editable-space' id='sourceinmt_7_space_1'>  </span><span class='editable-token' id='sourceinmt_7_word_2'>Or</span><span class='editable-space' id='sourceinmt_7_space_2'>  </span><span class='editable-token' id='sourceinmt_7_word_3'>they</span><span class='editable-space' id='sourceinmt_7_space_3'>  </span><span class='editable-token' id='sourceinmt_7_word_4'>mention</span><span class='editable-space' id='sourceinmt_7_space_4'>  </span><span class='editable-token' id='sourceinmt_7_word_5'>cube</span><span class='editable-space' id='sourceinmt_7_space_5'>  </span><span class='editable-token' id='sourceinmt_7_word_6'>roots</span><span class='editable-space' id='sourceinmt_7_space_6'>  </span><span class='editable-token' id='sourceinmt_7_word_7'></span><span class='editable-space' id='sourceinmt_7_space_7'>  </span><span class='editable-token' id='sourceinmt_7_word_8'>or</span><span class='editable-space' id='sourceinmt_7_space_8'>  </span><span class='editable-token' id='sourceinmt_7_word_9'>ask</span><span class='editable-space' id='sourceinmt_7_space_9'>  </span><span class='editable-token' id='sourceinmt_7_word_10'>me</span><span class='editable-space' id='sourceinmt_7_space_10'>  </span><span class='editable-token' id='sourceinmt_7_word_11'>to</span><span class='editable-space' id='sourceinmt_7_space_11'>  </span><span class='editable-token' id='sourceinmt_7_word_12'>recite</span><span class='editable-space' id='sourceinmt_7_space_12'>  </span><span class='editable-token' id='sourceinmt_7_word_13'>a</span><span class='editable-space' id='sourceinmt_7_space_13'>  </span><span class='editable-token' id='sourceinmt_7_word_14'>long</span><span class='editable-space' id='sourceinmt_7_space_14'>  </span><span class='editable-token' id='sourceinmt_7_word_15'>number</span><span class='editable-space' id='sourceinmt_7_space_15'>  </span><span class='editable-token' id='sourceinmt_7_word_16'>or</span><span class='editable-space' id='sourceinmt_7_space_16'>  </span><span class='editable-token' id='sourceinmt_7_word_17'>long</span><span class='editable-space' id='sourceinmt_7_space_17'>  </span><span class='editable-token' id='sourceinmt_7_word_18'>text.</span><span class='editable-space' id='sourceinmt_7_space_18'>  </span><span class='editable-token' id='sourceinmt_7_word_19'></span><span class='editable-space' id='sourceinmt_7_space_19'>  </span><span class='editable-token' id='sourceinmt_7_word_20'></span><span class='editable-space' id='sourceinmt_7_space_20'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_7' id='hypothesis_7'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(7); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(7); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'7' id='ol_checkbox_7' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #8</div></td></tr><tr><td><div class='editarea' original-text='  I hope you'll forgive me  if I don't perform  a kind of one-man savant show for you today.  'name='source_sentence_8' id='sourceinmt_8'><span class='editable-token' id='sourceinmt_8_word_0'></span><span class='editable-space' id='sourceinmt_8_space_0'>  </span><span class='editable-token' id='sourceinmt_8_word_1'></span><span class='editable-space' id='sourceinmt_8_space_1'>  </span><span class='editable-token' id='sourceinmt_8_word_2'>I</span><span class='editable-space' id='sourceinmt_8_space_2'>  </span><span class='editable-token' id='sourceinmt_8_word_3'>hope</span><span class='editable-space' id='sourceinmt_8_space_3'>  </span><span class='editable-token' id='sourceinmt_8_word_4'>you'll</span><span class='editable-space' id='sourceinmt_8_space_4'>  </span><span class='editable-token' id='sourceinmt_8_word_5'>forgive</span><span class='editable-space' id='sourceinmt_8_space_5'>  </span><span class='editable-token' id='sourceinmt_8_word_6'>me</span><span class='editable-space' id='sourceinmt_8_space_6'>  </span><span class='editable-token' id='sourceinmt_8_word_7'></span><span class='editable-space' id='sourceinmt_8_space_7'>  </span><span class='editable-token' id='sourceinmt_8_word_8'>if</span><span class='editable-space' id='sourceinmt_8_space_8'>  </span><span class='editable-token' id='sourceinmt_8_word_9'>I</span><span class='editable-space' id='sourceinmt_8_space_9'>  </span><span class='editable-token' id='sourceinmt_8_word_10'>don't</span><span class='editable-space' id='sourceinmt_8_space_10'>  </span><span class='editable-token' id='sourceinmt_8_word_11'>perform</span><span class='editable-space' id='sourceinmt_8_space_11'>  </span><span class='editable-token' id='sourceinmt_8_word_12'></span><span class='editable-space' id='sourceinmt_8_space_12'>  </span><span class='editable-token' id='sourceinmt_8_word_13'>a</span><span class='editable-space' id='sourceinmt_8_space_13'>  </span><span class='editable-token' id='sourceinmt_8_word_14'>kind</span><span class='editable-space' id='sourceinmt_8_space_14'>  </span><span class='editable-token' id='sourceinmt_8_word_15'>of</span><span class='editable-space' id='sourceinmt_8_space_15'>  </span><span class='editable-token' id='sourceinmt_8_word_16'>one-man</span><span class='editable-space' id='sourceinmt_8_space_16'>  </span><span class='editable-token' id='sourceinmt_8_word_17'>savant</span><span class='editable-space' id='sourceinmt_8_space_17'>  </span><span class='editable-token' id='sourceinmt_8_word_18'>show</span><span class='editable-space' id='sourceinmt_8_space_18'>  </span><span class='editable-token' id='sourceinmt_8_word_19'>for</span><span class='editable-space' id='sourceinmt_8_space_19'>  </span><span class='editable-token' id='sourceinmt_8_word_20'>you</span><span class='editable-space' id='sourceinmt_8_space_20'>  </span><span class='editable-token' id='sourceinmt_8_word_21'>today.</span><span class='editable-space' id='sourceinmt_8_space_21'>  </span><span class='editable-token' id='sourceinmt_8_word_22'></span><span class='editable-space' id='sourceinmt_8_space_22'>  </span><span class='editable-token' id='sourceinmt_8_word_23'></span><span class='editable-space' id='sourceinmt_8_space_23'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_8' id='hypothesis_8'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(8); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(8); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'8' id='ol_checkbox_8' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #9</div></td></tr><tr><td><div class='editarea' original-text='  I'm going to talk instead  about something  far more interesting  than dates of birth or cube roots --  a little deeper  and a lot closer, to my mind, than work.  'name='source_sentence_9' id='sourceinmt_9'><span class='editable-token' id='sourceinmt_9_word_0'></span><span class='editable-space' id='sourceinmt_9_space_0'>  </span><span class='editable-token' id='sourceinmt_9_word_1'></span><span class='editable-space' id='sourceinmt_9_space_1'>  </span><span class='editable-token' id='sourceinmt_9_word_2'>I'm</span><span class='editable-space' id='sourceinmt_9_space_2'>  </span><span class='editable-token' id='sourceinmt_9_word_3'>going</span><span class='editable-space' id='sourceinmt_9_space_3'>  </span><span class='editable-token' id='sourceinmt_9_word_4'>to</span><span class='editable-space' id='sourceinmt_9_space_4'>  </span><span class='editable-token' id='sourceinmt_9_word_5'>talk</span><span class='editable-space' id='sourceinmt_9_space_5'>  </span><span class='editable-token' id='sourceinmt_9_word_6'>instead</span><span class='editable-space' id='sourceinmt_9_space_6'>  </span><span class='editable-token' id='sourceinmt_9_word_7'></span><span class='editable-space' id='sourceinmt_9_space_7'>  </span><span class='editable-token' id='sourceinmt_9_word_8'>about</span><span class='editable-space' id='sourceinmt_9_space_8'>  </span><span class='editable-token' id='sourceinmt_9_word_9'>something</span><span class='editable-space' id='sourceinmt_9_space_9'>  </span><span class='editable-token' id='sourceinmt_9_word_10'></span><span class='editable-space' id='sourceinmt_9_space_10'>  </span><span class='editable-token' id='sourceinmt_9_word_11'>far</span><span class='editable-space' id='sourceinmt_9_space_11'>  </span><span class='editable-token' id='sourceinmt_9_word_12'>more</span><span class='editable-space' id='sourceinmt_9_space_12'>  </span><span class='editable-token' id='sourceinmt_9_word_13'>interesting</span><span class='editable-space' id='sourceinmt_9_space_13'>  </span><span class='editable-token' id='sourceinmt_9_word_14'></span><span class='editable-space' id='sourceinmt_9_space_14'>  </span><span class='editable-token' id='sourceinmt_9_word_15'>than</span><span class='editable-space' id='sourceinmt_9_space_15'>  </span><span class='editable-token' id='sourceinmt_9_word_16'>dates</span><span class='editable-space' id='sourceinmt_9_space_16'>  </span><span class='editable-token' id='sourceinmt_9_word_17'>of</span><span class='editable-space' id='sourceinmt_9_space_17'>  </span><span class='editable-token' id='sourceinmt_9_word_18'>birth</span><span class='editable-space' id='sourceinmt_9_space_18'>  </span><span class='editable-token' id='sourceinmt_9_word_19'>or</span><span class='editable-space' id='sourceinmt_9_space_19'>  </span><span class='editable-token' id='sourceinmt_9_word_20'>cube</span><span class='editable-space' id='sourceinmt_9_space_20'>  </span><span class='editable-token' id='sourceinmt_9_word_21'>roots</span><span class='editable-space' id='sourceinmt_9_space_21'>  </span><span class='editable-token' id='sourceinmt_9_word_22'>--</span><span class='editable-space' id='sourceinmt_9_space_22'>  </span><span class='editable-token' id='sourceinmt_9_word_23'></span><span class='editable-space' id='sourceinmt_9_space_23'>  </span><span class='editable-token' id='sourceinmt_9_word_24'>a</span><span class='editable-space' id='sourceinmt_9_space_24'>  </span><span class='editable-token' id='sourceinmt_9_word_25'>little</span><span class='editable-space' id='sourceinmt_9_space_25'>  </span><span class='editable-token' id='sourceinmt_9_word_26'>deeper</span><span class='editable-space' id='sourceinmt_9_space_26'>  </span><span class='editable-token' id='sourceinmt_9_word_27'></span><span class='editable-space' id='sourceinmt_9_space_27'>  </span><span class='editable-token' id='sourceinmt_9_word_28'>and</span><span class='editable-space' id='sourceinmt_9_space_28'>  </span><span class='editable-token' id='sourceinmt_9_word_29'>a</span><span class='editable-space' id='sourceinmt_9_space_29'>  </span><span class='editable-token' id='sourceinmt_9_word_30'>lot</span><span class='editable-space' id='sourceinmt_9_space_30'>  </span><span class='editable-token' id='sourceinmt_9_word_31'>closer,</span><span class='editable-space' id='sourceinmt_9_space_31'>  </span><span class='editable-token' id='sourceinmt_9_word_32'>to</span><span class='editable-space' id='sourceinmt_9_space_32'>  </span><span class='editable-token' id='sourceinmt_9_word_33'>my</span><span class='editable-space' id='sourceinmt_9_space_33'>  </span><span class='editable-token' id='sourceinmt_9_word_34'>mind,</span><span class='editable-space' id='sourceinmt_9_space_34'>  </span><span class='editable-token' id='sourceinmt_9_word_35'>than</span><span class='editable-space' id='sourceinmt_9_space_35'>  </span><span class='editable-token' id='sourceinmt_9_word_36'>work.</span><span class='editable-space' id='sourceinmt_9_space_36'>  </span><span class='editable-token' id='sourceinmt_9_word_37'></span><span class='editable-space' id='sourceinmt_9_space_37'>  </span><span class='editable-token' id='sourceinmt_9_word_38'></span><span class='editable-space' id='sourceinmt_9_space_38'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_9' id='hypothesis_9'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(9); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(9); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'9' id='ol_checkbox_9' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #10</div></td></tr><tr><td><div class='editarea' original-text=''name='source_sentence_10' id='sourceinmt_10'><span class='editable-token' id='sourceinmt_10_word_0'></span><span class='editable-space' id='sourceinmt_10_space_0'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_10' id='hypothesis_10'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(10); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(10); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'10' id='ol_checkbox_10' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr></table>"
+        var khresmoi_table = "<table  id='DisplayTable'  style='width: auto; overflow: auto; display: block;'  ><tr><td><div style='margin-left:7%'>Sentence #0</div></td></tr><tr><td><div class='editarea' original-text='the aim of this study was to investigate the effect of in vivo inhibition of factor xi and tafi in an experimental thrombosis model in rabbits .'name='source_sentence_0' id='sourceinmt_0'><span class='editable-token' id='sourceinmt_0_word_0'>the</span><span class='editable-space' id='sourceinmt_0_space_0'>  </span><span class='editable-token' id='sourceinmt_0_word_1'>aim</span><span class='editable-space' id='sourceinmt_0_space_1'>  </span><span class='editable-token' id='sourceinmt_0_word_2'>of</span><span class='editable-space' id='sourceinmt_0_space_2'>  </span><span class='editable-token' id='sourceinmt_0_word_3'>this</span><span class='editable-space' id='sourceinmt_0_space_3'>  </span><span class='editable-token' id='sourceinmt_0_word_4'>study</span><span class='editable-space' id='sourceinmt_0_space_4'>  </span><span class='editable-token' id='sourceinmt_0_word_5'>was</span><span class='editable-space' id='sourceinmt_0_space_5'>  </span><span class='editable-token' id='sourceinmt_0_word_6'>to</span><span class='editable-space' id='sourceinmt_0_space_6'>  </span><span class='editable-token' id='sourceinmt_0_word_7'>investigate</span><span class='editable-space' id='sourceinmt_0_space_7'>  </span><span class='editable-token' id='sourceinmt_0_word_8'>the</span><span class='editable-space' id='sourceinmt_0_space_8'>  </span><span class='editable-token' id='sourceinmt_0_word_9'>effect</span><span class='editable-space' id='sourceinmt_0_space_9'>  </span><span class='editable-token' id='sourceinmt_0_word_10'>of</span><span class='editable-space' id='sourceinmt_0_space_10'>  </span><span class='editable-token' id='sourceinmt_0_word_11'>in</span><span class='editable-space' id='sourceinmt_0_space_11'>  </span><span class='editable-token' id='sourceinmt_0_word_12'>vivo</span><span class='editable-space' id='sourceinmt_0_space_12'>  </span><span class='editable-token' id='sourceinmt_0_word_13'>inhibition</span><span class='editable-space' id='sourceinmt_0_space_13'>  </span><span class='editable-token' id='sourceinmt_0_word_14'>of</span><span class='editable-space' id='sourceinmt_0_space_14'>  </span><span class='editable-token' id='sourceinmt_0_word_15'>factor</span><span class='editable-space' id='sourceinmt_0_space_15'>  </span><span class='editable-token' id='sourceinmt_0_word_16'>xi</span><span class='editable-space' id='sourceinmt_0_space_16'>  </span><span class='editable-token' id='sourceinmt_0_word_17'>and</span><span class='editable-space' id='sourceinmt_0_space_17'>  </span><span class='editable-token' id='sourceinmt_0_word_18'>tafi</span><span class='editable-space' id='sourceinmt_0_space_18'>  </span><span class='editable-token' id='sourceinmt_0_word_19'>in</span><span class='editable-space' id='sourceinmt_0_space_19'>  </span><span class='editable-token' id='sourceinmt_0_word_20'>an</span><span class='editable-space' id='sourceinmt_0_space_20'>  </span><span class='editable-token' id='sourceinmt_0_word_21'>experimental</span><span class='editable-space' id='sourceinmt_0_space_21'>  </span><span class='editable-token' id='sourceinmt_0_word_22'>thrombosis</span><span class='editable-space' id='sourceinmt_0_space_22'>  </span><span class='editable-token' id='sourceinmt_0_word_23'>model</span><span class='editable-space' id='sourceinmt_0_space_23'>  </span><span class='editable-token' id='sourceinmt_0_word_24'>in</span><span class='editable-space' id='sourceinmt_0_space_24'>  </span><span class='editable-token' id='sourceinmt_0_word_25'>rabbits</span><span class='editable-space' id='sourceinmt_0_space_25'>  </span><span class='editable-token' id='sourceinmt_0_word_26'>.</span><span class='editable-space' id='sourceinmt_0_space_26'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_0' id='hypothesis_0'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(0); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(0); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'0' id='ol_checkbox_0' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #1</div></td></tr><tr><td><div class='editarea' original-text='cardiac arrests are sometimes referred to as cardiopulmonary arrest , cardiorespiratory arrest , or circulatory arrest .'name='source_sentence_1' id='sourceinmt_1'><span class='editable-token' id='sourceinmt_1_word_0'>cardiac</span><span class='editable-space' id='sourceinmt_1_space_0'>  </span><span class='editable-token' id='sourceinmt_1_word_1'>arrests</span><span class='editable-space' id='sourceinmt_1_space_1'>  </span><span class='editable-token' id='sourceinmt_1_word_2'>are</span><span class='editable-space' id='sourceinmt_1_space_2'>  </span><span class='editable-token' id='sourceinmt_1_word_3'>sometimes</span><span class='editable-space' id='sourceinmt_1_space_3'>  </span><span class='editable-token' id='sourceinmt_1_word_4'>referred</span><span class='editable-space' id='sourceinmt_1_space_4'>  </span><span class='editable-token' id='sourceinmt_1_word_5'>to</span><span class='editable-space' id='sourceinmt_1_space_5'>  </span><span class='editable-token' id='sourceinmt_1_word_6'>as</span><span class='editable-space' id='sourceinmt_1_space_6'>  </span><span class='editable-token' id='sourceinmt_1_word_7'>cardiopulmonary</span><span class='editable-space' id='sourceinmt_1_space_7'>  </span><span class='editable-token' id='sourceinmt_1_word_8'>arrest</span><span class='editable-space' id='sourceinmt_1_space_8'>  </span><span class='editable-token' id='sourceinmt_1_word_9'>,</span><span class='editable-space' id='sourceinmt_1_space_9'>  </span><span class='editable-token' id='sourceinmt_1_word_10'>cardiorespiratory</span><span class='editable-space' id='sourceinmt_1_space_10'>  </span><span class='editable-token' id='sourceinmt_1_word_11'>arrest</span><span class='editable-space' id='sourceinmt_1_space_11'>  </span><span class='editable-token' id='sourceinmt_1_word_12'>,</span><span class='editable-space' id='sourceinmt_1_space_12'>  </span><span class='editable-token' id='sourceinmt_1_word_13'>or</span><span class='editable-space' id='sourceinmt_1_space_13'>  </span><span class='editable-token' id='sourceinmt_1_word_14'>circulatory</span><span class='editable-space' id='sourceinmt_1_space_14'>  </span><span class='editable-token' id='sourceinmt_1_word_15'>arrest</span><span class='editable-space' id='sourceinmt_1_space_15'>  </span><span class='editable-token' id='sourceinmt_1_word_16'>.</span><span class='editable-space' id='sourceinmt_1_space_16'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_1' id='hypothesis_1'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(1); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(1); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'1' id='ol_checkbox_1' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #2</div></td></tr><tr><td><div class='editarea' original-text='it 's a long , hollow tube at the end of your digestive tract where your body makes and stores stool .'name='source_sentence_2' id='sourceinmt_2'><span class='editable-token' id='sourceinmt_2_word_0'>it</span><span class='editable-space' id='sourceinmt_2_space_0'>  </span><span class='editable-token' id='sourceinmt_2_word_1'>'s</span><span class='editable-space' id='sourceinmt_2_space_1'>  </span><span class='editable-token' id='sourceinmt_2_word_2'>a</span><span class='editable-space' id='sourceinmt_2_space_2'>  </span><span class='editable-token' id='sourceinmt_2_word_3'>long</span><span class='editable-space' id='sourceinmt_2_space_3'>  </span><span class='editable-token' id='sourceinmt_2_word_4'>,</span><span class='editable-space' id='sourceinmt_2_space_4'>  </span><span class='editable-token' id='sourceinmt_2_word_5'>hollow</span><span class='editable-space' id='sourceinmt_2_space_5'>  </span><span class='editable-token' id='sourceinmt_2_word_6'>tube</span><span class='editable-space' id='sourceinmt_2_space_6'>  </span><span class='editable-token' id='sourceinmt_2_word_7'>at</span><span class='editable-space' id='sourceinmt_2_space_7'>  </span><span class='editable-token' id='sourceinmt_2_word_8'>the</span><span class='editable-space' id='sourceinmt_2_space_8'>  </span><span class='editable-token' id='sourceinmt_2_word_9'>end</span><span class='editable-space' id='sourceinmt_2_space_9'>  </span><span class='editable-token' id='sourceinmt_2_word_10'>of</span><span class='editable-space' id='sourceinmt_2_space_10'>  </span><span class='editable-token' id='sourceinmt_2_word_11'>your</span><span class='editable-space' id='sourceinmt_2_space_11'>  </span><span class='editable-token' id='sourceinmt_2_word_12'>digestive</span><span class='editable-space' id='sourceinmt_2_space_12'>  </span><span class='editable-token' id='sourceinmt_2_word_13'>tract</span><span class='editable-space' id='sourceinmt_2_space_13'>  </span><span class='editable-token' id='sourceinmt_2_word_14'>where</span><span class='editable-space' id='sourceinmt_2_space_14'>  </span><span class='editable-token' id='sourceinmt_2_word_15'>your</span><span class='editable-space' id='sourceinmt_2_space_15'>  </span><span class='editable-token' id='sourceinmt_2_word_16'>body</span><span class='editable-space' id='sourceinmt_2_space_16'>  </span><span class='editable-token' id='sourceinmt_2_word_17'>makes</span><span class='editable-space' id='sourceinmt_2_space_17'>  </span><span class='editable-token' id='sourceinmt_2_word_18'>and</span><span class='editable-space' id='sourceinmt_2_space_18'>  </span><span class='editable-token' id='sourceinmt_2_word_19'>stores</span><span class='editable-space' id='sourceinmt_2_space_19'>  </span><span class='editable-token' id='sourceinmt_2_word_20'>stool</span><span class='editable-space' id='sourceinmt_2_space_20'>  </span><span class='editable-token' id='sourceinmt_2_word_21'>.</span><span class='editable-space' id='sourceinmt_2_space_21'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_2' id='hypothesis_2'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(2); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(2); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'2' id='ol_checkbox_2' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #3</div></td></tr><tr><td><div class='editarea' original-text='about 5 percent of people with ulcerative colitis develop colon cancer .'name='source_sentence_3' id='sourceinmt_3'><span class='editable-token' id='sourceinmt_3_word_0'>about</span><span class='editable-space' id='sourceinmt_3_space_0'>  </span><span class='editable-token' id='sourceinmt_3_word_1'>5</span><span class='editable-space' id='sourceinmt_3_space_1'>  </span><span class='editable-token' id='sourceinmt_3_word_2'>percent</span><span class='editable-space' id='sourceinmt_3_space_2'>  </span><span class='editable-token' id='sourceinmt_3_word_3'>of</span><span class='editable-space' id='sourceinmt_3_space_3'>  </span><span class='editable-token' id='sourceinmt_3_word_4'>people</span><span class='editable-space' id='sourceinmt_3_space_4'>  </span><span class='editable-token' id='sourceinmt_3_word_5'>with</span><span class='editable-space' id='sourceinmt_3_space_5'>  </span><span class='editable-token' id='sourceinmt_3_word_6'>ulcerative</span><span class='editable-space' id='sourceinmt_3_space_6'>  </span><span class='editable-token' id='sourceinmt_3_word_7'>colitis</span><span class='editable-space' id='sourceinmt_3_space_7'>  </span><span class='editable-token' id='sourceinmt_3_word_8'>develop</span><span class='editable-space' id='sourceinmt_3_space_8'>  </span><span class='editable-token' id='sourceinmt_3_word_9'>colon</span><span class='editable-space' id='sourceinmt_3_space_9'>  </span><span class='editable-token' id='sourceinmt_3_word_10'>cancer</span><span class='editable-space' id='sourceinmt_3_space_10'>  </span><span class='editable-token' id='sourceinmt_3_word_11'>.</span><span class='editable-space' id='sourceinmt_3_space_11'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_3' id='hypothesis_3'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(3); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(3); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'3' id='ol_checkbox_3' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #4</div></td></tr><tr><td><div class='editarea' original-text='post-transplant cancers which are not virus-inducted can be relied to genetic factors of the transplanted patient and / or the transplant donor .'name='source_sentence_4' id='sourceinmt_4'><span class='editable-token' id='sourceinmt_4_word_0'>post-transplant</span><span class='editable-space' id='sourceinmt_4_space_0'>  </span><span class='editable-token' id='sourceinmt_4_word_1'>cancers</span><span class='editable-space' id='sourceinmt_4_space_1'>  </span><span class='editable-token' id='sourceinmt_4_word_2'>which</span><span class='editable-space' id='sourceinmt_4_space_2'>  </span><span class='editable-token' id='sourceinmt_4_word_3'>are</span><span class='editable-space' id='sourceinmt_4_space_3'>  </span><span class='editable-token' id='sourceinmt_4_word_4'>not</span><span class='editable-space' id='sourceinmt_4_space_4'>  </span><span class='editable-token' id='sourceinmt_4_word_5'>virus-inducted</span><span class='editable-space' id='sourceinmt_4_space_5'>  </span><span class='editable-token' id='sourceinmt_4_word_6'>can</span><span class='editable-space' id='sourceinmt_4_space_6'>  </span><span class='editable-token' id='sourceinmt_4_word_7'>be</span><span class='editable-space' id='sourceinmt_4_space_7'>  </span><span class='editable-token' id='sourceinmt_4_word_8'>relied</span><span class='editable-space' id='sourceinmt_4_space_8'>  </span><span class='editable-token' id='sourceinmt_4_word_9'>to</span><span class='editable-space' id='sourceinmt_4_space_9'>  </span><span class='editable-token' id='sourceinmt_4_word_10'>genetic</span><span class='editable-space' id='sourceinmt_4_space_10'>  </span><span class='editable-token' id='sourceinmt_4_word_11'>factors</span><span class='editable-space' id='sourceinmt_4_space_11'>  </span><span class='editable-token' id='sourceinmt_4_word_12'>of</span><span class='editable-space' id='sourceinmt_4_space_12'>  </span><span class='editable-token' id='sourceinmt_4_word_13'>the</span><span class='editable-space' id='sourceinmt_4_space_13'>  </span><span class='editable-token' id='sourceinmt_4_word_14'>transplanted</span><span class='editable-space' id='sourceinmt_4_space_14'>  </span><span class='editable-token' id='sourceinmt_4_word_15'>patient</span><span class='editable-space' id='sourceinmt_4_space_15'>  </span><span class='editable-token' id='sourceinmt_4_word_16'>and</span><span class='editable-space' id='sourceinmt_4_space_16'>  </span><span class='editable-token' id='sourceinmt_4_word_17'>/</span><span class='editable-space' id='sourceinmt_4_space_17'>  </span><span class='editable-token' id='sourceinmt_4_word_18'>or</span><span class='editable-space' id='sourceinmt_4_space_18'>  </span><span class='editable-token' id='sourceinmt_4_word_19'>the</span><span class='editable-space' id='sourceinmt_4_space_19'>  </span><span class='editable-token' id='sourceinmt_4_word_20'>transplant</span><span class='editable-space' id='sourceinmt_4_space_20'>  </span><span class='editable-token' id='sourceinmt_4_word_21'>donor</span><span class='editable-space' id='sourceinmt_4_space_21'>  </span><span class='editable-token' id='sourceinmt_4_word_22'>.</span><span class='editable-space' id='sourceinmt_4_space_22'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_4' id='hypothesis_4'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(4); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(4); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'4' id='ol_checkbox_4' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #5</div></td></tr><tr><td><div class='editarea' original-text='soft tissue injectables and fillers are a non-surgical option for facial rejuvenation that address the loss of volume that accompanies facial aging .'name='source_sentence_5' id='sourceinmt_5'><span class='editable-token' id='sourceinmt_5_word_0'>soft</span><span class='editable-space' id='sourceinmt_5_space_0'>  </span><span class='editable-token' id='sourceinmt_5_word_1'>tissue</span><span class='editable-space' id='sourceinmt_5_space_1'>  </span><span class='editable-token' id='sourceinmt_5_word_2'>injectables</span><span class='editable-space' id='sourceinmt_5_space_2'>  </span><span class='editable-token' id='sourceinmt_5_word_3'>and</span><span class='editable-space' id='sourceinmt_5_space_3'>  </span><span class='editable-token' id='sourceinmt_5_word_4'>fillers</span><span class='editable-space' id='sourceinmt_5_space_4'>  </span><span class='editable-token' id='sourceinmt_5_word_5'>are</span><span class='editable-space' id='sourceinmt_5_space_5'>  </span><span class='editable-token' id='sourceinmt_5_word_6'>a</span><span class='editable-space' id='sourceinmt_5_space_6'>  </span><span class='editable-token' id='sourceinmt_5_word_7'>non-surgical</span><span class='editable-space' id='sourceinmt_5_space_7'>  </span><span class='editable-token' id='sourceinmt_5_word_8'>option</span><span class='editable-space' id='sourceinmt_5_space_8'>  </span><span class='editable-token' id='sourceinmt_5_word_9'>for</span><span class='editable-space' id='sourceinmt_5_space_9'>  </span><span class='editable-token' id='sourceinmt_5_word_10'>facial</span><span class='editable-space' id='sourceinmt_5_space_10'>  </span><span class='editable-token' id='sourceinmt_5_word_11'>rejuvenation</span><span class='editable-space' id='sourceinmt_5_space_11'>  </span><span class='editable-token' id='sourceinmt_5_word_12'>that</span><span class='editable-space' id='sourceinmt_5_space_12'>  </span><span class='editable-token' id='sourceinmt_5_word_13'>address</span><span class='editable-space' id='sourceinmt_5_space_13'>  </span><span class='editable-token' id='sourceinmt_5_word_14'>the</span><span class='editable-space' id='sourceinmt_5_space_14'>  </span><span class='editable-token' id='sourceinmt_5_word_15'>loss</span><span class='editable-space' id='sourceinmt_5_space_15'>  </span><span class='editable-token' id='sourceinmt_5_word_16'>of</span><span class='editable-space' id='sourceinmt_5_space_16'>  </span><span class='editable-token' id='sourceinmt_5_word_17'>volume</span><span class='editable-space' id='sourceinmt_5_space_17'>  </span><span class='editable-token' id='sourceinmt_5_word_18'>that</span><span class='editable-space' id='sourceinmt_5_space_18'>  </span><span class='editable-token' id='sourceinmt_5_word_19'>accompanies</span><span class='editable-space' id='sourceinmt_5_space_19'>  </span><span class='editable-token' id='sourceinmt_5_word_20'>facial</span><span class='editable-space' id='sourceinmt_5_space_20'>  </span><span class='editable-token' id='sourceinmt_5_word_21'>aging</span><span class='editable-space' id='sourceinmt_5_space_21'>  </span><span class='editable-token' id='sourceinmt_5_word_22'>.</span><span class='editable-space' id='sourceinmt_5_space_22'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_5' id='hypothesis_5'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(5); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(5); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'5' id='ol_checkbox_5' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #6</div></td></tr><tr><td><div class='editarea' original-text='we will investigate if there is a change in your lung inflammatory cells after the endotoxin challenge when you take the gt versus when you take a placebo .'name='source_sentence_6' id='sourceinmt_6'><span class='editable-token' id='sourceinmt_6_word_0'>we</span><span class='editable-space' id='sourceinmt_6_space_0'>  </span><span class='editable-token' id='sourceinmt_6_word_1'>will</span><span class='editable-space' id='sourceinmt_6_space_1'>  </span><span class='editable-token' id='sourceinmt_6_word_2'>investigate</span><span class='editable-space' id='sourceinmt_6_space_2'>  </span><span class='editable-token' id='sourceinmt_6_word_3'>if</span><span class='editable-space' id='sourceinmt_6_space_3'>  </span><span class='editable-token' id='sourceinmt_6_word_4'>there</span><span class='editable-space' id='sourceinmt_6_space_4'>  </span><span class='editable-token' id='sourceinmt_6_word_5'>is</span><span class='editable-space' id='sourceinmt_6_space_5'>  </span><span class='editable-token' id='sourceinmt_6_word_6'>a</span><span class='editable-space' id='sourceinmt_6_space_6'>  </span><span class='editable-token' id='sourceinmt_6_word_7'>change</span><span class='editable-space' id='sourceinmt_6_space_7'>  </span><span class='editable-token' id='sourceinmt_6_word_8'>in</span><span class='editable-space' id='sourceinmt_6_space_8'>  </span><span class='editable-token' id='sourceinmt_6_word_9'>your</span><span class='editable-space' id='sourceinmt_6_space_9'>  </span><span class='editable-token' id='sourceinmt_6_word_10'>lung</span><span class='editable-space' id='sourceinmt_6_space_10'>  </span><span class='editable-token' id='sourceinmt_6_word_11'>inflammatory</span><span class='editable-space' id='sourceinmt_6_space_11'>  </span><span class='editable-token' id='sourceinmt_6_word_12'>cells</span><span class='editable-space' id='sourceinmt_6_space_12'>  </span><span class='editable-token' id='sourceinmt_6_word_13'>after</span><span class='editable-space' id='sourceinmt_6_space_13'>  </span><span class='editable-token' id='sourceinmt_6_word_14'>the</span><span class='editable-space' id='sourceinmt_6_space_14'>  </span><span class='editable-token' id='sourceinmt_6_word_15'>endotoxin</span><span class='editable-space' id='sourceinmt_6_space_15'>  </span><span class='editable-token' id='sourceinmt_6_word_16'>challenge</span><span class='editable-space' id='sourceinmt_6_space_16'>  </span><span class='editable-token' id='sourceinmt_6_word_17'>when</span><span class='editable-space' id='sourceinmt_6_space_17'>  </span><span class='editable-token' id='sourceinmt_6_word_18'>you</span><span class='editable-space' id='sourceinmt_6_space_18'>  </span><span class='editable-token' id='sourceinmt_6_word_19'>take</span><span class='editable-space' id='sourceinmt_6_space_19'>  </span><span class='editable-token' id='sourceinmt_6_word_20'>the</span><span class='editable-space' id='sourceinmt_6_space_20'>  </span><span class='editable-token' id='sourceinmt_6_word_21'>gt</span><span class='editable-space' id='sourceinmt_6_space_21'>  </span><span class='editable-token' id='sourceinmt_6_word_22'>versus</span><span class='editable-space' id='sourceinmt_6_space_22'>  </span><span class='editable-token' id='sourceinmt_6_word_23'>when</span><span class='editable-space' id='sourceinmt_6_space_23'>  </span><span class='editable-token' id='sourceinmt_6_word_24'>you</span><span class='editable-space' id='sourceinmt_6_space_24'>  </span><span class='editable-token' id='sourceinmt_6_word_25'>take</span><span class='editable-space' id='sourceinmt_6_space_25'>  </span><span class='editable-token' id='sourceinmt_6_word_26'>a</span><span class='editable-space' id='sourceinmt_6_space_26'>  </span><span class='editable-token' id='sourceinmt_6_word_27'>placebo</span><span class='editable-space' id='sourceinmt_6_space_27'>  </span><span class='editable-token' id='sourceinmt_6_word_28'>.</span><span class='editable-space' id='sourceinmt_6_space_28'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_6' id='hypothesis_6'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(6); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(6); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'6' id='ol_checkbox_6' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #7</div></td></tr><tr><td><div class='editarea' original-text='patients with type 1 and type 2 diabetes mellitus ( dm ) will be included .'name='source_sentence_7' id='sourceinmt_7'><span class='editable-token' id='sourceinmt_7_word_0'>patients</span><span class='editable-space' id='sourceinmt_7_space_0'>  </span><span class='editable-token' id='sourceinmt_7_word_1'>with</span><span class='editable-space' id='sourceinmt_7_space_1'>  </span><span class='editable-token' id='sourceinmt_7_word_2'>type</span><span class='editable-space' id='sourceinmt_7_space_2'>  </span><span class='editable-token' id='sourceinmt_7_word_3'>1</span><span class='editable-space' id='sourceinmt_7_space_3'>  </span><span class='editable-token' id='sourceinmt_7_word_4'>and</span><span class='editable-space' id='sourceinmt_7_space_4'>  </span><span class='editable-token' id='sourceinmt_7_word_5'>type</span><span class='editable-space' id='sourceinmt_7_space_5'>  </span><span class='editable-token' id='sourceinmt_7_word_6'>2</span><span class='editable-space' id='sourceinmt_7_space_6'>  </span><span class='editable-token' id='sourceinmt_7_word_7'>diabetes</span><span class='editable-space' id='sourceinmt_7_space_7'>  </span><span class='editable-token' id='sourceinmt_7_word_8'>mellitus</span><span class='editable-space' id='sourceinmt_7_space_8'>  </span><span class='editable-token' id='sourceinmt_7_word_9'>(</span><span class='editable-space' id='sourceinmt_7_space_9'>  </span><span class='editable-token' id='sourceinmt_7_word_10'>dm</span><span class='editable-space' id='sourceinmt_7_space_10'>  </span><span class='editable-token' id='sourceinmt_7_word_11'>)</span><span class='editable-space' id='sourceinmt_7_space_11'>  </span><span class='editable-token' id='sourceinmt_7_word_12'>will</span><span class='editable-space' id='sourceinmt_7_space_12'>  </span><span class='editable-token' id='sourceinmt_7_word_13'>be</span><span class='editable-space' id='sourceinmt_7_space_13'>  </span><span class='editable-token' id='sourceinmt_7_word_14'>included</span><span class='editable-space' id='sourceinmt_7_space_14'>  </span><span class='editable-token' id='sourceinmt_7_word_15'>.</span><span class='editable-space' id='sourceinmt_7_space_15'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_7' id='hypothesis_7'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(7); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(7); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'7' id='ol_checkbox_7' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #8</div></td></tr><tr><td><div class='editarea' original-text='the first 6 months will be a wash in period and participants will be randomised ( 1 / 1 ) to their treatments at the 6 month visit .'name='source_sentence_8' id='sourceinmt_8'><span class='editable-token' id='sourceinmt_8_word_0'>the</span><span class='editable-space' id='sourceinmt_8_space_0'>  </span><span class='editable-token' id='sourceinmt_8_word_1'>first</span><span class='editable-space' id='sourceinmt_8_space_1'>  </span><span class='editable-token' id='sourceinmt_8_word_2'>6</span><span class='editable-space' id='sourceinmt_8_space_2'>  </span><span class='editable-token' id='sourceinmt_8_word_3'>months</span><span class='editable-space' id='sourceinmt_8_space_3'>  </span><span class='editable-token' id='sourceinmt_8_word_4'>will</span><span class='editable-space' id='sourceinmt_8_space_4'>  </span><span class='editable-token' id='sourceinmt_8_word_5'>be</span><span class='editable-space' id='sourceinmt_8_space_5'>  </span><span class='editable-token' id='sourceinmt_8_word_6'>a</span><span class='editable-space' id='sourceinmt_8_space_6'>  </span><span class='editable-token' id='sourceinmt_8_word_7'>wash</span><span class='editable-space' id='sourceinmt_8_space_7'>  </span><span class='editable-token' id='sourceinmt_8_word_8'>in</span><span class='editable-space' id='sourceinmt_8_space_8'>  </span><span class='editable-token' id='sourceinmt_8_word_9'>period</span><span class='editable-space' id='sourceinmt_8_space_9'>  </span><span class='editable-token' id='sourceinmt_8_word_10'>and</span><span class='editable-space' id='sourceinmt_8_space_10'>  </span><span class='editable-token' id='sourceinmt_8_word_11'>participants</span><span class='editable-space' id='sourceinmt_8_space_11'>  </span><span class='editable-token' id='sourceinmt_8_word_12'>will</span><span class='editable-space' id='sourceinmt_8_space_12'>  </span><span class='editable-token' id='sourceinmt_8_word_13'>be</span><span class='editable-space' id='sourceinmt_8_space_13'>  </span><span class='editable-token' id='sourceinmt_8_word_14'>randomised</span><span class='editable-space' id='sourceinmt_8_space_14'>  </span><span class='editable-token' id='sourceinmt_8_word_15'>(</span><span class='editable-space' id='sourceinmt_8_space_15'>  </span><span class='editable-token' id='sourceinmt_8_word_16'>1</span><span class='editable-space' id='sourceinmt_8_space_16'>  </span><span class='editable-token' id='sourceinmt_8_word_17'>/</span><span class='editable-space' id='sourceinmt_8_space_17'>  </span><span class='editable-token' id='sourceinmt_8_word_18'>1</span><span class='editable-space' id='sourceinmt_8_space_18'>  </span><span class='editable-token' id='sourceinmt_8_word_19'>)</span><span class='editable-space' id='sourceinmt_8_space_19'>  </span><span class='editable-token' id='sourceinmt_8_word_20'>to</span><span class='editable-space' id='sourceinmt_8_space_20'>  </span><span class='editable-token' id='sourceinmt_8_word_21'>their</span><span class='editable-space' id='sourceinmt_8_space_21'>  </span><span class='editable-token' id='sourceinmt_8_word_22'>treatments</span><span class='editable-space' id='sourceinmt_8_space_22'>  </span><span class='editable-token' id='sourceinmt_8_word_23'>at</span><span class='editable-space' id='sourceinmt_8_space_23'>  </span><span class='editable-token' id='sourceinmt_8_word_24'>the</span><span class='editable-space' id='sourceinmt_8_space_24'>  </span><span class='editable-token' id='sourceinmt_8_word_25'>6</span><span class='editable-space' id='sourceinmt_8_space_25'>  </span><span class='editable-token' id='sourceinmt_8_word_26'>month</span><span class='editable-space' id='sourceinmt_8_space_26'>  </span><span class='editable-token' id='sourceinmt_8_word_27'>visit</span><span class='editable-space' id='sourceinmt_8_space_27'>  </span><span class='editable-token' id='sourceinmt_8_word_28'>.</span><span class='editable-space' id='sourceinmt_8_space_28'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_8' id='hypothesis_8'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(8); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(8); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'8' id='ol_checkbox_8' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #9</div></td></tr><tr><td><div class='editarea' original-text='polyp-like varices are shown here in the gastric cardia , seen on retroflexion of the endoscope .'name='source_sentence_9' id='sourceinmt_9'><span class='editable-token' id='sourceinmt_9_word_0'>polyp-like</span><span class='editable-space' id='sourceinmt_9_space_0'>  </span><span class='editable-token' id='sourceinmt_9_word_1'>varices</span><span class='editable-space' id='sourceinmt_9_space_1'>  </span><span class='editable-token' id='sourceinmt_9_word_2'>are</span><span class='editable-space' id='sourceinmt_9_space_2'>  </span><span class='editable-token' id='sourceinmt_9_word_3'>shown</span><span class='editable-space' id='sourceinmt_9_space_3'>  </span><span class='editable-token' id='sourceinmt_9_word_4'>here</span><span class='editable-space' id='sourceinmt_9_space_4'>  </span><span class='editable-token' id='sourceinmt_9_word_5'>in</span><span class='editable-space' id='sourceinmt_9_space_5'>  </span><span class='editable-token' id='sourceinmt_9_word_6'>the</span><span class='editable-space' id='sourceinmt_9_space_6'>  </span><span class='editable-token' id='sourceinmt_9_word_7'>gastric</span><span class='editable-space' id='sourceinmt_9_space_7'>  </span><span class='editable-token' id='sourceinmt_9_word_8'>cardia</span><span class='editable-space' id='sourceinmt_9_space_8'>  </span><span class='editable-token' id='sourceinmt_9_word_9'>,</span><span class='editable-space' id='sourceinmt_9_space_9'>  </span><span class='editable-token' id='sourceinmt_9_word_10'>seen</span><span class='editable-space' id='sourceinmt_9_space_10'>  </span><span class='editable-token' id='sourceinmt_9_word_11'>on</span><span class='editable-space' id='sourceinmt_9_space_11'>  </span><span class='editable-token' id='sourceinmt_9_word_12'>retroflexion</span><span class='editable-space' id='sourceinmt_9_space_12'>  </span><span class='editable-token' id='sourceinmt_9_word_13'>of</span><span class='editable-space' id='sourceinmt_9_space_13'>  </span><span class='editable-token' id='sourceinmt_9_word_14'>the</span><span class='editable-space' id='sourceinmt_9_space_14'>  </span><span class='editable-token' id='sourceinmt_9_word_15'>endoscope</span><span class='editable-space' id='sourceinmt_9_space_15'>  </span><span class='editable-token' id='sourceinmt_9_word_16'>.</span><span class='editable-space' id='sourceinmt_9_space_16'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_9' id='hypothesis_9'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(9); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(9); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'9' id='ol_checkbox_9' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr><tr><td><div style='margin-left:7%'>Sentence #10</div></td></tr><tr><td><div class='editarea' original-text=''name='source_sentence_10' id='sourceinmt_10'><span class='editable-token' id='sourceinmt_10_word_0'></span><span class='editable-space' id='sourceinmt_10_space_0'>  </span></div></td><td><div style='margin-left:7% class='source item'><textarea name='hypothesis_10' id='hypothesis_10'placeholder='Click in the translate button to obtain a translation.'></textarea></div></td></tr><tr><td><div style='float: right;'><form onsubmit='write_interactive_tranlation(10); return false;'><button type='submit' class='button'>Translate!</button></form></div></td><td><div style='float: right;'><form onsubmit='accept_translation(10); return false;'> Learn from sample <input type='checkbox' name='OL-checkbox_'10' id='ol_checkbox_10' value='True' checked><button type='submit' class='button'>Accept translation</button></form></div></td></tr></table>"
+        if (url == 'xerox'){
+            DisplayArea.innerHTML = xerox_table;
+        }
+        if (url == 'ted'){
+            DisplayArea.innerHTML = ted_table;
+        }
+        if (url == 'khresmoi'){
+            DisplayArea.innerHTML = khresmoi_table;
+        }
+    }
+
+    function readObjectFile(srcfile) {
         // Reset progress indicator on new file selection.
-        var srcfile = evt.target.files[0];
         progress.style.width = '0%';
         progress.textContent = '0%';
         reader = new FileReader();
@@ -453,11 +481,15 @@
             progress.style.width = '100%';
             progress.textContent = '100%';
             setTimeout("document.getElementById('progress_bar').className='';", 2000);
-            var html_source = '<table  id="DisplayTable"  style="width:100%"  >';
+            var html_table = '<table  id="DisplayTable"  style="width: auto; overflow: auto; display: block;"  >';
             var results = reader.result.split("\n");
+            console.log(html_table);
+
             for (var i = 0; i < results.length; i++) {
                 var source_line = results[i];
-                html_source +=
+                var source_html = '';
+                source_html = split_line_into_spans(source_line, "sourceinmt_" + i);
+                html_table +=
                         "<tr>" +
                             "<td>" +
                                 "<div style='margin-left:7%'>Sentence #" + i + "</div>" +
@@ -465,32 +497,51 @@
                         "</tr>" +
                         "<tr>" +
                             "<td>" +
-                                "<form onsubmit='write_interactive_tranlation(" + i + "); return false;'>" +
-                                "<div style='margin-left:5%'><textarea rows='4' name='source_sentence_" + i + "' id='sourceinmt_" + i + "'>" + source_line + "</textarea></div>" +
-                                "<div style='padding:2px'></div>" +
-                                "<div style='float: right; margin-right:5%;'>" + "<button type='submit' class='button'>Translate!</button></div>" +
-                                "</form>" +
+//                                    "<div style='margin-left:7% class='source item'>" +
+                                        "<div class='editarea' " +
+                                            "original-text='" + source_line + "'" +
+                                            "name='source_sentence_" + i + "' id='sourceinmt_" + i + "'>" + source_html +
+                                        "</div>" + // Close edit area invisible
+//                                    "</div>" + // Close source item div
                             "</td>" +
                             "<td>" +
-                                "<form onsubmit='accept_translation(" + i + "); return false;'>" +
-                                "<div style='margin-right:5%'><textarea rows='4' name='hypothesis_" + i + "' id='hypothesis_" + i +
-                                "'placeholder='Click in the translate button to obtain a translation of it.'>" + "</textarea></div>" +
-                                "<div style='padding:2px'></div>" +
-                                "<div style='float: right; margin-right:5%;'>" + "<button type='submit' class='button'>Accept translation</button></div>" +
-                                "<div style='float: right; margin-right:5%;'> Learn from sample <input type='checkbox' name='OL-checkbox_'" + i + "' id='ol_checkbox_" + i + "' value='True' checked></div>" +
-                                "</form>" +
+                                "<div style='margin-left:7% class='source item'>" +
+                                    "<textarea " +
+                                        "name='hypothesis_" + i + "' id='hypothesis_" + i +
+                                        "'placeholder='Click in the translate button to obtain a translation.'>" +
+                                    "</textarea>" +
+                                "</div>" + // Close source item div
+
+//                                "</div>" + // Close div wrap
+                            "</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<td>" +
+                                    "<div style='float: right;'>" +
+                                        "<form onsubmit='write_interactive_tranlation(" + i + "); return false;'>" +
+                                        "<button type='submit' class='button'>Translate!</button>" +
+                                        "</form>" +
+                                "</div>" +
+                            "</td>" +
+                            "<td>" +
+                                "<div style='float: right;'>" +
+                                    "<form onsubmit='accept_translation(" + i + "); return false;'>" +
+                                        " Learn from sample <input type='checkbox' name='OL-checkbox_'" + i + "' id='ol_checkbox_" + i + "' value='True' checked>" +
+                                        "<button type='submit' class='button'>Accept translation</button>"+
+                                    "</form>" +
+                                "</div>" +
                             "</td>" +
                         "</tr>";
+
+
             }
-            html_source += '</table>';
-            DisplayArea.innerHTML = html_source;
+            html_table += '</table>';
+            DisplayArea.innerHTML = html_table;
         };
         reader.readAsText(srcfile);
     }
     document.getElementById('files').addEventListener('change', handleFileSelect, false);
-
 </script>
-
 
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/jquery.scrollex.min.js"></script>
