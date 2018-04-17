@@ -26,6 +26,8 @@ def parse_args():
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
     parser.add_argument("-n", "--n-best", action="store_true", default=False, help="Write n-best list (n = beam size)")
+    parser.add_argument("-w", "--weights", nargs="*", help="Weight given to each model in the ensemble. You should provide the same number of weights than models."
+                                                           "By default, it applies the same weight to each model (1/N).", default=[])
     parser.add_argument("-m", "--models", nargs="+", required=True, help="Path to the models")
     parser.add_argument("-ch", "--changes", nargs="*", help="Changes to the config. Following the syntax Key=Value",
                         default="")
@@ -33,7 +35,7 @@ def parse_args():
 
 
 def sample_ensemble(args, params):
-    models = args.models
+
     logging.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
@@ -70,15 +72,22 @@ def sample_ensemble(args, params):
     params_prediction['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
     params_prediction['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
     params_prediction['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+    params_prediction['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
 
     heuristic = params.get('HEURISTIC', 0)
     mapping = None if dataset.mapping == dict() else dataset.mapping
+    model_weights = args.weights
 
+    if model_weights is not None and model_weights != []:
+        assert len(model_weights) == len(models), 'You should give a weight to each model. You gave %d models and %d weights.' % (len(models), len(model_weights))
+        model_weights = map(lambda x: float(x), model_weights)
+        if len(model_weights) > 1:
+            logger.info('Giving the following weights to each model: %s' % str(model_weights))
     for s in args.splits:
         # Apply model predictions
         params_prediction['predict_on_sets'] = [s]
         beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction,
-                                           n_best=args.n_best, verbose=args.verbose)
+                                           model_weights=model_weights, n_best=args.n_best, verbose=args.verbose)
         if args.n_best:
             predictions, n_best = beam_searcher.predictBeamSearchNet()[s]
         else:

@@ -6,23 +6,21 @@ Neural Machine Translation with Keras (Theano and Tensorflow).
 
 Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.io)
 
-<div align="left">
-  <br><br><img src="https://raw.githubusercontent.com/lvapeab/nmt-keras/master/examples/documentation/attention_nmt_model.png?token=AEf6E5RhGVqGRSmYi87EbtiGZK7lPxrFks5ZAx-KwA%3D%3D"><br><br>
-</div>
+<!--<div align="left">-->
+  <!--<br><br><img src="https://raw.githubusercontent.com/lvapeab/nmt-keras/master/examples/documentation/attention_nmt_model.png?token=AEf6E5RhGVqGRSmYi87EbtiGZK7lPxrFks5ZAx-KwA%3D%3D"><br><br>-->
+<!--</div>-->
 
+<!--<div align="left">-->
+  <!--<br><br><img  width="100%" "height:100%" "object-fit: cover" "overflow: hidden" src=""><br><br>-->
+<!--</div>-->
 
-If you use this toolkit in your research, please cite:
+## Attentional recurrent neural network NMT model
+![alt text](examples/documentation/attention_nmt_model.png "RNN NMT")
 
-```
-@misc{nmt-keras2017,
-	author = {Peris, {\'A}lvaro},
-	title = {{NMT}-{K}eras},
-	year = {2017},
-	publisher = {GitHub},
-	note = {GitHub repository},
-	howpublished = {\url{https://github.com/lvapeab/nmt-keras}},
-}
-```
+## Transformer NMT model
+![alt text](examples/documentation/transformer_nmt_model.png "Transformer NMT")
+#
+
 
 # Interactive & Online NMT
 
@@ -59,11 +57,11 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
 
 
 ## Features (in addition to the full Keras cosmos): 
- 
+ * :heavy_exclamation_mark: First version of the Transformer model (from [Attention is All You Need](https://arxiv.org/abs/1706.03762)). Somewhat untested and missing the tied embeddings.
  * [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
-   - :heavy_exclamation_mark: Supporting [Bahdanau (Add)](https://arxiv.org/abs/1409.0473) and [Luong (Dot)](https://arxiv.org/abs/1508.04025) attention mechanisms.
+   - Supporting [Bahdanau (Add)](https://arxiv.org/abs/1409.0473) and [Luong (Dot)](https://arxiv.org/abs/1508.04025) attention mechanisms.
    - Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
@@ -74,6 +72,7 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
    - Regular GRU/LSTM units.
    - [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in the decoder.   
    - Multilayered residual GRU/LSTM networks (and their Conditional version).
+ * [Label smoothing](https://arxiv.org/abs/1512.00567).  
  * N-best list generation (as byproduct of the beam search process).
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
@@ -100,9 +99,9 @@ Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)
 
 NMT-Keras requires the following libraries:
 
- - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 2.0.7 or newer)
- - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 2.0 or newer) ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html))
- - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation)
+ - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 2.0.7 or newer).
+ - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 2.0 or newer). ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html)).
+ - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation). This package requires `java` (version 1.8.0 or newer).
 
 
 ## Usage
@@ -178,11 +177,34 @@ optional arguments:
     4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a state-of-the-art NMT model with Keras in few (~50) lines. 
 
 
-## Acknowledgement
+## Citation
+
+If you use this toolkit in your research, please cite:
+
+```
+@misc{nmt-keras2017,
+	author = {Peris, {\'A}lvaro},
+	title = {{NMT}-{K}eras},
+	year = {2017},
+	publisher = {GitHub},
+	note = {GitHub repository},
+	howpublished = {\url{https://github.com/lvapeab/nmt-keras}},
+}
+```
+
+
+NMT-Keras was used in a number of papers:
+
+* [Online Learning for Effort Reduction in Interactive Neural Machine Translation](https://arxiv.org/abs/1802.03594)
+* [Adapting Neural Machine Translation with Parallel Synthetic Data](http://www.statmt.org/wmt17/pdf/WMT14.pdf)
+* [Online Learning for Neural Machine Translation Post-editing](https://arxiv.org/pdf/1706.03196.pdf)
+
+
+### Acknowledgement
 
 Much of this library has been developed together with [Marc Bolaños](https://github.com/MarcBS) ([web page](http://www.ub.edu/cvub/marcbolanos/)) for other sequence-to-sequence problems. 
 
-To see other projects following the philosophy of NMT-Keras, take a look here:
+To see other projects following the same philosophy and style of NMT-Keras, take a look to:
 
 [TMA for egocentric captioning based on temporally-linked sequences](https://github.com/MarcBS/TMA).
 

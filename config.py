@@ -75,9 +75,7 @@ def load_parameters():
     ALIGN_FROM_RAW = True                         # Align using the full vocabulary or the short_list.
 
     # Source -- Target pkl mapping (used for heuristics 1--2). See utils/build_mapping_file.sh for further info.
-
     MAPPING = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN)
-
 
     # Word representation params
     TOKENIZATION_METHOD = 'tokenize_none'         # Select which tokenization we'll apply.
@@ -116,13 +114,14 @@ def load_parameters():
     MAX_OUTPUT_TEXT_LEN_TEST = MAX_OUTPUT_TEXT_LEN * 3  # Maximum length of the output sequence during test time.
 
     # Optimizer parameters (see model.compile() function).
-    LOSS = 'sparse_categorical_crossentropy'
+    LOSS = 'categorical_crossentropy'
     CLASSIFIER_ACTIVATION = 'softmax'
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
+    LABEL_SMOOTHING = 0.                          # Epsilon value for label smoothing. Only valid for 'categorical_crossentropy' loss. See arxiv.org/abs/1512.00567.
 
     OPTIMIZER = 'Adam'                            # Optimizer. Supported optimizers: SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam.
     LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0.
-    CLIP_C = 1.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated).
+    CLIP_C = 5.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated).
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated).
 
     # Advanced parameters for optimizers. Default values are usually effective.
@@ -137,7 +136,9 @@ def load_parameters():
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR.
     LR_REDUCE_EACH_EPOCHS = False                 # Reduce each LR_DECAY number of epochs or updates.
     LR_START_REDUCTION_ON_EPOCH = 0               # Epoch to start the reduction.
-    LR_REDUCER_TYPE = 'exponential'               # Function to reduce. 'linear' and 'exponential' implemented..
+    LR_REDUCER_TYPE = 'exponential'               # Function to reduce. 'linear' and 'exponential' implemented.
+                                                  # Linear reduction: new_lr = lr * LR_GAMMA
+                                                  # Exponential reduction: new_lr = lr * LR_REDUCER_EXP_BASE ** (current_nb / LR_HALF_LIFE) * LR_GAMMA
     LR_REDUCER_EXP_BASE = 0.5                     # Base for the exponential decay.
     LR_HALF_LIFE = 5000                           # Factor for exponenital decay.
 
@@ -147,7 +148,7 @@ def load_parameters():
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths (Dangerous!!).
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort.
-    PARALLEL_LOADERS = 1                          # Parallel data batch loaders.
+    PARALLEL_LOADERS = 1                          # Parallel data batch loaders. Somewhat untested if > 1.
     EPOCHS_FOR_SAVE = 1                           # Number of epochs between model saves.
     WRITE_VALID_SAMPLES = True                    # Write valid samples in file.
     SAVE_EACH_EVALUATION = True                   # Save each time we evaluate the model.
@@ -159,12 +160,11 @@ def load_parameters():
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop.
 
     # Model parameters
-    MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures.
-    ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported).
-    DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type.
-                                                  # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported).
-    ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau-style) or 'dot' (Luong-style).
+    MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo.py for more info.
+                                                  # Supported architectures: 'AttentionRNNEncoderDecoder' and 'Transformer'.
 
+    # Hyperparameters common to all models
+    # # # # # # # # # # # # # # # # # # # # # # # #
     TRAINABLE_ENCODER = True                      # Whether the encoder's weights should be modified during training.
     TRAINABLE_DECODER = True                      # Whether the decoder's weights should be modified during training.
 
@@ -185,30 +185,52 @@ def load_parameters():
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    # Encoder configuration
-    ENCODER_HIDDEN_SIZE = 32                      # For models with RNN encoder.
-    BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder.
+    SCALE_SOURCE_WORD_EMBEDDINGS = False          # Scale source word embeddings by Sqrt(SOURCE_TEXT_EMBEDDING_SIZE)
+    SCALE_TARGET_WORD_EMBEDDINGS = False          # Scale target word embeddings by Sqrt(TARGET_TEXT_EMBEDDING_SIZE)
+
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers.
-    BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers.
-
-    # Decoder configuration
-    DECODER_HIDDEN_SIZE = 32                      # For models with RNN decoder.
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
-    ATTENTION_SIZE = DECODER_HIDDEN_SIZE
-    # Skip connections parameters
-    SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE     # Hidden size.
-    ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py).
-    SKIP_VECTORS_SHARED_ACTIVATION = 'tanh'       # Activation for the skip vectors.
-
-    # Fully-Connected layers for initializing the first RNN state.
-    #       Here we should only specify the activation function of each layer (as they have a potentially fixed size)
-    #       (e.g INIT_LAYERS = ['tanh', 'relu'])
-    INIT_LAYERS = ['tanh']
 
     # Additional Fully-Connected layers applied before softmax.
     #       Here we should specify the activation function and the output dimension.
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
     DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
+    # # # # # # # # # # # # # # # # # # # # # # # #
+
+    # AttentionRNNEncoderDecoder model hyperparameters
+    # # # # # # # # # # # # # # # # # # # # # # # #
+    ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported).
+    DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type.
+                                                  # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported).
+    ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau-style) or 'dot' (Luong-style).
+
+    # Encoder configuration
+    ENCODER_HIDDEN_SIZE = 32                      # For models with RNN encoder.
+    BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder.
+    BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers.
+
+    # Fully-Connected layers for initializing the first decoder RNN state.
+    #       Here we should only specify the activation function of each layer (as they have a potentially fixed size)
+    #       (e.g INIT_LAYERS = ['tanh', 'relu'])
+    INIT_LAYERS = ['tanh']
+
+    # Decoder configuration
+    DECODER_HIDDEN_SIZE = 32                      # For models with RNN decoder.
+    ATTENTION_SIZE = DECODER_HIDDEN_SIZE
+
+    # Skip connections parameters
+    SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE     # Hidden size.
+    ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py).
+    SKIP_VECTORS_SHARED_ACTIVATION = 'tanh'       # Activation for the skip vectors.
+    # # # # # # # # # # # # # # # # # # # # # # # #
+
+    # Transformer model hyperparameters
+    # # # # # # # # # # # # # # # # # # # # # # # #
+    MODEL_SIZE = 32                               # Transformer model size (d_{model} in de paper).
+    MULTIHEAD_ATTENTION_ACTIVATION = 'linear'     # Activation the input projections in the Multi-Head Attention blocks.
+    FF_SIZE = MODEL_SIZE * 4                      # Size of the feed-forward layers of the Transformer model.
+    N_HEADS = 8                                   # Number of parallel attention layers of the Transformer model.
+    # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Regularizers
     REGULARIZATION_FN = 'L2'                      # Regularization function. 'L1', 'L2' and 'L1_L2' supported.
@@ -218,8 +240,9 @@ def load_parameters():
     DROPOUT_P = 0.                                # Percentage of units to drop (0 means no dropout).
     RECURRENT_INPUT_DROPOUT_P = 0.                # Percentage of units to drop in input cells of recurrent layers.
     RECURRENT_DROPOUT_P = 0.                      # Percentage of units to drop in recurrent layers.
+    ATTENTION_DROPOUT_P = 0.                      # Percentage of units to drop in attention layers (0 means no dropout).
 
-    USE_NOISE = True                              # Use gaussian noise during training.
+    USE_NOISE = False                              # Use gaussian noise during training.
     NOISE_AMOUNT = 0.01                           # Amount of noise.
 
     USE_BATCH_NORMALIZATION = True                # If True it is recommended to deactivate Dropout.
@@ -233,7 +256,8 @@ def load_parameters():
 
     # Results plot and models storing parameters.
     EXTRA_NAME = ''                               # This will be appended to the end of the model name.
-    MODEL_NAME = TASK_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
+    if MODEL_TYPE == 'AttentionRNNEncoderDecoder':
+        MODEL_NAME = TASK_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
                  '_src_emb_' + str(SOURCE_TEXT_EMBEDDING_SIZE) + \
                  '_bidir_' + str(BIDIRECTIONAL_ENCODER) + \
                  '_enc_' + ENCODER_RNN_TYPE + '_' + str(ENCODER_HIDDEN_SIZE) + \
@@ -241,6 +265,18 @@ def load_parameters():
                  '_deepout_' + '_'.join([layer[0] for layer in DEEP_OUTPUT_LAYERS]) + \
                  '_trg_emb_' + str(TARGET_TEXT_EMBEDDING_SIZE) + \
                  '_' + OPTIMIZER + '_' + str(LR)
+    elif MODEL_TYPE == 'Transformer':
+        MODEL_NAME = TASK_NAME + '_' + SRC_LAN + TRG_LAN + '_' + MODEL_TYPE + \
+                 '_model_size_' + str(MODEL_SIZE) + \
+                 '_ff_size_' + str(FF_SIZE) + \
+                 '_num_heads_' + str(N_HEADS) + \
+                 '_encoder_blocks_' + str(N_LAYERS_ENCODER) + \
+                 '_decoder_blocks_' + str(N_LAYERS_DECODER) + \
+                 '_deepout_' + '_'.join([layer[0] for layer in DEEP_OUTPUT_LAYERS]) + \
+                 '_' + OPTIMIZER + '_' + str(LR)
+    else:
+        MODEL_NAME = TASK_NAME + '_' + SRC_LAN + TRG_LAN + '_' +\
+                     MODEL_TYPE + '_' + OPTIMIZER + '_' + str(LR)
 
     MODEL_NAME += EXTRA_NAME
 

@@ -21,6 +21,9 @@ def parse_args():
                                                                                            "into the dataset object.")
     parser.add_argument("-d", "--dest", required=False, help="File to save scores in")
     parser.add_argument("-v", "--verbose", required=False, action='store_true', default=False, help="Be verbose")
+    parser.add_argument("-w", "--weights", nargs="*", help="Weight given to each model in the ensemble. "
+                                                           "You should provide the same number of weights than models."
+                                                           "By default, it applies the same weight to each model (1/N).", default=[])
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
@@ -41,6 +44,14 @@ def score_corpus(args, params):
     # Apply scoring
     extra_vars = dict()
     extra_vars['tokenize_f'] = eval('dataset.' + params['TOKENIZATION_METHOD'])
+
+    model_weights = args.weights
+    if model_weights is not None and model_weights != []:
+        assert len(model_weights) == len(models), 'You should give a weight to each model. You gave %d models and %d weights.' % (len(models), len(model_weights))
+        model_weights = map(lambda x: float(x), model_weights)
+        if len(model_weights) > 1:
+            logger.info('Giving the following weights to each model: %s' % str(model_weights))
+
     for s in args.splits:
         # Apply model predictions
         params_prediction = {'max_batch_size': params['BATCH_SIZE'],
@@ -68,7 +79,8 @@ def score_corpus(args, params):
             params_prediction['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
             params_prediction['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
             params_prediction['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
-            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, verbose=args.verbose)
+            params_prediction['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
+            beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction, model_weights=model_weights, verbose=args.verbose)
             scores = beam_searcher.scoreNet()[s]
 
         # Store result
