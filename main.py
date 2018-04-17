@@ -224,6 +224,7 @@ def apply_NMT_model(params, load_dataset=None):
         extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
         extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
         extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+        extra_vars['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
 
         if params['POS_UNK']:
             extra_vars['heuristic'] = params['HEURISTIC']
@@ -308,6 +309,7 @@ def buildCallbacks(params, model, dataset):
             extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
             extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
             extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+            extra_vars['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
 
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -392,6 +394,28 @@ def check_params(params):
     if not params.get('TRAINABLE_ENCODER', True) and not params.get('TRAINABLE_DECODER', True):
         warnings.warn('Non-trainable model!')
 
+    if params['MODEL_TYPE'].lower() == 'transformer':
+
+        assert params['MODEL_SIZE'] == params['TARGET_TEXT_EMBEDDING_SIZE'], 'When using the Transformer model, ' \
+                                                                             'dimensions of "MODEL_SIZE" and "TARGET_TEXT_EMBEDDING_SIZE" must match. ' \
+                                                                             'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'])
+        assert params['MODEL_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE'], 'When using the Transformer model, ' \
+                                                                             'dimensions of "MODEL_SIZE" and "SOURCE_TEXT_EMBEDDING_SIZE" must match. ' \
+                                                                             'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'])
+        if params['OPTIMIZED_SEARCH']:
+            warnings.warn('The "OPTIMIZED_SEARCH" option is still untested for the "Transformer" model. Setting it to False.')
+            params['OPTIMIZED_SEARCH'] = False
+
+        if params['POS_UNK']:
+            warnings.warn('The "POS_UNK" option is still unimplemented for the "Transformer" model. '
+                          'Setting it to False.')
+            params['POS_UNK'] = False
+        assert params['MODEL_SIZE'] % params['N_HEADS'] == 0, \
+            '"MODEL_SIZE" should be a multiple of "N_HEADS". ' \
+            'Currently: mod(%d, %d) == %d.' % (params['MODEL_SIZE'], params['N_HEADS'], params['MODEL_SIZE'] % params['N_HEADS'])
+
+    return params
+
 
 if __name__ == "__main__":
     args = parse_args()
@@ -413,7 +437,7 @@ if __name__ == "__main__":
         print 'Error processing arguments: (', k, ",", v, ")"
         exit(2)
 
-    check_params(parameters)
+    parameters = check_params(parameters)
     if parameters['MODE'] == 'training':
         logging.info('Running training.')
         train_model(parameters, args.dataset)

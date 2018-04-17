@@ -32,6 +32,8 @@ matrix:
         - python: 2.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
         - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
+        - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
@@ -57,6 +59,8 @@ matrix:
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir
 
 # command to install dependencies
 install:
