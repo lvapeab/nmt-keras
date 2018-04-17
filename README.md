@@ -15,10 +15,10 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
 <!--</div>-->
 
 ## Attentional recurrent neural network NMT model
-![alt text](examples/documentation/attention_nmt_model.png "Title")
+![alt text](examples/documentation/attention_nmt_model.png "RNN NMT")
 
 ## Transformer NMT model
-![alt text](examples/documentation/transformer_nmt_model.png "Title")
+![alt text](examples/documentation/transformer_nmt_model.png "Transformer NMT")
 #
 
 
