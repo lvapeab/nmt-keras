@@ -728,12 +728,16 @@ class TranslationModel(Model_Wrapper):
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
             src_embedding = SqrtScaling(params['MODEL_SIZE'])(src_embedding)
+        if params['TARGET_TEXT_EMBEDDING_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE']:
+            max_len = max(params['MAX_INPUT_TEXT_LEN'], params['MAX_OUTPUT_TEXT_LEN'], params['MAX_OUTPUT_TEXT_LEN_TEST'])
+        else:
+            max_len = params['MAX_INPUT_TEXT_LEN']
 
-        positional_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'],
+        positional_embedding = Embedding(max_len,
                                          params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                          name='positional_src_word_embedding',
                                          trainable=False,
-                                         weights=getPositionalEncodingWeights(params['INPUT_VOCABULARY_SIZE'],
+                                         weights=getPositionalEncodingWeights(max_len,
                                                                               params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                                                               name='positional_src_word_embedding',
                                                                               verbose=self.verbose))
@@ -792,14 +796,19 @@ class TranslationModel(Model_Wrapper):
         if params.get('SCALE_TARGET_WORD_EMBEDDINGS', False):
             state_below = SqrtScaling(params['MODEL_SIZE'])(state_below)
 
-        positional_embedding_trg = Embedding(params['OUTPUT_VOCABULARY_SIZE'],
-                                             params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                             name='positional_trg_word_embedding',
-                                             trainable=False,
-                                             weights=getPositionalEncodingWeights(params['OUTPUT_VOCABULARY_SIZE'],
-                                                                                  params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                                                                  name='positional_trg_word_embedding',
-                                                                                  verbose=self.verbose))
+        if params['TARGET_TEXT_EMBEDDING_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE']:
+            positional_embedding_trg = positional_embedding
+        else:
+            max_len = max(params['MAX_OUTPUT_TEXT_LEN'], params['MAX_OUTPUT_TEXT_LEN_TEST'])
+
+            positional_embedding_trg = Embedding(max_len,
+                                                 params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                                 name='positional_trg_word_embedding',
+                                                 trainable=False,
+                                                 weights=getPositionalEncodingWeights(max_len,
+                                                                                      params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                                                                      name='positional_trg_word_embedding',
+                                                                                      verbose=self.verbose))
 
         positional_trg_embedding = positional_embedding_trg(next_words_positions)
 
