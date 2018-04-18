@@ -34,6 +34,7 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
    - Featuring length and source coverage normalization ([reference](https://arxiv.org/abs/1609.08144)).
  * Translation scoring ([score.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
+ * Model averaging ([utils/model_average.py](https://github.com/lvapeab/nmt-keras/blob/master/utils/average_models.py)).
  * Support for GRU/LSTM networks:
    - Regular GRU/LSTM units.
    - [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in the decoder.   
