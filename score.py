@@ -1,10 +1,6 @@
 import logging
 import argparse
-from data_engine.prepare_data import update_dataset_from_file
 from config import load_parameters
-from keras_wrapper.dataset import loadDataset
-from keras_wrapper.cnn_model import loadModel
-from keras_wrapper.model_ensemble import BeamSearchEnsemble
 from keras_wrapper.extra.read_write import pkl2dict, list2file, numpy2file
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
@@ -32,7 +28,13 @@ def parse_args():
 
 
 def score_corpus(args, params):
-    print "Using an ensemble of %d models" % len(args.models)
+
+    from data_engine.prepare_data import update_dataset_from_file
+    from keras_wrapper.dataset import loadDataset
+    from keras_wrapper.cnn_model import loadModel
+    from keras_wrapper.model_ensemble import BeamSearchEnsemble
+
+    logging.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
     if args.source is not None:
@@ -93,15 +95,15 @@ def score_corpus(args, params):
             else:
                 raise Exception('The sampling mode ' + params['SAMPLING_SAVE_MODE'] + ' is not currently supported.')
         else:
-            print scores
+            print (scores)
 
 
 if __name__ == "__main__":
     args = parse_args()
     if args.config is None:
-        print "Reading parameters from config.py"
+        print ("Reading parameters from config.py")
         params = load_parameters()
     else:
-        print "Loading parameters from %s" % str(args.config)
+        print ("Loading parameters from %s" % str(args.config))
         params = pkl2dict(args.config)
     score_corpus(args, params)

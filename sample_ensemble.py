@@ -1,12 +1,7 @@
 import argparse
 import logging
 import ast
-from data_engine.prepare_data import update_dataset_from_file
-from keras_wrapper.model_ensemble import BeamSearchEnsemble
-from keras_wrapper.cnn_model import loadModel
-from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file, list2stdout
-from keras_wrapper.utils import decode_predictions_beam_search
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -35,6 +30,12 @@ def parse_args():
 
 
 def sample_ensemble(args, params):
+
+    from data_engine.prepare_data import update_dataset_from_file
+    from keras_wrapper.model_ensemble import BeamSearchEnsemble
+    from keras_wrapper.cnn_model import loadModel
+    from keras_wrapper.dataset import loadDataset
+    from keras_wrapper.utils import decode_predictions_beam_search
 
     logging.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
@@ -166,13 +167,13 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
             except ValueError:
                 params[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     sample_ensemble(args, params)
