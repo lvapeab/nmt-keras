@@ -78,6 +78,8 @@ def test_NMT_Bidir_GRU_ConditionalGRU():
     parser.dest = None
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
+    parser.weights = []
+
     for n_best in [True, False]:
         parser.n_best = n_best
         sample_ensemble(parser, params)
@@ -127,6 +129,8 @@ def test_NMT_Unidir_GRU_ConditionalGRU():
     parser.dest = None
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
+    parser.weights = []
+
     for n_best in [True, False]:
         parser.n_best = n_best
         sample_ensemble(parser, params)
