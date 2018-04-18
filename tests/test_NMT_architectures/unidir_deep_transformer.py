@@ -38,7 +38,7 @@ def test_transformer():
     params['N_LAYERS_DECODER'] = 2
     params['MULTIHEAD_ATTENTION_ACTIVATION'] = 'relu'
     params['MODEL_SIZE'] = 32
-    params['FF_SIZE'] = MODEL_SIZE * 4
+    params['FF_SIZE'] = params['MODEL_SIZE'] * 4
     params['N_HEADS'] = 2
 
     params['REBUILD_DATASET'] = True
