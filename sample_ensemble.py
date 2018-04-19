@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 import argparse
 import logging
 import ast

@@ -1,6 +1,11 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 import argparse
-import cPickle
 import ast
 import logging
 import time
@@ -195,7 +200,7 @@ class NMTSampler:
 
             # 2.2.6 Constrain search for the last word
             constrain_search_start_time = time.time()
-            last_user_word_pos = fixed_words_user.keys()[-1]
+            last_user_word_pos = list(fixed_words_user)[-1]
             if next_correction != u' ':
                 last_user_word = tokenized_validated_prefix.split()[-1]
                 filtered_idx2word = dict((self.word2index_y[candidate_word], candidate_word)
@@ -203,7 +208,7 @@ class NMTSampler:
                                          if candidate_word.decode('utf-8')[:len(last_user_word)] == last_user_word)
                 if filtered_idx2word != dict():
                     del fixed_words_user[last_user_word_pos]
-                    if last_user_word_pos in unk_words_dict.keys():
+                    if last_user_word_pos in list(unk_words_dict):
                         del unk_words_dict[last_user_word_pos]
             else:
                 filtered_idx2word = dict()
@@ -255,8 +260,8 @@ class NMTSampler:
 
         # UNK words management
         unk_management_start_time = time.time()
-        unk_indices = unk_words_dict.keys()
-        unk_words = unk_words_dict.values()
+        unk_indices = list(unk_words_dict)
+        unk_words = list(unk_words_dict.values())
         if len(unk_indices) > 0:  # If we added some UNK word
             hypothesis = hypothesis.split()
             if len(hypothesis) < len(unk_indices):  # The full hypothesis will be made up UNK words:
@@ -341,14 +346,14 @@ def main():
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
             except ValueError:
                 parameters[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     dataset = loadDataset(args.dataset)
 

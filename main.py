@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+from six import iteritems
 import argparse
 import ast
 from timeit import default_timer as timer
@@ -49,7 +52,7 @@ def train_model(params, load_dataset=None):
                     params['TRG_LAN'] + '.pkl')
                 params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
                     int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
-                for split, filename in params['TEXT_FILES'].iteritems():
+                for split, filename in iteritems(params['TEXT_FILES']):
                     dataset = update_dataset_from_file(dataset,
                                                        params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
                                                        params,
@@ -425,14 +428,14 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
             except ValueError:
                 parameters[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
     parameters = check_params(parameters)

@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+from six import iteritems
+try:
+    import itertools.zip as zip
+except ImportError:
+    pass
+
 import logging
 import os
 
@@ -88,7 +96,7 @@ class TranslationModel(Model_Wrapper):
             src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS'])).item()
             self.src_embedding_weights = np.random.rand(params['INPUT_VOCABULARY_SIZE'],
                                                         params['SOURCE_TEXT_EMBEDDING_SIZE'])
-            for word, index in self.vocabularies[self.ids_inputs[0]]['words2idx'].iteritems():
+            for word, index in iteritems(self.vocabularies[self.ids_inputs[0]]['words2idx']):
                 if src_word_vectors.get(word) is not None:
                     self.src_embedding_weights[index, :] = src_word_vectors[word]
             self.src_embedding_weights = [self.src_embedding_weights]
@@ -106,7 +114,7 @@ class TranslationModel(Model_Wrapper):
             trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS'])).item()
             self.trg_embedding_weights = np.random.rand(params['OUTPUT_VOCABULARY_SIZE'],
                                                         params['TARGET_TEXT_EMBEDDING_SIZE'])
-            for word, index in self.vocabularies[self.ids_outputs[0]]['words2idx'].iteritems():
+            for word, index in iteritems(self.vocabularies[self.ids_outputs[0]]['words2idx']):
                 if trg_word_vectors.get(word) is not None:
                     self.trg_embedding_weights[index, :] = trg_word_vectors[word]
             self.trg_embedding_weights = [self.trg_embedding_weights]
@@ -139,7 +147,7 @@ class TranslationModel(Model_Wrapper):
 
         # Print information of self
         if verbose > 0:
-            print str(self)
+            print (str(self))
             self.model.summary()
         if set_optimizer:
             self.setOptimizer()

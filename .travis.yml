@@ -63,7 +63,7 @@ matrix:
           env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir
 
 # command to install dependencies
-install:
+install: travis_wait 20 mvn install
   # code below is taken from http://conda.pydata.org/docs/travis.html
   # We do this conditionally because it saves us some downloading if the
   # version is the same.

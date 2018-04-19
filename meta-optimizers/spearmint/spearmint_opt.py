@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import logging
 import subprocess
 import os
@@ -6,9 +8,6 @@ import sys
 # sys.path.append("../../") # Adds higher directory to python modules path.
 sys.path.insert(1, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../../"))
-
-print sys.path
-
 from config import load_parameters
 from main import check_params, train_model
 
@@ -29,7 +28,7 @@ def invoke_model(parameters):
 
     model_params = load_parameters()
     model_name = model_params["MODEL_TYPE"]
-    for parameter in parameters.keys():
+    for parameter in list(parameters):
         model_params[parameter] = parameters[parameter][0]
         logger.debug("Assigning to %s the value %s" % (str(parameter), parameters[parameter][0]))
         model_name += '_' + str(parameter) + '_' + str(parameters[parameter][0])
@@ -55,7 +54,7 @@ def invoke_model(parameters):
           " 'BEGIN{FS=\",\"}{print $m_pos}'|sort -gr|head -n 1"
     ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, env=d)
     metric_value = float(ps.communicate()[0])
-    print "Best %s: %f" % (metric_name, metric_value)
+    print ("Best %s: %f" % (metric_name, metric_value))
 
     return 1. - metric_value if maximize else metric_value  # Spearmint minimizes a function
 
@@ -67,7 +66,7 @@ def main(job_id, params):
     :param params: Model parameters.
     :return: Metric to minimize value.
     """
-    print params
+    print (params)
     return invoke_model(params)
 
 

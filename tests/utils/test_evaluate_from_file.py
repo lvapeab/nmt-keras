@@ -21,14 +21,14 @@ def test_CocoScore():
 
     final_scores = CocoScore(refs, hypo, metrics_list=None, language=params['TRG_LAN'])
     assert isinstance(final_scores, dict)
-    assert 'Bleu_1' in final_scores.keys()
-    assert 'Bleu_2' in final_scores.keys()
-    assert 'Bleu_3' in final_scores.keys()
-    assert 'Bleu_4' in final_scores.keys()
-    assert 'TER' in final_scores.keys()
-    assert 'METEOR' in final_scores.keys()
-    assert 'ROUGE_L' in final_scores.keys()
-    assert 'CIDEr' in final_scores.keys()
+    assert 'Bleu_1' in list(final_scores)
+    assert 'Bleu_2' in list(final_scores)
+    assert 'Bleu_3' in list(final_scores)
+    assert 'Bleu_4' in list(final_scores)
+    assert 'TER' in list(final_scores)
+    assert 'METEOR' in list(final_scores)
+    assert 'ROUGE_L' in list(final_scores)
+    assert 'CIDEr' in list(final_scores)
     assert final_scores['Bleu_1'] - 1.0 <= 1e-6
     assert final_scores['Bleu_2'] - 1.0 <= 1e-6
     assert final_scores['Bleu_3'] - 1.0 <= 1e-6
@@ -40,14 +40,14 @@ def test_CocoScore():
 
     final_scores = CocoScore(refs, hypo, metrics_list=['BLeu'], language=params['TRG_LAN'])
     assert isinstance(final_scores, dict)
-    assert 'Bleu_1' in final_scores.keys()
-    assert 'Bleu_2' in final_scores.keys()
-    assert 'Bleu_3' in final_scores.keys()
-    assert 'Bleu_4' in final_scores.keys()
-    assert 'TER' not in final_scores.keys()
-    assert 'METEOR' not in final_scores.keys()
-    assert 'ROUGE_L' not in final_scores.keys()
-    assert 'CIDEr' not in final_scores.keys()
+    assert 'Bleu_1' in list(final_scores)
+    assert 'Bleu_2' in list(final_scores)
+    assert 'Bleu_3' in list(final_scores)
+    assert 'Bleu_4' in list(final_scores)
+    assert 'TER' not in list(final_scores)
+    assert 'METEOR' not in list(final_scores)
+    assert 'ROUGE_L' not in list(final_scores)
+    assert 'CIDEr' not in list(final_scores)
     assert final_scores['Bleu_1'] - 1.0 <= 1e-6
     assert final_scores['Bleu_2'] - 1.0 <= 1e-6
     assert final_scores['Bleu_3'] - 1.0 <= 1e-6
@@ -55,14 +55,14 @@ def test_CocoScore():
 
     final_scores = CocoScore(refs, hypo, metrics_list=['BLEU', 'ter'], language=params['TRG_LAN'])
     assert isinstance(final_scores, dict)
-    assert 'Bleu_1' in final_scores.keys()
-    assert 'Bleu_2' in final_scores.keys()
-    assert 'Bleu_3' in final_scores.keys()
-    assert 'Bleu_4' in final_scores.keys()
-    assert 'TER' in final_scores.keys()
-    assert 'METEOR' not in final_scores.keys()
-    assert 'ROUGE_L' not in final_scores.keys()
-    assert 'CIDEr' not in final_scores.keys()
+    assert 'Bleu_1' in list(final_scores)
+    assert 'Bleu_2' in list(final_scores)
+    assert 'Bleu_3' in list(final_scores)
+    assert 'Bleu_4' in list(final_scores)
+    assert 'TER' in list(final_scores)
+    assert 'METEOR' not in list(final_scores)
+    assert 'ROUGE_L' not in list(final_scores)
+    assert 'CIDEr' not in list(final_scores)
 
     assert final_scores['Bleu_1'] - 1.0 <= 1e-6
     assert final_scores['Bleu_2'] - 1.0 <= 1e-6
