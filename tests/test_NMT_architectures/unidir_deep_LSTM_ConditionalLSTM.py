@@ -30,7 +30,7 @@ def load_tests_params():
     params['SKIP_VECTORS_HIDDEN_SIZE'] = params['DECODER_HIDDEN_SIZE']
     params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
     params['RELOAD'] = 0
-    params['MAX_EPOCH'] = 2
+    params['MAX_EPOCH'] = 1
 
     return params
 
@@ -64,9 +64,14 @@ def test_NMT_Unidir_deep_LSTM_ConditionalLSTM():
     params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
+    print ("Training model")
     train_model(params)
-    params['RELOAD'] = 2
+    params['RELOAD'] = 1
+    print ("Done")
+    print ("Applying model")
     apply_NMT_model(params)
+    print ("Done")
+
     parser = argparse.ArgumentParser('Parser for unit testing')
     parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
 
@@ -82,9 +87,13 @@ def test_NMT_Unidir_deep_LSTM_ConditionalLSTM():
 
     for n_best in [True, False]:
         parser.n_best = n_best
+        print ("Sampling with n_best = %s "% str(n_best))
         sample_ensemble(parser, params)
-    score_corpus(parser, params)
+        print ("Done")
 
+    print ("Scoring corpus")
+    score_corpus(parser, params)
+    print ("Done")
 
 if __name__ == '__main__':
     pytest.main([__file__])
