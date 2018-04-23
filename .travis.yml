@@ -62,8 +62,6 @@ matrix:
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir
         - python: 3.6
-          env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
-        - python: 3.6
           env: KERAS_BACKEND=theano TEST_MODE=GENERAL
         - python: 3.6
           env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
