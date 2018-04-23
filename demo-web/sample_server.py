@@ -18,7 +18,6 @@ import copy
 import BaseHTTPServer
 import urllib
 from collections import OrderedDict
-
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
@@ -28,7 +27,7 @@ from keras_wrapper.extra.read_write import pkl2dict, list2file
 from keras_wrapper.online_trainer import OnlineTrainer
 from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_lists
 from model_zoo import TranslationModel
-from online_models import build_online_models
+# from online_models import build_online_models
 from utils.utils import update_parameters
 from config_online import load_parameters as load_parameters_online
 from config import load_parameters
@@ -455,10 +454,10 @@ def main():
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
 
         # Set additional inputs to models if using a custom loss function
-        parameters['USE_CUSTOM_LOSS'] = True if 'PAS' in parameters['OPTIMIZER'] else False
-        if parameters.get('N_BEST_OPTIMIZER', False):
-            logging.info('Using N-best optimizer')
-        models = build_online_models(models, parameters)
+        # parameters['USE_CUSTOM_LOSS'] = True if 'PAS' in parameters['OPTIMIZER'] else False
+        # if parameters.get('N_BEST_OPTIMIZER', False):
+        #     logging.info('Using N-best optimizer')
+        # models = build_online_models(models, parameters)
     else:
         models = [loadModel(m, -1, full_path=True) for m in args.models]
 
