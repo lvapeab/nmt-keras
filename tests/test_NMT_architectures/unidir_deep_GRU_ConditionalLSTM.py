@@ -87,13 +87,14 @@ def test_NMT_Unidir_deep_GRU_ConditionalLSTM():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s "% str(n_best))
+        print ("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
         print ("Done")
 
     print ("Scoring corpus")
     score_corpus(parser, params)
     print ("Done")
+
 
 if __name__ == '__main__':
     pytest.main([__file__])

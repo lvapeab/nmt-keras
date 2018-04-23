@@ -28,13 +28,11 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
         word_vecs[word] = vec
         i += 1
         if i % 1000 == 0:
-            print ("Processed %d vectors (%.2f %%)\r" % \
-                  (i, 100 * float(i) / n_vecs),)
+            print ("Processed %d vectors (%.2f %%)\r" % (i, 100 * float(i) / n_vecs),)
 
     print ("")
     # Store dict
-    print ("Saving word vectors in %s" % \
-          (base_path_save + '/' + dest_filename + '.npy'))
+    print ("Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy'))
     np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
     print ("")
 

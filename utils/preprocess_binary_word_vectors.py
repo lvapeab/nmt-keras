@@ -36,13 +36,11 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
                                             dtype='float32')
             i += 1
             if i % 1000 == 0:
-                print ("Processed %d vectors (%.2f %%)\r" % \
-                      (i, 100 * float(i) / vocab_size),)
+                print ("Processed %d vectors (%.2f %%)\r" % (i, 100 * float(i) / vocab_size),)
 
     # Store dict
     print ("")
-    print ("Saving word vectors in %s" % \
-          (base_path_save + '/' + dest_filename + '.npy'))
+    print ("Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy'))
     np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
     print("")
 

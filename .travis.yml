@@ -139,9 +139,9 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - travis_wait 30 install conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
+  - travis_wait 30 conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
   - source activate test-environment
-  - travis_wait 30 install conda install mkl mkl-service
+  - travis_wait 30 conda install mkl mkl-service
   - travis_wait 30 pip install -r req-travis-pip.txt
   - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
 

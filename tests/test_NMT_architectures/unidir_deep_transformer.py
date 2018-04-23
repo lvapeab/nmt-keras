@@ -46,7 +46,7 @@ def test_transformer():
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
 
-    params['MODEL_NAME'] =\
+    params['MODEL_NAME'] = \
         params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + params['MODEL_TYPE'] + \
         '_model_size_' + str(params['MODEL_SIZE']) + \
         '_ff_size_' + str(params['FF_SIZE']) + \
@@ -82,13 +82,14 @@ def test_transformer():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s "% str(n_best))
+        print ("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
         print ("Done")
 
     print ("Scoring corpus")
     score_corpus(parser, params)
     print ("Done")
+
 
 if __name__ == '__main__':
     pytest.main([__file__])
