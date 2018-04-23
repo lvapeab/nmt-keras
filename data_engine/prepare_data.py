@@ -273,7 +273,7 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
                 for i in range(0, n_samples, repeat):
                     for j in range(n):
                         new_X.append(X[id_in][i + j])
-                aux_list = getattr(ds,'X_' + s)
+                aux_list = getattr(ds, 'X_' + s)
                 aux_list[id_in] = new_X
                 setattr(ds, 'X_' + s, aux_list)
                 del aux_list
@@ -291,7 +291,7 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
                     dict_Y[count_samples].append(Y[id_out][i + j])
                 count_samples += 1
 
-            aux_list = getattr(ds,'Y_' + s)
+            aux_list = getattr(ds, 'Y_' + s)
             aux_list[id_out] = new_Y
             setattr(ds, 'Y_' + s, aux_list)
             del aux_list
@@ -300,6 +300,6 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
             ds.extra_variables[s][id_out] = dict_Y
 
         new_len = len(new_Y)
-        setattr(ds, 'len_' + s , new_len)
+        setattr(ds, 'len_' + s, new_len)
 
         logging.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')
