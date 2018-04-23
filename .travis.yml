@@ -121,7 +121,7 @@ matrix:
           env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir          
 
 # command to install dependencies
-install: travis_wait 20 mvn install
+install:
   # code below is taken from http://conda.pydata.org/docs/travis.html
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
@@ -139,24 +139,19 @@ install: travis_wait 20 mvn install
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
+  - travis_wait 20 mvn install conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
   - source activate test-environment
-  - conda install mkl mkl-service
-  - pip install -r req-travis-pip.txt
+  - travis_wait 20 mvn install conda install mkl mkl-service
+  - travis_wait 20 pip install -r req-travis-pip.txt
   - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
 
   # set library path
   - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
 
-  # install PIL for preprocessing tests
-  # - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-  #     conda install pil;
-  #   elif [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
-  #     conda install Pillow;
-  #   fi
-
-  # install TensorFlow (CPU version).
-  - pip install tensorflow
+  # install TensorFlow (CPU version) if necessary.
+  - if [[ "KERAS_BACKEND" == "tensorflow" ]]; then
+      pip install tensorflow
+    fi
 
     # detect whether core files are changed or not (from Keras)
   - export CORE_CHANGED=False;
