@@ -13,7 +13,7 @@ function file_get_contents_utf8($fn) {
 if (flock($fp, LOCK_EX))
 {
 	$source=$_GET['source'];
-	$url = 'http://localhost:8888/?source='.urlencode($source);
+	$url = 'http://localhost:6542/?source='.urlencode($source);
     $out = file_get_contents($url);
 	echo $out;
 }

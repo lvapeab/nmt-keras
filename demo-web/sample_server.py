@@ -97,7 +97,7 @@ def parse_args():
     parser.add_argument("-o", "--online",
                         action='store_true', default=False, required=False,
                         help="Online training mode after postedition. ")
-    parser.add_argument("-p", "--port", help="Port to use", type=int, default=8888)
+    parser.add_argument("-p", "--port", help="Port to use", type=int, default=6542)
     parser.add_argument("-l", "--logging-level", help="Logging level: "
                                                       "\t 0: Only info messages."
                                                       "\t 1: Debug messages."
