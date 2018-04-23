@@ -462,7 +462,7 @@ def main():
         models = [loadModel(m, -1, full_path=True) for m in args.models]
 
     for nmt_model in models:
-        nmt_model.setParams(params)
+        nmt_model.setParams(parameters)
         nmt_model.setOptimizer()
 
     parameters['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['INPUTS_IDS_DATASET'][0]]
