@@ -78,7 +78,7 @@ def test_NMT_Bidir_deep_GRU_LSTM():
     parser.text = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.splits = ['val']
     parser.config = params['STORE_PATH'] + '/config.pkl'
-    parser.models = [params['STORE_PATH'] + '/epoch_' + str(2)]
+    parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
     parser.verbose = 0
     parser.dest = None
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
