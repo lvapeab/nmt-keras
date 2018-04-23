@@ -2155,7 +2155,7 @@ a {
     -ms-transition: color 0.2s ease, border-bottom-color 0.2s ease;
     transition: color 0.2s ease, border-bottom-color 0.2s ease;
     border-bottom: dotted 1px rgba(224, 243, 255, 0.35);
-    color: rgb(26, 65, 91);
+    color: #2B84C6;
     text-decoration: none;
 }
 
@@ -2175,6 +2175,7 @@ em, i {
 
 p {
     margin: 0 0 2em 0;
+    color: #1a2947;
 
 }
 
@@ -3194,7 +3195,9 @@ body.is-ie textarea {
 ol {
     list-style: decimal;
     margin: 0 0 2em 0;
-    padding-left: 1.25em;
+    padding-left: 3.25em;
+    color: #1a2947;
+
 }
 
 ol li {
@@ -5045,11 +5048,11 @@ textarea, input, .editarea, .search-editarea {
 }
 
 .source[data-opt-mouse-align=true] > .mouse-align {
-    background-color: yellow;
+    /*background-color: yellow;*/
 }
 
 .editarea[data-opt-mouse-align=true] > .mouse-align {
-    background-color: yellow;
+    /*background-color: yellow;*/
 }
 
 .source[data-opt-caret-align=true] > .caret-align {

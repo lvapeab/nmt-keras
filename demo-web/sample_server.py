@@ -1,6 +1,9 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from __future__ import print_function
+
 try:
     import itertools.imap as map
 except ImportError:
@@ -45,7 +48,7 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for aa in args:
             cc = aa.split('=')
             if cc[0] == 'source':
-                source_sentence = cc[1]
+                source_sentence = urllib.unquote_plus(cc[1])
             if cc[0] == 'prefix':
                 validated_prefix = cc[1]
                 validated_prefix = urllib.unquote_plus(validated_prefix)
@@ -200,15 +203,16 @@ class NMTSampler:
 
             # 2.2.6 Constrain search for the last word
             constrain_search_start_time = time.time()
-            last_user_word_pos = list(fixed_words_user)[-1]
+            last_user_word_pos = list(fixed_words_user.keys())[-1]
             if next_correction != u' ':
                 last_user_word = tokenized_validated_prefix.split()[-1]
                 filtered_idx2word = dict((self.word2index_y[candidate_word], candidate_word)
-                                         for candidate_word in self.word2index_y
-                                         if candidate_word.decode('utf-8')[:len(last_user_word)] == last_user_word)
+                                         for candidate_word in self.word2index_y if candidate_word[:len(last_user_word)] == last_user_word)
+
+                # if candidate_word.decode('utf-8')[:len(last_user_word)] == last_user_word)
                 if filtered_idx2word != dict():
                     del fixed_words_user[last_user_word_pos]
-                    if last_user_word_pos in list(unk_words_dict):
+                    if last_user_word_pos in list(unk_words_dict.keys()):
                         del unk_words_dict[last_user_word_pos]
             else:
                 filtered_idx2word = dict()
@@ -346,14 +350,14 @@ def main():
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
+                print('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
             except ValueError:
                 parameters[k] = v
     except ValueError:
-        print ('Error processing arguments: (', k, ",", v, ")")
+        print('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     dataset = loadDataset(args.dataset)
 
@@ -368,7 +372,7 @@ def main():
             dataset.build_bpe(parameters.get('BPE_CODES_PATH', parameters['DATA_ROOT_PATH'] + '/training_codes.joint'),
                               bpe_separator)
     # Build tokenization function
-    tokenize_f = eval('dataset.' + parameters.get('TOKENIZATION_METHOD', 'tokenize_none'))
+    tokenize_f = eval('dataset.' + parameters.get('TOKENIZATION_METHOD', 'tokenize_bpe'))
 
     detokenize_function = eval('dataset.' + parameters.get('DETOKENIZATION_METHOD', 'detokenize_none'))
     dataset.build_moses_tokenizer(language=parameters['SRC_LAN'])
