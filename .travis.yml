@@ -148,10 +148,8 @@ install:
   # set library path
   - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
 
-  # install TensorFlow (CPU version) if necessary.
-  - if [[ "${KERAS_BACKEND}" == "tensorflow" ]]; then
-      pip install tensorflow
-    fi
+  # install TensorFlow (CPU version).
+  - pip install tensorflow
 
     # detect whether core files are changed or not (from Keras)
   - export CORE_CHANGED=False;
