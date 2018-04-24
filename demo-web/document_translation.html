@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="assets/css/ie9.css"/><![endif]-->
     <!--[if lte IE 8]>
     <link rel="stylesheet" href="assets/css/ie8.css"/><![endif]-->
-    <link rel="javascript" href="assets/js/itp-visualization.js"/>
+    <!--<link rel="javascript" href="assets/js/itp-visualization.js"/>-->
 
     <link rel="stylesheet" href="assets/css/jquery-ui.min.css">
 
@@ -378,11 +378,13 @@
         $span.data('alignments', data);
       }
     }
-    $(document).on("mouseover", ".editable-token", function () {
-          $(this).css("background-color", "yellow");
-  }).on('mouseout', '.editable-token', function () {
-          $(this).css("background-color", "transparent");
-      });
+
+//    This is the hovering on the source sentences
+//    $(document).on("mouseover", ".editable-token", function () {
+//          $(this).css("background-color", "yellow");
+//  }).on('mouseout', '.editable-token', function () {
+//          $(this).css("background-color", "transparent");
+//      });
 </script>
 
 <!--Reader-->

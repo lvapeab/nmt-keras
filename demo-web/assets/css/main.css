@@ -4909,7 +4909,7 @@ body.is-loading #sidebar-top nav ul li {
 
 .source {
     display: table-cell;
-    /*background-color: yellow;*/
+    background-color: yellow;
     vertical-align: top;
     padding-right: 26px !important;
 }
@@ -5048,11 +5048,11 @@ textarea, input, .editarea, .search-editarea {
 }
 
 .source[data-opt-mouse-align=true] > .mouse-align {
-    /*background-color: yellow;*/
+    background-color: yellow;
 }
 
 .editarea[data-opt-mouse-align=true] > .mouse-align {
-    /*background-color: yellow;*/
+    background-color: yellow;
 }
 
 .source[data-opt-caret-align=true] > .caret-align {
@@ -5169,8 +5169,7 @@ th.shade-off-translated {
 .editarea[data-opt-validated=true]   > .editable-token[data-validated=true] { color: green; }
 .source[data-opt-prefix=true]        > .editable-token[data-prefix=true] { background-color: #CCFFFF; }
 .editarea[data-opt-prefix=true]      > .editable-token[data-prefix=true] { background-color: #CCFFFF; }
-.source[data-opt-mouse-align=true]   > .mouse-align { background-color: yellow; }
-.editarea[data-opt-mouse-align=true] > .mouse-align { background-color: yellow; }
+/*tab*/
 .source[data-opt-caret-align=true]   > .caret-align { background-color: aquamarine; }
 .editarea[data-opt-caret-align=true] > .caret-align { background-color: aquamarine; }
 .source[data-opt-shade-off-translated=true]   > .shade-off-translated { background-color: #dddddd !important; }
