@@ -130,8 +130,8 @@ def sample_ensemble(args, params):
                 for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
                     pred = decode_predictions_beam_search([n_best_pred],
                                                           index2word_y,
-                                                          alphas=[n_best_alpha],
-                                                          x_text=[sources[i]],
+                                                          alphas=[n_best_alpha] if params_prediction['pos_unk'] else None,
+                                                          x_text=[sources[i]] if params_prediction['pos_unk'] else None,
                                                           heuristic=heuristic,
                                                           mapping=mapping,
                                                           verbose=args.verbose)
