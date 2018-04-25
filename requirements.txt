@@ -9,7 +9,7 @@ numpy
 scikit-image
 scikit-learn
 six
-pytables
+tables
 numpy
 pandas
 pytest
