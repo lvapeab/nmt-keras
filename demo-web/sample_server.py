@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 from __future__ import print_function
 from __future__ import print_function
 
@@ -33,7 +33,7 @@ from config_online import load_parameters as load_parameters_online
 from config import load_parameters
 
 logger = logging.getLogger(__name__)
-
+# logger.setLevel(2)
 
 class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -67,7 +67,6 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if learn and validated_prefix is not None and source_sentence is not None:
             self.server.sampler.learn_from_sample(source_sentence, validated_prefix)
             self.send_response(200)  # 200: ('OK', 'Request fulfilled, document follows')
-
         else:
             hypothesis = self.server.sampler.generate_sample(source_sentence, validated_prefix=validated_prefix)
             response = hypothesis + u'\n'
