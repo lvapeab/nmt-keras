@@ -41,4 +41,7 @@ and
 ```
 $url = 'http://localhost:6542/?source='.urlencode($source).'&prefix='.urlencode($prefix);
 ```
-should point to your php server.
+should point to your sample_server port.
+
+
+[Check out the demo!](http://casmacat.prhlt.upv.es/inmt).
