@@ -48,7 +48,7 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
  * [Client-server](https://github.com/lvapeab/nmt-keras/tree/master/demo-web) architecture for web demos:
     - Regular NMT.
     - [Interactive NMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
-    - [Check out the demo!](http://casmacat.prhlt.upv.es/inmt).
+    - [Check out the demo!](http://casmacat.prhlt.upv.es/inmt)
     
 ## Installation
 
