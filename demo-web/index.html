@@ -244,7 +244,7 @@
                     var self = $(hypothesis);
                     self.is(':input') && self.on('keyup paste', function (e) {
                         var code = (e.keyCode || e.which);
-                        if (code < 48 || code > 90) return;
+                        if ((code < 48 || code > 90) && code != 32 && (code < 96 || code > 111) ) return;
                         if (timeoutReference) clearTimeout(timeoutReference);
                         timeoutReference = setTimeout(function () {
                             doneTyping(self);
