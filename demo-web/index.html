@@ -263,8 +263,6 @@
                 if (startPosition > 0){
                     var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
                     var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2 + '&learn=False';
-                    var nHyp = 0;//parseInt($('#translation-inmt').getAttribute("nhypothesis"));
-
                     try {
                         //Good Browsers
                         var xmlHttp = new XMLHttpRequest();
@@ -287,12 +285,6 @@
                     translation_inmt_field.selectionStart = startPosition;
                     translation_inmt_field.selectionEnd = startPosition;
                     }
-//                nHyp += 1;
-//                translation_inmt_field.attr("valPosition", startPosition.toString());
-//                $('#valPos').text(' -- Validated till position: ' + startPosition);
-//                translation_inmt_field.attr("nhypothesis", nHyp.toString());
-//                $('#nHyp').text('Hypothesis #' + nHyp);
-
             });
         }
     }

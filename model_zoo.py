@@ -11,7 +11,7 @@ import os
 
 from keras.layers import *
 from keras.models import model_from_json, Model
-from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
+from keras.optimizers import *
 from keras.regularizers import l2, AlphaRegularizer
 from keras_wrapper.cnn_model import Model_Wrapper
 from keras_wrapper.extra.regularize import Regularize
@@ -147,7 +147,7 @@ class TranslationModel(Model_Wrapper):
 
         # Print information of self
         if verbose > 0:
-            print (str(self))
+            print(str(self))
             self.model.summary()
         if set_optimizer:
             self.setOptimizer()
@@ -173,64 +173,102 @@ class TranslationModel(Model_Wrapper):
                           str(self.params.get('LR_OPTIMIZER_DECAY', 0.0))
                           ))
 
-        if self.params['OPTIMIZER'].lower() == 'sgd':
-            optimizer = SGD(lr=self.params.get('LR', 0.01),
-                            momentum=self.params.get('MOMENTUM', 0.0),
-                            decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                            nesterov=self.params.get('NESTEROV_MOMENTUM', False),
-                            clipnorm=self.params.get('CLIP_C', 0.),
-                            clipvalue=self.params.get('CLIP_V', 0.), )
+        if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() not in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
+            logging.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
 
-        elif self.params['OPTIMIZER'].lower() == 'rsmprop':
-            optimizer = RMSprop(lr=self.params.get('LR', 0.001),
-                                rho=self.params.get('RHO', 0.9),
+        if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
+            import tensorflow as tf
+            if self.params['OPTIMIZER'].lower() == 'sgd':
+                if self.params.get('MOMENTUM') is None:
+                    optimizer = TFOptimizer(tf.train.GradientDescentOptimizer(self.params.get('LR', 0.01)))
+                else:
+                    optimizer = TFOptimizer(tf.train.MomentumOptimizer(self.params.get('LR', 0.01),
+                                                                       self.params.get('MOMENTUM', 0.0),
+                                                                       use_nesterov=self.params.get('NESTEROV_MOMENTUM', False)))
+            elif self.params['OPTIMIZER'].lower() == 'adam':
+                optimizer = TFOptimizer(tf.train.AdamOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                               epsilon=self.params.get('EPSILON', 1e-7)))
+            elif self.params['OPTIMIZER'].lower() == 'adagrad':
+                optimizer = TFOptimizer(tf.train.AdagradOptimizer(self.params.get('LR', 0.01)))
+            elif self.params['OPTIMIZER'].lower() == 'rmsprop':
+                optimizer = TFOptimizer(tf.train.RMSPropOptimizer(self.params.get('LR', 0.01),
+                                                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                                                  momentum=self.params.get('MOMENTUM', 0.0),
+                                                                  epsilon=self.params.get('EPSILON', 1e-7)))
+            elif self.params['OPTIMIZER'].lower() == 'adadelta':
+                optimizer = TFOptimizer(tf.train.AdadeltaOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                                   epsilon=self.params.get('EPSILON', 1e-7)))
+            else:
+                raise Exception('\tThe chosen optimizer is not implemented.')
+        else:
+            if self.params['OPTIMIZER'].lower() == 'sgd':
+                optimizer = SGD(lr=self.params.get('LR', 0.01),
+                                momentum=self.params.get('MOMENTUM', 0.0),
                                 decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                nesterov=self.params.get('NESTEROV_MOMENTUM', False),
                                 clipnorm=self.params.get('CLIP_C', 0.),
                                 clipvalue=self.params.get('CLIP_V', 0.))
 
-        elif self.params['OPTIMIZER'].lower() == 'adagrad':
-            optimizer = Adagrad(lr=self.params.get('LR', 0.01),
-                                decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                                clipnorm=self.params.get('CLIP_C', 0.),
-                                clipvalue=self.params.get('CLIP_V', 0.))
+            elif self.params['OPTIMIZER'].lower() == 'rsmprop':
+                optimizer = RMSprop(lr=self.params.get('LR', 0.001),
+                                    rho=self.params.get('RHO', 0.9),
+                                    decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                    clipnorm=self.params.get('CLIP_C', 0.),
+                                    clipvalue=self.params.get('CLIP_V', 0.),
+                                    epsilon=self.params.get('EPSILON', 1e-7))
 
-        elif self.params['OPTIMIZER'].lower() == 'adadelta':
-            optimizer = Adadelta(lr=self.params.get('LR', 1.0),
-                                 rho=self.params.get('RHO', 0.9),
+            elif self.params['OPTIMIZER'].lower() == 'adagrad':
+                optimizer = Adagrad(lr=self.params.get('LR', 0.01),
+                                    decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                    clipnorm=self.params.get('CLIP_C', 0.),
+                                    clipvalue=self.params.get('CLIP_V', 0.),
+                                    epsilon=self.params.get('EPSILON', 1e-7))
+
+            elif self.params['OPTIMIZER'].lower() == 'adadelta':
+                optimizer = Adadelta(lr=self.params.get('LR', 1.0),
+                                     rho=self.params.get('RHO', 0.9),
+                                     decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                     clipnorm=self.params.get('CLIP_C', 0.),
+                                     clipvalue=self.params.get('CLIP_V', 0.),
+                                     epsilon=self.params.get('EPSILON', 1e-7))
+
+            elif self.params['OPTIMIZER'].lower() == 'adam':
+                optimizer = Adam(lr=self.params.get('LR', 0.001),
+                                 beta_1=self.params.get('BETA_1', 0.9),
+                                 beta_2=self.params.get('BETA_2', 0.999),
                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
                                  clipnorm=self.params.get('CLIP_C', 0.),
-                                 clipvalue=self.params.get('CLIP_V', 0.))
+                                 clipvalue=self.params.get('CLIP_V', 0.),
+                                 epsilon=self.params.get('EPSILON', 1e-7))
 
-        elif self.params['OPTIMIZER'].lower() == 'adam':
-            optimizer = Adam(lr=self.params.get('LR', 0.001),
-                             beta_1=self.params.get('BETA_1', 0.9),
-                             beta_2=self.params.get('BETA_2', 0.999),
-                             decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                             clipnorm=self.params.get('CLIP_C', 0.),
-                             clipvalue=self.params.get('CLIP_V', 0.))
+            elif self.params['OPTIMIZER'].lower() == 'adamax':
+                optimizer = Adamax(lr=self.params.get('LR', 0.002),
+                                   beta_1=self.params.get('BETA_1', 0.9),
+                                   beta_2=self.params.get('BETA_2', 0.999),
+                                   decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                   clipnorm=self.params.get('CLIP_C', 0.),
+                                   clipvalue=self.params.get('CLIP_V', 0.),
+                                   epsilon=self.params.get('EPSILON', 1e-7))
 
-        elif self.params['OPTIMIZER'].lower() == 'adamax':
-            optimizer = Adamax(lr=self.params.get('LR', 0.002),
-                               beta_1=self.params.get('BETA_1', 0.9),
-                               beta_2=self.params.get('BETA_2', 0.999),
-                               decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                               clipnorm=self.params.get('CLIP_C', 0.),
-                               clipvalue=self.params.get('CLIP_V', 0.))
+            elif self.params['OPTIMIZER'].lower() == 'nadam':
+                optimizer = Nadam(lr=self.params.get('LR', 0.002),
+                                  beta_1=self.params.get('BETA_1', 0.9),
+                                  beta_2=self.params.get('BETA_2', 0.999),
+                                  schedule_decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                  clipnorm=self.params.get('CLIP_C', 0.),
+                                  clipvalue=self.params.get('CLIP_V', 0.),
+                                  epsilon=self.params.get('EPSILON', 1e-7))
+            else:
+                logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
+                optimizer = eval(self.params['OPTIMIZER'])
 
-        elif self.params['OPTIMIZER'].lower() == 'nadam':
-            optimizer = Nadam(lr=self.params.get('LR', 0.002),
-                              beta_1=self.params.get('BETA_1', 0.9),
-                              beta_2=self.params.get('BETA_2', 0.999),
-                              schedule_decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                              clipnorm=self.params.get('CLIP_C', 0.),
-                              clipvalue=self.params.get('CLIP_V', 0.))
-        else:
-            logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
-            optimizer = eval(self.params['OPTIMIZER'])
         self.model.compile(optimizer=optimizer,
                            loss=self.params['LOSS'],
                            metrics=self.params.get('KERAS_METRICS', []),
-                           sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
+                           loss_weights=self.params.get('LOSS_WEIGHTS', None),
+                           sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None,
+                           weighted_metrics=self.params.get('KERAS_METRICS_WEIGHTS', None),
+                           target_tensors=self.params.get('TARGET_TENSORS'))
 
     def __str__(self):
         """

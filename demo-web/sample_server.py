@@ -31,9 +31,8 @@ from model_zoo import TranslationModel
 from utils.utils import update_parameters
 from config_online import load_parameters as load_parameters_online
 from config import load_parameters
-
 logger = logging.getLogger(__name__)
-# logger.setLevel(2)
+
 
 class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -97,10 +96,9 @@ def parse_args():
                         action='store_true', default=False, required=False,
                         help="Online training mode after postedition. ")
     parser.add_argument("-p", "--port", help="Port to use", type=int, default=6542)
-    parser.add_argument("-l", "--logging-level", help="Logging level: "
-                                                      "\t 0: Only info messages."
-                                                      "\t 1: Debug messages."
-                                                      "\t 2: Time monitoring messages.", type=int, default=0)
+    parser.add_argument("-l", "r", help="Logging level: \t 0: Only info messages."
+                                        "\t 1: Debug messages."
+                                        "\t 2: Time monitoring messages.", type=int, default=0)
     parser.add_argument("-eos", "--eos-symbol", help="End-of-sentence symbol", type=str, default='/')
 
     return parser.parse_args()
