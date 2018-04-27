@@ -201,6 +201,7 @@
     function write_interactive_tranlation(field_number) {
         // var source_field = document.getElementById('sourceinmt_' + field_number);
         var source_text = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text"); //the text area's id
+        var hypothesis = null;
         if (trimAll(source_text) === '') {
             var inmt_empty_string = $('#inmtemptystring');
             inmt_empty_string.show();
@@ -227,10 +228,8 @@
 
             xmlHttp.open("GET", php_sampler_url, false);
             xmlHttp.send();
-            var hypothesis = document.getElementById('hypothesis_' + field_number);
-            hypothesis.innerHTML = xmlHttp.responseText;
-
-
+            hypothesis = document.getElementById('hypothesis_' + field_number);
+            hypothesis.value = xmlHttp.responseText;
             hypothesis.donetyping = function (callback, delay) {
                 delay || (delay = 20);
                 var timeoutReference;
@@ -509,7 +508,7 @@
         };
         reader.readAsText(srcfile);
     }
-    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+//    document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
     function handleDefaultFile(url) {
         //        Hardcoded samples. TODO: Find a better way for doing this
