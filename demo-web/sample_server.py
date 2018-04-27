@@ -2,7 +2,6 @@
 # !/usr/bin/env python
 
 from __future__ import print_function
-from __future__ import print_function
 
 try:
     import itertools.imap as map
@@ -95,6 +94,7 @@ def parse_args():
     parser.add_argument("-o", "--online",
                         action='store_true', default=False, required=False,
                         help="Online training mode after postedition. ")
+    parser.add_argument("-a", "--address", help="Server address", type=str, default='')
     parser.add_argument("-p", "--port", help="Port to use", type=int, default=6542)
     parser.add_argument("-l", "r", help="Logging level: \t 0: Only info messages."
                                         "\t 1: Debug messages."
@@ -163,7 +163,7 @@ class NMTSampler:
             unk_words = []
 
         tokenization_start_time = time.time()
-        tokenized_input = self.general_tokenize_f(source_sentence)
+        tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
         tokenization_end_time = time.time()
         logger.log(2, 'tokenization time: %.6f' % (tokenization_end_time - tokenization_start_time))
@@ -183,7 +183,7 @@ class NMTSampler:
             # 2.2.4 Tokenize the prefix properly (possibly applying BPE)
             #  TODO: Here we are tokenizing the target language with the source language tokenizer
             prefix_tokenization_start_time = time.time()
-            tokenized_validated_prefix = self.general_tokenize_f(validated_prefix)
+            tokenized_validated_prefix = self.general_tokenize_f(validated_prefix, escape=False)
             tokenized_validated_prefix = self.model_tokenize_f(tokenized_validated_prefix)
             prefix_tokenization_end_time = time.time()
             logger.log(2, 'prefix_tokenization time: %.6f' % (prefix_tokenization_end_time - prefix_tokenization_start_time))
@@ -281,24 +281,22 @@ class NMTSampler:
 
         hypothesis_detokenization_start_time = time.time()
         hypothesis = self.model_detokenize_f(hypothesis)
-        hypothesis = self.general_detokenize_f(hypothesis)
+        hypothesis = self.general_detokenize_f(hypothesis, unescape=False)
         hypothesis_detokenization_end_time = time.time()
         logger.log(2, 'hypothesis_detokenization time: %.6f' % (hypothesis_detokenization_end_time - hypothesis_detokenization_start_time))
-
         generate_sample_end_time = time.time()
         logger.log(2, 'generate_sample time: %.6f' % (generate_sample_end_time - generate_sample_start_time))
-
         return hypothesis
 
     def learn_from_sample(self, source_sentence, target_sentence):
 
         # Tokenize input
-        tokenized_input = self.general_tokenize_f(source_sentence)
+        tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
         src_seq, src_words = parse_input(tokenized_input, self.dataset, self.word2index_x)
 
         # Tokenize output
-        tokenized_reference = self.general_tokenize_f(target_sentence)
+        tokenized_reference = self.general_tokenize_f(target_sentence, escape=False)
         tokenized_reference = self.model_tokenize_f(tokenized_reference)
 
         # Build inputs/outpus of the system
@@ -329,7 +327,7 @@ class NMTSampler:
 
 def main():
     args = parse_args()
-    server_address = ('', args.port)
+    server_address = (args.address, args.port)
     httpd = BaseHTTPServer.HTTPServer(server_address, NMTHandler)
     logger.setLevel(args.logging_level)
     parameters = load_parameters()
@@ -369,8 +367,7 @@ def main():
                               bpe_separator)
     # Build tokenization function
     tokenize_f = eval('dataset.' + parameters.get('TOKENIZATION_METHOD', 'tokenize_bpe'))
-
-    detokenize_function = eval('dataset.' + parameters.get('DETOKENIZATION_METHOD', 'detokenize_none'))
+    detokenize_function = eval('dataset.' + parameters.get('DETOKENIZATION_METHOD', 'detokenize_bpe'))
     dataset.build_moses_tokenizer(language=parameters['SRC_LAN'])
     dataset.build_moses_detokenizer(language=parameters['TRG_LAN'])
     tokenize_general = dataset.tokenize_moses
@@ -481,7 +478,7 @@ def main():
 
     httpd.sampler = interactive_beam_searcher
 
-    logger.info('Server starting at localhost: %s' % str(args.port))
+    logger.info('Server starting at %s' % str(server_address))
     httpd.serve_forever()
 
 
