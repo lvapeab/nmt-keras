@@ -287,8 +287,8 @@ class TranslationModel(Model_Wrapper):
             obj_str += '\n'
 
         obj_str += '\n'
-        obj_str += 'MODEL params:\n'
-        obj_str += str(self.params)
+        obj_str += 'Params:\n\t'
+        obj_str += "\n\t".join([str(key) + ": " + str(self.params[key]) for key in sorted(self.params.keys())])
         obj_str += '\n'
         obj_str += '-----------------------------------------------------------------------------------'
 

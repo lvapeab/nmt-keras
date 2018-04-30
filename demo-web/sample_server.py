@@ -97,8 +97,8 @@ def parse_args():
     parser.add_argument("-a", "--address", help="Server address", type=str, default='')
     parser.add_argument("-p", "--port", help="Port to use", type=int, default=6542)
     parser.add_argument("-l", "--logging-level", help="Logging level: \t 0: Only info messages."
-                                        "\t 1: Debug messages."
-                                        "\t 2: Time monitoring messages.", type=int, default=0)
+                                                      "\t 1: Debug messages."
+                                                      "\t 2: Time monitoring messages.", type=int, default=0)
     parser.add_argument("-eos", "--eos-symbol", help="End-of-sentence symbol", type=str, default='/')
 
     return parser.parse_args()

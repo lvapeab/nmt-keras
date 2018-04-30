@@ -199,7 +199,6 @@
         return s.split('&').join('&amp;').split('<').join('&lt;').split('"').join('&quot;').split("'").join('&#39;');
     }
     function write_interactive_tranlation(field_number) {
-        // var source_field = document.getElementById('sourceinmt_' + field_number);
         var source_text = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text"); //the text area's id
         var hypothesis = null;
         if (trimAll(source_text) === '') {
