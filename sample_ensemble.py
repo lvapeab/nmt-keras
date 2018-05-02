@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 import argparse
 import logging
 import ast
-from data_engine.prepare_data import update_dataset_from_file
-from keras_wrapper.model_ensemble import BeamSearchEnsemble
-from keras_wrapper.cnn_model import loadModel
-from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file, list2stdout
-from keras_wrapper.utils import decode_predictions_beam_search
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -35,6 +36,12 @@ def parse_args():
 
 
 def sample_ensemble(args, params):
+
+    from data_engine.prepare_data import update_dataset_from_file
+    from keras_wrapper.model_ensemble import BeamSearchEnsemble
+    from keras_wrapper.cnn_model import loadModel
+    from keras_wrapper.dataset import loadDataset
+    from keras_wrapper.utils import decode_predictions_beam_search
 
     logging.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
@@ -122,8 +129,8 @@ def sample_ensemble(args, params):
                 for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
                     pred = decode_predictions_beam_search([n_best_pred],
                                                           index2word_y,
-                                                          alphas=[n_best_alpha],
-                                                          x_text=[sources[i]],
+                                                          alphas=[n_best_alpha] if params_prediction['pos_unk'] else None,
+                                                          x_text=[sources[i]] if params_prediction['pos_unk'] else None,
                                                           heuristic=heuristic,
                                                           mapping=mapping,
                                                           verbose=args.verbose)
@@ -165,13 +172,13 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
             except ValueError:
                 params[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     sample_ensemble(args, params)

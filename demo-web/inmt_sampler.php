@@ -13,9 +13,13 @@ function file_get_contents_utf8($fn) {
 if (flock($fp, LOCK_EX))
 {
 	$source=$_GET['source']; $prefix=$_GET['prefix']; $learn=$_GET['learn'];
-	$url = 'http://localhost:8888/?source='.urlencode($source).'&prefix='.urlencode($prefix).'&learn='.urlencode($learn);
-    $out = file_get_contents($url);
-	echo $out;
+	$url = '158.42.161.42:6542/?source='.urlencode($source).'&prefix='.urlencode($prefix).'&learn='.urlencode($learn);
+        $ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, -1);
+	$out = curl_exec($ch);
+	curl_close($ch);
+       	echo $out;
 }
 else
 {

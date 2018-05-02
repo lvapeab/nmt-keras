@@ -25,7 +25,7 @@ def load_tests_params():
     params['DECODER_HIDDEN_SIZE'] = 4
     params['ENCODER_HIDDEN_SIZE'] = 4
     params['RELOAD'] = 0
-    params['MAX_EPOCH'] = 2
+    params['MAX_EPOCH'] = 1
 
     return params
 
@@ -34,19 +34,21 @@ def test_transformer():
     params = load_tests_params()
 
     # Current test params: Transformer
+    params['MODEL_TYPE'] = 'Transformer'
     params['N_LAYERS_ENCODER'] = 2
     params['N_LAYERS_DECODER'] = 2
     params['MULTIHEAD_ATTENTION_ACTIVATION'] = 'relu'
-    params['MODEL_SIZE'] = 32
-    params['FF_SIZE'] = MODEL_SIZE * 4
+    params['MODEL_SIZE'] = 8
+    params['FF_SIZE'] = params['MODEL_SIZE'] * 4
     params['N_HEADS'] = 2
-
     params['REBUILD_DATASET'] = True
+    params['OPTIMIZED_SEARCH'] = False
+    params['POS_UNK'] = False
     dataset = build_dataset(params)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
 
-    params['MODEL_NAME'] =\
+    params['MODEL_NAME'] = \
         params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + params['MODEL_TYPE'] + \
         '_model_size_' + str(params['MODEL_SIZE']) + \
         '_ff_size_' + str(params['FF_SIZE']) + \
@@ -59,25 +61,36 @@ def test_transformer():
     params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
+    print ("Training model")
     train_model(params)
-    params['RELOAD'] = 2
+    params['RELOAD'] = 1
+    print ("Done")
+    print ("Applying model")
     apply_NMT_model(params)
+    print ("Done")
+
     parser = argparse.ArgumentParser('Parser for unit testing')
     parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
 
     parser.text = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.splits = ['val']
     parser.config = params['STORE_PATH'] + '/config.pkl'
-    parser.models = [params['STORE_PATH'] + '/epoch_' + str(2)]
+    parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
     parser.verbose = 0
     parser.dest = None
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+
     for n_best in [True, False]:
         parser.n_best = n_best
+        print ("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
+        print ("Done")
+
+    print ("Scoring corpus")
     score_corpus(parser, params)
+    print ("Done")
 
 
 if __name__ == '__main__':

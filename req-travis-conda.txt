@@ -5,14 +5,7 @@ scikit-image
 scikit-learn
 six
 pytables
-toolz
 numpy
-scipy
 pandas
-pytest
-pytest-pep8
-pytest-cache
-pytest-cov
-pytest-forked
-pytest-xdist
+scipy
 theano

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+from six import iteritems
 import argparse
 import ast
 import copy
@@ -60,8 +63,9 @@ def train_model(params, load_dataset=None):
             else:
                 logging.info('Updating dataset.')
                 dataset = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
-                params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
-                for split, filename in params['TEXT_FILES'].iteritems():
+                params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
+                    int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+                for split, filename in iteritems(params['TEXT_FILES']):
                     dataset = update_dataset_from_file(dataset,
                                                        params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
                                                        params,
@@ -642,7 +646,6 @@ def check_params(params):
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
     return params
 
-
 if __name__ == "__main__":
     args = parse_args()
     parameters = load_parameters()
@@ -657,14 +660,14 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
             except ValueError:
                 parameters[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
     check_params(parameters)

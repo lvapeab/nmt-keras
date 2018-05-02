@@ -9,12 +9,15 @@ function file_get_contents_utf8($fn) {
           mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
 }
 
-
 if (flock($fp, LOCK_EX))
 {
 	$source=$_GET['source'];
-	$url = 'http://localhost:8888/?source='.urlencode($source);
-    $out = file_get_contents($url);
+	$url = '158.42.161.42:6542/?source='.urlencode($source);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, -1);
+	$out = curl_exec($ch);
+	curl_close($ch);
 	echo $out;
 }
 else

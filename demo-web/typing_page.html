@@ -1,0 +1,375 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<!--Header-->
+<head>
+    <meta charset="utf-8">
+    <title>NMT-Keras online demo</title>
+    <link rel="shortcut icon" href="images/logoPRHLT.png">
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!--[if lte IE 8]>
+    <script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="assets/css/main.css"/>
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="assets/css/ie9.css"/><![endif]-->
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="assets/css/ie8.css"/><![endif]-->
+
+    <script language="javascript" type="text/javascript">
+
+        function trimAll(sString) {
+            while (sString.substring(0, 1) == ' ') {
+                sString = sString.substring(1, sString.length);
+            }
+            while (sString.substring(sString.length - 1, sString.length) == ' ') {
+                sString = sString.substring(0, sString.length - 1);
+            }
+            return sString;
+        }
+
+        function write_tranlation() {
+            var source = document.getElementById('source').value;
+            if (trimAll(source) === '') {
+                var nmt_empty_string = $('#nmtemptystring');
+                nmt_empty_string.show();
+                nmt_empty_string.fadeOut(2000);
+            }
+            else {
+
+                var php_sampler_url = "sampler.php" + "?source=" + source;
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                document.getElementById('translation').innerHTML = xmlHttp.responseText;
+            }
+        }
+
+        function write_interactive_tranlation() {
+            var source = document.getElementById('sourceinmt').value;
+            if (trimAll(source) === '') {
+                var inmt_empty_string = $('#inmtemptystring');
+                inmt_empty_string.show();
+                inmt_empty_string.fadeOut(2000);
+            }
+            else {
+
+                var php_sampler_url = "sampler.php" + "?source=" + source;
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                document.getElementById('translation-inmt').innerHTML = xmlHttp.responseText;
+            }
+        }
+
+    </script>
+
+
+    <script>
+
+
+        $(document).ready(function () {
+            $.fn.donetyping = function (callback, delay) {
+                delay || (delay = 400);
+                var timeoutReference;
+                var doneTyping = function (elt) {
+                    if (!timeoutReference) return;
+                    timeoutReference = null;
+                    callback(elt);
+                };
+
+                this.each(function () {
+                    var self = $(this);
+                    self.is(':input') && self.on('keyup paste', function (e) {
+                        var code = (e.keyCode || e.which);
+                        if ((code >= 33 && code <=40) ||
+                                code == 27 || code == 45 || code == 46 || (code >= 16 && code <= 20) ||
+                                (code >= 112 && code <=123) || code == 144 || code == 145){
+                            clearTimeout(timeoutReference);
+                            return;
+                            }
+                        if (timeoutReference) clearTimeout(timeoutReference);
+                        timeoutReference = setTimeout(function () {
+                            doneTyping(self);
+                        }, delay);
+                    }).on('blur', function () {
+                        doneTyping(self);
+                    });
+                });
+
+                return this;
+            };
+            $('#translation-inmt').donetyping(function () {
+                var source = document.forms.inputinmt.sourceinmt.value;
+                var translation_inmt_field = $('#translation-inmt');
+                var prefix = translation_inmt_field.val();
+                var startPosition = translation_inmt_field[0].selectionStart;
+                var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
+                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2;
+                var nHyp = parseInt(translation_inmt_field[0].getAttribute("nhypothesis"));
+
+                try {
+                    //Good Browsers
+                    var xmlHttp = new XMLHttpRequest();
+                } catch (e) {
+                    //Internet Explorer
+                    try {
+                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                    } catch (e) {
+                        try {
+                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {
+                            alert("Brower not supported");
+                            return false;
+                        }
+                    }
+                }
+                xmlHttp.open("GET", php_sampler_url, false);
+                xmlHttp.send();
+                console.log(translation_inmt_field);
+                translation_inmt_field.val(xmlHttp.responseText);
+                translation_inmt_field[0].selectionStart = startPosition;
+                translation_inmt_field[0].selectionEnd = startPosition;
+                nHyp += 1;
+
+                translation_inmt_field.attr("valPosition", startPosition.toString());
+                $('#valPos').text(' -- Validated till position: ' + startPosition);
+
+                translation_inmt_field.attr("nhypothesis", nHyp.toString());
+                $('#nHyp').text('Hypothesis #' + nHyp);
+
+            });
+        });
+    </script>
+
+</head>
+<body>
+
+<!--<a href="https://www.prhlt.upv.es"> <img  width="20%"  align="left"src="images/logoPRHLT-whitefill.svg"></a>-->
+<!--<a href="https://www.upv.es"><img align="right" src="images/logoUPV-val-vertical.svg"height="20%" width="40%"> </a>-->
+<!-- Sidebar -->
+<section id="sidebar">
+    <div class="inner">
+        <nav>
+            <ul>
+                <li><a href="#intro">Neural Machine Translation</a></li>
+                <li><a href="#inmt">Interactive Neural Machine Translation</a></li>
+                <li><a href="#moreinfo">More info</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</section>
+
+<!-- Wrapper -->
+<div id="wrapper">
+    <!-- NMT-Demo  -->
+    <section id="intro" class="wrapper style1 fullscreen fade-up">
+        <div class="inner">
+            <h1>NMT-Keras demo </h1>
+            <p>This is a demo of a neural machine translation (NMT) system trained with the toolkit <a
+                    href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
+                Introduce a sentence in English and it will be automatically translated into Spanish.</p>
+            <div class="container">
+                <div style='padding:15px'></div>
+                <form id='input' onsubmit='write_tranlation(); return false;'>
+                    <div class="input-group">
+                        <textarea name="source_sentence" id="source"
+                                  placeholder="Please enter a sentence in English here."></textarea>&nbsp;
+                        <p class="alert alert-warning"
+                           id="nmtemptystring" style="display:none;">Please, write a text to translate in the box
+                            above.</p>
+
+                        <div style='padding:5px'></div>
+                        <button type="submit" class="btn btn-default">Translate!</button>
+                    </div>
+                </form>
+                <div style='padding:5px'>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Translation</div>
+                    <textarea name="translation" id='translation' readonly></textarea>&nbsp;
+                    <div style='padding:5px'>
+                    </div>
+                </div>
+            </div>
+            <div style='padding:15px'>
+                <ul class="actions">
+                    <li><a href="#inmt" class="button scrolly">More</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- INMT-Demo  -->
+    <section id="inmt" class="wrapper style1 fullscreen fade-up">
+        <div class="inner">
+            <h1>Interactive neural machine translation </h1>
+            <p>This is a demo of an interactive neural machine translation (INMT) system trained with the toolkit <a
+                    href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
+                Introduce a sentence in English and it will be automatically translated into German. Next, you'll
+                can correct
+                the system hypothesis (from the left to the right). The system will react to each correction made by
+                you, proposing an
+                alternative suffix. <br>
+                You can also <a href="document_translation.html">translate a full document</a>.
+
+            </p>
+            <div class="container">
+                <div style='padding:15px'></div>
+                <form id='inputinmt' onsubmit='write_interactive_tranlation(); return false;'>
+                    <div class="input-group">
+                        <textarea name="source_sentence" id="sourceinmt" autocomplete="on"
+                                  placeholder="Please enter a sentence in English here."></textarea>&nbsp;
+                        <p class="alert alert-warning"
+                           id="inmtemptystring" style="display:none;">Please, write a text to translate in the box above.</p>
+                        <div style='padding:5px'></div>
+                        <button type="submit" class="btn btn-default">Translate!</button>
+                    </div>
+                </form>
+                <div style='padding:5px'>
+                </div>
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">
+                        <span id="nHyp">Hypothesis #0</span>
+                        <span id="valPos"> -- Validated till position: -</span></div>
+
+                    <textarea name="translation" valPosition="-1" nhypothesis="0" id='translation-inmt'></textarea>&nbsp;&nbsp;
+
+                    <div style='padding:5px'>
+                    </div>
+                </div>
+                <div style='padding:5px'></div>
+                <button type="submit" class="btn btn-default">Validate translation</button>
+                <input type="checkbox" name="OL-checkbox" value="True" checked> Learn from sample<br>
+            </div>
+
+            <div style='padding:15px'>
+                <ul class="actions">
+                    <li><a href="#moreinfo" class="button scrolly">More</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- More info -->
+    <section id="moreinfo" class="wrapper style1 fullscreen fade-up">
+        <div class="inner">
+            <h1>More info</h1>
+            <p>All NMT systems were developed with NMT-Keras using Theano or Tensorflow. Everything is open-sourced.
+                For more info about the tool, please visit the <a href="https://github.com/lvapeab/nmt-keras">GitHub</a>
+                project. <br/>
+            <p>Interactive machine translation seeks to diminish the effort required for correcting translations from a
+                machine translation system.<br/>
+                For more info, look the following papers:</p>
+
+            <div class="features">
+                <p><a href="https://arxiv.org/abs/1802.03594" class="icon fa-file-pdf-o fa-2x" style="font-size:25px">
+                    Online Learning for Effort Reduction in Interactive Neural Machine Translation</a><br/>
+                    Álvaro Peris and Francisco Casacuberta. <br/>
+                    In <em>arXiv:1802.03594</em>, 2018.</p>
+            </div>
+            <div class="features">
+                <p>
+                    <a href="http://www.sciencedirect.com/science/article/pii/S0885230816301000"
+                       class="icon fa-file-pdf-o fa-2x" style="font-size:20px"> Interactive Neural Machine
+                        Translation</a><br/>
+                    Álvaro Peris, Miguel Domingo and Francisco Casacuberta. <br/>
+                    In <em> Computer Speech & Language, vol. 45, pp. 201-220</em>, 2017.
+
+                </p>
+            </div>
+
+
+            <div style='padding:15px'>
+
+                <ul class="actions">
+                    <li><a href="#contact" class="button scrolly">More</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- contact -->
+    <section id="contact" class="wrapper style1 fade-up">
+        <div class="inner">
+            <h1>Contact</h1>
+            <div class="container">
+                <p>Álvaro Peris.</p>
+            </div>
+
+            <ul class="icons">
+                <li><a href="mailto:lvapeab@gmail.com" class="fa-envelope-o fa-3x"><span class="label">Gmail</span></a>
+                </li>
+                <li><a href="https://www.prhlt.upv.es/u/lvapeab" class="fa-globe fa-3x"><span class="label">PRHLT</span></a>
+                </li>
+                <li><a href="https://github.com/lvapeab/nmt-keras" class="fa-github fa-3x"><span
+                        class="label">GitHub</span></a></li>
+            </ul>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer" class="wrapper style1-alt">
+        <div class="inner">
+            <ul class="menu">
+                <li>&copy; Álvaro Peris. All rights reserved.</li>
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </div>
+    </footer>
+</div>
+</body>
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/skel.min.js"></script>
+<script src="assets/js/util.js"></script>
+<!--[if lte IE 8]>
+<script src="assets/js/ie/respond.min.js"></script><![endif]-->
+<script src="assets/js/main.js"></script>
+</html>

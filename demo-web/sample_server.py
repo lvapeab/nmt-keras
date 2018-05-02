@@ -1,6 +1,13 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# !/usr/bin/env python
+
+from __future__ import print_function
+
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 import argparse
-import cPickle
 import ast
 import logging
 import time
@@ -10,7 +17,6 @@ import copy
 import BaseHTTPServer
 import urllib
 from collections import OrderedDict
-
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
@@ -20,11 +26,10 @@ from keras_wrapper.extra.read_write import pkl2dict, list2file
 from keras_wrapper.online_trainer import OnlineTrainer
 from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_lists
 from model_zoo import TranslationModel
-from online_models import build_online_models
+# from online_models import build_online_models
 from utils.utils import update_parameters
 from config_online import load_parameters as load_parameters_online
 from config import load_parameters
-
 logger = logging.getLogger(__name__)
 
 
@@ -40,7 +45,7 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for aa in args:
             cc = aa.split('=')
             if cc[0] == 'source':
-                source_sentence = cc[1]
+                source_sentence = urllib.unquote_plus(cc[1])
             if cc[0] == 'prefix':
                 validated_prefix = cc[1]
                 validated_prefix = urllib.unquote_plus(validated_prefix)
@@ -60,7 +65,6 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if learn and validated_prefix is not None and source_sentence is not None:
             self.server.sampler.learn_from_sample(source_sentence, validated_prefix)
             self.send_response(200)  # 200: ('OK', 'Request fulfilled, document follows')
-
         else:
             hypothesis = self.server.sampler.generate_sample(source_sentence, validated_prefix=validated_prefix)
             response = hypothesis + u'\n'
@@ -90,9 +94,9 @@ def parse_args():
     parser.add_argument("-o", "--online",
                         action='store_true', default=False, required=False,
                         help="Online training mode after postedition. ")
-    parser.add_argument("-p", "--port", help="Port to use", type=int, default=8888)
-    parser.add_argument("-l", "--logging-level", help="Logging level: "
-                                                      "\t 0: Only info messages."
+    parser.add_argument("-a", "--address", help="Server address", type=str, default='')
+    parser.add_argument("-p", "--port", help="Port to use", type=int, default=6542)
+    parser.add_argument("-l", "--logging-level", help="Logging level: \t 0: Only info messages."
                                                       "\t 1: Debug messages."
                                                       "\t 2: Time monitoring messages.", type=int, default=0)
     parser.add_argument("-eos", "--eos-symbol", help="End-of-sentence symbol", type=str, default='/')
@@ -159,7 +163,7 @@ class NMTSampler:
             unk_words = []
 
         tokenization_start_time = time.time()
-        tokenized_input = self.general_tokenize_f(source_sentence)
+        tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
         tokenization_end_time = time.time()
         logger.log(2, 'tokenization time: %.6f' % (tokenization_end_time - tokenization_start_time))
@@ -179,7 +183,7 @@ class NMTSampler:
             # 2.2.4 Tokenize the prefix properly (possibly applying BPE)
             #  TODO: Here we are tokenizing the target language with the source language tokenizer
             prefix_tokenization_start_time = time.time()
-            tokenized_validated_prefix = self.general_tokenize_f(validated_prefix)
+            tokenized_validated_prefix = self.general_tokenize_f(validated_prefix, escape=False)
             tokenized_validated_prefix = self.model_tokenize_f(tokenized_validated_prefix)
             prefix_tokenization_end_time = time.time()
             logger.log(2, 'prefix_tokenization time: %.6f' % (prefix_tokenization_end_time - prefix_tokenization_start_time))
@@ -195,15 +199,16 @@ class NMTSampler:
 
             # 2.2.6 Constrain search for the last word
             constrain_search_start_time = time.time()
-            last_user_word_pos = fixed_words_user.keys()[-1]
+            last_user_word_pos = list(fixed_words_user.keys())[-1]
             if next_correction != u' ':
                 last_user_word = tokenized_validated_prefix.split()[-1]
                 filtered_idx2word = dict((self.word2index_y[candidate_word], candidate_word)
-                                         for candidate_word in self.word2index_y
-                                         if candidate_word.decode('utf-8')[:len(last_user_word)] == last_user_word)
+                                         for candidate_word in self.word2index_y if candidate_word[:len(last_user_word)] == last_user_word)
+
+                # if candidate_word.decode('utf-8')[:len(last_user_word)] == last_user_word)
                 if filtered_idx2word != dict():
                     del fixed_words_user[last_user_word_pos]
-                    if last_user_word_pos in unk_words_dict.keys():
+                    if last_user_word_pos in list(unk_words_dict.keys()):
                         del unk_words_dict[last_user_word_pos]
             else:
                 filtered_idx2word = dict()
@@ -255,8 +260,8 @@ class NMTSampler:
 
         # UNK words management
         unk_management_start_time = time.time()
-        unk_indices = unk_words_dict.keys()
-        unk_words = unk_words_dict.values()
+        unk_indices = list(unk_words_dict)
+        unk_words = list(unk_words_dict.values())
         if len(unk_indices) > 0:  # If we added some UNK word
             hypothesis = hypothesis.split()
             if len(hypothesis) < len(unk_indices):  # The full hypothesis will be made up UNK words:
@@ -276,24 +281,22 @@ class NMTSampler:
 
         hypothesis_detokenization_start_time = time.time()
         hypothesis = self.model_detokenize_f(hypothesis)
-        hypothesis = self.general_detokenize_f(hypothesis)
+        hypothesis = self.general_detokenize_f(hypothesis, unescape=False)
         hypothesis_detokenization_end_time = time.time()
         logger.log(2, 'hypothesis_detokenization time: %.6f' % (hypothesis_detokenization_end_time - hypothesis_detokenization_start_time))
-
         generate_sample_end_time = time.time()
         logger.log(2, 'generate_sample time: %.6f' % (generate_sample_end_time - generate_sample_start_time))
-
         return hypothesis
 
     def learn_from_sample(self, source_sentence, target_sentence):
 
         # Tokenize input
-        tokenized_input = self.general_tokenize_f(source_sentence)
+        tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
         src_seq, src_words = parse_input(tokenized_input, self.dataset, self.word2index_x)
 
         # Tokenize output
-        tokenized_reference = self.general_tokenize_f(target_sentence)
+        tokenized_reference = self.general_tokenize_f(target_sentence, escape=False)
         tokenized_reference = self.model_tokenize_f(tokenized_reference)
 
         # Build inputs/outpus of the system
@@ -324,7 +327,7 @@ class NMTSampler:
 
 def main():
     args = parse_args()
-    server_address = ('', args.port)
+    server_address = (args.address, args.port)
     httpd = BaseHTTPServer.HTTPServer(server_address, NMTHandler)
     logger.setLevel(args.logging_level)
     parameters = load_parameters()
@@ -341,14 +344,14 @@ def main():
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
             except ValueError:
                 parameters[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     dataset = loadDataset(args.dataset)
 
@@ -363,9 +366,8 @@ def main():
             dataset.build_bpe(parameters.get('BPE_CODES_PATH', parameters['DATA_ROOT_PATH'] + '/training_codes.joint'),
                               bpe_separator)
     # Build tokenization function
-    tokenize_f = eval('dataset.' + parameters.get('TOKENIZATION_METHOD', 'tokenize_none'))
-
-    detokenize_function = eval('dataset.' + parameters.get('DETOKENIZATION_METHOD', 'detokenize_none'))
+    tokenize_f = eval('dataset.' + parameters.get('TOKENIZATION_METHOD', 'tokenize_bpe'))
+    detokenize_function = eval('dataset.' + parameters.get('DETOKENIZATION_METHOD', 'detokenize_bpe'))
     dataset.build_moses_tokenizer(language=parameters['SRC_LAN'])
     dataset.build_moses_detokenizer(language=parameters['TRG_LAN'])
     tokenize_general = dataset.tokenize_moses
@@ -446,12 +448,16 @@ def main():
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
 
         # Set additional inputs to models if using a custom loss function
-        parameters['USE_CUSTOM_LOSS'] = True if 'PAS' in parameters['OPTIMIZER'] else False
-        if parameters.get('N_BEST_OPTIMIZER', False):
-            logging.info('Using N-best optimizer')
-        models = build_online_models(models, parameters)
+        # parameters['USE_CUSTOM_LOSS'] = True if 'PAS' in parameters['OPTIMIZER'] else False
+        # if parameters.get('N_BEST_OPTIMIZER', False):
+        #     logging.info('Using N-best optimizer')
+        # models = build_online_models(models, parameters)
     else:
         models = [loadModel(m, -1, full_path=True) for m in args.models]
+
+    for nmt_model in models:
+        nmt_model.setParams(parameters)
+        nmt_model.setOptimizer()
 
     parameters['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['INPUTS_IDS_DATASET'][0]]
     parameters['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['OUTPUTS_IDS_DATASET'][0]]
@@ -472,7 +478,7 @@ def main():
 
     httpd.sampler = interactive_beam_searcher
 
-    logger.info('Server starting at localhost: %s' % str(args.port))
+    logger.info('Server starting at %s' % str(server_address))
     httpd.serve_forever()
 
 

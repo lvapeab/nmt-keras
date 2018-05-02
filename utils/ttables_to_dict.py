@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+
 # Uses T-tables made by Chris Dyer's Fast Align
 # Code adapted from:
 #  https://github.com/sebastien-j/LV_groundhog/blob/
@@ -24,7 +27,7 @@ with open(args.fname, 'r') as f:
         if line[0] != cur_source:
             i += 1
             if (i % 1000) == 0 and args.verbose > 0:
-                print i
+                print (i)
             if cur_source != -1:
                 d[cur_source] = tmp_dict  # Set dict for previous word
             cur_source = line[0]
@@ -39,7 +42,7 @@ e = {}
 j = 0
 for elt in d:
     if (j % 1000) == 0 and args.verbose > 0:
-        print j
+        print (j)
     j += 1
     e[elt] = sorted(d[elt], key=d[elt].get)[::-1]
 
@@ -47,7 +50,7 @@ f1 = {}
 j = 0
 for elt in e:
     if (j % 1000) == 0 and args.verbose > 0:
-        print j
+        print (j)
     j += 1
     f1[elt] = e[elt][0]
 

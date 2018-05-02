@@ -123,6 +123,7 @@ def load_parameters():
     LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0.
     CLIP_C = 5.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated).
     CLIP_V = 0.                                   # During training, clip absolute value of gradients to this value (0. means deactivated).
+    USE_TF_OPTIMIZER = True                       # Use native Tensorflow's optimizer (only for the Tensorflow backend).
 
     # Advanced parameters for optimizers. Default values are usually effective.
     MOMENTUM = 0.                                 # Momentum value (for SGD optimizer).
@@ -130,6 +131,7 @@ def load_parameters():
     RHO = 0.9                                     # Rho value (for Adadelta and RMSprop optimizers).
     BETA_1 = 0.9                                  # Beta 1 value (for Adam, Adamax Nadam optimizers).
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
+    EPSILON = 1e-7                                # Oprimizers epsilon value.
 
     # Learning rate annealing
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.

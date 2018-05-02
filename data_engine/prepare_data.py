@@ -251,40 +251,38 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
     :return:
     """
 
-    n_samples = None
-    X = None
-    Y = None
-
     if set_names is None:
         set_names = ['val', 'test']
     for s in set_names:
         logging.info('Keeping ' + str(n) + ' captions per input on the ' + str(s) + ' set.')
 
         ds.extra_variables[s] = dict()
-        exec ('n_samples = ds.len_' + s)
-
+        n_samples = getattr(ds, 'len_' + s)
         # Process inputs
         for id_in in ds.ids_inputs:
             new_X = []
             if id_in in ds.optional_inputs:
                 try:
-                    exec ('X = ds.X_' + s)
+                    X = getattr(ds, 'X_' + s)
                     for i in range(0, n_samples, repeat):
                         for j in range(n):
                             new_X.append(X[id_in][i + j])
-                    exec ('ds.X_' + s + '[id_in] = new_X')
+                    setattr(ds, 'X_' + s + '[' + id_in + ']', new_X)
                 except Exception:
                     pass
             else:
-                exec ('X = ds.X_' + s)
+                X = getattr(ds, 'X_' + s)
                 for i in range(0, n_samples, repeat):
                     for j in range(n):
                         new_X.append(X[id_in][i + j])
-                exec ('ds.X_' + s + '[id_in] = new_X')
+                aux_list = getattr(ds, 'X_' + s)
+                aux_list[id_in] = new_X
+                setattr(ds, 'X_' + s, aux_list)
+                del aux_list
         # Process outputs
         for id_out in ds.ids_outputs:
             new_Y = []
-            exec ('Y = ds.Y_' + s)
+            Y = getattr(ds, 'Y_' + s)
             dict_Y = dict()
             count_samples = 0
             for i in range(0, n_samples, repeat):
@@ -294,10 +292,16 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
                         new_Y.append(Y[id_out][i + j])
                     dict_Y[count_samples].append(Y[id_out][i + j])
                 count_samples += 1
-            exec ('ds.Y_' + s + '[id_out] = new_Y')
+
+            aux_list = getattr(ds, 'Y_' + s)
+            aux_list[id_out] = new_Y
+            setattr(ds, 'Y_' + s, aux_list)
+            del aux_list
+
             # store dictionary with img_pos -> [cap1, cap2, cap3, ..., capN]
             ds.extra_variables[s][id_out] = dict_Y
 
         new_len = len(new_Y)
-        exec ('ds.len_' + s + ' = new_len')
+        setattr(ds, 'len_' + s, new_len)
+
         logging.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')

@@ -1,9 +1,17 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+from six import iteritems
+try:
+    import itertools.zip as zip
+except ImportError:
+    pass
+
 import logging
 import os
 
 from keras.layers import *
 from keras.models import model_from_json, Model
-from keras.optimizers import Adam, RMSprop, Nadam, Adadelta, SGD, Adagrad, Adamax
+from keras.optimizers import *
 from keras.regularizers import l2, AlphaRegularizer
 from keras_wrapper.cnn_model import Model_Wrapper
 from keras_wrapper.extra.regularize import Regularize
@@ -88,7 +96,7 @@ class TranslationModel(Model_Wrapper):
             src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS'])).item()
             self.src_embedding_weights = np.random.rand(params['INPUT_VOCABULARY_SIZE'],
                                                         params['SOURCE_TEXT_EMBEDDING_SIZE'])
-            for word, index in self.vocabularies[self.ids_inputs[0]]['words2idx'].iteritems():
+            for word, index in iteritems(self.vocabularies[self.ids_inputs[0]]['words2idx']):
                 if src_word_vectors.get(word) is not None:
                     self.src_embedding_weights[index, :] = src_word_vectors[word]
             self.src_embedding_weights = [self.src_embedding_weights]
@@ -106,7 +114,7 @@ class TranslationModel(Model_Wrapper):
             trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS'])).item()
             self.trg_embedding_weights = np.random.rand(params['OUTPUT_VOCABULARY_SIZE'],
                                                         params['TARGET_TEXT_EMBEDDING_SIZE'])
-            for word, index in self.vocabularies[self.ids_outputs[0]]['words2idx'].iteritems():
+            for word, index in iteritems(self.vocabularies[self.ids_outputs[0]]['words2idx']):
                 if trg_word_vectors.get(word) is not None:
                     self.trg_embedding_weights[index, :] = trg_word_vectors[word]
             self.trg_embedding_weights = [self.trg_embedding_weights]
@@ -139,7 +147,7 @@ class TranslationModel(Model_Wrapper):
 
         # Print information of self
         if verbose > 0:
-            print str(self)
+            print(str(self))
             self.model.summary()
         if set_optimizer:
             self.setOptimizer()
@@ -165,64 +173,102 @@ class TranslationModel(Model_Wrapper):
                           str(self.params.get('LR_OPTIMIZER_DECAY', 0.0))
                           ))
 
-        if self.params['OPTIMIZER'].lower() == 'sgd':
-            optimizer = SGD(lr=self.params.get('LR', 0.01),
-                            momentum=self.params.get('MOMENTUM', 0.0),
-                            decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                            nesterov=self.params.get('NESTEROV_MOMENTUM', False),
-                            clipnorm=self.params.get('CLIP_C', 0.),
-                            clipvalue=self.params.get('CLIP_V', 0.), )
+        if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() not in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
+            logging.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
 
-        elif self.params['OPTIMIZER'].lower() == 'rsmprop':
-            optimizer = RMSprop(lr=self.params.get('LR', 0.001),
-                                rho=self.params.get('RHO', 0.9),
+        if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
+            import tensorflow as tf
+            if self.params['OPTIMIZER'].lower() == 'sgd':
+                if self.params.get('MOMENTUM') is None:
+                    optimizer = TFOptimizer(tf.train.GradientDescentOptimizer(self.params.get('LR', 0.01)))
+                else:
+                    optimizer = TFOptimizer(tf.train.MomentumOptimizer(self.params.get('LR', 0.01),
+                                                                       self.params.get('MOMENTUM', 0.0),
+                                                                       use_nesterov=self.params.get('NESTEROV_MOMENTUM', False)))
+            elif self.params['OPTIMIZER'].lower() == 'adam':
+                optimizer = TFOptimizer(tf.train.AdamOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                               epsilon=self.params.get('EPSILON', 1e-7)))
+            elif self.params['OPTIMIZER'].lower() == 'adagrad':
+                optimizer = TFOptimizer(tf.train.AdagradOptimizer(self.params.get('LR', 0.01)))
+            elif self.params['OPTIMIZER'].lower() == 'rmsprop':
+                optimizer = TFOptimizer(tf.train.RMSPropOptimizer(self.params.get('LR', 0.01),
+                                                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                                                  momentum=self.params.get('MOMENTUM', 0.0),
+                                                                  epsilon=self.params.get('EPSILON', 1e-7)))
+            elif self.params['OPTIMIZER'].lower() == 'adadelta':
+                optimizer = TFOptimizer(tf.train.AdadeltaOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                                   epsilon=self.params.get('EPSILON', 1e-7)))
+            else:
+                raise Exception('\tThe chosen optimizer is not implemented.')
+        else:
+            if self.params['OPTIMIZER'].lower() == 'sgd':
+                optimizer = SGD(lr=self.params.get('LR', 0.01),
+                                momentum=self.params.get('MOMENTUM', 0.0),
                                 decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                nesterov=self.params.get('NESTEROV_MOMENTUM', False),
                                 clipnorm=self.params.get('CLIP_C', 0.),
                                 clipvalue=self.params.get('CLIP_V', 0.))
 
-        elif self.params['OPTIMIZER'].lower() == 'adagrad':
-            optimizer = Adagrad(lr=self.params.get('LR', 0.01),
-                                decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                                clipnorm=self.params.get('CLIP_C', 0.),
-                                clipvalue=self.params.get('CLIP_V', 0.))
+            elif self.params['OPTIMIZER'].lower() == 'rsmprop':
+                optimizer = RMSprop(lr=self.params.get('LR', 0.001),
+                                    rho=self.params.get('RHO', 0.9),
+                                    decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                    clipnorm=self.params.get('CLIP_C', 0.),
+                                    clipvalue=self.params.get('CLIP_V', 0.),
+                                    epsilon=self.params.get('EPSILON', 1e-7))
 
-        elif self.params['OPTIMIZER'].lower() == 'adadelta':
-            optimizer = Adadelta(lr=self.params.get('LR', 1.0),
-                                 rho=self.params.get('RHO', 0.9),
+            elif self.params['OPTIMIZER'].lower() == 'adagrad':
+                optimizer = Adagrad(lr=self.params.get('LR', 0.01),
+                                    decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                    clipnorm=self.params.get('CLIP_C', 0.),
+                                    clipvalue=self.params.get('CLIP_V', 0.),
+                                    epsilon=self.params.get('EPSILON', 1e-7))
+
+            elif self.params['OPTIMIZER'].lower() == 'adadelta':
+                optimizer = Adadelta(lr=self.params.get('LR', 1.0),
+                                     rho=self.params.get('RHO', 0.9),
+                                     decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                     clipnorm=self.params.get('CLIP_C', 0.),
+                                     clipvalue=self.params.get('CLIP_V', 0.),
+                                     epsilon=self.params.get('EPSILON', 1e-7))
+
+            elif self.params['OPTIMIZER'].lower() == 'adam':
+                optimizer = Adam(lr=self.params.get('LR', 0.001),
+                                 beta_1=self.params.get('BETA_1', 0.9),
+                                 beta_2=self.params.get('BETA_2', 0.999),
                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
                                  clipnorm=self.params.get('CLIP_C', 0.),
-                                 clipvalue=self.params.get('CLIP_V', 0.))
+                                 clipvalue=self.params.get('CLIP_V', 0.),
+                                 epsilon=self.params.get('EPSILON', 1e-7))
 
-        elif self.params['OPTIMIZER'].lower() == 'adam':
-            optimizer = Adam(lr=self.params.get('LR', 0.001),
-                             beta_1=self.params.get('BETA_1', 0.9),
-                             beta_2=self.params.get('BETA_2', 0.999),
-                             decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                             clipnorm=self.params.get('CLIP_C', 0.),
-                             clipvalue=self.params.get('CLIP_V', 0.))
+            elif self.params['OPTIMIZER'].lower() == 'adamax':
+                optimizer = Adamax(lr=self.params.get('LR', 0.002),
+                                   beta_1=self.params.get('BETA_1', 0.9),
+                                   beta_2=self.params.get('BETA_2', 0.999),
+                                   decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                   clipnorm=self.params.get('CLIP_C', 0.),
+                                   clipvalue=self.params.get('CLIP_V', 0.),
+                                   epsilon=self.params.get('EPSILON', 1e-7))
 
-        elif self.params['OPTIMIZER'].lower() == 'adamax':
-            optimizer = Adamax(lr=self.params.get('LR', 0.002),
-                               beta_1=self.params.get('BETA_1', 0.9),
-                               beta_2=self.params.get('BETA_2', 0.999),
-                               decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                               clipnorm=self.params.get('CLIP_C', 0.),
-                               clipvalue=self.params.get('CLIP_V', 0.))
+            elif self.params['OPTIMIZER'].lower() == 'nadam':
+                optimizer = Nadam(lr=self.params.get('LR', 0.002),
+                                  beta_1=self.params.get('BETA_1', 0.9),
+                                  beta_2=self.params.get('BETA_2', 0.999),
+                                  schedule_decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                  clipnorm=self.params.get('CLIP_C', 0.),
+                                  clipvalue=self.params.get('CLIP_V', 0.),
+                                  epsilon=self.params.get('EPSILON', 1e-7))
+            else:
+                logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
+                optimizer = eval(self.params['OPTIMIZER'])
 
-        elif self.params['OPTIMIZER'].lower() == 'nadam':
-            optimizer = Nadam(lr=self.params.get('LR', 0.002),
-                              beta_1=self.params.get('BETA_1', 0.9),
-                              beta_2=self.params.get('BETA_2', 0.999),
-                              schedule_decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                              clipnorm=self.params.get('CLIP_C', 0.),
-                              clipvalue=self.params.get('CLIP_V', 0.))
-        else:
-            logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
-            optimizer = eval(self.params['OPTIMIZER'])
         self.model.compile(optimizer=optimizer,
                            loss=self.params['LOSS'],
                            metrics=self.params.get('KERAS_METRICS', []),
-                           sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None)
+                           loss_weights=self.params.get('LOSS_WEIGHTS', None),
+                           sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None,
+                           weighted_metrics=self.params.get('KERAS_METRICS_WEIGHTS', None),
+                           target_tensors=self.params.get('TARGET_TENSORS'))
 
     def __str__(self):
         """
@@ -241,8 +287,8 @@ class TranslationModel(Model_Wrapper):
             obj_str += '\n'
 
         obj_str += '\n'
-        obj_str += 'MODEL params:\n'
-        obj_str += str(self.params)
+        obj_str += 'Params:\n\t'
+        obj_str += "\n\t".join([str(key) + ": " + str(self.params[key]) for key in sorted(self.params.keys())])
         obj_str += '\n'
         obj_str += '-----------------------------------------------------------------------------------'
 
@@ -728,12 +774,16 @@ class TranslationModel(Model_Wrapper):
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
             src_embedding = SqrtScaling(params['MODEL_SIZE'])(src_embedding)
+        if params['TARGET_TEXT_EMBEDDING_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE']:
+            max_len = max(params['MAX_INPUT_TEXT_LEN'], params['MAX_OUTPUT_TEXT_LEN'], params['MAX_OUTPUT_TEXT_LEN_TEST'])
+        else:
+            max_len = params['MAX_INPUT_TEXT_LEN']
 
-        positional_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'],
+        positional_embedding = Embedding(max_len,
                                          params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                          name='positional_src_word_embedding',
                                          trainable=False,
-                                         weights=getPositionalEncodingWeights(params['INPUT_VOCABULARY_SIZE'],
+                                         weights=getPositionalEncodingWeights(max_len,
                                                                               params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                                                               name='positional_src_word_embedding',
                                                                               verbose=self.verbose))
@@ -792,14 +842,19 @@ class TranslationModel(Model_Wrapper):
         if params.get('SCALE_TARGET_WORD_EMBEDDINGS', False):
             state_below = SqrtScaling(params['MODEL_SIZE'])(state_below)
 
-        positional_embedding_trg = Embedding(params['OUTPUT_VOCABULARY_SIZE'],
-                                             params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                             name='positional_trg_word_embedding',
-                                             trainable=False,
-                                             weights=getPositionalEncodingWeights(params['OUTPUT_VOCABULARY_SIZE'],
-                                                                                  params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                                                                  name='positional_trg_word_embedding',
-                                                                                  verbose=self.verbose))
+        if params['TARGET_TEXT_EMBEDDING_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE']:
+            positional_embedding_trg = positional_embedding
+        else:
+            max_len = max(params['MAX_OUTPUT_TEXT_LEN'], params['MAX_OUTPUT_TEXT_LEN_TEST'])
+
+            positional_embedding_trg = Embedding(max_len,
+                                                 params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                                 name='positional_trg_word_embedding',
+                                                 trainable=False,
+                                                 weights=getPositionalEncodingWeights(max_len,
+                                                                                      params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                                                                      name='positional_trg_word_embedding',
+                                                                                      verbose=self.verbose))
 
         positional_trg_embedding = positional_embedding_trg(next_words_positions)
 

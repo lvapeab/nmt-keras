@@ -68,6 +68,7 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
  * Ensemble decoding ([sample_ensemble.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
    - Featuring length and source coverage normalization ([reference](https://arxiv.org/abs/1609.08144)).
  * Translation scoring ([score.py](https://github.com/lvapeab/nmt-keras/blob/master/sample_ensemble.py)).
+ * Model averaging ([utils/model_average.py](https://github.com/lvapeab/nmt-keras/blob/master/utils/average_models.py)).
  * Support for GRU/LSTM networks:
    - Regular GRU/LSTM units.
    - [Conditional](https://arxiv.org/abs/1703.04357) GRU/LSTM units in the decoder.   
@@ -81,6 +82,7 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
  * [Client-server](https://github.com/lvapeab/nmt-keras/tree/master/demo-web) architecture for web demos:
     - Regular NMT.
     - [Interactive NMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
+    - [Check out the demo!](http://casmacat.prhlt.upv.es/inmt)
     
 ## Installation
 
