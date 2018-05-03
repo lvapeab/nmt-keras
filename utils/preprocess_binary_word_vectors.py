@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import numpy as np
 import argparse
 from os.path import basename, dirname
@@ -14,14 +16,14 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
     :param dest_filename: Filename of the formatted vectors.
     """
     word_vecs = dict()
-    print "Loading vectors from %s" % v_path
+    print ("Loading vectors from %s" % v_path)
     with open(v_path, "rb") as f:
         header = f.readline()
         vocab_size, layer1_size = map(int, header.split())
         binary_len = np.dtype('float32').itemsize * layer1_size
         i = 0
-        print "Vector length:", layer1_size
-        for _ in xrange(vocab_size):
+        print ("Vector length:", layer1_size)
+        for _ in range(vocab_size):
             word = []
             while True:
                 ch = f.read(1)
@@ -34,14 +36,13 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
                                             dtype='float32')
             i += 1
             if i % 1000 == 0:
-                print "Processed %d vectors (%.2f %%)\r" % \
-                      (i, 100 * float(i) / vocab_size),
+                print ("Processed %d vectors (%.2f %%)\r" % (i, 100 * float(i) / vocab_size),)
 
     # Store dict
-    print "Saving word vectors in %s" % \
-          (base_path_save + '/' + dest_filename + '.npy')
+    print ("")
+    print ("Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy'))
     np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
-    print
+    print("")
 
 
 def parse_args():

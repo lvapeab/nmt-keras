@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 import argparse
 import logging
 import ast
-from data_engine.prepare_data import update_dataset_from_file
-from keras_wrapper.model_ensemble import BeamSearchEnsemble
-from keras_wrapper.cnn_model import loadModel
-from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file, list2stdout
-from keras_wrapper.utils import decode_predictions_beam_search
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -26,6 +27,8 @@ def parse_args():
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
     parser.add_argument("-n", "--n-best", action="store_true", default=False, help="Write n-best list (n = beam size)")
+    parser.add_argument("-w", "--weights", nargs="*", help="Weight given to each model in the ensemble. You should provide the same number of weights than models."
+                                                           "By default, it applies the same weight to each model (1/N).", default=[])
     parser.add_argument("-m", "--models", nargs="+", required=True, help="Path to the models")
     parser.add_argument("-ch", "--changes", nargs="*", help="Changes to the config. Following the syntax Key=Value",
                         default="")
@@ -33,7 +36,13 @@ def parse_args():
 
 
 def sample_ensemble(args, params):
-    models = args.models
+
+    from data_engine.prepare_data import update_dataset_from_file
+    from keras_wrapper.model_ensemble import BeamSearchEnsemble
+    from keras_wrapper.cnn_model import loadModel
+    from keras_wrapper.dataset import loadDataset
+    from keras_wrapper.utils import decode_predictions_beam_search
+
     logging.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
@@ -71,15 +80,22 @@ def sample_ensemble(args, params):
     params_prediction['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
     params_prediction['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
     params_prediction['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+    params_prediction['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
 
     heuristic = params.get('HEURISTIC', 0)
     mapping = None if dataset.mapping == dict() else dataset.mapping
+    model_weights = args.weights
 
+    if model_weights is not None and model_weights != []:
+        assert len(model_weights) == len(models), 'You should give a weight to each model. You gave %d models and %d weights.' % (len(models), len(model_weights))
+        model_weights = map(lambda x: float(x), model_weights)
+        if len(model_weights) > 1:
+            logger.info('Giving the following weights to each model: %s' % str(model_weights))
     for s in args.splits:
         # Apply model predictions
         params_prediction['predict_on_sets'] = [s]
         beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction,
-                                           n_best=args.n_best, verbose=args.verbose)
+                                           model_weights=model_weights, n_best=args.n_best, verbose=args.verbose)
         if args.n_best:
             predictions, n_best = beam_searcher.predictBeamSearchNet()[s]
         else:
@@ -109,14 +125,13 @@ def sample_ensemble(args, params):
 
         if args.n_best:
             n_best_predictions = []
-            i = 0
             for i, (n_best_preds, n_best_scores, n_best_alphas) in enumerate(n_best):
                 n_best_sample_score = []
                 for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
                     pred = decode_predictions_beam_search([n_best_pred],
                                                           index2word_y,
-                                                          alphas=n_best_alpha,
-                                                          x_text=sources,
+                                                          alphas=[n_best_alpha] if params_prediction['pos_unk'] else None,
+                                                          x_text=[sources[i]] if params_prediction['pos_unk'] else None,
                                                           heuristic=heuristic,
                                                           mapping=mapping,
                                                           verbose=args.verbose)
@@ -158,13 +173,13 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
             except ValueError:
                 params[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     sample_ensemble(args, params)

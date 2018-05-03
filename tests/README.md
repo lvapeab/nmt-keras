@@ -38,10 +38,8 @@ PYTHONPATH=$PWD:$PYTHONPATH pytest --pep8 -m pep8 -n0;
 ## TODO
 
  - Write more tests
- - Write more tests
- - Write more tests
  - Write more documentation
- - Enable training and decoding test (run TF/Theano in Travis)
+ 
 
 
 

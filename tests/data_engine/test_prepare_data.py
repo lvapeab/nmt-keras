@@ -26,9 +26,9 @@ def test_load_dataset():
     ds = loadDataset('./Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
     assert isinstance(ds, Dataset)
     assert isinstance(ds.vocabulary, dict)
-    assert ds.vocabulary.keys() >= 3
+    assert len(list(ds.vocabulary)) >= 3
     for voc in ds.vocabulary:
-        assert len(ds.vocabulary[voc].keys()) == 2
+        assert len(list(ds.vocabulary[voc])) == 2
 
 
 def test_update_dataset_from_file():

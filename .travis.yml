@@ -6,9 +6,117 @@ matrix:
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
         - python: 2.7
-          env: KERAS_BACKEND=theano
+          env: KERAS_BACKEND=theano TEST_MODE=GENERAL
         - python: 2.7
-          env: KERAS_BACKEND=tensorflow
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=shallow
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=GENERAL
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=shallow
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir          
 
 # command to install dependencies
 install:
@@ -29,40 +137,30 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
+  - travis_wait 30 conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
   - source activate test-environment
-  - conda install mkl mkl-service
-  - pip install -r req-travis-pip.txt
+  - travis_wait 30 conda install mkl mkl-service
+  - travis_wait 30 pip install -r req-travis-pip.txt
   - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
 
   # set library path
   - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
 
-  # install PIL for preprocessing tests
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      conda install pil;
-    elif [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
-      conda install Pillow;
-    fi
-
   # install TensorFlow (CPU version).
   - pip install tensorflow
-
-  # install pydot for visualization tests
-  - conda install pydot graphviz
 
     # detect whether core files are changed or not (from Keras)
   - export CORE_CHANGED=False;
   - export APP_CHANGED=False;
 
   #install open mpi
-  - rm -rf ~/mpi
-  - mkdir ~/mpi
-  - pushd ~/mpi
-  - wget http://cntk.ai/PythonWheel/ForKeras/depends/openmpi_1.10-3.zip
-  - unzip ./openmpi_1.10-3.zip
-  - sudo dpkg -i openmpi_1.10-3.deb
-  - popd
+  #  - rm -rf ~/mpi
+  #  - mkdir ~/mpi
+  #  - pushd ~/mpi
+  #  - wget http://cntk.ai/PythonWheel/ForKeras/depends/openmpi_1.10-3.zip
+  #  - unzip ./openmpi_1.10-3.zip
+  #  - sudo dpkg -i openmpi_1.10-3.deb
+  #  - popd
 
 
 # command to run tests
@@ -74,6 +172,12 @@ script:
   - echo -e "Running tests with the following config:\n$(cat ~/.keras/keras.json)"
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest --pep8 -m pep8 -n0;
+    elif [[ "$TEST_MODE" == "GENERAL" ]]; then
+      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/*py tests/utils/*py tests/data_engine/*py 2>&1 ;
     else
-      PYTHONPATH=$PWD:$PYTHONPATH pytest tests/ ;
+      if [[ "$DEPTH" == "shallow" ]]; then
+        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DEPTH}*_${TEST_MODE}.py 2>&1 ;
+      else
+        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DIR}_${DEPTH}*_${TEST_MODE}.py 2>&1 ;
+      fi
     fi

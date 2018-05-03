@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+from six import iteritems
 import argparse
 import ast
 import copy
@@ -63,7 +66,7 @@ def train_model(params, load_dataset=None):
                                       + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
                 params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
                     int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
-                for split, filename in params['TEXT_FILES'].iteritems():
+                for split, filename in iteritems(params['TEXT_FILES']):
                     dataset = update_dataset_from_file(dataset,
                                                        params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
                                                        params,
@@ -90,51 +93,35 @@ def train_model(params, load_dataset=None):
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
 
     # Build model
-    if params['RELOAD'] == 0:  # build new model
-        nmt_model = TranslationModel(params, model_type=params['MODEL_TYPE'], verbose=params['VERBOSE'],
-                                     model_name=params['MODEL_NAME'], vocabularies=dataset.vocabulary,
-                                     store_path=params['STORE_PATH'])
+    set_optimizer = True if params['RELOAD'] == 0 else False
+    clear_dirs = True if params['RELOAD'] == 0 else False
 
-        # Define the inputs and outputs mapping from our Dataset instance to our model
-        inputMapping = dict()
-        for i, id_in in enumerate(params['INPUTS_IDS_DATASET']):
-            pos_source = dataset.ids_inputs.index(id_in)
-            id_dest = nmt_model.ids_inputs[i]
-            inputMapping[id_dest] = pos_source
-        nmt_model.setInputsMapping(inputMapping)
+    # build new model
+    nmt_model = TranslationModel(params,
+                                 model_type=params['MODEL_TYPE'],
+                                 verbose=params['VERBOSE'],
+                                 model_name=params['MODEL_NAME'],
+                                 vocabularies=dataset.vocabulary,
+                                 store_path=params['STORE_PATH'],
+                                 set_optimizer=set_optimizer,
+                                 clear_dirs=clear_dirs)
 
-        outputMapping = dict()
-        for i, id_out in enumerate(params['OUTPUTS_IDS_DATASET']):
-            pos_target = dataset.ids_outputs.index(id_out)
-            id_dest = nmt_model.ids_outputs[i]
-            outputMapping[id_dest] = pos_target
-        nmt_model.setOutputsMapping(outputMapping)
+    # Define the inputs and outputs mapping from our Dataset instance to our model
+    inputMapping = dict()
+    for i, id_in in enumerate(params['INPUTS_IDS_DATASET']):
+        pos_source = dataset.ids_inputs.index(id_in)
+        id_dest = nmt_model.ids_inputs[i]
+        inputMapping[id_dest] = pos_source
+    nmt_model.setInputsMapping(inputMapping)
 
-    else:  # resume from previously trained model
-        nmt_model = TranslationModel(params,
-                                     model_type=params['MODEL_TYPE'],
-                                     verbose=params['VERBOSE'],
-                                     model_name=params['MODEL_NAME'],
-                                     vocabularies=dataset.vocabulary,
-                                     store_path=params['STORE_PATH'],
-                                     set_optimizer=False,
-                                     clear_dirs=False)
+    outputMapping = dict()
+    for i, id_out in enumerate(params['OUTPUTS_IDS_DATASET']):
+        pos_target = dataset.ids_outputs.index(id_out)
+        id_dest = nmt_model.ids_outputs[i]
+        outputMapping[id_dest] = pos_target
+    nmt_model.setOutputsMapping(outputMapping)
 
-        # Define the inputs and outputs mapping from our Dataset instance to our model
-        inputMapping = dict()
-        for i, id_in in enumerate(params['INPUTS_IDS_DATASET']):
-            pos_source = dataset.ids_inputs.index(id_in)
-            id_dest = nmt_model.ids_inputs[i]
-            inputMapping[id_dest] = pos_source
-        nmt_model.setInputsMapping(inputMapping)
-
-        outputMapping = dict()
-        for i, id_out in enumerate(params['OUTPUTS_IDS_DATASET']):
-            pos_target = dataset.ids_outputs.index(id_out)
-            id_dest = nmt_model.ids_outputs[i]
-            outputMapping[id_dest] = pos_target
-
-        nmt_model.setOutputsMapping(outputMapping)
+    if params['RELOAD'] > 0:
         nmt_model = updateModel(nmt_model, params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
@@ -217,53 +204,53 @@ def apply_NMT_model(params, load_dataset=None):
 
     # Load model
     nmt_model = loadModel(params['STORE_PATH'], params['RELOAD'], reload_epoch=params['RELOAD_EPOCH'])
-    nmt_model.setOptimizer()
+
+    # Evaluate training
+    extra_vars = {'language': params.get('TRG_LAN', 'en'),
+                  'n_parallel_loaders': params['PARALLEL_LOADERS'],
+                  'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
+                  'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
+                  'apply_detokenization': params['APPLY_DETOKENIZATION'],
+                  'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
+                  'tokenize_references': params['TOKENIZE_REFERENCES'],
+                  }
+
+    input_text_id = params['INPUTS_IDS_DATASET'][0]
+    vocab_x = dataset.vocabulary[input_text_id]['idx2words']
+    vocab_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
+    if params['BEAM_SEARCH']:
+        extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
+        extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
+        extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
+        extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
+        extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
+        extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
+        extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
+        extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
+        extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
+        extra_vars['search_pruning'] = params.get('SEARCH_PRUNING', False)
+        extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
+        extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
+        extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
+        extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
+        extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
+        extra_vars['state_below_maxlen'] = -1 if params.get('PAD_ON_BATCH', True) \
+            else params.get('MAX_OUTPUT_TEXT_LEN', 50)
+        extra_vars['pos_unk'] = params['POS_UNK']
+        extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
+        extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
+        extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
+        extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+        extra_vars['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
+
+        if params['POS_UNK']:
+            extra_vars['heuristic'] = params['HEURISTIC']
+            if params['HEURISTIC'] > 0:
+                extra_vars['mapping'] = dataset.mapping
 
     for s in params["EVAL_ON_SETS"]:
-        # Evaluate training
-        extra_vars = {'language': params.get('TRG_LAN', 'en'),
-                      'n_parallel_loaders': params['PARALLEL_LOADERS'],
-                      'tokenize_f': eval('dataset.' + params['TOKENIZATION_METHOD']),
-                      'detokenize_f': eval('dataset.' + params['DETOKENIZATION_METHOD']),
-                      'apply_detokenization': params['APPLY_DETOKENIZATION'],
-                      'tokenize_hypotheses': params['TOKENIZE_HYPOTHESES'],
-                      'tokenize_references': params['TOKENIZE_REFERENCES']}
-        vocab = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
         extra_vars[s] = dict()
         extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-        input_text_id = None
-        vocab_src = None
-        if params['BEAM_SEARCH']:
-            extra_vars['beam_size'] = params.get('BEAM_SIZE', 6)
-            extra_vars['state_below_index'] = params.get('BEAM_SEARCH_COND_INPUT', -1)
-            extra_vars['maxlen'] = params.get('MAX_OUTPUT_TEXT_LEN_TEST', 30)
-            extra_vars['optimized_search'] = params.get('OPTIMIZED_SEARCH', True)
-            extra_vars['model_inputs'] = params['INPUTS_IDS_MODEL']
-            extra_vars['model_outputs'] = params['OUTPUTS_IDS_MODEL']
-            extra_vars['dataset_inputs'] = params['INPUTS_IDS_DATASET']
-            extra_vars['dataset_outputs'] = params['OUTPUTS_IDS_DATASET']
-            extra_vars['normalize_probs'] = params.get('NORMALIZE_SAMPLING', False)
-            extra_vars['search_pruning'] = params.get('SEARCH_PRUNING', False)
-            extra_vars['alpha_factor'] = params.get('ALPHA_FACTOR', 1.0)
-            extra_vars['coverage_penalty'] = params.get('COVERAGE_PENALTY', False)
-            extra_vars['length_penalty'] = params.get('LENGTH_PENALTY', False)
-            extra_vars['length_norm_factor'] = params.get('LENGTH_NORM_FACTOR', 0.0)
-            extra_vars['coverage_norm_factor'] = params.get('COVERAGE_NORM_FACTOR', 0.0)
-            extra_vars['state_below_maxlen'] = -1 if params.get('PAD_ON_BATCH', True) \
-                else params.get('MAX_OUTPUT_TEXT_LEN', 50)
-            extra_vars['pos_unk'] = params['POS_UNK']
-            extra_vars['output_max_length_depending_on_x'] = params.get('MAXLEN_GIVEN_X', True)
-            extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
-            extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
-            extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
-
-            if params['POS_UNK']:
-                extra_vars['heuristic'] = params['HEURISTIC']
-                input_text_id = params['INPUTS_IDS_DATASET'][0]
-                vocab_src = dataset.vocabulary[input_text_id]['idx2words']
-                if params['HEURISTIC'] > 0:
-                    extra_vars['mapping'] = dataset.mapping
-
         callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(nmt_model,
                                                                          dataset,
                                                                          gt_id=params['OUTPUTS_IDS_DATASET'][0],
@@ -276,12 +263,11 @@ def apply_NMT_model(params, load_dataset=None):
                                                                          is_text=True,
                                                                          input_text_id=input_text_id,
                                                                          save_path=nmt_model.model_path,
-                                                                         index2word_y=vocab,
-                                                                         index2word_x=vocab_src,
+                                                                         index2word_y=vocab_y,
+                                                                         index2word_x=vocab_x,
                                                                          sampling_type=params['SAMPLING'],
                                                                          beam_search=params['BEAM_SEARCH'],
-                                                                         start_eval_on_epoch=params[
-                                                                             'START_EVAL_ON_EPOCH'],
+                                                                         start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
                                                                          write_samples=True,
                                                                          write_type=params['SAMPLING_SAVE_MODE'],
                                                                          eval_on_epochs=params['EVAL_EACH_EPOCHS'],
@@ -542,6 +528,7 @@ def buildCallbacks(params, model, dataset):
             extra_vars['output_max_length_depending_on_x_factor'] = params.get('MAXLEN_GIVEN_X_FACTOR', 3)
             extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
             extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
+            extra_vars['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
 
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -608,22 +595,44 @@ def check_params(params):
     :param params: Model instance on which to apply the callback.
     :return: None
     """
+
+    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
+        warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
+                      'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
+
+    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][:-1] != '.npy':
+        warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
+                      'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
+    if not params['PAD_ON_BATCH']:
+        warnings.warn('It is HIGHLY recommended to set the option "PAD_ON_BATCH = True."')
+
+    if params['MODEL_TYPE'].lower() == 'transformer':
+
+        assert params['MODEL_SIZE'] == params['TARGET_TEXT_EMBEDDING_SIZE'], 'When using the Transformer model, ' \
+                                                                             'dimensions of "MODEL_SIZE" and "TARGET_TEXT_EMBEDDING_SIZE" must match. ' \
+                                                                             'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'])
+        assert params['MODEL_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE'], 'When using the Transformer model, ' \
+                                                                             'dimensions of "MODEL_SIZE" and "SOURCE_TEXT_EMBEDDING_SIZE" must match. ' \
+                                                                             'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'])
+        if params['OPTIMIZED_SEARCH']:
+            warnings.warn('The "OPTIMIZED_SEARCH" option is still untested for the "Transformer" model. Setting it to False.')
+            params['OPTIMIZED_SEARCH'] = False
+
+        if params['POS_UNK']:
+            warnings.warn('The "POS_UNK" option is still unimplemented for the "Transformer" model. '
+                          'Setting it to False.')
+            params['POS_UNK'] = False
+        assert params['MODEL_SIZE'] % params['N_HEADS'] == 0, \
+            '"MODEL_SIZE" should be a multiple of "N_HEADS". ' \
+            'Currently: mod(%d, %d) == %d.' % (params['MODEL_SIZE'], params['N_HEADS'], params['MODEL_SIZE'] % params['N_HEADS'])
+
     if params['POS_UNK']:
         assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
     if params['COVERAGE_PENALTY']:
         assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
-    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][-4:] != '.npy':
-        warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
-                      'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
-
-    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][-4:] != '.npy':
-        warnings.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
-                      'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
-    if not params['PAD_ON_BATCH']:
-        warnings.warn('It is HIGHLY recommended to set the option "PAD_ON_BATCH = True."')
-
+    return params
 
 if __name__ == "__main__":
     args = parse_args()
@@ -639,17 +648,17 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 parameters[k] = ast.literal_eval(v)
             except ValueError:
                 parameters[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
-    check_params(parameters)
+    parameters = check_params(parameters)
     if args.online:
         dataset = loadDataset(args.dataset)
         dataset = update_dataset_from_file(dataset, args.source, parameters,

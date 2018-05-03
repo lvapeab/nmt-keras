@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import numpy as np
 import argparse
 from os.path import basename, dirname
@@ -14,10 +16,10 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
     :param dest_filename: Filename of the formatted vectors.
     """
     word_vecs = dict()
-    print "Loading vectors from %s" % v_path
+    print ("Loading vectors from %s" % v_path)
     glove_vectors = [x[:-1] for x in open(v_path).readlines()]
     n_vecs = len(glove_vectors)
-    print "Found %d vectors in %s" % (n_vecs, v_path)
+    print ("Found %d vectors in %s" % (n_vecs, v_path))
     i = 0
     for vector in glove_vectors:
         v = vector.split()
@@ -26,15 +28,13 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
         word_vecs[word] = vec
         i += 1
         if i % 1000 == 0:
-            print "Processed %d vectors (%.2f %%)\r" % \
-                  (i, 100 * float(i) / n_vecs),
+            print ("Processed %d vectors (%.2f %%)\r" % (i, 100 * float(i) / n_vecs),)
 
-    print
+    print ("")
     # Store dict
-    print "Saving word vectors in %s" % \
-          (base_path_save + '/' + dest_filename + '.npy')
+    print ("Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy'))
     np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
-    print
+    print ("")
 
 
 def parse_args():
