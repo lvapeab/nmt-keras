@@ -63,8 +63,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def generate_constrained_hypothesis(src_seq, fixed_words_user, args, isle_indices, filtered_idx2word,
-                                    index2word_y, sources, heuristic, mapping, unk_indices, unk_words):
+def generate_constrained_hypothesis(beam_searcher, src_seq, fixed_words_user, params, args, isle_indices, filtered_idx2word,
+                                    index2word_y, sources, heuristic, mapping, unk_indices, unk_words, unks_in_isles):
     """
     Generates and decodes a user-constrained hypothesis given a source sentence and the user feedback signals.
     :param src_seq: Sequence of indices of the source sentence to translate.
@@ -81,7 +81,7 @@ def generate_constrained_hypothesis(src_seq, fixed_words_user, args, isle_indice
     :return: Constrained hypothesis
     """
     # Generate a constrained hypothesis
-    trans_indices, costs, alphas = interactive_beam_searcher. \
+    trans_indices, costs, alphas = beam_searcher. \
         sample_beam_search_interactive(src_seq,
                                        fixed_words=copy.copy(fixed_words_user),
                                        max_N=args.max_n,
@@ -94,7 +94,7 @@ def generate_constrained_hypothesis(src_seq, fixed_words_user, args, isle_indice
         if unk_id in isle_sequence:
             unk_in_isles.append((subfinder(isle_sequence, list(trans_indices)), isle_words))
 
-    if params['POS_UNK']:
+    if params['pos_unk']:
         alphas = [alphas]
     else:
         alphas = None
@@ -224,6 +224,7 @@ if __name__ == "__main__":
                                             model_name=params['MODEL_NAME'] + '_' + str(i),
                                             vocabularies=dataset.vocabulary,
                                             store_path=params['STORE_PATH'],
+                                            clear_dirs=False,
                                             set_optimizer=False)
                            for i in range(len(args.models))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
@@ -437,11 +438,11 @@ if __name__ == "__main__":
                         logger.debug(u'"%s" to character %d.' % (next_correction, next_correction_pos))
 
                         # 2.2.7 Generate a hypothesis compatible with the feedback provided by the user
-                        hypothesis = generate_constrained_hypothesis(src_seq, fixed_words_user, args,
+                        hypothesis = generate_constrained_hypothesis(interactive_beam_searcher, src_seq, fixed_words_user, params_prediction, args,
                                                                      isle_indices, filtered_idx2word,
                                                                      index2word_y, sources, heuristic,
                                                                      mapping, unk_words_dict.keys(),
-                                                                     unk_words_dict.values())
+                                                                     unk_words_dict.values(), unks_in_isles)
                         hypothesis_number += 1
                         hypothesis = u' '.join(hypothesis)  # Hypothesis is unicode
                         hypothesis = params_prediction['detokenize_f'](hypothesis) \
