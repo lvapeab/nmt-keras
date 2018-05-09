@@ -139,6 +139,7 @@ if __name__ == "__main__":
                                             model_name=params['MODEL_NAME'] + '_' + str(i),
                                             vocabularies=dataset.vocabulary,
                                             store_path=params['STORE_PATH'],
+                                            clear_dirs=False,
                                             set_optimizer=False)
                            for i in range(len(args.models))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
