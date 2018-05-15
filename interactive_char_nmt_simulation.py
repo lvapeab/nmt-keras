@@ -397,13 +397,12 @@ if __name__ == "__main__":
                         # 2.2.1 Empty data structures for the next sentence
                         fixed_words_user = OrderedDict()
                         unk_words_dict = OrderedDict()
+                        isle_indices = []
+                        unks_in_isles = []
+
                         if not args.prefix:
                             Exception(NotImplementedError, 'Segment-based interaction at'
                                                            ' character level is still unimplemented')
-                        else:
-                            isle_indices = []
-                            unks_in_isles = []
-
                         # 2.2.2 Compute longest common character prefix (LCCP)
                         next_correction_pos, validated_prefix = common_prefix(hypothesis, reference)
                         if next_correction_pos == len(reference):
