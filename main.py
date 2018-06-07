@@ -130,12 +130,14 @@ def train_model(params, load_dataset=None):
                        'maxlen': params['MAX_OUTPUT_TEXT_LEN'],
                        'joint_batches': params['JOINT_BATCHES'],
                        'lr_decay': params.get('LR_DECAY', None),  # LR decay parameters
+                       'initial_lr': params.get('LR', 1.0),
                        'reduce_each_epochs': params.get('LR_REDUCE_EACH_EPOCHS', True),
                        'start_reduction_on_epoch': params.get('LR_START_REDUCTION_ON_EPOCH', 0),
                        'lr_gamma': params.get('LR_GAMMA', 0.9),
                        'lr_reducer_type': params.get('LR_REDUCER_TYPE', 'linear'),
                        'lr_reducer_exp_base': params.get('LR_REDUCER_EXP_BASE', 0),
                        'lr_half_life': params.get('LR_HALF_LIFE', 50000),
+                       'lr_warmup_exp': params.get('WARMUP_EXP', -1.5),
                        'epochs_for_save': params['EPOCHS_FOR_SAVE'],
                        'verbose': params['VERBOSE'],
                        'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
@@ -398,9 +400,6 @@ def check_params(params):
         assert params['MODEL_SIZE'] == params['SOURCE_TEXT_EMBEDDING_SIZE'], 'When using the Transformer model, ' \
                                                                              'dimensions of "MODEL_SIZE" and "SOURCE_TEXT_EMBEDDING_SIZE" must match. ' \
                                                                              'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'])
-        if params['OPTIMIZED_SEARCH']:
-            warnings.warn('The "OPTIMIZED_SEARCH" option is still untested for the "Transformer" model. Setting it to False.')
-            params['OPTIMIZED_SEARCH'] = False
 
         if params['POS_UNK']:
             warnings.warn('The "POS_UNK" option is still unimplemented for the "Transformer" model. '
@@ -411,8 +410,10 @@ def check_params(params):
             'Currently: mod(%d, %d) == %d.' % (params['MODEL_SIZE'], params['N_HEADS'], params['MODEL_SIZE'] % params['N_HEADS'])
 
     if params['POS_UNK']:
-        assert params['OPTIMIZED_SEARCH'], 'Unknown words replacement requires ' \
-                                           'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+        if not params['OPTIMIZED_SEARCH']:
+            warnings.warn('Unknown words replacement requires to use the optimized search ("OPTIMIZED_SEARCH" parameter). Setting "POS_UNK" to False.')
+            params['POS_UNK'] = False
+
     if params['COVERAGE_PENALTY']:
         assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
