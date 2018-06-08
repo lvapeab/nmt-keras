@@ -32,8 +32,8 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
 
     print ("")
     # Store dict
-    print ("Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy'))
-    np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
+    print ("Saving word vectors in %s" % (base_path_save + dest_filename + '.npy'))
+    np.save(base_path_save + dest_filename + '.npy', word_vecs)
     print ("")
 
 

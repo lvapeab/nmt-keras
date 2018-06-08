@@ -11,7 +11,8 @@ usage(){
     echo "                                  Default: \"dirname source\"/mapping.\"source_lan\"_\"target_lan\".pkl"
     echo " --aligner <string>      : Aligner to use (options: fast_align (default) or giza)"
     echo " --source_lan <string>   : Source language. If unspecified, taken from the source filename"
-    echo " --target_lan <string>   : Source language. If unspecified, taken from the source filename"
+    echo " --target_lan <string>   : Source language. If unspecified, taken from the target filename"
+    echo " -keep-probs             : Keep alignments together with probabilities instead of max alignments."
     echo " -debug                  : After ending, do not delete temporary files"
     echo " -v                      : Verbose mode."
     echo " --help                  : Display this help and exit."
@@ -29,6 +30,7 @@ source_lan_given=0
 target_lan=""
 target_lan_given=0
 verbose=0
+keep_probs=0
 
 while [ $# -ne 0 ]; do
  case $1 in
@@ -88,6 +90,8 @@ while [ $# -ne 0 ]; do
             fi
             ;;
         "-debug") debug="-debug"
+            ;;
+        "-keep-probs") keep_probs=1
             ;;
         "-v") verbose=1
             ;;
@@ -166,8 +170,15 @@ if [ ${verbose} -gt 0 ]; then
     echo "Converting alignments to dictionary"
 fi
 
-python ${utilsdir}/ttables_to_dict.py --fname ${dest_dir}/${source_lan}_${target_lan}.ttables \
-                                      --dest  ${dest_file}  --verbose ${verbose}
+
+if [ ${keep_probs} -gt 0 ]; then
+    python ${utilsdir}/ttables_to_dict.py --fname ${dest_dir}/${source_lan}_${target_lan}.ttables --dest  ${dest_file}  --verbose ${verbose} --keep-probs ${keep_probs}
+else
+    python ${utilsdir}/ttables_to_dict_with_probs.py --fname ${dest_dir}/${source_lan}_${target_lan}.ttables --dest ${dest_file} --verbose ${verbose}
+
+fi
+
+
 
 echo "Finished! Alignments stored in: ${dest_file}"
 
