@@ -155,7 +155,7 @@ python ${utilsdir}/format_corpus_for_aligner.py --source ${source_file} --target
  --dest ${dest_dir}/${source_lan}_${target_lan} --aligner ${aligner}
 if [ "${aligner}" == "fast_align" ]; then
     echo "Aligning with $aligner..."
-    ${fast_align} -i ${dest_dir}/${source_lan}_${target_lan} -d -v -o -T 0.1 -I 4 -p ${dest_dir}/${source_lan}_${target_lan}.ttables > ${dest_dir}/${source_lan}_${target_lan}.align
+    ${fast_align} -i ${dest_dir}/${source_lan}_${target_lan} -d -v -o -T 0.1  -p ${dest_dir}/${source_lan}_${target_lan}.ttables > ${dest_dir}/${source_lan}_${target_lan}.align
 elif [ "${aligner}" == "giza" ]; then
     echo "$aligner aligner STILL not supported!"
     exit 1

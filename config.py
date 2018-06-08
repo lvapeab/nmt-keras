@@ -141,8 +141,10 @@ def load_parameters():
     LR_REDUCER_TYPE = 'exponential'               # Function to reduce. 'linear' and 'exponential' implemented.
                                                   # Linear reduction: new_lr = lr * LR_GAMMA
                                                   # Exponential reduction: new_lr = lr * LR_REDUCER_EXP_BASE ** (current_nb / LR_HALF_LIFE) * LR_GAMMA
-    LR_REDUCER_EXP_BASE = 0.5                     # Base for the exponential decay.
-    LR_HALF_LIFE = 5000                           # Factor for exponenital decay.
+                                                  # Noam reduction: new_lr = lr * min(current_nb ** LR_REDUCER_EXP_BASE, current_nb * LR_HALF_LIFE ** WARMUP_EXP)
+    LR_REDUCER_EXP_BASE = -0.5                     # Base for the exponential decay.
+    LR_HALF_LIFE = 100                           # Factor/warmup steps for exponenital/noam decay.
+    WARMUP_EXP = -1.5                             # Warmup steps for noam decay.
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs.
