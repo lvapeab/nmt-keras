@@ -4,6 +4,7 @@ In this directory, you'll find some utils for handling NMT systems.
 The main scripts are the following:
 
 * [build_mapping_file.sh](https://github.com/lvapeab/nmt-keras/blob/master/utils/build_mapping_file.sh): Given a parallel corpus, estimates a mapping (through a stochastic dictionary) of source-target words. Used for replace unknown words heuristics 1 and 2.
+* [clean_training_directory.sh](https://github.com/lvapeab/nmt-keras/blob/master/utils/clean_training_directory.sh): Removes all models from a directory, except those with best scores.
 * [model_average.py](https://github.com/lvapeab/nmt-keras/blob/master/utils/average_models.py): Performs a weighted average of the inputs models.
 * [evaluate_from_file.py](https://github.com/lvapeab/nmt-keras/blob/master/utils/evaluate_from_file.py): Applies the selected metrics to hypotheses/references files.
 * [preprocess_binary_word_vectors.py](https://github.com/lvapeab/nmt-keras/blob/master/utils/preprocess_binary_word_vectors.py): Formats word2vec (or GloVe) word embeddings given in a binary format. You should change the paths to yours adequately.
