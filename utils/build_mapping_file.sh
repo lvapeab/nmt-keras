@@ -174,7 +174,7 @@ fi
 if [ ${keep_probs} -gt 0 ]; then
     python ${utilsdir}/ttables_to_dict.py --fname ${dest_dir}/${source_lan}_${target_lan}.ttables --dest  ${dest_file}  --verbose ${verbose} --keep-probs ${keep_probs}
 else
-    python ${utilsdir}/ttables_to_dict_with_probs.py --fname ${dest_dir}/${source_lan}_${target_lan}.ttables --dest ${dest_file} --verbose ${verbose}
+    python ${utilsdir}/ttables_to_dict.py --fname ${dest_dir}/${source_lan}_${target_lan}.ttables --dest ${dest_file} --verbose ${verbose}
 
 fi
 
