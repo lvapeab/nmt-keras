@@ -3,11 +3,11 @@
 
 if [ $# -lt 1 ] 
 then 
-    echo "Usage: `basename $0` <models_path> [-m metric] [-n models_to_leave]\n"
-    echo "Removes all but the n best models, according to the val.coco file. \n"
-    echo "Options: \n"
-    echo "\t -m metric: Remove models according to this metric. By default, Bleu_4"
-    echo "\t -n models_to_leave: Number of models to leave. By default, 3."
+    echo -e "Usage: `basename $0` <models_path> [-m metric] [-n models_to_leave] "
+    echo -e  "Removes all but the n best models, according to the val.coco file. "
+    echo -e "Options: "
+    echo -e "\t -m metric: Remove models according to this metric. By default, Bleu_4"
+    echo -e "\t -n models_to_leave: Number of models to leave. By default, 3."
     exit 1
 fi
 
