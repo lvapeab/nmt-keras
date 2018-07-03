@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-import logging
+try:
+    import itertools.imap as map
+except ImportError:
+    pass
 import argparse
-from config import load_parameters
-from keras_wrapper.extra.read_write import pkl2dict, list2file, numpy2file
+import logging
+import ast
+from keras_wrapper.extra.read_write import pkl2dict, list2file, nbest2file, list2stdout
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -12,8 +16,8 @@ logger = logging.getLogger(__name__)
 def parse_args():
     parser = argparse.ArgumentParser("Use several translation models for scoring source--target pairs")
     parser.add_argument("-ds", "--dataset", required=True, help="Dataset instance with data")
-    parser.add_argument("-src", "--source", required=False, help="Text file with source sentences")
-    parser.add_argument("-trg", "--target", required=False, help="Text file with target sentences")
+    parser.add_argument("-src", "--source", required=True, help="Text file with source sentences")
+    parser.add_argument("-trg", "--target", required=True, help="Text file with target sentences")
     parser.add_argument("-s", "--splits", nargs='+', required=False, default=['val'], help="Splits to sample. "
                                                                                            "Should be already included"
                                                                                            "into the dataset object.")
@@ -26,6 +30,8 @@ def parse_args():
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
     parser.add_argument("--models", nargs='+', required=True, help="path to the models")
+    parser.add_argument("-ch", "--changes", nargs="*", help="Changes to the config. Following the syntax Key=Value",
+                        default="")
     return parser.parse_args()
 
 
@@ -39,9 +45,8 @@ def score_corpus(args, params):
     logging.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
-    if args.source is not None:
-        dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits,
-                                           output_text_filename=args.target, compute_state_below=True)
+    dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits,
+                                       output_text_filename=args.target, compute_state_below=True)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -101,11 +106,27 @@ def score_corpus(args, params):
 
 
 if __name__ == "__main__":
+
     args = parse_args()
     if args.config is None:
-        print ("Reading parameters from config.py")
+        logging.info("Reading parameters from config.py")
+        from config import load_parameters
         params = load_parameters()
     else:
-        print ("Loading parameters from %s" % str(args.config))
+        logging.info("Loading parameters from %s" % str(args.config))
         params = pkl2dict(args.config)
+    try:
+        for arg in args.changes:
+            try:
+                k, v = arg.split('=')
+            except ValueError:
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
+                exit(1)
+            try:
+                params[k] = ast.literal_eval(v)
+            except ValueError:
+                params[k] = v
+    except ValueError:
+        print ('Error processing arguments: (', k, ",", v, ")")
+        exit(2)
     score_corpus(args, params)
