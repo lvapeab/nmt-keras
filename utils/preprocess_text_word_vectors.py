@@ -17,14 +17,22 @@ def txtvec2npy(v_path, base_path_save, dest_filename):
     """
     word_vecs = dict()
     print ("Loading vectors from %s" % v_path)
-    glove_vectors = [x[:-1] for x in open(v_path).readlines()]
-    n_vecs = len(glove_vectors)
-    print ("Found %d vectors in %s" % (n_vecs, v_path))
+    vectors = [x[:-1] for x in open(v_path).readlines()]
+    if len(vectors[0].split()) == 2:
+        signature = vectors.pop(0).split()
+        dimension = int(signature[1])
+        n_vecs = len(vectors)
+        assert int(signature[0]) == n_vecs, 'The number of read vectors does not match with the expected one (read %d, expected %d)' % (n_vecs, int(signature[0]))
+    else:
+        n_vecs = len(vectors)
+        dimension = len(vectors[0].split()) - 1
+
+    print ("Found %d vectors of dimension %d in %s" % (n_vecs, dimension, v_path))
     i = 0
-    for vector in glove_vectors:
+    for vector in vectors:
         v = vector.split()
-        word = v[0]
-        vec = np.asarray(v[1:], dtype='float32')
+        vec = np.asarray(v[-dimension:], dtype='float32')
+        word = ' '.join(v[0: len(v) - dimension])
         word_vecs[word] = vec
         i += 1
         if i % 1000 == 0:
