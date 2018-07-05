@@ -17,7 +17,7 @@ def test_text_word2vec2npy():
     txtvec2npy(path + '/' + vectors_name, './', vectors_name[:-4])
     vectors = np.load('./' + vectors_name[:-4] + '.npy').item()
 
-    assert len(list(vectors)) == 8770
+    assert len(list(vectors)) == 8769
     assert vectors['kihlkunnan'].shape[0] == 300
 
 
