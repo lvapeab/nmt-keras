@@ -257,7 +257,7 @@
                 var source = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text"); //the text area's id
                 var translation_inmt_field = hypothesis; // document.getElementById('hypothesis_' + field_number); //$('#translation-inmt');
                 var prefix = translation_inmt_field.value;
-                var startPosition = translation_inmt_field.selectionEnd;
+                var startPosition = translation_inmt_field.selectionStart;
                 if (startPosition > 0){
                     var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
                     var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2 + '&learn=False';
@@ -280,7 +280,7 @@
                     xmlHttp.open("GET", php_sampler_url, false);
                     xmlHttp.send();
                     $(translation_inmt_field).val(xmlHttp.responseText);
-                    translation_inmt_field.selectionStart = 0;
+                    translation_inmt_field.selectionStart = startPosition;
                     translation_inmt_field.selectionEnd = startPosition;
                     }
             });
