@@ -4988,6 +4988,17 @@ textarea, .editarea, .search-editarea {
     color: #000;
 }
 
+textarea::-moz-selection {
+    color: green;
+    font-style: italic;
+}
+
+textarea::selection{
+    color: green;
+    font-style: italic;
+}
+
+
 textarea:hover{
     border: 1px solid #666;
     box-shadow: inset 0 1px 2px #888;
@@ -4995,7 +5006,6 @@ textarea:hover{
     cursor: text;
     color: #000;
 }
-
 .search-editarea {
     overflow: auto;
     min-height: 22px !important;
