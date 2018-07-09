@@ -10,7 +10,7 @@ Neural Machine Translation with Keras (Theano and Tensorflow).
    :align: left
 
 .. image:: ../../examples/documentation/transformer_nmt_model.png
-   :scale: 40 %
+   :scale: 10 %
    :alt: alternate text
    :align: left
 
