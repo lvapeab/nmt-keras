@@ -150,13 +150,11 @@ optional arguments:
 If you use this toolkit in your research, please cite:
 
 ```
-@misc{nmt-keras2017,
-	author = {Peris, {\'A}lvaro},
-	title = {{NMT}-{K}eras},
-	year = {2017},
-	publisher = {GitHub},
-	note = {GitHub repository},
-	howpublished = {\url{https://github.com/lvapeab/nmt-keras}},
+@unpublished{nmt-keras18,
+	title={{NMT-Keras}: a Very Flexible Toolkit with a Focus on Interactive {NMT} and Online Learning},
+	author={Peris, Álvaro and Casacuberta, Francisco},
+	note={\textit{arXiv:1807.03096}}, 
+	year={2018}
 }
 ```
 
