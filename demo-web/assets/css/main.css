@@ -2898,7 +2898,7 @@ textarea:focus {
 
 .select-wrapper:before {
     -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
+    -webkit-font-smoothing: grayscale;
     font-family: FontAwesome;
     font-style: normal;
     font-weight: normal;
@@ -2924,7 +2924,7 @@ textarea:focus {
 }
 
 select option {
-    background-color: #2B84C6;
+    background-color: rgba(43, 132, 198, 0.05);
     color: #2B84C6;
 }
 
