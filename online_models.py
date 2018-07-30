@@ -122,9 +122,7 @@ def build_online_models(models, params):
                                   output_shape=(1,),
                                   name=params['LOSS'],
                                   supports_masking=False)([y_true, y_pred, h_true, h_pred, mask_y, mask_h, weight])
-                trainer_model = Model(inputs=nmt_model.model.inputs +
-                                             [state_below_h, weight] +
-                                             [y_true, h_true, mask_y, mask_h],
+                trainer_model = Model(inputs=nmt_model.model.inputs + [state_below_h, weight] + [y_true, h_true, mask_y, mask_h],
                                       outputs=loss_out)
 
             elif params['LOSS'] == 'log_diff_plus_categorical_crossentropy':
