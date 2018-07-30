@@ -183,6 +183,20 @@ To see other projects following the same philosophy and style of NMT-Keras, take
 [Sentence SelectioNN for sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
 
 
+### Warning!
+
+There is a [known issue](https://github.com/Theano/Theano/issues/5994) with the `Theano` backend. When running `NMT-Keras`, it will show the following message:
+
+```
+[...]
+raise theano.gof.InconsistencyError("Trying to reintroduce a removed node")
+InconsistencyError: Trying to reintroduce a removed node
+```
+
+It is not a critical error, the model keeps working and it is safe to ignore it. However, if you want the message to be gone, use the Theano flag `optimizer_excluding=scanOp_pushout_output`.
+
+
+
 ## Contact
 
 Álvaro Peris ([web page](http://lvapeab.github.io/)): lvapeab@prhlt.upv.es 
