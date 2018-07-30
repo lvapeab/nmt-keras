@@ -53,7 +53,7 @@ In arXiv:1802.03594. 2018.
 
 Finally, the active learning + INMT framework described at [Active Learning for Interactive Neural Machine Translation of Data Streams](), is implemented in [this script](https://github.com/lvapeab/nmt-keras/blob/interactive_NMT/active_learning_nmt.py). If you use this code, please cite:
 ```
-Active Learning for Interactive Neural Machine Translation of Data StreamsÁlvaro Peris and Francisco Casacuberta.
+Active Learning for Interactive Neural Machine Translation of Data Streams
 Álvaro Peris and Francisco Casacuberta.
 To appear at CoNLL'18. 2018.
 ```
