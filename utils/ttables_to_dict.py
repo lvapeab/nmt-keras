@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--fname", type=str)  # T-tables
 parser.add_argument("--dest", type=str)
 parser.add_argument("--verbose", type=int)
+parser.add_argument("--keep-probs", required=False, type=int, default=0, help="Keep alignments with probs.")
 
 args = parser.parse_args()
 
@@ -38,20 +39,24 @@ with open(args.fname, 'r') as f:
 d[cur_source] = tmp_dict
 del tmp_dict
 
-e = {}
-j = 0
-for elt in d:
-    if (j % 1000) == 0 and args.verbose > 0:
-        print (j)
-    j += 1
-    e[elt] = sorted(d[elt], key=d[elt].get)[::-1]
 
-f1 = {}
-j = 0
-for elt in e:
-    if (j % 1000) == 0 and args.verbose > 0:
-        print (j)
-    j += 1
-    f1[elt] = e[elt][0]
+if args.keep_probs:
+    f1 = d
+else:
+    e = {}
+    j = 0
+    for elt in d:
+        if (j % 1000) == 0 and args.verbose > 0:
+            print (j)
+        j += 1
+        e[elt] = sorted(d[elt], key=d[elt].get)[::-1]
+
+    f1 = {}
+    j = 0
+    for elt in e:
+        if (j % 1000) == 0 and args.verbose > 0:
+            print (j)
+        j += 1
+        f1[elt] = e[elt][0]
 
 dict2pkl(f1, args.dest)

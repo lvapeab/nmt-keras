@@ -2898,7 +2898,7 @@ textarea:focus {
 
 .select-wrapper:before {
     -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
+    -webkit-font-smoothing: grayscale;
     font-family: FontAwesome;
     font-style: normal;
     font-weight: normal;
@@ -2924,7 +2924,7 @@ textarea:focus {
 }
 
 select option {
-    background-color: #2B84C6;
+    background-color: rgba(43, 132, 198, 0.05);
     color: #2B84C6;
 }
 
@@ -4988,6 +4988,17 @@ textarea, .editarea, .search-editarea {
     color: #000;
 }
 
+textarea::-moz-selection {
+    color: green;
+    font-style: italic;
+}
+
+textarea::selection{
+    color: green;
+    font-style: italic;
+}
+
+
 textarea:hover{
     border: 1px solid #666;
     box-shadow: inset 0 1px 2px #888;
@@ -4995,7 +5006,6 @@ textarea:hover{
     cursor: text;
     color: #000;
 }
-
 .search-editarea {
     overflow: auto;
     min-height: 22px !important;

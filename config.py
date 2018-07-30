@@ -37,13 +37,13 @@ def load_parameters():
     BEAM_SEARCH = True                            # Switches on-off the beam search procedure.
     BEAM_SIZE = 6                                 # Beam size (in case of BEAM_SEARCH == True).
     OPTIMIZED_SEARCH = True                       # Compute annotations only a single time per sample.
-    SEARCH_PRUNING = False                        # Apply pruning strategies to the beam search method..
-                                                  # It will likely increase decoding speed, but decrease quality..
+    SEARCH_PRUNING = False                        # Apply pruning strategies to the beam search method.
+                                                  # It will likely increase decoding speed, but decrease quality.
     MAXLEN_GIVEN_X = True                         # Generate translations of similar length to the source sentences.
-    MAXLEN_GIVEN_X_FACTOR = 2                     # The hypotheses will have (as maximum) the number of words of the.
+    MAXLEN_GIVEN_X_FACTOR = 2                     # The hypotheses will have (as maximum) the number of words of the
                                                   # source sentence * LENGTH_Y_GIVEN_X_FACTOR.
     MINLEN_GIVEN_X = True                         # Generate translations of similar length to the source sentences.
-    MINLEN_GIVEN_X_FACTOR = 3                     # The hypotheses will have (as minimum) the number of words of the.
+    MINLEN_GIVEN_X_FACTOR = 3                     # The hypotheses will have (as minimum) the number of words of the
                                                   # source sentence / LENGTH_Y_GIVEN_X_FACTOR.
 
     # Apply length and coverage decoding normalizations.
@@ -133,7 +133,7 @@ def load_parameters():
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
     EPSILON = 1e-7                                # Oprimizers epsilon value.
 
-    # Learning rate annealing
+    # Learning rate schedule
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR.
     LR_REDUCE_EACH_EPOCHS = False                 # Reduce each LR_DECAY number of epochs or updates.
@@ -141,8 +141,10 @@ def load_parameters():
     LR_REDUCER_TYPE = 'exponential'               # Function to reduce. 'linear' and 'exponential' implemented.
                                                   # Linear reduction: new_lr = lr * LR_GAMMA
                                                   # Exponential reduction: new_lr = lr * LR_REDUCER_EXP_BASE ** (current_nb / LR_HALF_LIFE) * LR_GAMMA
-    LR_REDUCER_EXP_BASE = 0.5                     # Base for the exponential decay.
-    LR_HALF_LIFE = 5000                           # Factor for exponenital decay.
+                                                  # Noam reduction: new_lr = lr * min(current_nb ** LR_REDUCER_EXP_BASE, current_nb * LR_HALF_LIFE ** WARMUP_EXP)
+    LR_REDUCER_EXP_BASE = -0.5                     # Base for the exponential decay.
+    LR_HALF_LIFE = 100                           # Factor/warmup steps for exponenital/noam decay.
+    WARMUP_EXP = -1.5                             # Warmup steps for noam decay.
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs.
@@ -187,8 +189,8 @@ def load_parameters():
                                                   # When using pretrained word embeddings, the size of the pretrained word embeddings must match with the word embeddings size.
     TRG_PRETRAINED_VECTORS_TRAINABLE = True       # Finetune or not the target word embedding vectors.
 
-    SCALE_SOURCE_WORD_EMBEDDINGS = False          # Scale source word embeddings by Sqrt(SOURCE_TEXT_EMBEDDING_SIZE)
-    SCALE_TARGET_WORD_EMBEDDINGS = False          # Scale target word embeddings by Sqrt(TARGET_TEXT_EMBEDDING_SIZE)
+    SCALE_SOURCE_WORD_EMBEDDINGS = False          # Scale source word embeddings by Sqrt(SOURCE_TEXT_EMBEDDING_SIZE).
+    SCALE_TARGET_WORD_EMBEDDINGS = False          # Scale target word embeddings by Sqrt(TARGET_TEXT_EMBEDDING_SIZE).
 
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers.
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.

@@ -173,8 +173,12 @@ class TranslationModel(Model_Wrapper):
                           str(self.params.get('LR_OPTIMIZER_DECAY', 0.0))
                           ))
 
-        if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() not in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
-            logging.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
+        if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow':
+            if self.params['OPTIMIZER'].lower() not in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
+                logging.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
+            if self.params.get('LR_DECAY') is not None:
+                logging.warning('The learning rate decay is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
+                self.params['USE_TF_OPTIMIZER'] = False
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
             import tensorflow as tf
@@ -823,7 +827,7 @@ class TranslationModel(Model_Wrapper):
             prev_src_residual_multihead = src_multihead
             src_residual_multihead = src_multihead
 
-        masked_src_multihead = MaskLayer()(src_multihead)  # We may want the padded annotations
+        masked_src_multihead = MaskLayer()(prev_src_residual_multihead)  # We may want the padded annotations
 
         # 3.1.1. Previously generated words as inputs for training -> Teacher forcing
         next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
@@ -862,7 +866,6 @@ class TranslationModel(Model_Wrapper):
 
         # Regularize
         state_below = Dropout(params['DROPOUT_P'])(state_below)
-        prev_state_below = state_below
 
         shared_trg_multihead_list = []
         shared_trg_dropout_multihead_list = []
@@ -879,82 +882,117 @@ class TranslationModel(Model_Wrapper):
         shared_add_ff_list = []
         shared_norm_ff_list = []
 
+        prev_state_below = state_below
+
         # Right tranformer block (decoder)
         for n_block in range(params['N_LAYERS_DECODER']):
+
+            # Declare shared layers of each block
+
             # Masked Multi-Head Attention block
             shared_trg_multihead = MultiHeadAttention(params['N_HEADS'],
                                                       params['MODEL_SIZE'],
                                                       dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                       mask_future=True,  # Avoid attending on future sequences
                                                       name='trg_MultiHeadAttention_' + str(n_block))
-            trg_multihead = shared_trg_multihead([prev_state_below, prev_state_below])
             shared_trg_multihead_list.append(shared_trg_multihead)
 
             # Regularize
             shared_trg_multihead_dropout = Dropout(params['DROPOUT_P'])
-            trg_multihead_dropout = shared_trg_multihead_dropout(trg_multihead)
             shared_trg_dropout_multihead_list.append(shared_trg_multihead_dropout)
+
             # Add
             shared_trg_multihead_add = Add(name='trg_Residual_MultiHeadAttention_' + str(n_block))
-            trg_multihead_add = shared_trg_multihead_add([prev_state_below, trg_multihead_dropout])
             shared_trg_add_multihead_list.append(shared_trg_multihead_add)
 
             # And norm
             shared_trg_multihead_norm = BatchNormalization(mode=1, name='trg_Normalization_MultiHeadAttention_' + str(n_block))
-            trg_multihead_norm = shared_trg_multihead_norm(trg_multihead_add)
             shared_trg_norm_multihead_list.append(shared_trg_multihead_norm)
 
             # Second Multi-Head Attention block
             shared_src_trg_multihead = MultiHeadAttention(params['N_HEADS'], params['MODEL_SIZE'],
                                                           dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                           name='src_trg_MultiHeadAttention_' + str(n_block))
-
-            src_trg_multihead = shared_src_trg_multihead([trg_multihead_norm, src_multihead])
             shared_src_trg_multihead_list.append(shared_src_trg_multihead)
 
             # Regularize
             shared_src_trg_multihead_dropout = Dropout(params['DROPOUT_P'])
-            src_trg_multihead_dropout = shared_src_trg_multihead_dropout(src_trg_multihead)
             shared_src_trg_dropout_multihead_list.append(shared_src_trg_multihead_dropout)
 
             # Add
             shared_src_trg_multihead_add = Add(name='src_trg_Residual_MultiHeadAttention_' + str(n_block))
-            src_trg_multihead_add = shared_src_trg_multihead_add([src_trg_multihead_dropout, trg_multihead_norm])
             shared_src_trg_add_multihead_list.append(shared_src_trg_multihead_add)
+
             # And norm
             shared_src_trg_multihead_norm = BatchNormalization(mode=1, name='src_trg_Normalization_MultiHeadAttention_' + str(n_block))
-            src_trg_multihead_norm = shared_src_trg_multihead_norm(src_trg_multihead_add)
             shared_src_trg_norm_multihead_list.append(shared_src_trg_multihead_norm)
 
             # FF
             shared_ff_src_trg_multihead = TimeDistributed(PositionwiseFeedForwardDense(params['FF_SIZE'],
                                                                                        name='src_trg_PositionwiseFeedForward_' + str(n_block)),
                                                           name='src_trg_TimeDistributedPositionwiseFeedForward_' + str(n_block))
-            ff_src_trg_multihead = shared_ff_src_trg_multihead(src_trg_multihead)
             shared_ff_list.append(shared_ff_src_trg_multihead)
+
             # Regularize
             shared_ff_src_trg_multihead_dropout = Dropout(params['DROPOUT_P'])
-            ff_src_trg_multihead_dropout = shared_ff_src_trg_multihead_dropout(ff_src_trg_multihead)
             shared_dropout_ff_list.append(shared_ff_src_trg_multihead_dropout)
 
             # Add
             shared_ff_src_trg_multihead_add = Add(name='src_trg_Residual_FF_' + str(n_block))
-            ff_src_trg_multihead_add = shared_ff_src_trg_multihead_add([ff_src_trg_multihead_dropout, src_trg_multihead_norm])
             shared_add_ff_list.append(shared_ff_src_trg_multihead_add)
 
             # And norm
             shared_ff_src_trg_multihead_norm = BatchNormalization(mode=1, name='src_trg_Normalization_FF_' + str(n_block))
-            ff_src_trg_multihead_norm = shared_ff_src_trg_multihead_norm(ff_src_trg_multihead_add)
             shared_norm_ff_list.append(shared_ff_src_trg_multihead_norm)
+
+            # Apply shared layers
+            # Masked Multi-Head Attention block
+            trg_multihead = shared_trg_multihead_list[n_block]([prev_state_below, prev_state_below])
+
+            # Regularize
+            trg_multihead_dropout = shared_trg_dropout_multihead_list[n_block](trg_multihead)
+
+            # Add
+            trg_multihead_add = shared_trg_add_multihead_list[n_block]([prev_state_below, trg_multihead_dropout])
+
+            # And norm
+            trg_multihead_norm = shared_trg_norm_multihead_list[n_block](trg_multihead_add)
+
+            # Second Multi-Head Attention block
+            src_trg_multihead = shared_src_trg_multihead_list[n_block]([trg_multihead_norm,
+                                                                        masked_src_multihead])
+
+            # Regularize
+            src_trg_multihead_dropout = shared_src_trg_dropout_multihead_list[n_block](src_trg_multihead)
+
+            # Add
+            src_trg_multihead_add = shared_src_trg_add_multihead_list[n_block]([src_trg_multihead_dropout, trg_multihead_norm])
+
+            # And norm
+            src_trg_multihead_norm = shared_src_trg_norm_multihead_list[n_block](src_trg_multihead_add)
+
+            # FF
+            ff_src_trg_multihead = shared_ff_list[n_block](src_trg_multihead_norm)
+
+            # Regularize
+            ff_src_trg_multihead_dropout = shared_dropout_ff_list[n_block](ff_src_trg_multihead)
+
+            # Add
+            ff_src_trg_multihead_add = shared_add_ff_list[n_block]([ff_src_trg_multihead_dropout,
+                                                                    src_trg_multihead_norm])
+
+            # And norm
+            ff_src_trg_multihead_norm = shared_norm_ff_list[n_block](ff_src_trg_multihead_add)
 
             prev_state_below = ff_src_trg_multihead_norm
 
-        out_layer = ff_src_trg_multihead_norm
+        out_layer = prev_state_below
         shared_deep_list = []
         shared_reg_deep_list = []
         # 3.6 Optional deep ouput layer
         for i, (activation, dimension) in enumerate(params['DEEP_OUTPUT_LAYERS']):
-            shared_deep_list.append(TimeDistributed(Dense(dimension, activation=activation,
+            shared_deep_list.append(TimeDistributed(Dense(dimension,
+                                                          activation=activation,
                                                           kernel_initializer=params['INIT_FUNCTION'],
                                                           kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                                           bias_regularizer=l2(params['WEIGHT_DECAY']),
@@ -1012,9 +1050,9 @@ class TranslationModel(Model_Wrapper):
         preprocessed_size = params['MODEL_SIZE']
 
         # Define inputs
-        preprocessed_annotations = Input(name='preprocessed_input', shape=tuple([None, preprocessed_size]),
+        preprocessed_annotations = Input(name='preprocessed_input',
+                                         shape=tuple([None, preprocessed_size]),
                                          dtype='float32')
-
         # Apply decoder
         prev_state_below = state_below
 
@@ -1040,7 +1078,8 @@ class TranslationModel(Model_Wrapper):
             src_trg_multihead_dropout = shared_src_trg_dropout_multihead_list[n_block](src_trg_multihead)
 
             # Add
-            src_trg_multihead_add = shared_src_trg_add_multihead_list[n_block]([src_trg_multihead_dropout, trg_multihead_norm])
+            src_trg_multihead_add = shared_src_trg_add_multihead_list[n_block]([src_trg_multihead_dropout,
+                                                                                trg_multihead_norm])
 
             # And norm
             src_trg_multihead_norm = shared_src_trg_norm_multihead_list[n_block](src_trg_multihead_add)
@@ -1052,14 +1091,15 @@ class TranslationModel(Model_Wrapper):
             ff_src_trg_multihead_dropout = shared_dropout_ff_list[n_block](ff_src_trg_multihead)
 
             # Add
-            ff_src_trg_multihead_add = shared_add_ff_list[n_block]([ff_src_trg_multihead_dropout, src_trg_multihead_norm])
+            ff_src_trg_multihead_add = shared_add_ff_list[n_block]([ff_src_trg_multihead_dropout,
+                                                                    src_trg_multihead_norm])
 
             # And norm
             ff_src_trg_multihead_norm = shared_norm_ff_list[n_block](ff_src_trg_multihead_add)
 
             prev_state_below = ff_src_trg_multihead_norm
 
-        out_layer = ff_src_trg_multihead_norm
+        out_layer = prev_state_below
 
         for (deep_out_layer, reg_list) in zip(shared_deep_list, shared_reg_deep_list):
             out_layer = deep_out_layer(out_layer)

@@ -1,3 +1,4 @@
+future
 h5py
 matplotlib
 numpy

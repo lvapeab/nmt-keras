@@ -57,7 +57,7 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
 
 
 ## Features (in addition to the full Keras cosmos): 
- * :heavy_exclamation_mark: First version of the Transformer model (from [Attention is All You Need](https://arxiv.org/abs/1706.03762)). Somewhat untested and missing the tied embeddings.
+ * :heavy_exclamation_mark: [Transformer model](https://arxiv.org/abs/1706.03762)) (missing the tied embeddings).
  * [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
@@ -166,6 +166,8 @@ optional arguments:
 
 ## Resources
 
+ * [examples/documentation/nmt-keras_paper.pdf](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/nmt-keras_paper.pdf) contains a general overview of the NMT-Keras framework.
+ 
  * In [examples/documentation/neural_machine_translation.pdf](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/neural_machine_translation.pdf) you'll find an overview of an attentional NMT system.
 
  * In the [examples](https://github.com/lvapeab/nmt-keras/blob/master/examples/) folder you'll find some tutorials for running this library. They are expected to be followed in order:
@@ -184,13 +186,11 @@ optional arguments:
 If you use this toolkit in your research, please cite:
 
 ```
-@misc{nmt-keras2017,
-	author = {Peris, {\'A}lvaro},
-	title = {{NMT}-{K}eras},
-	year = {2017},
-	publisher = {GitHub},
-	note = {GitHub repository},
-	howpublished = {\url{https://github.com/lvapeab/nmt-keras}},
+@unpublished{nmt-keras18,
+	title={{NMT-Keras}: a Very Flexible Toolkit with a Focus on Interactive {NMT} and Online Learning},
+	author={Peris, Álvaro and Casacuberta, Francisco},
+	note={\textit{arXiv:1807.03096}}, 
+	year={2018}
 }
 ```
 
