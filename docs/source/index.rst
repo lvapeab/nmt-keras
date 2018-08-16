@@ -5,14 +5,20 @@ NMT-Keras
 Neural Machine Translation with Keras (Theano and Tensorflow).
 
 .. image:: ../../examples/documentation/attention_nmt_model.png
-   :scale: 80 %
+   :scale: 40 %
    :alt: alternate text
    :align: left
+
+.. image:: ../../examples/documentation/transformer_nmt_model.png
+   :scale: 10 %
+   :alt: alternate text
+   :align: left
+
 
 ********
 Features
 ********
-
+ * Attention RNN and Transformer models.
  * Online learning and Interactive neural machine translation (INMT). See `the interactive NMT branch`_.
  * Tensorboard integration. Training process, models and word embeddings visualization.
  * Attention model over the input sequence of annotations.
@@ -49,6 +55,7 @@ Guide
 
    requirements
    usage
+   configuration
    resources
    tutorial
    modules
