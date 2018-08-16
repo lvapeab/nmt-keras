@@ -22,7 +22,7 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
 #
 
 
-# Interactive & Online NMT
+# Interactive NMT - Active learning - Online learning
 
 You are now in the `InteractiveNMT` branch of NMT-Keras. This branch is designed to implement the interactive protocols described in the paper [Interactive Neural Machine Translation](http://www.sciencedirect.com/science/article/pii/S0885230816301000): 
 
@@ -39,16 +39,23 @@ The interactive simulation is implemented at the `interactive_nmt_simulation.py`
 In addition, this branch also supports [online learning protocols in a post-editing scenario](https://arxiv.org/abs/1706.03196). Refer to the `main.py` for more information. If you use the online learning features, please cite the following paper:
 
 ```
- Online Learning for Neural Machine Translation Post-editing
+Online Learning for Neural Machine Translation Post-editing
 Álvaro Peris, Luis Cebrián and Francisco Casacuberta.
 In arxiv:1706.03196. 2017.
 ```
 
-The protocols described in [ Online Learning for Effort Reduction in Interactive Neural Machine Translation](https://arxiv.org/abs/1802.03594), are implemented in [this script](https://github.com/lvapeab/nmt-keras/blob/interactive_NMT/interactive_char_nmt_simulation.py). If you use this code, please cite:
+The protocols described in [Online Learning for Effort Reduction in Interactive Neural Machine Translation](https://arxiv.org/abs/1802.03594), are implemented in [this script](https://github.com/lvapeab/nmt-keras/blob/interactive_NMT/interactive_char_nmt_simulation.py). If you use this code, please cite:
 ```
- Online Learning for Effort Reduction in Interactive Neural Machine Translation
+Online Learning for Effort Reduction in Interactive Neural Machine Translation
 Álvaro Peris and Francisco Casacuberta.
 In arXiv:1802.03594. 2018.
+```
+
+Finally, the active learning + INMT framework described at [Active Learning for Interactive Neural Machine Translation of Data Streams](), is implemented in [this script](https://github.com/lvapeab/nmt-keras/blob/interactive_NMT/active_learning_nmt.py). If you use this code, please cite:
+```
+Active Learning for Interactive Neural Machine Translation of Data Streams
+Álvaro Peris and Francisco Casacuberta.
+To appear at CoNLL'18. 2018.
 ```
 
 ## Requirements
