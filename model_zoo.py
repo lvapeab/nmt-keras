@@ -240,6 +240,7 @@ class TranslationModel(Model_Wrapper):
                 optimizer = Adam(lr=self.params.get('LR', 0.001),
                                  beta_1=self.params.get('BETA_1', 0.9),
                                  beta_2=self.params.get('BETA_2', 0.999),
+                                 amsgrad=self.params.get('AMSGRAD', False),
                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
                                  clipnorm=self.params.get('CLIP_C', 0.),
                                  clipvalue=self.params.get('CLIP_V', 0.),
@@ -339,15 +340,11 @@ class TranslationModel(Model_Wrapper):
         # 2.2. BRNN encoder (GRU/LSTM)
         if params['BIDIRECTIONAL_ENCODER']:
             annotations = Bidirectional(eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                         kernel_regularizer=l2(
-                                                                             params['RECURRENT_WEIGHT_DECAY']),
-                                                                         recurrent_regularizer=l2(
-                                                                             params['RECURRENT_WEIGHT_DECAY']),
-                                                                         bias_regularizer=l2(
-                                                                             params['RECURRENT_WEIGHT_DECAY']),
+                                                                         kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                         recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                         bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                          dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                                                         recurrent_dropout=params[
-                                                                             'RECURRENT_DROPOUT_P'],
+                                                                         recurrent_dropout=params['RECURRENT_DROPOUT_P'],
                                                                          kernel_initializer=params['INIT_FUNCTION'],
                                                                          recurrent_initializer=params['INNER_INIT'],
                                                                          trainable=params.get('TRAINABLE_ENCODER', True),

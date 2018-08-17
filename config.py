@@ -131,7 +131,8 @@ def load_parameters():
     RHO = 0.9                                     # Rho value (for Adadelta and RMSprop optimizers).
     BETA_1 = 0.9                                  # Beta 1 value (for Adam, Adamax Nadam optimizers).
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
-    EPSILON = 1e-7                                # Oprimizers epsilon value.
+    AMSGRAD = False                               # Whether to apply the AMSGrad variant of Adam (see https://openreview.net/pdf?id=ryQu7f-RZ).
+    EPSILON = 1e-7                                # Optimizers epsilon value.
 
     # Learning rate schedule
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
