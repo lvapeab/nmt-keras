@@ -152,11 +152,16 @@ optional arguments:
 If you use this toolkit in your research, please cite:
 
 ```
-@unpublished{nmt-keras18,
-	title={{NMT-Keras}: a Very Flexible Toolkit with a Focus on Interactive {NMT} and Online Learning},
-	author={Peris, Álvaro and Casacuberta, Francisco},
-	note={\textit{arXiv:1807.03096}}, 
-	year={2018}
+@article{nmt-keras:2018,
+ journal = {The Prague Bulletin of Mathematical Linguistics},
+ title = {{NMT-Keras: a Very Flexible Toolkit with a Focus on Interactive NMT and Online Learning}},
+ author = {\'{A}lvaro Peris and Francisco Casacuberta},
+ year = {2018},
+ volume = {111},
+ pages = {113--124},
+ doi = {10.2478/pralin-2018-0010},
+ issn = {0032-6585},
+ url = {https://ufal.mff.cuni.cz/pbml/111/art-peris-casacuberta.pdf}
 }
 ```
 
@@ -174,13 +179,15 @@ Much of this library has been developed together with [Marc Bolaños](https://gi
 
 To see other projects following the same philosophy and style of NMT-Keras, take a look to:
 
-[TMA for egocentric captioning based on temporally-linked sequences](https://github.com/MarcBS/TMA).
+[TMA: Egocentric captioning based on temporally-linked sequences](https://github.com/MarcBS/TMA).
 
-[VIBIKNet for visual question answering](https://github.com/MarcBS/VIBIKNet).
+[VIBIKNet: Visual question answering](https://github.com/MarcBS/VIBIKNet).
 
-[ABiViRNet for video description](https://github.com/lvapeab/ABiViRNet).
+[ABiViRNet: Video description](https://github.com/lvapeab/ABiViRNet).
 
-[Sentence SelectioNN for sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
+[Sentence SelectioNN: Sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
+
+[DeepQuest: State-of-the-art models for multi-level Quality Estimation](https://github.com/sheffieldnlp/deepQuest).
 
 
 ### Warning!
