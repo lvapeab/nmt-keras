@@ -43,7 +43,7 @@ def compute_centroid(args):
     for i, sentence in enumerate(corpus):
         if i % 1000 == 0 and args.verbose == 1:
             print ("Processed %d sentences (%.2f %%)\r" % (i, 100 * float(i) / len_corpus))
-        sentence_representation= np.zeros(word_dim)
+        sentence_representation = np.zeros(word_dim)
         for word in sentence.split():
             sentence_representation += word_vectors.get(word, word_vectors.get('unk', np.zeros(word_dim)))
         if args.sentence_mode == 'average':
@@ -58,4 +58,3 @@ if __name__ == "__main__":
     args = parse_args()
     assert args.sentence_mode in ['average', 'sum'], 'Unknown sentence-mode: "%s"' % args.sentence_mode
     compute_centroid(args)
-

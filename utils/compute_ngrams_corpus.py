@@ -30,7 +30,7 @@ def extract_n_grams(args):
     for i, sentence in enumerate(corpus):
         if i % 1000 == 0 and args.verbose == 1:
             print ("Processed %d sentences (%.2f %%)\r" % (i, 100 * float(i) / len_corpus))
-        for order in range(1,args.order + 1):
+        for order in range(1, args.order + 1):
             sentence_ngrams = ngrams(sentence.split(), order)
             for ngram in sentence_ngrams:
                 ngram_string = u' '.join(ngram)
@@ -44,4 +44,3 @@ def extract_n_grams(args):
 if __name__ == "__main__":
     args = parse_args()
     extract_n_grams(args)
-

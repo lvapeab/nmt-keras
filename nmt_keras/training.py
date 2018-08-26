@@ -164,8 +164,6 @@ def train_model(params, load_dataset=None):
     logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
 
 
-
-
 def train_model_online(params, source_filename, target_filename, models_path=None, dataset=None, store_hypotheses=None,
                        verbose=0):
     """
