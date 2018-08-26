@@ -5,9 +5,8 @@ from keras import backend as K
 
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
-from main import train_model, apply_NMT_model
-from sample_ensemble import sample_ensemble
-from score import score_corpus
+from nmt_keras.training import train_model
+from nmt_keras.apply_model import sample_ensemble, score_corpus
 
 
 def load_tests_params():
@@ -67,9 +66,6 @@ def test_NMT_Bidir_deep_LSTM_ConditionalLSTM():
     print ("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
-    print ("Applying model")
-    apply_NMT_model(params)
     print ("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
