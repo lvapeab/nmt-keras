@@ -17,8 +17,8 @@ from keras_wrapper.extra.isles_utils import *
 from keras_wrapper.extra.read_write import pkl2dict, list2file
 from keras_wrapper.online_trainer import OnlineTrainer
 from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_lists
-from model_zoo import TranslationModel
-from online_models import build_online_models
+from nmt_keras.model_zoo import TranslationModel
+from nmt_keras.online_models import build_online_models
 from utils.utils import update_parameters
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
