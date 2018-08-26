@@ -9,189 +9,41 @@
 <head>
     <meta charset="utf-8">
     <title>NMT-Keras online demo</title>
-    <link rel="shortcut icon" href="images/logoPRHLT.png">
-
-    <meta charset="utf-8"/>
+    <link rel="shortcut icon" href="images/logoPRHLT-whitefill.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <!--[if lte IE 8]>
-    <script src="assets/js/ie/html5shiv.js"></script><![endif]-->
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- core CSS -->
+    <!-- Bootstrap -->
+    <!--<link rel="stylesheet" href="assets/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="assets/css/normalize.css">
+    <link rel="stylesheet" href="assets/css/ion.rangeSlider.css">
+    <link rel="stylesheet" href="assets/css/ion.rangeSlider.skinHTML5.css">
 
+    <!--Main-->
     <link rel="stylesheet" href="assets/css/main.css"/>
-    <!--[if lte IE 9]>
-    <link rel="stylesheet" href="assets/css/ie9.css"/><![endif]-->
-    <!--[if lte IE 8]>
-    <link rel="stylesheet" href="assets/css/ie8.css"/><![endif]-->
-
-    <script language="javascript" type="text/javascript">
-
-        function trimAll(sString) {
-            while (sString.substring(0, 1) == ' ') {
-                sString = sString.substring(1, sString.length);
-            }
-            while (sString.substring(sString.length - 1, sString.length) == ' ') {
-                sString = sString.substring(0, sString.length - 1);
-            }
-            return sString;
-        }
-
-        function write_tranlation() {
-            var source = document.getElementById('source').value;
-            if (trimAll(source) === '') {
-                var nmt_empty_string = $('#nmtemptystring');
-                nmt_empty_string.show();
-                nmt_empty_string.fadeOut(2000);
-            }
-            else {
-
-                var php_sampler_url = "sampler.php" + "?source=" + source;
-                try {
-                    //Good Browsers
-                    var xmlHttp = new XMLHttpRequest();
-                } catch (e) {
-                    //Internet Explorer
-                    try {
-                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                    } catch (e) {
-                        try {
-                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                        } catch (e) {
-                            alert("Brower not supported");
-                            return false;
-                        }
-                    }
-                }
-                xmlHttp.open("GET", php_sampler_url, false);
-                xmlHttp.send();
-                document.getElementById('translation').innerHTML = xmlHttp.responseText;
-            }
-        }
-
-        function write_interactive_tranlation() {
-            var source = document.getElementById('sourceinmt').value;
-            if (trimAll(source) === '') {
-                var inmt_empty_string = $('#inmtemptystring');
-                inmt_empty_string.show();
-                inmt_empty_string.fadeOut(2000);
-            }
-            else {
-
-                var php_sampler_url = "sampler.php" + "?source=" + source;
-                try {
-                    //Good Browsers
-                    var xmlHttp = new XMLHttpRequest();
-                } catch (e) {
-                    //Internet Explorer
-                    try {
-                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                    } catch (e) {
-                        try {
-                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                        } catch (e) {
-                            alert("Brower not supported");
-                            return false;
-                        }
-                    }
-                }
-                xmlHttp.open("GET", php_sampler_url, false);
-                xmlHttp.send();
-                document.getElementById('translation-inmt').innerHTML = xmlHttp.responseText;
-            }
-        }
-
-    </script>
 
 
-    <script>
-
-
-        $(document).ready(function () {
-            $.fn.donetyping = function (callback, delay) {
-                delay || (delay = 400);
-                var timeoutReference;
-                var doneTyping = function (elt) {
-                    if (!timeoutReference) return;
-                    timeoutReference = null;
-                    callback(elt);
-                };
-
-                this.each(function () {
-                    var self = $(this);
-                    self.is(':input') && self.on('keyup paste', function (e) {
-                        var code = (e.keyCode || e.which);
-                        if ((code >= 33 && code <=40) ||
-                                code == 27 || code == 45 || code == 46 || (code >= 16 && code <= 20) ||
-                                (code >= 112 && code <=123) || code == 144 || code == 145){
-                            clearTimeout(timeoutReference);
-                            return;
-                            }
-                        if (timeoutReference) clearTimeout(timeoutReference);
-                        timeoutReference = setTimeout(function () {
-                            doneTyping(self);
-                        }, delay);
-                    }).on('blur', function () {
-                        doneTyping(self);
-                    });
-                });
-
-                return this;
-            };
-            $('#translation-inmt').donetyping(function () {
-                var source = document.forms.inputinmt.sourceinmt.value;
-                var translation_inmt_field = $('#translation-inmt');
-                var prefix = translation_inmt_field.val();
-                var startPosition = translation_inmt_field[0].selectionStart;
-                var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
-                var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2;
-                var nHyp = parseInt(translation_inmt_field[0].getAttribute("nhypothesis"));
-
-                try {
-                    //Good Browsers
-                    var xmlHttp = new XMLHttpRequest();
-                } catch (e) {
-                    //Internet Explorer
-                    try {
-                        heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                    } catch (e) {
-                        try {
-                            heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                        } catch (e) {
-                            alert("Brower not supported");
-                            return false;
-                        }
-                    }
-                }
-                xmlHttp.open("GET", php_sampler_url, false);
-                xmlHttp.send();
-                console.log(translation_inmt_field)
-                translation_inmt_field.val(xmlHttp.responseText);
-                translation_inmt_field[0].selectionStart = startPosition;
-                translation_inmt_field[0].selectionEnd = startPosition;
-                nHyp += 1;
-
-                translation_inmt_field.attr("valPosition", startPosition.toString());
-                $('#valPos').text(' -- Validated till position: ' + startPosition);
-
-                translation_inmt_field.attr("nhypothesis", nHyp.toString());
-                $('#nHyp').text('Hypothesis #' + nHyp);
-
-            });
-        });
-    </script>
+    <!--Scripts-->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/skel.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/ie/html5shiv.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/ion.rangeSlider.js"></script>
 
 </head>
+
+<!--HTML body -->
 <body>
 
-<!--<a href="https://www.prhlt.upv.es"> <img  width="20%"  align="left"src="images/logoPRHLT-whitefill.svg"></a>-->
-<!--<a href="https://www.upv.es"><img align="right" src="images/logoUPV-val-vertical.svg"height="20%" width="40%"> </a>-->
 <!-- Sidebar -->
-<section id="sidebar">
+<section id="sidebar-top">
     <div class="inner">
         <nav>
             <ul>
-                <li><a href="#intro">Neural Machine Translation</a></li>
+                <!--<li>    <a href="http://www.prhlt.upv.es/"><img src="images/logoPRHLT-whitefill.svg" height="100%"  /></a></li>-->
                 <li><a href="#inmt">Interactive Neural Machine Translation</a></li>
                 <li><a href="#moreinfo">More info</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -201,97 +53,92 @@
 </section>
 
 <!-- Wrapper -->
+
 <div id="wrapper">
-    <!-- NMT-Demo  -->
-    <section id="intro" class="wrapper style1 fullscreen fade-up">
-        <div class="inner">
-            <h1>NMT-Keras demo </h1>
-            <p>This is a demo of a neural machine translation (NMT) system trained with the toolkit <a
-                    href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
-                Introduce a sentence in English and it will be automatically translated into German.</p>
-            <div class="container">
-                <div style='padding:15px'></div>
-                <form id='input' onsubmit='write_tranlation(); return false;'>
-                    <div class="input-group">
-                        <textarea name="source_sentence" id="source"
-                                  placeholder="Please enter a sentence in English here."></textarea>&nbsp;
-                        <p class="alert alert-warning"
-                           id="nmtemptystring" style="display:none;">Please, write a text to translate in the box
-                            above.</p>
-
-                        <div style='padding:5px'></div>
-                        <button type="submit" class="btn btn-default">Translate!</button>
-                    </div>
-                </form>
-                <div style='padding:5px'>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">Translation</div>
-                    <textarea name="translation" id='translation' readonly></textarea>&nbsp;
-                    <div style='padding:5px'>
-                    </div>
-                </div>
-            </div>
-            <div style='padding:15px'>
-                <ul class="actions">
-                    <li><a href="#inmt" class="button scrolly">More</a></li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
 
     <!-- INMT-Demo  -->
     <section id="inmt" class="wrapper style1 fullscreen fade-up">
         <div class="inner">
-            <h1>Interactive NMT-Keras demo </h1>
-            <p>This is a demo of an interactive neural machine translation (INMT) system trained with the toolkit <a
-                    href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br>
-                Introduce a sentence in English and it will be automatically translated into German. Next, you'll
-                can correct
-                the system hypothesis (from the left to the right). The system will react to each correction made by
-                you, proposing an
-                alternative suffix. <br>
-                You can also <a href="document_translation.html">translate a full document</a>.
-
+            <h1>Interactive neural machine translation</h1>
+            <h4> Demo of an interactive neural machine translation (INMT) system built with the toolkit <a href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br></h4>
+            <p>
+                Instructions:<ol>
+                    <li> Upload or choose a file with sentences in English to translate. </li>
+                    <li> Once loaded, click on each "Translate" button for obtaining the automatic translation in Spanish.  </li>
+                    <li> If the translation is not correct, you can make corrections: </li>
+                    <ol>
+                        <li>Use the mouse or the keyboard arrows to select the position where to introduce the correction.</li>
+                        <li>Type the correction.</li>
+                        <li>Type "/" for introducing an end-of-sentence symbol.</li>
+                    </ol>
+                    <li> The system will react to these interactions, providing alternative translation hypotheses.</li>
+                    <li> Once you are satisfied with the translation, click in the "Validate" button and go to the next sentence. </li>
+                    <li> If <i>Learn from sample</i> is activated, the system will use this sentence pair for improving the model. </li>
+                </ol>
             </p>
-            <div class="container">
-                <div style='padding:15px'></div>
-                <form id='inputinmt' onsubmit='write_interactive_tranlation(); return false;'>
-                    <div class="input-group">
-                        <textarea name="source_sentence" id="sourceinmt" autocomplete="on"
-                                  placeholder="Please enter a sentence in English here."></textarea>&nbsp;
-                        <p class="alert alert-warning"
-                           id="inmtemptystring" style="display:none;">Please, write a text to translate in the box
-                            above.</p>
 
-                        <div style='padding:5px'></div>
-                        <button type="submit" class="btn btn-default">Translate!</button>
-                    </div>
-                </form>
-                <div style='padding:5px'>
-                </div>
-                <div class="panel panel-default">
-
-                    <div class="panel-heading">
-                        <span id="nHyp">Hypothesis #0</span>
-                        <span id="valPos"> -- Validated till position: -</span></div>
-
-                    <textarea name="translation" valPosition="-1" nhypothesis="0" id='translation-inmt'></textarea>&nbsp;&nbsp;
-
-                    <div style='padding:5px'>
-                    </div>
-                </div>
-                <div style='padding:5px'></div>
-                <button type="submit" class="btn btn-default">Validate translation</button>
-
-
+            <p>
+                Select a document to translate.
+                <select id="document-list" name="document-list" onChange="handleDefaultFile(this.value)">
+                    <option disabled selected value> -- select a document -- </option>
+                    <option value="khresmoi">Medical text</option>
+                    <option value="xerox">Printer manual</option>
+                </select>
+            </p>
+            <!--<div style='padding:4px'>-->
+                <!--<p>Alternatively, you can upload your own data. It should be a plain-text file with one sentence per line.</p>-->
+                <!--<ul class="actions">-->
+                    <!--<li><input type="file" id="files" name="file"/></li>-->
+                    <!--<li><button onclick="abortRead();">Cancel read</button></li>-->
+                <!--</ul>-->
+            <!--</div>-->
+            <div>
+                <!--<button onclick="instructions();">Instructions</button>-->
+                <!--<p class="alert alert-info fade in" id="instructions" style="display:none;">-->
+                    <!--Upload a file with the sentences to translate.-->
+                    <!--Once loaded, click on each "Translate" button for obtaining the automatic translation.-->
+                    <!--If the translation is not correct, you can make corrections. The system will react to-->
+                    <!--these interactions, providing alternative translation hypotheses.-->
+                    <!--Once you are satisfied with the translation, click in the "Validate" button and go to the next sentence.-->
+                    <!--<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>-->
+                <!--</p>-->
+                <a href="#moreinfo" class="button scrolly">More info</a>
             </div>
-            <div style='padding:15px'>
-                <ul class="actions">
-                    <li><a href="#moreinfo" class="button scrolly">More</a></li>
-                </ul>
+
+            <p class="alert alert-warning" id="abortread" style="display:none;">Reading interrupted.</p>
+            <p class="alert alert-error"   id="errormissing" style="display:none;">File Not Found!</p>
+            <p class="alert alert-error"   id="errorread" style="display:none;">File is not readable!</p>
+            <p class="alert alert-error"   id="defaulterror" style="display:none;">An error occurred reading this
+                file.</p>
+            <div id="progress_bar">
+                <div class="percent">0%</div>
             </div>
+
+            <!--Search options    -->
+            <span style="font-size:30px;cursor:pointer" onclick="changSearchOptionsClass()">&#9654; Show NMT options</span>
+            <div id="search_options" class="vertnav">
+                <table style="width:80%">
+                    <tr>
+                        <td style="vertical-align:middle"><p> <b>Beam size</b>: Number of hypotheses running in parallel.</p></td> </td> <td> <input id="beam-size-slider" type="text" value="6" name="beam-size-slider" />  </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:middle"><p> <b>Length penalty</b>: Length normalization factor.</p> </td> <td> <input id="length-norm-slider" type="text" value="0" name="length-norm-slider" />  </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:middle"><p>  <b>Coverage penalty</b>:  Coverage normalization factor.</p></td> <td><input id="coverage-norm-slider" type="text" value="0" name="coverage-norm-slider" /></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:middle"><p> <b>Length normalization</b>: Normalize hypotheses according to their length powered to this factor.</td> <td><input id="alpha-slider" type="text" value="1" name="alpha-slider" /></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <div class="container">
+            <div name="DisplayArea" class="tableDiv" id='DisplayArea'></div>
+        </div>
+        <div class='container alert-bottom-fixed alert alert-success fade in' id='accept' style='display:none;'>
+            Sentence validated. <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
         </div>
     </section>
 
@@ -299,30 +146,28 @@
     <section id="moreinfo" class="wrapper style1 fullscreen fade-up">
         <div class="inner">
             <h1>More info</h1>
-            <p>All NMT systems were developed with NMT-Keras using Theano or Tensorflow. Everything is open-sourced.
-                For more info about the tool, please visit the <a href="https://github.com/lvapeab/nmt-keras">GitHub</a>
-                project. <br/>
-            <p>Interactive machine translation seeks to diminish the effort required for correcting translations from a
-                machine translation system.<br/>
-                For more info, look the following papers:</p>
+            <p>All systems were developed with the open-source toolkit <a href="https://github.com/lvapeab/nmt-keras">NMT-Keras</a>.<br/>
+            Interactive machine translation is a framework that aims at diminishing the effort required for correcting translations from a
+                machine translation system. For more info, look the following papers:</p>
 
-            <div class="features">
-                <p><a href="https://arxiv.org/abs/1706.03196" class="icon fa-file-pdf-o fa-2x" style="font-size:20px">
-                    Online Learning for Neural Machine Translation
-                    Post-editing</a><br/>
-                    Álvaro Peris, Luis Cebrian and Francisco Casacuberta. <br/>
-                    In <em> arXiv:1706.031963</em>, 2017.</p>
-            </div>
             <div class="features">
                 <p>
-                    <a href="http://www.sciencedirect.com/science/article/pii/S0885230816301000"
-                       class="icon fa-file-pdf-o fa-2x" style="font-size:20px"> Interactive Neural Machine
-                        Translation</a><br/>
-                    Álvaro Peris, Miguel Domingo and Francisco Casacuberta. <br/>
-                    In <em> Computer Speech & Language, vol. 45, pp. 201-220</em>, 2017.
-
+                    <a href="https://ufal.mff.cuni.cz/pbml/111/art-peris-casacuberta.pdf"
+                       class="icon fa-file-pdf-o fa-2x" style="font-size:20px"> NMT-Keras: a Very Flexible Toolkit with a Focus on Interactive NMT and Online Learning</a><br/>
+                     Álvaro Peris, Francisco Casacuberta. <br/>
+                    In <em> The Prague Bulletin of Mathematical Linguistics vol. 111, pp. 113-124</em>, 2018.
                 </p>
             </div>
+
+            <div class="features">
+                <p>
+                    <a href="https://arxiv.org/abs/1802.03594"
+                       class="icon fa-file-pdf-o fa-2x" style="font-size:20px">
+                    Online Learning for Effort Reduction in Interactive Neural Machine Translation</a><br/>
+                    Álvaro Peris and Francisco Casacuberta. <br/>
+                    In <em>arXiv:1802.03594</em>, 2018.</p>
+            </div>
+
 
 
             <div style='padding:15px'>
@@ -338,18 +183,12 @@
     <!-- contact -->
     <section id="contact" class="wrapper style1 fade-up">
         <div class="inner">
-            <h1>Contact</h1>
-            <div class="container">
-                <p>Álvaro Peris.</p>
-            </div>
-
             <ul class="icons">
-                <li><a href="mailto:lvapeab@gmail.com" class="fa-envelope-o fa-3x"><span class="label">Gmail</span></a>
-                </li>
-                <li><a href="https://www.prhlt.upv.es/u/lvapeab" class="fa-globe fa-3x"><span class="label">PRHLT</span></a>
-                </li>
-                <li><a href="https://github.com/lvapeab/nmt-keras" class="fa-github fa-3x"><span
-                        class="label">GitHub</span></a></li>
+            <h1>Contact:
+                <li><a href="mailto:lvapeab@gmail.com" class="fa-envelope-o"><span class="label">Gmail</span></a>
+                <a href="https://www.prhlt.upv.es/u/lvapeab" class="fa-globe"><span class="label">PRHLT</span></a>
+                <a href="https://github.com/lvapeab/nmt-keras" class="fa-github"><span class="label">GitHub</span></a></li>
+                </h1>
             </ul>
         </div>
 
@@ -359,20 +198,439 @@
     <footer id="footer" class="wrapper style1-alt">
         <div class="inner">
             <ul class="menu">
-                <li>&copy; Álvaro Peris. All rights reserved.</li>
-                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>&copy; Álvaro Peris. 2018. All rights reserved.</li>
+                <li>Design: HTML5 UP</li>
             </ul>
         </div>
     </footer>
 </div>
+
+
+
 </body>
-<!-- Scripts -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/jquery.scrollex.min.js"></script>
-<script src="assets/js/jquery.scrolly.min.js"></script>
-<script src="assets/js/skel.min.js"></script>
-<script src="assets/js/util.js"></script>
-<!--[if lte IE 8]>
-<script src="assets/js/ie/respond.min.js"></script><![endif]-->
+
+
+
+<!-- Java Scripts-->
+<!--INMT-->
+
+<script language="javascript" type="text/javascript">
+    function trimAll(sString) {
+        while (sString.substring(0, 1) == ' ') {
+            sString = sString.substring(1, sString.length);
+        }
+        while (sString.substring(sString.length - 1, sString.length) == ' ') {
+            sString = sString.substring(0, sString.length - 1);
+        }
+        return sString;
+    }
+    function instructions() {
+        var instructions = $('#instructions');
+        instructions.show();
+    }
+
+    function encodeHTML(s) {
+        return s.split('&').join('&amp;').split('<').join('&lt;').split('"').join('&quot;').split("'").join('&#39;');
+    }
+    function write_interactive_tranlation(field_number) {
+        var source_text = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text"); //the text area's id
+        var hypothesis = null;
+
+        // Retrieve search options
+        var beam_size = $("#beam-size-slider").data("ionRangeSlider").result.from;
+        var length_norm = $("#length-norm-slider").data("ionRangeSlider").result.from;
+        var coverage_norm = $("#coverage-norm-slider").data("ionRangeSlider").result.from;
+        var alpha_norm = $("#alpha-slider").data("ionRangeSlider").result.from;
+
+        if (trimAll(source_text) === '') {
+            var inmt_empty_string = $('#inmtemptystring');
+            inmt_empty_string.show();
+            inmt_empty_string.fadeOut(2000);
+        }
+        else {
+            var php_sampler_url = "sampler.php" + "?source=" + source_text + "&beam_size=" + beam_size + "&length_norm=" + length_norm + "&coverage_norm=" + coverage_norm + "&alpha_norm=" + alpha_norm;
+
+            try {
+                //Good Browsers
+                var xmlHttp = new XMLHttpRequest();
+            } catch (e) {
+                //Internet Explorer
+                try {
+                    heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    try {
+                        heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e) {
+                        alert("Brower not supported");
+                        return false;
+                    }
+                }
+            }
+
+            xmlHttp.open("GET", php_sampler_url, false);
+            xmlHttp.send();
+            hypothesis = document.getElementById('hypothesis_' + field_number);
+            hypothesis.value = xmlHttp.responseText;
+            hypothesis.donetyping = function (callback, delay) {
+                delay || (delay = 20);
+                var timeoutReference;
+                var doneTyping = function (elt) {
+                    if (!timeoutReference) return;
+                    timeoutReference = null;
+                    callback(elt);
+                };
+
+                $(document).each(function () {
+                    var self = $(hypothesis);
+                    self.is(':input') && self.on('keyup paste', function (e) {
+                        var code = (e.keyCode || e.which);
+                        if ((code < 48 || code > 90) && code != 32 && code != 188 && code != 190 && code != 173 && code != 171  && (code < 96 || code > 111)) return;
+                        if (timeoutReference) clearTimeout(timeoutReference);
+                        timeoutReference = setTimeout(function () {
+                            doneTyping(self);
+                        }, delay);
+                    }).on('blur', function () {
+                        doneTyping(self);
+                    });
+                });
+                return hypothesis;
+            };
+            hypothesis.donetyping(function () {
+                var source = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text"); //the text area's id
+                var translation_inmt_field = hypothesis; // document.getElementById('hypothesis_' + field_number); //$('#translation-inmt');
+                var prefix = translation_inmt_field.value;
+                var startPosition = translation_inmt_field.selectionStart;
+
+                if (startPosition > 0){
+                    var prefix2 = prefix.slice(0, startPosition).replace(/ /gi, "%20");
+                    var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + prefix2 + '&learn=False' + "&beam_size=" + beam_size + "&length_norm=" + length_norm + "&coverage_norm=" + coverage_norm + "&alpha_norm=" + alpha_norm;
+                    try {
+                        //Good Browsers
+                        var xmlHttp = new XMLHttpRequest();
+                    } catch (e) {
+                        //Internet Explorer
+                        try {
+                            heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                        } catch (e) {
+                            try {
+                                heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                            } catch (e) {
+                                alert("Brower not supported");
+                                return false;
+                            }
+                        }
+                    }
+                    xmlHttp.open("GET", php_sampler_url, false);
+                    xmlHttp.send();
+                    $(translation_inmt_field).val(xmlHttp.responseText);
+                    translation_inmt_field.selectionStart = startPosition;
+                    translation_inmt_field.selectionEnd = startPosition;
+                    }
+            });
+        }
+    }
+    function accept_translation(field_number) {
+
+        var source = document.getElementById('sourceinmt_' + field_number).getAttribute("original-text");
+        var hypothesis = document.getElementById('hypothesis_' + field_number).value;
+        if (trimAll(source) === '' || trimAll(hypothesis) === '') {
+            var inmt_empty_string = $('#inmtemptystring');
+            inmt_empty_string.show();
+            inmt_empty_string.fadeOut(2000);
+        }
+        var learn_from_sample = $('#ol_checkbox_' + field_number + ':checked').val();
+
+        if (learn_from_sample == 'True') {
+            var php_sampler_url = "inmt_sampler.php" + "?source=" + source + "&prefix=" + hypothesis + '&learn=' + learn_from_sample;
+
+            try {
+                //Good Browsers
+                var xmlHttp = new XMLHttpRequest();
+            } catch (e) {
+                //Internet Explorer
+                try {
+                    heatControlRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    try {
+                        heatControlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e) {
+                        alert("Brower not supported");
+                        return false;
+                    }
+                }
+            }
+            xmlHttp.open("GET", php_sampler_url, false);
+            xmlHttp.send();
+        }
+
+        var accept_alert = $('#accept');
+        accept_alert.text('Sentence #' + field_number + ' validated.');
+        accept_alert.show();
+        accept_alert.fadeOut(2000);
+    }
+    function showAlignments(aligs, classname) {
+      for (var j = 0; j < aligs.length; j++) {
+        $(aligs[j]).toggleClass(classname, true);
+      }
+    }
+    function hideAlignments(aligs, classname) {
+      for (var j = 0; j < aligs.length; j++) {
+        $(aligs[j]).toggleClass(classname, false);
+      }
+    }
+    // add alignment events so that aligned words are highlighted
+    function addAlignmentEvents($node, spans, aligids) {
+      // add mouseenter mouseleave events to token spans
+      for (var i = 0; i < spans.length; i++) {
+        var $span = $(spans[i]);
+        var data = $span.data('alignments');
+        if (!data) {
+          $span.off('.alignments');
+          $span.on('mouseenter.alignments', function (e) {
+            var aligs = $(e.target).data('alignments').alignedIds;
+            self.showAlignments(aligs, 'mouse-align');
+        $(this).toggleClass('mouse-align',true);
+          });
+          $span.on('mouseleave.alignments', function (e) {
+            var aligs = $(e.target).data('alignments').alignedIds;
+            self.hideAlignments(aligs, 'mouse-align');
+        $(this).toggleClass('mouse-align',false);
+          });
+        }
+        else {
+          $span[0].removeEventListener('DOMNodeRemoved', data.onremove, false);
+        }
+        data = { alignedIds: aligids[i] };
+        data.onremove = function(alignedIds) {
+          return function(e) { self.hideAlignments(alignedIds, 'mouse-align caret-align'); }
+        }(data.alignedIds);
+        $span[0].addEventListener('DOMNodeRemoved', data.onremove, false);
+        $span.data('alignments', data);
+      }
+    }
+    /*
+    // This is the hovering on the source sentences
+    $(document).on("mouseover", ".editable-token", function () {
+    $(this).css("background-color", "yellow");}).on('mouseout', '.editable-token', function () {
+        $(this).css("background-color", "transparent");
+    });
+    */
+
+</script>
+
+<!--Search options-->
+<script>
+
+    function changSearchOptionsClass()
+    {
+        document.getElementById("search_options").classList.toggle("show");
+    }
+
+    $(function () {
+        $("#beam-size-slider").ionRangeSlider({
+            hide_min_max: true,
+            keyboard: true,
+            min: 1,
+            max: 31,
+            from: 6,
+            type: 'single',
+            step: 1,
+            prefix: "",
+            grid: true,
+            grid_num: 6
+        });
+        $("#length-norm-slider").ionRangeSlider({
+            hide_min_max: true,
+            keyboard: true,
+            min: 0,
+            max: 1,
+            from: 0,
+            type: 'single',
+            step: 0.1,
+            prefix: "",
+            grid: true,
+            grid_num: 10
+        });
+        $("#coverage-norm-slider").ionRangeSlider({
+            hide_min_max: true,
+            keyboard: true,
+            min: 0,
+            max: 1,
+            from: 0,
+            type: 'single',
+            step: 0.1,
+            prefix: "",
+            grid: true,
+            grid_num: 10
+        });
+        $("#alpha-slider").ionRangeSlider({
+            hide_min_max: true,
+            keyboard: true,
+            min: 0,
+            max: 5,
+            from: 1,
+            type: 'single',
+            step: 0.1,
+            prefix: "",
+            grid: true,
+            grid_num: 10
+        });
+
+    });
+</script>
+
+<!--Reader-->
+<script>
+    var reader;
+    var progress = document.querySelector('.percent');
+    var sourceDisplayArea = document.getElementById('DisplayArea');
+
+    function abortRead() {
+        reader.abort();
+    }
+    function errorHandler(evt) {
+        switch (evt.target.error.code) {
+            case evt.target.error.NOT_FOUND_ERR:
+                var errormissing = $('#errormissing');
+                errormissing.show();
+                errormissing.fadeOut(2000);
+                break;
+            case evt.target.error.NOT_READABLE_ERR:
+                var errorread = $('#errorread');
+                errorread.show();
+                errorread.fadeOut(2000);
+                break;
+                break;
+            case evt.target.error.ABORT_ERR:
+                break; // noop
+            default:
+                var defaulterror = $('#defaulterror');
+                defaulterror.show();
+                defaulterror.fadeOut(2000);
+                break;
+        }
+    }
+    function updateProgress(evt) {
+        // evt is an ProgressEvent.
+        if (evt.lengthComputable) {
+            var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+            // Increase the progress bar length.
+            if (percentLoaded < 100) {
+                progress.style.width = percentLoaded + '%';
+                progress.textContent = percentLoaded + '%';
+            }
+        }
+    }
+    function split_line_into_spans(line, id){
+            var split_html = '';
+            var new_line = line.replace(/(\r\n\t|\n|\r\t)/gm,"");
+            var line_words = new_line.split(' ');
+            for (var j = 0; j < line_words.length; j++) {
+                var sentence_id = id + "_word_" + j;
+                split_html += '<span class="editable-token" id="' + sentence_id + '">' + line_words[j] + '</span>';
+                split_html += '<span class="editable-space" id="' + id + '_space_' + j + '">  </span>';
+            }
+            return split_html;
+    }
+    function handleFileSelect(evt) {
+        readObjectFile(evt.target.files[0]);
+    }
+    function readObjectFile(srcfile) {
+        // Reset progress indicator on new file selection.
+        progress.style.width = '0%';
+        progress.textContent = '0%';
+        reader = new FileReader();
+        reader.onerror = errorHandler;
+        reader.onprogress = updateProgress;
+        reader.onabort = function (e) {
+            var abortread = $('#abortread');
+            abortread.show();
+            abortread.fadeOut(2000);
+        };
+        reader.onloadstart = function (e) {
+            document.getElementById('progress_bar').className = 'loading';
+        };
+        reader.onload = function (e) {
+            // Ensure that the progress bar displays 100% at the end.
+            progress.style.width = '100%';
+            progress.textContent = '100%';
+            setTimeout("document.getElementById('progress_bar').className='';", 2000);
+            var html_table = "<table  id=\"DisplayTable\"  style=\"width: auto; overflow: auto; display: block;\"  >";
+            var results = reader.result.split("\n");
+             for (var i = 0; i < results.length; i++) {
+                var source_line = results[i];
+                var source_html = "";
+                source_html = split_line_into_spans(source_line, "sourceinmt_" + i);
+                 html_table +=
+                        "<tr>" +
+                            "<td>" +
+                                "<div style=\"margin-left:7%\">Sentence #" + i + "</div>" +
+                            "</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<td>" +
+//                                    "<div style=\"margin-left:7% class=\"source item\">" +
+                                        "<div class=\"editarea\" " +
+                                            "original-text=\"" + source_line + "\"" +
+                                            "name=\"source_sentence_" + i + "\" id=\"sourceinmt_" + i + "\">" + source_html +
+                                        "</div>" + // Close edit area invisible
+//                                    "</div>" + // Close source item div
+                            "</td>" +
+                            "<td>" +
+                                "<div style=\"margin-left:7% class=\"source item\">" +
+                                    "<textarea " +
+                                        "name=\"hypothesis_" + i + "\" id=\"hypothesis_" + i +
+                                        "\"placeholder=\"Click in the translate button to obtain a translation.\">" +
+                                    "</textarea>" +
+                                "</div>" + // Close source item div
+
+//                                "</div>" + // Close div wrap
+                            "</td>" +
+                        "</tr>" +
+                        "<tr>" +
+                            "<td>" +
+                                    "<div style=\"float: right;\">" +
+                                        "<form onsubmit=\"write_interactive_tranlation(" + i + "); return false;\">" +
+                                        "<button type=\"submit\" class=\"button\">Translate!</button>" +
+                                        "</form>" +
+                                "</div>" +
+                            "</td>" +
+                            "<td>" +
+                                "<div style=\"float: right;\">" +
+                                    "<form onsubmit=\"accept_translation(" + i + "); return false;\">" +
+//                                        "Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"" + i + "\" id=\"ol_checkbox_" + i + "\" value=\"True\" checked>" +
+                                        "Learn from sample <label class=\"container\"><input type=\"checkbox\" name=\"OL-checkbox_\"" + i + "\" id=\"ol_checkbox_" + i + "\" value=\"True\" checked> <span class=\"checkmark\"></span></label>" +
+                                        "<button type=\"submit\" class=\"button\">Accept translation</button>"+
+                                    "</form>" +
+                                "</div>" +
+                            "</td>" +
+                        "</tr>";
+            }
+            html_table += "</table>";
+            DisplayArea.innerHTML = html_table;
+        };
+        reader.readAsText(srcfile);
+    }
+//    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+    function handleDefaultFile(url) {
+        //        Hardcoded samples. TODO: Find a better way for doing this
+        var xerox_table = "<table  id=\"DisplayTable\"  style=\"width: auto; overflow: auto; display: block;\"><tr><td><div style=\"margin-left:7%\">Sentence #0</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Chapter 1\"name=\"source_sentence_0\" id=\"sourceinmt_0\"><span class=\"editable-token\" id=\"sourceinmt_0_word_0\">Chapter</span><span class=\"editable-space\" id=\"sourceinmt_0_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_1\">1</span><span class=\"editable-space\" id=\"sourceinmt_0_space_1\"><span class=\"editable-token\" id=\"sourceinmt_0_word_0\"> 	&nbsp; &nbsp;	&nbsp;	&nbsp;	&nbsp;		&nbsp;	&nbsp; 	&nbsp; &nbsp; 	&nbsp; 	&nbsp; 	&nbsp; 	&nbsp; 	&nbsp; 	&nbsp; 	&nbsp; 	 	</span>  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_0\" id=\"hypothesis_0\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(0); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(0); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"0\" id=\"ol_checkbox_0\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #1</div></td></tr><tr><td><div class=\"editarea\" original-text=\"What is CentreWare?\"name=\"source_sentence_1\" id=\"sourceinmt_1\"><span class=\"editable-token\" id=\"sourceinmt_1_word_0\">What</span><span class=\"editable-space\" id=\"sourceinmt_1_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_1\">is</span><span class=\"editable-space\" id=\"sourceinmt_1_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_2\">CentreWare?</span><span class=\"editable-space\" id=\"sourceinmt_1_space_2\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_1\" id=\"hypothesis_1\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(1); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(1); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"1\" id=\"ol_checkbox_1\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #2</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Who Should Use This Guide ix\"name=\"source_sentence_2\" id=\"sourceinmt_2\"><span class=\"editable-token\" id=\"sourceinmt_2_word_0\">Who</span><span class=\"editable-space\" id=\"sourceinmt_2_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_1\">Should</span><span class=\"editable-space\" id=\"sourceinmt_2_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_2\">Use</span><span class=\"editable-space\" id=\"sourceinmt_2_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_3\">This</span><span class=\"editable-space\" id=\"sourceinmt_2_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_4\">Guide</span><span class=\"editable-space\" id=\"sourceinmt_2_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_5\">ix</span><span class=\"editable-space\" id=\"sourceinmt_2_space_5\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_2\" id=\"hypothesis_2\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(2); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(2); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"2\" id=\"ol_checkbox_2\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #3</div></td></tr><tr><td><div class=\"editarea\" original-text=\"What's New in This Release? ix\"name=\"source_sentence_3\" id=\"sourceinmt_3\"><span class=\"editable-token\" id=\"sourceinmt_3_word_0\">What's</span><span class=\"editable-space\" id=\"sourceinmt_3_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_1\">New</span><span class=\"editable-space\" id=\"sourceinmt_3_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_2\">in</span><span class=\"editable-space\" id=\"sourceinmt_3_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_3\">This</span><span class=\"editable-space\" id=\"sourceinmt_3_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_4\">Release?</span><span class=\"editable-space\" id=\"sourceinmt_3_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_5\">ix</span><span class=\"editable-space\" id=\"sourceinmt_3_space_5\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_3\" id=\"hypothesis_3\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(3); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(3); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"3\" id=\"ol_checkbox_3\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #4</div></td></tr><tr><td><div class=\"editarea\" original-text=\"CentreWare Scanning Documentation xi\"name=\"source_sentence_4\" id=\"sourceinmt_4\"><span class=\"editable-token\" id=\"sourceinmt_4_word_0\">CentreWare</span><span class=\"editable-space\" id=\"sourceinmt_4_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_1\">Scanning</span><span class=\"editable-space\" id=\"sourceinmt_4_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_2\">Documentation</span><span class=\"editable-space\" id=\"sourceinmt_4_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_3\">xi</span><span class=\"editable-space\" id=\"sourceinmt_4_space_3\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_4\" id=\"hypothesis_4\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(4); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(4); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"4\" id=\"ol_checkbox_4\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #5</div></td></tr><tr><td><div class=\"editarea\" original-text=\"The CentreWare Network Scanning Services Installation Guide xi\"name=\"source_sentence_5\" id=\"sourceinmt_5\"><span class=\"editable-token\" id=\"sourceinmt_5_word_0\">The</span><span class=\"editable-space\" id=\"sourceinmt_5_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_1\">CentreWare</span><span class=\"editable-space\" id=\"sourceinmt_5_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_2\">Network</span><span class=\"editable-space\" id=\"sourceinmt_5_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_3\">Scanning</span><span class=\"editable-space\" id=\"sourceinmt_5_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_4\">Services</span><span class=\"editable-space\" id=\"sourceinmt_5_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_5\">Installation</span><span class=\"editable-space\" id=\"sourceinmt_5_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_6\">Guide</span><span class=\"editable-space\" id=\"sourceinmt_5_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_7\">xi</span><span class=\"editable-space\" id=\"sourceinmt_5_space_7\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_5\" id=\"hypothesis_5\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(5); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(5); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"5\" id=\"ol_checkbox_5\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #6</div></td></tr><tr><td><div class=\"editarea\" original-text=\"The CentreWare Network Scanning Services User Guide xi\"name=\"source_sentence_6\" id=\"sourceinmt_6\"><span class=\"editable-token\" id=\"sourceinmt_6_word_0\">The</span><span class=\"editable-space\" id=\"sourceinmt_6_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_1\">CentreWare</span><span class=\"editable-space\" id=\"sourceinmt_6_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_2\">Network</span><span class=\"editable-space\" id=\"sourceinmt_6_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_3\">Scanning</span><span class=\"editable-space\" id=\"sourceinmt_6_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_4\">Services</span><span class=\"editable-space\" id=\"sourceinmt_6_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_5\">User</span><span class=\"editable-space\" id=\"sourceinmt_6_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_6\">Guide</span><span class=\"editable-space\" id=\"sourceinmt_6_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_7\">xi</span><span class=\"editable-space\" id=\"sourceinmt_6_space_7\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_6\" id=\"hypothesis_6\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(6); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(6); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"6\" id=\"ol_checkbox_6\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #7</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Network Scanning Services Help Centre xii\"name=\"source_sentence_7\" id=\"sourceinmt_7\"><span class=\"editable-token\" id=\"sourceinmt_7_word_0\">Network</span><span class=\"editable-space\" id=\"sourceinmt_7_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_1\">Scanning</span><span class=\"editable-space\" id=\"sourceinmt_7_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_2\">Services</span><span class=\"editable-space\" id=\"sourceinmt_7_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_3\">Help</span><span class=\"editable-space\" id=\"sourceinmt_7_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_4\">Centre</span><span class=\"editable-space\" id=\"sourceinmt_7_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_5\">xii</span><span class=\"editable-space\" id=\"sourceinmt_7_space_5\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_7\" id=\"hypothesis_7\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(7); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(7); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"7\" id=\"ol_checkbox_7\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #8</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Help xii\"name=\"source_sentence_8\" id=\"sourceinmt_8\"><span class=\"editable-token\" id=\"sourceinmt_8_word_0\">Help</span><span class=\"editable-space\" id=\"sourceinmt_8_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_1\">xii</span><span class=\"editable-space\" id=\"sourceinmt_8_space_1\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_8\" id=\"hypothesis_8\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(8); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(8); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"8\" id=\"ol_checkbox_8\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr></table>";
+
+        var khresmoi_table = "<table  id=\"DisplayTable\"  style=\"width: auto; overflow: auto; display: block;\"  ><tr><td><div style=\"margin-left:7%\">Sentence #0</div></td></tr><tr><td><div class=\"editarea\" original-text=\"The aim of this study was to investigate the effect of in vivo inhibition of factor XI and TAFI in an experimental thrombosis model in rabbits.\"name=\"source_sentence_0\" id=\"sourceinmt_0\"><span class=\"editable-token\" id=\"sourceinmt_0_word_0\">The</span><span class=\"editable-space\" id=\"sourceinmt_0_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_1\">aim</span><span class=\"editable-space\" id=\"sourceinmt_0_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_2\">of</span><span class=\"editable-space\" id=\"sourceinmt_0_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_3\">this</span><span class=\"editable-space\" id=\"sourceinmt_0_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_4\">study</span><span class=\"editable-space\" id=\"sourceinmt_0_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_5\">was</span><span class=\"editable-space\" id=\"sourceinmt_0_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_6\">to</span><span class=\"editable-space\" id=\"sourceinmt_0_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_7\">investigate</span><span class=\"editable-space\" id=\"sourceinmt_0_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_8\">the</span><span class=\"editable-space\" id=\"sourceinmt_0_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_9\">effect</span><span class=\"editable-space\" id=\"sourceinmt_0_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_10\">of</span><span class=\"editable-space\" id=\"sourceinmt_0_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_11\">in</span><span class=\"editable-space\" id=\"sourceinmt_0_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_12\">vivo</span><span class=\"editable-space\" id=\"sourceinmt_0_space_12\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_13\">inhibition</span><span class=\"editable-space\" id=\"sourceinmt_0_space_13\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_14\">of</span><span class=\"editable-space\" id=\"sourceinmt_0_space_14\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_15\">factor</span><span class=\"editable-space\" id=\"sourceinmt_0_space_15\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_16\">XI</span><span class=\"editable-space\" id=\"sourceinmt_0_space_16\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_17\">and</span><span class=\"editable-space\" id=\"sourceinmt_0_space_17\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_18\">TAFI</span><span class=\"editable-space\" id=\"sourceinmt_0_space_18\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_19\">in</span><span class=\"editable-space\" id=\"sourceinmt_0_space_19\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_20\">an</span><span class=\"editable-space\" id=\"sourceinmt_0_space_20\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_21\">experimental</span><span class=\"editable-space\" id=\"sourceinmt_0_space_21\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_22\">thrombosis</span><span class=\"editable-space\" id=\"sourceinmt_0_space_22\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_23\">model</span><span class=\"editable-space\" id=\"sourceinmt_0_space_23\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_24\">in</span><span class=\"editable-space\" id=\"sourceinmt_0_space_24\">  </span><span class=\"editable-token\" id=\"sourceinmt_0_word_25\">rabbits.</span><span class=\"editable-space\" id=\"sourceinmt_0_space_25\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_0\" id=\"hypothesis_0\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(0); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(0); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"0\" id=\"ol_checkbox_0\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #1</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Cardiac arrests are sometimes referred to as cardiopulmonary arrest, cardiorespiratory arrest, or circulatory arrest.\"name=\"source_sentence_1\" id=\"sourceinmt_1\"><span class=\"editable-token\" id=\"sourceinmt_1_word_0\">Cardiac</span><span class=\"editable-space\" id=\"sourceinmt_1_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_1\">arrests</span><span class=\"editable-space\" id=\"sourceinmt_1_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_2\">are</span><span class=\"editable-space\" id=\"sourceinmt_1_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_3\">sometimes</span><span class=\"editable-space\" id=\"sourceinmt_1_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_4\">referred</span><span class=\"editable-space\" id=\"sourceinmt_1_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_5\">to</span><span class=\"editable-space\" id=\"sourceinmt_1_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_6\">as</span><span class=\"editable-space\" id=\"sourceinmt_1_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_7\">cardiopulmonary</span><span class=\"editable-space\" id=\"sourceinmt_1_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_8\">arrest,</span><span class=\"editable-space\" id=\"sourceinmt_1_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_9\">cardiorespiratory</span><span class=\"editable-space\" id=\"sourceinmt_1_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_10\">arrest,</span><span class=\"editable-space\" id=\"sourceinmt_1_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_11\">or</span><span class=\"editable-space\" id=\"sourceinmt_1_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_12\">circulatory</span><span class=\"editable-space\" id=\"sourceinmt_1_space_12\">  </span><span class=\"editable-token\" id=\"sourceinmt_1_word_13\">arrest.</span><span class=\"editable-space\" id=\"sourceinmt_1_space_13\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_1\" id=\"hypothesis_1\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(1); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(1); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"1\" id=\"ol_checkbox_1\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #2</div></td></tr><tr><td><div class=\"editarea\" original-text=\"It's a long, hollow tube at the end of your digestive tract where your body makes and stores stool.\"name=\"source_sentence_2\" id=\"sourceinmt_2\"><span class=\"editable-token\" id=\"sourceinmt_2_word_0\">It's</span><span class=\"editable-space\" id=\"sourceinmt_2_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_1\">a</span><span class=\"editable-space\" id=\"sourceinmt_2_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_2\">long,</span><span class=\"editable-space\" id=\"sourceinmt_2_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_3\">hollow</span><span class=\"editable-space\" id=\"sourceinmt_2_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_4\">tube</span><span class=\"editable-space\" id=\"sourceinmt_2_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_5\">at</span><span class=\"editable-space\" id=\"sourceinmt_2_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_6\">the</span><span class=\"editable-space\" id=\"sourceinmt_2_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_7\">end</span><span class=\"editable-space\" id=\"sourceinmt_2_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_8\">of</span><span class=\"editable-space\" id=\"sourceinmt_2_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_9\">your</span><span class=\"editable-space\" id=\"sourceinmt_2_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_10\">digestive</span><span class=\"editable-space\" id=\"sourceinmt_2_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_11\">tract</span><span class=\"editable-space\" id=\"sourceinmt_2_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_12\">where</span><span class=\"editable-space\" id=\"sourceinmt_2_space_12\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_13\">your</span><span class=\"editable-space\" id=\"sourceinmt_2_space_13\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_14\">body</span><span class=\"editable-space\" id=\"sourceinmt_2_space_14\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_15\">makes</span><span class=\"editable-space\" id=\"sourceinmt_2_space_15\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_16\">and</span><span class=\"editable-space\" id=\"sourceinmt_2_space_16\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_17\">stores</span><span class=\"editable-space\" id=\"sourceinmt_2_space_17\">  </span><span class=\"editable-token\" id=\"sourceinmt_2_word_18\">stool.</span><span class=\"editable-space\" id=\"sourceinmt_2_space_18\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_2\" id=\"hypothesis_2\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(2); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(2); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"2\" id=\"ol_checkbox_2\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #3</div></td></tr><tr><td><div class=\"editarea\" original-text=\"About 5 percent of people with ulcerative colitis develop colon cancer.\"name=\"source_sentence_3\" id=\"sourceinmt_3\"><span class=\"editable-token\" id=\"sourceinmt_3_word_0\">About</span><span class=\"editable-space\" id=\"sourceinmt_3_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_1\">5</span><span class=\"editable-space\" id=\"sourceinmt_3_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_2\">percent</span><span class=\"editable-space\" id=\"sourceinmt_3_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_3\">of</span><span class=\"editable-space\" id=\"sourceinmt_3_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_4\">people</span><span class=\"editable-space\" id=\"sourceinmt_3_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_5\">with</span><span class=\"editable-space\" id=\"sourceinmt_3_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_6\">ulcerative</span><span class=\"editable-space\" id=\"sourceinmt_3_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_7\">colitis</span><span class=\"editable-space\" id=\"sourceinmt_3_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_8\">develop</span><span class=\"editable-space\" id=\"sourceinmt_3_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_9\">colon</span><span class=\"editable-space\" id=\"sourceinmt_3_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_3_word_10\">cancer.</span><span class=\"editable-space\" id=\"sourceinmt_3_space_10\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_3\" id=\"hypothesis_3\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(3); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(3); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"3\" id=\"ol_checkbox_3\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #4</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Post-transplant cancers which are not virus-inducted can be relied to genetic factors of the transplanted patient and / or the transplant donor.\"name=\"source_sentence_4\" id=\"sourceinmt_4\"><span class=\"editable-token\" id=\"sourceinmt_4_word_0\">Post-transplant</span><span class=\"editable-space\" id=\"sourceinmt_4_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_1\">cancers</span><span class=\"editable-space\" id=\"sourceinmt_4_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_2\">which</span><span class=\"editable-space\" id=\"sourceinmt_4_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_3\">are</span><span class=\"editable-space\" id=\"sourceinmt_4_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_4\">not</span><span class=\"editable-space\" id=\"sourceinmt_4_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_5\">virus-inducted</span><span class=\"editable-space\" id=\"sourceinmt_4_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_6\">can</span><span class=\"editable-space\" id=\"sourceinmt_4_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_7\">be</span><span class=\"editable-space\" id=\"sourceinmt_4_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_8\">relied</span><span class=\"editable-space\" id=\"sourceinmt_4_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_9\">to</span><span class=\"editable-space\" id=\"sourceinmt_4_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_10\">genetic</span><span class=\"editable-space\" id=\"sourceinmt_4_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_11\">factors</span><span class=\"editable-space\" id=\"sourceinmt_4_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_12\">of</span><span class=\"editable-space\" id=\"sourceinmt_4_space_12\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_13\">the</span><span class=\"editable-space\" id=\"sourceinmt_4_space_13\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_14\">transplanted</span><span class=\"editable-space\" id=\"sourceinmt_4_space_14\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_15\">patient</span><span class=\"editable-space\" id=\"sourceinmt_4_space_15\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_16\">and</span><span class=\"editable-space\" id=\"sourceinmt_4_space_16\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_17\">/</span><span class=\"editable-space\" id=\"sourceinmt_4_space_17\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_18\">or</span><span class=\"editable-space\" id=\"sourceinmt_4_space_18\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_19\">the</span><span class=\"editable-space\" id=\"sourceinmt_4_space_19\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_20\">transplant</span><span class=\"editable-space\" id=\"sourceinmt_4_space_20\">  </span><span class=\"editable-token\" id=\"sourceinmt_4_word_21\">donor.</span><span class=\"editable-space\" id=\"sourceinmt_4_space_21\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_4\" id=\"hypothesis_4\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(4); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(4); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"4\" id=\"ol_checkbox_4\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #5</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Soft tissue injectables and fillers are a non-surgical option for facial rejuvenation that address the loss of volume that accompanies facial aging.\"name=\"source_sentence_5\" id=\"sourceinmt_5\"><span class=\"editable-token\" id=\"sourceinmt_5_word_0\">Soft</span><span class=\"editable-space\" id=\"sourceinmt_5_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_1\">tissue</span><span class=\"editable-space\" id=\"sourceinmt_5_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_2\">injectables</span><span class=\"editable-space\" id=\"sourceinmt_5_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_3\">and</span><span class=\"editable-space\" id=\"sourceinmt_5_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_4\">fillers</span><span class=\"editable-space\" id=\"sourceinmt_5_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_5\">are</span><span class=\"editable-space\" id=\"sourceinmt_5_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_6\">a</span><span class=\"editable-space\" id=\"sourceinmt_5_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_7\">non-surgical</span><span class=\"editable-space\" id=\"sourceinmt_5_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_8\">option</span><span class=\"editable-space\" id=\"sourceinmt_5_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_9\">for</span><span class=\"editable-space\" id=\"sourceinmt_5_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_10\">facial</span><span class=\"editable-space\" id=\"sourceinmt_5_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_11\">rejuvenation</span><span class=\"editable-space\" id=\"sourceinmt_5_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_12\">that</span><span class=\"editable-space\" id=\"sourceinmt_5_space_12\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_13\">address</span><span class=\"editable-space\" id=\"sourceinmt_5_space_13\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_14\">the</span><span class=\"editable-space\" id=\"sourceinmt_5_space_14\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_15\">loss</span><span class=\"editable-space\" id=\"sourceinmt_5_space_15\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_16\">of</span><span class=\"editable-space\" id=\"sourceinmt_5_space_16\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_17\">volume</span><span class=\"editable-space\" id=\"sourceinmt_5_space_17\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_18\">that</span><span class=\"editable-space\" id=\"sourceinmt_5_space_18\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_19\">accompanies</span><span class=\"editable-space\" id=\"sourceinmt_5_space_19\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_20\">facial</span><span class=\"editable-space\" id=\"sourceinmt_5_space_20\">  </span><span class=\"editable-token\" id=\"sourceinmt_5_word_21\">aging.</span><span class=\"editable-space\" id=\"sourceinmt_5_space_21\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_5\" id=\"hypothesis_5\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(5); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(5); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"5\" id=\"ol_checkbox_5\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #6</div></td></tr><tr><td><div class=\"editarea\" original-text=\"We will investigate if there is a change in your lung inflammatory cells after the endotoxin challenge when you take the gT versus when you take a placebo.\"name=\"source_sentence_6\" id=\"sourceinmt_6\"><span class=\"editable-token\" id=\"sourceinmt_6_word_0\">We</span><span class=\"editable-space\" id=\"sourceinmt_6_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_1\">will</span><span class=\"editable-space\" id=\"sourceinmt_6_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_2\">investigate</span><span class=\"editable-space\" id=\"sourceinmt_6_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_3\">if</span><span class=\"editable-space\" id=\"sourceinmt_6_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_4\">there</span><span class=\"editable-space\" id=\"sourceinmt_6_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_5\">is</span><span class=\"editable-space\" id=\"sourceinmt_6_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_6\">a</span><span class=\"editable-space\" id=\"sourceinmt_6_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_7\">change</span><span class=\"editable-space\" id=\"sourceinmt_6_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_8\">in</span><span class=\"editable-space\" id=\"sourceinmt_6_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_9\">your</span><span class=\"editable-space\" id=\"sourceinmt_6_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_10\">lung</span><span class=\"editable-space\" id=\"sourceinmt_6_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_11\">inflammatory</span><span class=\"editable-space\" id=\"sourceinmt_6_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_12\">cells</span><span class=\"editable-space\" id=\"sourceinmt_6_space_12\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_13\">after</span><span class=\"editable-space\" id=\"sourceinmt_6_space_13\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_14\">the</span><span class=\"editable-space\" id=\"sourceinmt_6_space_14\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_15\">endotoxin</span><span class=\"editable-space\" id=\"sourceinmt_6_space_15\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_16\">challenge</span><span class=\"editable-space\" id=\"sourceinmt_6_space_16\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_17\">when</span><span class=\"editable-space\" id=\"sourceinmt_6_space_17\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_18\">you</span><span class=\"editable-space\" id=\"sourceinmt_6_space_18\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_19\">take</span><span class=\"editable-space\" id=\"sourceinmt_6_space_19\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_20\">the</span><span class=\"editable-space\" id=\"sourceinmt_6_space_20\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_21\">gT</span><span class=\"editable-space\" id=\"sourceinmt_6_space_21\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_22\">versus</span><span class=\"editable-space\" id=\"sourceinmt_6_space_22\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_23\">when</span><span class=\"editable-space\" id=\"sourceinmt_6_space_23\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_24\">you</span><span class=\"editable-space\" id=\"sourceinmt_6_space_24\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_25\">take</span><span class=\"editable-space\" id=\"sourceinmt_6_space_25\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_26\">a</span><span class=\"editable-space\" id=\"sourceinmt_6_space_26\">  </span><span class=\"editable-token\" id=\"sourceinmt_6_word_27\">placebo.</span><span class=\"editable-space\" id=\"sourceinmt_6_space_27\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_6\" id=\"hypothesis_6\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(6); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(6); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"6\" id=\"ol_checkbox_6\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #7</div></td></tr><tr><td><div class=\"editarea\" original-text=\"Patients with type 1 and type 2 diabetes mellitus (DM) will be included.\"name=\"source_sentence_7\" id=\"sourceinmt_7\"><span class=\"editable-token\" id=\"sourceinmt_7_word_0\">Patients</span><span class=\"editable-space\" id=\"sourceinmt_7_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_1\">with</span><span class=\"editable-space\" id=\"sourceinmt_7_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_2\">type</span><span class=\"editable-space\" id=\"sourceinmt_7_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_3\">1</span><span class=\"editable-space\" id=\"sourceinmt_7_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_4\">and</span><span class=\"editable-space\" id=\"sourceinmt_7_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_5\">type</span><span class=\"editable-space\" id=\"sourceinmt_7_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_6\">2</span><span class=\"editable-space\" id=\"sourceinmt_7_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_7\">diabetes</span><span class=\"editable-space\" id=\"sourceinmt_7_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_8\">mellitus</span><span class=\"editable-space\" id=\"sourceinmt_7_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_9\">(DM)</span><span class=\"editable-space\" id=\"sourceinmt_7_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_10\">will</span><span class=\"editable-space\" id=\"sourceinmt_7_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_11\">be</span><span class=\"editable-space\" id=\"sourceinmt_7_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_7_word_12\">included.</span><span class=\"editable-space\" id=\"sourceinmt_7_space_12\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_7\" id=\"hypothesis_7\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(7); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(7); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"7\" id=\"ol_checkbox_7\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr><tr><td><div style=\"margin-left:7%\">Sentence #8</div></td></tr><tr><td><div class=\"editarea\" original-text=\"The first 6 months will be a wash in period and participants will be randomised (1 / 1) to their treatments at the 6 month visit.\"name=\"source_sentence_8\" id=\"sourceinmt_8\"><span class=\"editable-token\" id=\"sourceinmt_8_word_0\">The</span><span class=\"editable-space\" id=\"sourceinmt_8_space_0\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_1\">first</span><span class=\"editable-space\" id=\"sourceinmt_8_space_1\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_2\">6</span><span class=\"editable-space\" id=\"sourceinmt_8_space_2\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_3\">months</span><span class=\"editable-space\" id=\"sourceinmt_8_space_3\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_4\">will</span><span class=\"editable-space\" id=\"sourceinmt_8_space_4\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_5\">be</span><span class=\"editable-space\" id=\"sourceinmt_8_space_5\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_6\">a</span><span class=\"editable-space\" id=\"sourceinmt_8_space_6\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_7\">wash</span><span class=\"editable-space\" id=\"sourceinmt_8_space_7\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_8\">in</span><span class=\"editable-space\" id=\"sourceinmt_8_space_8\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_9\">period</span><span class=\"editable-space\" id=\"sourceinmt_8_space_9\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_10\">and</span><span class=\"editable-space\" id=\"sourceinmt_8_space_10\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_11\">participants</span><span class=\"editable-space\" id=\"sourceinmt_8_space_11\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_12\">will</span><span class=\"editable-space\" id=\"sourceinmt_8_space_12\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_13\">be</span><span class=\"editable-space\" id=\"sourceinmt_8_space_13\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_14\">randomised</span><span class=\"editable-space\" id=\"sourceinmt_8_space_14\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_15\">(1</span><span class=\"editable-space\" id=\"sourceinmt_8_space_15\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_16\">/</span><span class=\"editable-space\" id=\"sourceinmt_8_space_16\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_17\">1)</span><span class=\"editable-space\" id=\"sourceinmt_8_space_17\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_18\">to</span><span class=\"editable-space\" id=\"sourceinmt_8_space_18\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_19\">their</span><span class=\"editable-space\" id=\"sourceinmt_8_space_19\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_20\">treatments</span><span class=\"editable-space\" id=\"sourceinmt_8_space_20\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_21\">at</span><span class=\"editable-space\" id=\"sourceinmt_8_space_21\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_22\">the</span><span class=\"editable-space\" id=\"sourceinmt_8_space_22\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_23\">6</span><span class=\"editable-space\" id=\"sourceinmt_8_space_23\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_24\">month</span><span class=\"editable-space\" id=\"sourceinmt_8_space_24\">  </span><span class=\"editable-token\" id=\"sourceinmt_8_word_25\">visit.</span><span class=\"editable-space\" id=\"sourceinmt_8_space_25\">  </span></div></td><td><div style=\"margin-left:7% class=\"source item\"><textarea name=\"hypothesis_8\" id=\"hypothesis_8\"placeholder=\"Click in the translate button to obtain a translation.\"></textarea></div></td></tr><tr><td><div style=\"float: right;\"><form onsubmit=\"write_interactive_tranlation(8); return false;\"><button type=\"submit\" class=\"button\">Translate!</button></form></div></td><td><div style=\"float: right;\"><form onsubmit=\"accept_translation(8); return false;\"> Learn from sample <input type=\"checkbox\" name=\"OL-checkbox_\"8\" id=\"ol_checkbox_8\" value=\"True\" checked><button type=\"submit\" class=\"button\">Accept translation</button></form></div></td></tr></table>";
+
+
+        if (url == 'xerox'){
+            DisplayArea.innerHTML = xerox_table;
+        }
+        if (url == 'khresmoi'){
+            DisplayArea.innerHTML = khresmoi_table;
+        }
+}
+</script>
+
+<!--External-->
+
 <script src="assets/js/main.js"></script>
+
+
 </html>

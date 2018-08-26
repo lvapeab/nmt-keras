@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+from builtins import map, zip
 import argparse
 import codecs
 from pycocoevalcap.bleu.bleu import Bleu
@@ -26,10 +29,10 @@ def load_textfiles(references, hypotheses):
     :param hypotheses: Path to the hypotheses file.
     :return:
     """
-    print "The number of references is {}".format(len(references))
+    print ("The number of references is {}".format(len(references)))
     hypo = {idx: [lines.strip()] for (idx, lines) in enumerate(hypotheses)}
     # take out newlines before creating dictionary
-    raw_refs = [map(str.strip, r) for r in zip(*references)]
+    raw_refs = list([list(map(str.strip, r)) for r in list(zip(*references))])
     refs = {idx: rr for idx, rr in enumerate(raw_refs)}
     # sanity check that we have the same number of references as hypothesis
     if len(hypo) != len(refs):
@@ -88,10 +91,10 @@ def evaluate_from_file(args):
     ref, hypothesis = load_textfiles(args.references, hypotheses_file)
     if step_size < 1:
         score = CocoScore(ref, hypothesis, metrics_list=args.metrics, language=language)
-        print "Scores: "
-        max_score_name_len = max([len(x) for x in score.keys()])
-        for score_name in sorted(score.keys()):
-            print "\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" % score[score_name]
+        print ("Scores: ")
+        max_score_name_len = max([len(x) for x in list(score)])
+        for score_name in sorted(list(score)):
+            print ("\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" % score[score_name])
     else:
         n = 0
         while True:
@@ -103,7 +106,7 @@ def evaluate_from_file(args):
                 partial_refs[i] = ref[i]
                 partial_hyps[i] = hypothesis[i]
             score = CocoScore(partial_refs, partial_hyps, metrics_list=args.metrics, language=language)
-            print str(min(n, len(ref))) + " \tScore: ", score
+            print (str(min(n, len(ref))) + " \tScore: ", score)
             if n > len(ref):
                 break
     return

@@ -20,10 +20,10 @@ By default, the server requires the `InteractiveNMT` branch from the [Multimodal
 
 Run ``python sample_server.py --help`` for obtaining information about the options of the server.
 
-We'll start the server in the localhost port 8888. We'll use a dataset instance stored in `datasets/Dataset.pkl` and a 
+We'll start the server in the localhost port 6542. We'll use a dataset instance stored in `datasets/Dataset.pkl` and a 
 model and config stored in `trained_models`:
 ```
-python ./sample_server.py --dataset datasets/Dataset.pkl --port=8888  
+python ./sample_server.py --dataset datasets/Dataset.pkl --port=6542  
         --config trained_models/config.pkl --models trained_models/update_15000
 ```
 
@@ -35,10 +35,13 @@ php -S localhost:8000
 Finally, we should make `sampler.php` match our `sample_server.py` port. In `sampler.php` and `inmt_sampler.php`
 the lines 
 ```
-$url = 'http://localhost:8888/?source='.urlencode($source);
+$url = 'http://localhost:6542/?source='.urlencode($source);
 ```
 and
 ```
-$url = 'http://localhost:8888/?source='.urlencode($source).'&prefix='.urlencode($prefix);
+$url = 'http://localhost:6542/?source='.urlencode($source).'&prefix='.urlencode($prefix);
 ```
-should point to your php server.
+should point to your sample_server port.
+
+
+[Check out the demo!](http://casmacat.prhlt.upv.es/inmt).
