@@ -8,7 +8,7 @@ def load_parameters():
     CLASSIFIER_ACTIVATION = 'softmax'
     LOSS = 'categorical_crossentropy'
     OPTIMIZER = 'adadelta'                        # Optimizer
-    LR = 0.1                                      # Learning rate.
+    LR = 0.                                       # Learning rate. Set to 0 for the demo-web
     # PAS-like params
     C = 0.1                                       # Constant parameter for PAS and PPAS optimizer.
     D = 0.1                                       # Constant parameter for PAS and PPAS optimizer.
