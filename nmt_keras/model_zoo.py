@@ -19,11 +19,12 @@ from keras_wrapper.extra.regularize import Regularize
 
 def getPositionalEncodingWeights(input_dim, output_dim, name='', verbose=True):
     """
-    Obtains fixed sinusoidal embeddings for obtaining the positional encoding
-    :param input_dim: Input dimension of the embeddings (i.e. vocabulary size).
-    :param output_dim: Embeddings dimension.
-    :param name: Name of the layer
-    :param verbose: Be verbose
+    Obtains fixed sinusoidal embeddings for obtaining the positional encoding.
+
+    :param int input_dim: Input dimension of the embeddings (i.e. vocabulary size).
+    :param int output_dim: Embeddings dimension.
+    :param str name: Name of the layer
+    :param int verbose: Be verbose
     :return: A list with sinusoidal embeddings.
     """
 
@@ -39,19 +40,18 @@ class TranslationModel(Model_Wrapper):
     """
     Translation model class. Instance of the Model_Wrapper class (see staged_keras_wrapper).
 
-    :param params: all hyperparams of the model.
-    :param model_type: network name type (corresponds to any method defined in the section 'MODELS' of this class).
+    :param dict params: all hyperparameters of the model.
+    :param str model_type: network name type (corresponds to any method defined in the section 'MODELS' of this class).
                  Only valid if 'structure_path' == None.
-    :param verbose: set to 0 if you don't want the model to output informative messages
-    :param structure_path: path to a Keras' model json file.
+    :param int verbose: set to 0 if you don't want the model to output informative messages
+    :param str structure_path: path to a Keras' model json file.
                           If we speficy this parameter then 'type' will be only an informative parameter.
-    :param weights_path: path to the pre-trained weights file (if None, then it will be randomly initialized)
-    :param model_name: optional name given to the network
-                       (if None, then it will be assigned to current time as its name)
-    :param vocabularies: vocabularies used for word embedding
-    :param store_path: path to the folder where the temporal model packups will be stored
-    :param set_optimizer: Compile optimizer or not.
-    :param clear_dirs: Clean model directories or not.
+    :param str weights_path: path to the pre-trained weights file (if None, then it will be initialized according to params)
+    :param str model_name: optional name given to the network (if None, then it will be assigned to current time as its name)
+    :param dict vocabularies: vocabularies used for word embedding
+    :param str store_path: path to the folder where the temporal model packups will be stored
+    :param bool set_optimizer: Compile optimizer or not.
+    :param bool clear_dirs: Clean model directories or not.
     """
 
     def __init__(self, params, model_type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
@@ -66,8 +66,7 @@ class TranslationModel(Model_Wrapper):
         :param structure_path: path to a Keras' model json file.
                               If we speficy this parameter then 'type' will be only an informative parameter.
         :param weights_path: path to the pre-trained weights file (if None, then it will be randomly initialized)
-        :param model_name: optional name given to the network
-                           (if None, then it will be assigned to current time as its name)
+        :param model_name: optional name given to the network (if None, then it will be assigned to current time as its name)
         :param vocabularies: vocabularies used for word embedding
         :param store_path: path to the folder where the temporal model packups will be stored
         :param set_optimizer: Compile optimizer or not.
@@ -158,10 +157,10 @@ class TranslationModel(Model_Wrapper):
     def setOptimizer(self, **kwargs):
         """
         Sets and compiles a new optimizer for the Translation_Model.
-        :param kwargs:
-        :return:
+        The configuration is read from Translation_Model.params.
+        :return: None
         """
-        # compile differently depending if our model is 'Sequential' or 'Graph'
+
         if self.verbose > 0:
             logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s - "
                          "CLIP_C %s - CLIP_V  %s - LR_OPTIMIZER_DECAY %s] and compiling." %
@@ -313,10 +312,14 @@ class TranslationModel(Model_Wrapper):
             * Context projected to output
             * Last word projected to output
             * Possibly deep encoder/decoder
+        See:
+            * `Neural Machine Translation by Jointly Learning to Align and Translate`_.
+            * `Nematus\: a Toolkit for Neural Machine Translation`_.
 
-        See https://arxiv.org/abs/1409.0473 for an in-depth review of the model.
+        .. _Neural Machine Translation by Jointly Learning to Align and Translate: https://arxiv.org/abs/1409.0473
+        .. _Nematus\: a Toolkit for Neural Machine Translation: https://arxiv.org/abs/1703.04357
 
-        :param params: Dictionary of params (see config.py)
+        :param int params: Dictionary of hyper-params (see config.py)
         :return: None
         """
 
@@ -749,12 +752,20 @@ class TranslationModel(Model_Wrapper):
     def Transformer(self, params):
         """
         Neural machine translation consisting in stacking blocks of:
-            * multi-head self-attention mechanism
-            * position-wise fully connected feed-forward networks.
+            * Multi-head attention.
+            * Dropout.
+            * Residual connection.
+            * Normalization.
+            * Position-wise feed-forward networks.
 
-        See https://arxiv.org/abs/1706.03762 for an in-depth review of the model.
+        Positional information is injected to the model via embeddings with positional encoding.
 
-        :param params: Dictionary of params (see config.py)
+        See:
+            * `Attention Is All You Need`_.
+
+        .. _Attention Is All You Need: https://arxiv.org/abs/1706.03762
+
+        :param int params: Dictionary of params (see config.py)
         :return: None
         """
 

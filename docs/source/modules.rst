@@ -4,6 +4,6 @@ Modules
 .. toctree::
    :maxdepth: 4
 
-   nmt-keras
+   nmt_keras
    data_engine
    utils

@@ -4,12 +4,15 @@ from keras_wrapper.extra.callbacks import *
 
 def buildCallbacks(params, model, dataset):
     """
-    Builds the selected set of callbacks run during the training of the model.
+    Builds the selected set of callbacks run during the training of the model:
+        * PrintPerformanceMetricOnEpochEndOrEachNUpdates: Evaluates the model in the validation set given a number of epochs/updates.
+        * SampleEachNUpdates: Shows several translation samples during training.
 
-    :param params: Dictionary of network hyperparameters.
-    :param model: Model instance on which to apply the callback.
-    :param dataset: Dataset instance on which to apply the callback.
-    :return:
+
+    :param dict params: Dictionary of network hyperparameters.
+    :param Model_Wrapper model: Model instance on which to apply the callback.
+    :param Dataset dataset: Dataset instance on which to apply the callback.
+    :return: list of callbacks to pass to the Keras' training.
     """
 
     callbacks = []
@@ -78,13 +81,11 @@ def buildCallbacks(params, model, dataset):
                                                                              sampling_type=params['SAMPLING'],
                                                                              beam_search=params['BEAM_SEARCH'],
                                                                              save_path=model.model_path,
-                                                                             start_eval_on_epoch=params[
-                                                                                 'START_EVAL_ON_EPOCH'],
+                                                                             start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
                                                                              write_samples=True,
                                                                              write_type=params['SAMPLING_SAVE_MODE'],
                                                                              eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                                             save_each_evaluation=params[
-                                                                                 'SAVE_EACH_EVALUATION'],
+                                                                             save_each_evaluation=params['SAVE_EACH_EVALUATION'],
                                                                              verbose=params['VERBOSE'])
 
             callbacks.append(callback_metric)
@@ -104,7 +105,7 @@ def buildCallbacks(params, model, dataset):
                                                    index2word_y=vocab_y,
                                                    print_sources=True,
                                                    in_pred_idx=params['INPUTS_IDS_DATASET'][0],
-                                                   sampling_type=params['SAMPLING'],  # text info
+                                                   sampling_type=params['SAMPLING'],
                                                    beam_search=params['BEAM_SEARCH'],
                                                    start_sampling_on_epoch=params['START_SAMPLING_ON_EPOCH'],
                                                    verbose=params['VERBOSE'])
