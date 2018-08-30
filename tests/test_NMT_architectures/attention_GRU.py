@@ -146,7 +146,7 @@ def test_ConditionalGRU_dot():
     print ("Scoring corpus")
     score_corpus(parser, params)
     print ("Done")
-    
+
 
 def test_ConditionalGRU_scaled():
     params = load_tests_params()
