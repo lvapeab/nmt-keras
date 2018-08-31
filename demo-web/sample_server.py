@@ -354,7 +354,10 @@ class NMTSampler:
                                               sample_weights=self.params['SAMPLE_WEIGHTS'],
                                               loading_X=False)
         # 4.2 Train online!
-        self.online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[target_sentence])
+        if self.online_trainer is not None:
+            self.online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[target_sentence])
+        else:
+            logging.warning('Online learning is disabled.')
 
 
 def main():
