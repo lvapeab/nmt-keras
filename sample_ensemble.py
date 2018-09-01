@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-try:
-    import itertools.imap as map
-except ImportError:
-    pass
 import argparse
 import logging
 import ast
@@ -16,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args():
-    parser = argparse.ArgumentParser("Apply several translation models for making predictions")
+    parser = argparse.ArgumentParser("Use several translation models for obtaining predictions from a source text file.")
     parser.add_argument("-ds", "--dataset", required=True, help="Dataset instance with data")
     parser.add_argument("-t", "--text", required=True, help="Text file with source sentences")
     parser.add_argument("-s", "--splits", nargs='+', required=False, default=['val'], help="Splits to sample. "
