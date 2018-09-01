@@ -3,7 +3,7 @@
 
 if [ $# -lt 1 ] 
 then 
-    echo -e "Usage: `basename $0` <models_path> [-m metric] [-n models_to_leave] "
+    echo -e "Usage: $(basename $0) <models_path> [-m metric] [-n models_to_leave] "
     echo -e  "Removes all but the n best models, according to the val.coco file. "
     echo -e "Options: "
     echo -e "\t -m metric: Remove models according to this metric. By default, Bleu_4"
@@ -12,8 +12,6 @@ then
 fi
 
 
-moptions=0;
-cmd=("$@")
 path=$1
 n=3
 metric="Bleu_4"
@@ -48,10 +46,10 @@ if [ ! -f "${path}/val.coco" ]; then
     exit
 fi
 
-tmpdir=`mktemp -d /tmp/conftmp.XXXXXXXXXXX`
+tmpdir=$(mktemp -d /tmp/conftmp.XXXXXXXXXXX)
 
 # Get the column to sort:
-column_of_interest=`head -n 1 ${path}/val.coco |awk -v metric=${metric} 'BEGIN{FS=","}{for (i=1; i<=NF; i++) if ($i == metric) print i; }'`
+column_of_interest=$(head -n 1 ${path}/val.coco |awk -v metric=${metric} 'BEGIN{FS=","}{for (i=1; i<=NF; i++) if ($i == metric) print i; }')
 
 # Sort file according to the column
 if [ "${metric}" == "TER" ]; then
@@ -68,7 +66,7 @@ cp ${path}/config.pkl ${tmpdir}/model/
 cp ${path}/val.coco ${tmpdir}/model/
 
 while read p; do
-    update_to_save=`echo "$p" | awk 'BEGIN{FS=","}{print $1}'`
+    update_to_save=$(echo "$p" | awk 'BEGIN{FS=","}{print $1}')
     cp ${path}/*_${update_to_save}_* ${tmpdir}/model/
 done < ${tmpdir}/models_to_save
 

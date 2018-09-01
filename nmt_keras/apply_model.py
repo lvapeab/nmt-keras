@@ -12,7 +12,23 @@ logger = logging.getLogger(__name__)
 
 
 def sample_ensemble(args, params):
+    """
+    Use several translation models for obtaining predictions from a source text file.
 
+    :param argparse.Namespace args: Arguments given to the method:
+
+                      * dataset: Dataset instance with data.
+                      * text: Text file with source sentences.
+                      * splits: Splits to sample. Should be already included in the dataset object.
+                      * dest: Output file to save scores.
+                      * weights: Weight given to each model in the ensemble. You should provide the same number of weights than models. By default, it applies the same weight to each model (1/N).
+                      * n_best: Write n-best list (n = beam size).
+                      * config: Config .pkl for loading the model configuration. If not specified, hyperparameters are read from config.py.
+                      * models: Path to the models.
+                      * verbose: Be verbose or not.
+
+    :param params: parameters of the translation model.
+    """
     from data_engine.prepare_data import update_dataset_from_file
     from keras_wrapper.model_ensemble import BeamSearchEnsemble
     from keras_wrapper.cnn_model import loadModel
@@ -64,7 +80,7 @@ def sample_ensemble(args, params):
 
     if model_weights is not None and model_weights != []:
         assert len(model_weights) == len(models), 'You should give a weight to each model. You gave %d models and %d weights.' % (len(models), len(model_weights))
-        model_weights = map(lambda x: float(x), model_weights)
+        model_weights = map(float, model_weights)
         if len(model_weights) > 1:
             logger.info('Giving the following weights to each model: %s' % str(model_weights))
     for s in args.splits:
@@ -135,6 +151,22 @@ def sample_ensemble(args, params):
 
 
 def score_corpus(args, params):
+    """
+    Use one or several translation models for scoring source--target pairs-
+
+    :param argparse.Namespace args: Arguments given to the method:
+
+                                * dataset: Dataset instance with data.
+                                * source: Text file with source sentences.
+                                * target: Text file with target sentences.
+                                * splits: Splits to sample. Should be already included in the dataset object.
+                                * dest: Output file to save scores.
+                                * weights: Weight given to each model in the ensemble. You should provide the same number of weights than models. By default, it applies the same weight to each model (1/N).
+                                * verbose: Be verbose or not.
+                                * config: Config .pkl for loading the model configuration. If not specified, hyperparameters are read from config.py.
+                                * models: Path to the models.
+    :param dict params: parameters of the translation model.
+    """
 
     from data_engine.prepare_data import update_dataset_from_file
     from keras_wrapper.dataset import loadDataset
@@ -156,7 +188,7 @@ def score_corpus(args, params):
     model_weights = args.weights
     if model_weights is not None and model_weights != []:
         assert len(model_weights) == len(models), 'You should give a weight to each model. You gave %d models and %d weights.' % (len(models), len(model_weights))
-        model_weights = map(lambda x: float(x), model_weights)
+        model_weights = map(float, model_weights)
         if len(model_weights) > 1:
             logger.info('Giving the following weights to each model: %s' % str(model_weights))
 
