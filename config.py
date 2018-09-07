@@ -205,6 +205,8 @@ def load_parameters():
     # AttentionRNNEncoderDecoder model hyperparameters
     # # # # # # # # # # # # # # # # # # # # # # # #
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported).
+    USE_CUDNN = True                              # Use CuDNN's implementation of GRU and LSTM (only for Tensorflow backend).
+
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type.
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported).
     ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau-style), 'dot' (Luong-style) or 'scaled-dot'.
@@ -213,6 +215,7 @@ def load_parameters():
     ENCODER_HIDDEN_SIZE = 32                      # For models with RNN encoder.
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder.
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers.
+    BIDIRECTIONAL_MERGE_MODE = 'concat'           # Merge function for bidirectional layers.
 
     # Fully-Connected layers for initializing the first decoder RNN state.
     #       Here we should only specify the activation function of each layer (as they have a potentially fixed size)

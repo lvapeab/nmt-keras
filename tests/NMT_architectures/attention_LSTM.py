@@ -30,6 +30,7 @@ def load_tests_params():
     params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
     params['RELOAD'] = 0
     params['MAX_EPOCH'] = 1
+    params['USE_CUDNN'] = False
 
     return params
 

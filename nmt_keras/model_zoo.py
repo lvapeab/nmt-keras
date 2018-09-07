@@ -88,6 +88,8 @@ class TranslationModel(Model_Wrapper):
         # Sets the model name and prepares the folders for storing the models
         self.setName(model_name, models_path=store_path, clear_dirs=clear_dirs)
 
+        self.use_CuDNN = 'CuDNN' if K.backend() == 'tensorflow' and params.get('USE_CUDNN', True) else ''
+
         # Prepare source word embedding
         if params['SRC_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
@@ -340,65 +342,68 @@ class TranslationModel(Model_Wrapper):
 
         src_embedding = Regularize(src_embedding, params, name='src_embedding')
 
+        # Get mask of source embeddings (CuDNN RNNs don't accept masks)
+        src_embedding_mask = GetMask(name='source_text_mask')(src_embedding)
+        src_embedding = RemoveMask()(src_embedding)
+
+        if params['RECURRENT_INPUT_DROPOUT_P'] > 0.:
+            src_embedding = Dropout(params['RECURRENT_INPUT_DROPOUT_P'])(src_embedding)
+
         # 2.2. BRNN encoder (GRU/LSTM)
         if params['BIDIRECTIONAL_ENCODER']:
-            annotations = Bidirectional(eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                         kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                         recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                         bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                         dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                                                         recurrent_dropout=params['RECURRENT_DROPOUT_P'],
-                                                                         kernel_initializer=params['INIT_FUNCTION'],
-                                                                         recurrent_initializer=params['INNER_INIT'],
-                                                                         trainable=params.get('TRAINABLE_ENCODER', True),
-                                                                         return_sequences=True),
+            annotations = Bidirectional(eval(self.use_CuDNN + params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
+                                                                                          kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                          recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                          bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                          kernel_initializer=params['INIT_FUNCTION'],
+                                                                                          recurrent_initializer=params['INNER_INIT'],
+                                                                                          trainable=params.get('TRAINABLE_ENCODER', True),
+                                                                                          return_sequences=True),
                                         trainable=params.get('TRAINABLE_ENCODER', True),
                                         name='bidirectional_encoder_' + params['ENCODER_RNN_TYPE'],
-                                        merge_mode='concat')(src_embedding)
+                                        merge_mode=params.get('BIDIRECTIONAL_MERGE_MODE', 'concat'))(src_embedding)
         else:
-            annotations = eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                           kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                           recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                           bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                           dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                                           recurrent_dropout=params['RECURRENT_DROPOUT_P'],
-                                                           kernel_initializer=params['INIT_FUNCTION'],
-                                                           recurrent_initializer=params['INNER_INIT'],
-                                                           trainable=params.get('TRAINABLE_ENCODER', True),
-                                                           return_sequences=True,
-                                                           name='encoder_' + params['ENCODER_RNN_TYPE'])(src_embedding)
+            annotations = eval(self.use_CuDNN + params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
+                                                                            kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                            recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                            bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                            kernel_initializer=params['INIT_FUNCTION'],
+                                                                            recurrent_initializer=params['INNER_INIT'],
+                                                                            trainable=params.get('TRAINABLE_ENCODER', True),
+                                                                            return_sequences=True,
+                                                                            name='encoder_' + params['ENCODER_RNN_TYPE'])(src_embedding)
         annotations = Regularize(annotations, params, name='annotations')
         # 2.3. Potentially deep encoder
         for n_layer in range(1, params['N_LAYERS_ENCODER']):
+
+            if params['RECURRENT_INPUT_DROPOUT_P'] > 0.:
+                annotations = Dropout(params['RECURRENT_INPUT_DROPOUT_P'])(annotations)
+
             if params['BIDIRECTIONAL_DEEP_ENCODER']:
-                current_annotations = Bidirectional(eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                                     kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                                     recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                                     bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                                     dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                                                                     recurrent_dropout=params['RECURRENT_DROPOUT_P'],
-                                                                                     kernel_initializer=params['INIT_FUNCTION'],
-                                                                                     recurrent_initializer=params['INNER_INIT'],
-                                                                                     trainable=params.get('TRAINABLE_ENCODER', True),
-                                                                                     return_sequences=True,
-                                                                                     ),
-                                                    merge_mode='concat',
+                current_annotations = Bidirectional(eval(self.use_CuDNN + params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
+                                                                                                      kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                                      recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                                      bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                                      kernel_initializer=params['INIT_FUNCTION'],
+                                                                                                      recurrent_initializer=params['INNER_INIT'],
+                                                                                                      trainable=params.get('TRAINABLE_ENCODER', True),
+                                                                                                      return_sequences=True),
+                                                    merge_mode=params.get('BIDIRECTIONAL_MERGE_MODE', 'concat'),
                                                     trainable=params.get('TRAINABLE_ENCODER', True),
                                                     name='bidirectional_encoder_' + str(n_layer))(annotations)
                 current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
                 annotations = current_annotations if n_layer == 1 and not params['BIDIRECTIONAL_ENCODER'] else Add()([annotations, current_annotations])
             else:
-                current_annotations = eval(params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
-                                                                       kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                       recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                       bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
-                                                                       dropout=params['RECURRENT_INPUT_DROPOUT_P'],
-                                                                       recurrent_dropout=params['RECURRENT_DROPOUT_P'],
-                                                                       kernel_initializer=params['INIT_FUNCTION'],
-                                                                       recurrent_initializer=params['INNER_INIT'],
-                                                                       return_sequences=True,
-                                                                       trainable=params.get('TRAINABLE_ENCODER', True),
-                                                                       name='encoder_' + str(n_layer))(annotations)
+                current_annotations = eval(self.use_CuDNN + params['ENCODER_RNN_TYPE'])(params['ENCODER_HIDDEN_SIZE'],
+                                                                                        kernel_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                        recurrent_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                        bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
+                                                                                        kernel_initializer=params['INIT_FUNCTION'],
+                                                                                        recurrent_initializer=params['INNER_INIT'],
+                                                                                        return_sequences=True,
+                                                                                        trainable=params.get('TRAINABLE_ENCODER', True),
+                                                                                        name='encoder_' + str(n_layer))(annotations)
+
                 current_annotations = Regularize(current_annotations, params, name='annotations_' + str(n_layer))
                 annotations = current_annotations if n_layer == 1 and params['BIDIRECTIONAL_ENCODER'] else Add()([annotations, current_annotations])
 
@@ -418,8 +423,8 @@ class TranslationModel(Model_Wrapper):
         state_below = Regularize(state_below, params, name='state_below')
 
         # 3.2. Decoder's RNN initialization perceptrons with ctx mean
-        ctx_mean = MaskedMean()(annotations)
-        annotations = MaskLayer()(annotations)  # We may want the padded annotations
+        annotations = ApplyMask(name='annotations')([annotations, src_embedding_mask])  # We may want the padded annotations
+        ctx_mean = MaskedMean(name='ctx_mean')(annotations)
 
         if len(params['INIT_LAYERS']) > 0:
             for n_layer_init in range(len(params['INIT_LAYERS']) - 1):

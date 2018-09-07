@@ -25,6 +25,7 @@ def load_tests_params():
     params['ENCODER_HIDDEN_SIZE'] = 4
     params['RELOAD'] = 0
     params['MAX_EPOCH'] = 1
+    params['USE_CUDNN'] = False
 
     return params
 
