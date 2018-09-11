@@ -275,12 +275,12 @@ class TranslationModel(Model_Wrapper):
             model_to_compile = self.model
 
         model_to_compile.compile(optimizer=optimizer,
-                           loss=self.params['LOSS'],
-                           metrics=self.params.get('KERAS_METRICS', []),
-                           loss_weights=self.params.get('LOSS_WEIGHTS', None),
-                           sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None,
-                           weighted_metrics=self.params.get('KERAS_METRICS_WEIGHTS', None),
-                           target_tensors=self.params.get('TARGET_TENSORS'))
+                                 loss=self.params['LOSS'],
+                                 metrics=self.params.get('KERAS_METRICS', []),
+                                 loss_weights=self.params.get('LOSS_WEIGHTS', None),
+                                 sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None,
+                                 weighted_metrics=self.params.get('KERAS_METRICS_WEIGHTS', None),
+                                 target_tensors=self.params.get('TARGET_TENSORS'))
 
     def __str__(self):
         """
