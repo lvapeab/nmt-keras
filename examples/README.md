@@ -18,6 +18,11 @@ These tutorials basically are a split version of the execution pipeline of the l
 The translation task is *EuTrans* ([Amengual et al.](http://link.springer.com/article/10.1023/A:1011116115948)), a toy-task mainly used for debugging purposes.
 Since it is an easy task, the model should converge in few (~6-8) epochs, yielding a BLEU-4 score close to 1 in the case of the Es->En language direction.
 
+## Advanced configs
+ 
+The `configs` folder contains two `config` files, which declare larger, "real-life" models. They are shown as a reference for more complex tasks, but they should be tuned and modified for each task. 
+
+
 ## On the documentation
 
 In the `documentation` folder you'll some docuementation files:
