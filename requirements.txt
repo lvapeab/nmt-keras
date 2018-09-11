@@ -8,6 +8,7 @@ keras_preprocessing
 future
 h5py
 matplotlib
+nltk
 numpy
 scikit-image
 scikit-learn

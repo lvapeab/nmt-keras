@@ -1,17 +1,17 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function
 import argparse
 import ast
 import logging
 
-from keras_wrapper.extra.read_write import pkl2dict
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
-from data_engine.prepare_data import build_dataset, update_dataset_from_file
-
-from utils.utils import update_parameters
+from data_engine.prepare_data import update_dataset_from_file
+from keras_wrapper.dataset import loadDataset
+from keras_wrapper.extra.callbacks import *
 from nmt_keras import check_params
 from nmt_keras.training import train_model, train_model_online
+from utils.utils import *
+
+logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 
 def parse_args():
@@ -31,8 +31,8 @@ def parse_args():
     parser.add_argument("-v", "--verbose", required=False, default=0, type=int, help="Verbosity level")
     parser.add_argument("-ch", "--changes", nargs="*", help="Changes to config, following the syntax Key=Value",
                         default="")
-    return parser.parse_args()
 
+    return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
-    parameters = check_params(parameters)
+    check_params(parameters)
     if args.online:
         dataset = loadDataset(args.dataset)
         dataset = update_dataset_from_file(dataset, args.source, parameters,
@@ -73,4 +73,5 @@ if __name__ == "__main__":
     elif parameters['MODE'] == 'sampling':
         logging.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
         exit(2)
+
     logging.info('Done!')
