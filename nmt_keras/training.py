@@ -141,6 +141,7 @@ def train_model(params, load_dataset=None):
                        'each_n_epochs': params.get('EVAL_EACH', 1),
                        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
                        'tensorboard': params.get('TENSORBOARD', False),
+                       'n_gpus': params.get('N_GPUS', 1),
                        'tensorboard_params': {'log_dir': params.get('LOG_DIR', 'tensorboard_logs'),
                                               'histogram_freq': params.get('HISTOGRAM_FREQ', 0),
                                               'batch_size': params.get('TENSORBOARD_BATCH_SIZE', params['BATCH_SIZE']),

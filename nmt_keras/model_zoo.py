@@ -11,6 +11,7 @@ import os
 
 from keras.layers import *
 from keras.models import model_from_json, Model
+from keras.utils import multi_gpu_model
 from keras.optimizers import *
 from keras.regularizers import l2, AlphaRegularizer
 from keras_wrapper.cnn_model import Model_Wrapper
@@ -268,7 +269,12 @@ class TranslationModel(Model_Wrapper):
                 logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
                 optimizer = eval(self.params['OPTIMIZER'])
 
-        self.model.compile(optimizer=optimizer,
+        if hasattr(self, 'multi_gpu_model') and self.multi_gpu_model is not None:
+            model_to_compile = self.multi_gpu_model
+        else:
+            model_to_compile = self.model
+
+        model_to_compile.compile(optimizer=optimizer,
                            loss=self.params['LOSS'],
                            metrics=self.params.get('KERAS_METRICS', []),
                            loss_weights=self.params.get('LOSS_WEIGHTS', None),
@@ -621,6 +627,12 @@ class TranslationModel(Model_Wrapper):
 
         if params['DOUBLE_STOCHASTIC_ATTENTION_REG'] > 0.:
             self.model.add_loss(alpha_regularizer)
+
+        if params.get('N_GPUS', 1) > 1:
+            self.multi_gpu_model = multi_gpu_model(self.model, gpus=params['N_GPUS'])
+        else:
+            self.multi_gpu_model = None
+
         ##################################################################
         #                         SAMPLING MODEL                         #
         ##################################################################
@@ -1031,6 +1043,11 @@ class TranslationModel(Model_Wrapper):
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
         self.model = Model(inputs=[src_text, next_words], outputs=softout)
+
+        if params.get('N_GPUS', 1) > 1:
+            self.multi_gpu_model = multi_gpu_model(self.model, gpus=params['N_GPUS'])
+        else:
+            self.multi_gpu_model = None
 
         ##################################################################
         #                         SAMPLING MODEL                         #
