@@ -150,6 +150,7 @@ def load_parameters():
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs.
     BATCH_SIZE = 50                               # Size of each minibatch.
+    N_GPUS = 1                                    # Number of GPUs to use. Only for Tensorflow backend. Each GPU will receive mini-batches of BATCH_SIZE / N_GPUS.
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths (Dangerous!!).
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort.
@@ -318,7 +319,6 @@ def load_parameters():
     TRAIN_ON_TRAINVAL = False                          # train the model on both training and validation sets combined.
     FORCE_RELOAD_VOCABULARY = False                    # force building a new vocabulary from the training samples
                                                        # applicable if RELOAD > 1
-
     # ================================================ #
     parameters = locals().copy()
     return parameters
