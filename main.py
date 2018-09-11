@@ -6,6 +6,9 @@ import logging
 
 from keras_wrapper.extra.read_write import pkl2dict
 from config import load_parameters
+from config_online import load_parameters as load_parameters_online
+from data_engine.prepare_data import build_dataset, update_dataset_from_file
+
 from utils.utils import update_parameters
 from nmt_keras import check_params
 from nmt_keras.training import train_model, train_model_online
