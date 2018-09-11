@@ -209,7 +209,7 @@ por favor , desearía cambiarme a otra habitación con menos ruido .
 ¿ podrían despertarnos mañana a las nueve y cuarto ?
 por favor , quisiera reservar una habitación .
 ¿ podríamos reservar dos habitaciones dobles para quince días ?
-'! no importa !
+¡ no importa !
 ¿ podríamos reservar dos habitaciones ?
 ¿ tienen alguna habitación doble libre ?
 por favor , prepare la factura .
@@ -270,7 +270,7 @@ por favor , ¿ nos podrían dar ustedes las llaves de la doscientos veintiséis 
 ¿ podríamos reservar dos habitaciones para esta noche ?
 ¿ nos podría despertar a la una , por favor ?
 me parece que existe un problema en mi cuenta de la habitación nueve treinta y tres .
-'! no !
+¡ no !
 mi nombre es Marina Varela .
 por favor , deseo cambiarme de habitación .
 por favor , las llaves de la habitación número ocho veinte .
@@ -378,7 +378,7 @@ quiero que me suba los bultos a la habitación , por favor .
 déme la llave de la habitación seis dieciocho , por favor .
 ¿ nos podrían dar la llave de la habitación número seis cuatro cero ?
 ¿ podríamos ver una habitación tranquila , por favor ?
-'! sí !
+¡ sí !
 llévenos nuestros bultos a la número ochocientos veintiséis , por favor .
 ¿ nos podría bajar el equipaje a la habitación número tres seis dos ?
 por favor , he reservado una habitación tranquila hasta mañana a nombre de Gregorio Cabedo .
@@ -577,7 +577,7 @@ tengo una reserva .
 por favor , ¿ nos pueden despertar a las nueve ?
 por favor , he reservado dos habitaciones .
 ¿ me pueden dar ustedes la llave de la habitación ?
-'! adiós !
+¡ adiós !
 ¿ puede darnos la llave de la habitación ?
 ¿ pueden despertarme a la una ?
 ¿ les importaría darnos la llave de la habitación , por favor ?
@@ -692,7 +692,7 @@ pídame un taxi .
 tengo reservada una habitación a nombre del señor Ortiz .
 vamos a marcharnos el domingo a las nueve en punto de la mañana .
 ¿ nos querrían llamar a un taxi ?
-'! muchas gracias !
+¡ muchas gracias !
 ¿ podría bajar nuestra maleta a nuestra habitación ?
 tengo una reserva .
 ¿ pueden despertarme ustedes mañana a la una y cuarto ?
@@ -849,7 +849,7 @@ me gustaría reservar una habitación individual y tranquila con teléfono hasta
 ¿ podría pedirnos un taxi ?
 ¿ hay televisión en las habitaciones ?
 ¿ cuánta ?
-'! conforme !
+¡ conforme !
 por favor , ¿ podría prepararnos la cuenta de la habitación dos seis tres ?
 ¿ hay teléfono en las habitaciones ?
 ¿ qué hora es ?
@@ -949,7 +949,7 @@ tenemos reservada una habitación individual con televisión , teléfono y aseo 
 hemos reservado una habitación doble .
 la habitación es muy fría .
 tengo reservada una habitación doble para hoy .
-'! buenos días !
+¡ buenos días !
 ¿ pueden llevarme las bolsas de viaje al coche ?
 ¿ podría ver alguna habitación doble y tranquila con televisión , por favor ?
 ¿ están incluidos en la cuenta todos los impuestos ?
@@ -1079,7 +1079,7 @@ es muy cara .
 nos vamos esta mañana .
 me voy a marchar mañana .
 por favor , una habitación .
-'! hola !
+¡ hola !
 ¿ podría cambiarme de habitación ?
 me llamo Miguel Cornelles .
 deseo una habitación , por favor .
@@ -1116,7 +1116,7 @@ por favor , he hecho una reserva .
 ¿ les importaría despertarnos a las doce menos cuarto ?
 por favor , queremos que nos den la llave de la habitación ciento treinta y siete .
 lleven mi equipaje a mi habitación .
-'! no !
+¡ no !
 en la habitación hace demasiado frío .
 ¿ nos baja las bolsas de viaje a recepción ?
 tengo hecha una reserva .
@@ -1140,7 +1140,7 @@ llámenos a un taxi , por favor .
 por favor , ¿ nos podrían ustedes bajar el equipaje a la habitación siete siete dos ?
 por favor , ¿ me pueden llevar las maletas a la habitación ?
 ¿ les importaría bajar nuestros bultos a la habitación número ciento cuarenta y cuatro ?
-'! sí !
+¡ sí !
 ¿ tienen alguna habitación libre ?
 reservé una habitación doble .
 por favor , ¿ cuánto cuesta una habitación individual ?
@@ -1157,7 +1157,7 @@ por favor , reservé una habitación doble para hoy a nombre de Micaela Peinado 
 prepare la cuenta .
 desearía reservar una habitación individual hasta pasado mañana .
 despiértennos mañana a las dos y cuarto , por favor .
-'! no importa !
+¡ no importa !
 vamos a marcharnos el día uno a las ocho de la noche .
 reservamos una habitación individual .
 ¿ pueden llamar a un taxi ? , por favor .
@@ -1220,7 +1220,7 @@ por favor , prepáreme la cuenta .
 ¿ hay alguna habitación individual y tranquila libre ?
 nos iremos mañana a las cuatro menos cuarto de la tarde .
 he reservado una habitación , por favor .
-'! disculpe !
+¡ disculpe !
 ¿ está incluido el impuesto sobre el valor añadido ?
 he hecho una reserva .
 ¿ nos lleva nuestras bolsas a la estación ?
@@ -1234,9 +1234,9 @@ por favor , reservamos una habitación con teléfono y aire acondicionado a nomb
 nos vamos a ir el domingo a las nueve y cuarto de la mañana .
 ¿ pueden detallar nuestra cuenta ? , por favor .
 ¿ me pueden despertar mañana a la una , por favor ?
-'! buenos días !
+¡ buenos días !
 por favor , he reservado una habitación a nombre de Sergio Ibáñez .
-'! buenos días !
+¡ buenos días !
 tenemos que irnos el sábado por la noche .
 ¿ nos puede dar la llave de la habitación seiscientos veintiuno ?
 ¿ puede bajar nuestras bolsas a nuestra habitación ?
@@ -1253,7 +1253,7 @@ por favor , deseo que me den la llave de la habitación número novecientos nove
 conforme .
 ¿ le importaría darnos la llave de la habitación número ciento treinta y uno , por favor ?
 por favor , despiértenos mañana a la una y cuarto .
-'! buenas tardes !
+¡ buenas tardes !
 ¿ me quiere repasar mi cuenta ? , por favor .
 ¿ le importaría despertarme a las cuatro menos cuarto ?
 tenenos hecha una reserva .
@@ -1280,7 +1280,7 @@ he de irme el viernes cinco por la tarde .
 la habitación es cara .
 por favor , ¿ me querría detallar la cuenta ?
 ¿ hay televisión en las habitaciones ?
-'! no estoy de acuerdo !
+¡ no estoy de acuerdo !
 ¿ qué precio tiene una habitación doble con media pensión ?
 por favor , ¿ podría hacernos la cuenta ?
 ¿ tiene habitaciones libres con aire acondicionado ?
@@ -1290,7 +1290,7 @@ despiértennos mañana a las nueve menos cuarto , por favor .
 por favor , ¿ podríamos ver una habitación ?
 quisiéramos una habitación .
 he hecho la reserva de una habitación tranquila doble .
-'! adiós !
+¡ adiós !
 ¿ hay teléfono en la habitación ?
 hice una reserva a nombre del señor Varela .
 ¿ cómo dice ?
@@ -1412,7 +1412,7 @@ por favor , ¿ qué precio tiene una habitación individual con pensión complet
 lleven nuestra bolsa a la habitación seis veinticinco , por favor .
 por favor , ¿ le importaría que echara un vistazo a una habitación ?
 reservé una habitación .
-'! no estoy de acuerdo !
+¡ no estoy de acuerdo !
 por favor , una habitación .
 por favor , llévenme los bultos a la habitación doscientos cuarenta y nueve .
 ¿ podría detallarnos la cuenta ?
@@ -1543,7 +1543,7 @@ por favor , hágame mi cuenta de la habitación siete .
 hice la reserva de una habitación tranquila sencilla .
 ¿ me podrían subir la maleta a la habitación número ciento veintiséis , por favor ?
 ¿ hay televisión en las habitaciones ?
-'! sí !
+¡ sí !
 nos tenemos que marchar hoy a la una de la tarde .
 nos explica la cuenta , por favor .
 ¿ tienen habitaciones libres ?
@@ -1588,7 +1588,7 @@ lléveme las bolsas a recepción .
 tengo que irme el martes cinco por la noche .
 por favor , queremos cambiarnos de habitación .
 ¿ nos lleva nuestro equipaje al autobús ?
-'! no importa !
+¡ no importa !
 por favor , ¿ podríamos ver otra habitación ?
 por favor , quiero una habitación doble tranquila .
 por favor , quisiera que me despertaran a las doce y cuarto .
@@ -1645,7 +1645,7 @@ por favor , ¿ le importaría mostrarme una habitación ?
 ¿ tiene habitaciones libres ?
 creo que se han equivocado .
 queremos que nos despierten mañana a las cinco en punto , por favor .
-'! adiós !
+¡ adiós !
 por favor , ¿ podríamos ver una habitación ?
 tenemos que marcharnos hoy a las doce menos cuarto de la mañana .
 denme las llaves de la habitación , por favor .
@@ -1722,14 +1722,14 @@ quisiera una habitación hasta pasado mañana .
 he hecho la reserva de una habitación individual tranquila a nombre de Santiago Puig .
 tengo hecha la reserva de una habitación doble tranquila a nombre de Julia Rivera .
 por favor , explíquenos la cuenta .
-'! hola !
+¡ hola !
 por favor , súbannos nuestra bolsa de viaje a la cinco tres cinco .
 nos hemos de marchar mañana a las cuatro y cuarto .
 ¿ querrían preparar la cuenta de la habitación uno dieciséis ? , por favor .
 por favor , ¿ podríamos ver alguna habitación doble ?
 por favor , hágame mi cuenta .
 ¿ le importaría cambiarme a otra habitación más tranquila ?
-'! no estoy de acuerdo !
+¡ no estoy de acuerdo !
 ¿ podría bajarnos las maletas a la habitación , por favor ?
 me he de ir el veintisiete de agosto .
 ¿ me pueden despertar mañana a las nueve y cuarto , por favor ?
@@ -1790,7 +1790,7 @@ reservé una habitación individual hasta mañana a nombre del señor Emilio Bor
 despiérteme mañana a las dos y media .
 ¿ le importaría que echáramos un vistazo a una habitación individual ?
 ¿ haría el favor de cambiarme a otra habitación con televisión ?
-'! de acuerdo !
+¡ de acuerdo !
 por favor , tengo reservada una habitación a nombre de la señorita Pilar Aragón .
 ¿ le importaría mostrarnos otra habitación ?
 nos tenemos que marchar el jueves catorce .
@@ -1798,7 +1798,7 @@ nos tenemos que marchar el jueves catorce .
 se han equivocado en la factura .
 he reservado dos habitaciones dobles , por favor .
 por favor , ¿ me puede despertar mañana a las siete ?
-'! buenos días !
+¡ buenos días !
 por favor , ¿ les importaría subir nuestros bultos a nuestra habitación ?
 ¿ me podrían despertar a las cinco ?
 ¿ tiene libre una habitación ?
@@ -1840,7 +1840,7 @@ creo que hay una equivocación en la cuenta .
 ¿ hay televisión en la habitación ?
 por favor , nos gustaría cambiar nuestra habitación .
 tenemos reservada una habitación , por favor .
-'! buenas noches !
+¡ buenas noches !
 ¿ pueden despertarnos a las cinco ?
 me parece que se ha equivocado en la factura .
 nos tenemos que ir el día tres de noviembre a las once de la mañana .
@@ -1941,7 +1941,7 @@ por favor , ¿ querrían llamarnos a un taxi para la habitación nueve siete sie
 despiértenme a las cuatro y media .
 ¿ tiene alguna habitación individual libre ?
 desearía que nos diesen las llaves de mi habitación , por favor .
-'! lo siento !
+¡ lo siento !
 por favor , deseo una habitación doble y tranquila .
 ¿ me podrían despertar mañana a las nueve ?
 por favor , ¿ podría pedir nuestro taxi ?
@@ -2063,7 +2063,7 @@ mi habitación es muy cara .
 creo que existe un problema .
 ¿ puede llevar las maletas ?
 hemos de irnos el martes veinticinco de junio a las nueve en punto de la noche .
-'! no !
+¡ no !
 súbanme mis bolsas de viaje a mi habitación .
 tenenos hecha una reserva .
 por favor , hice una reserva a nombre de Arturo Peris .
@@ -2080,7 +2080,7 @@ en la habitación hace mucho calor .
 tenemos que irnos esta noche .
 ¿ pueden llevarme la maleta a la habitación ?
 querría que me llevase mis bultos a mi habitación .
-'! de acuerdo !
+¡ de acuerdo !
 por favor , ¿ podría preparar mi cuenta ?
 por favor , nos gustaría cambiarnos a otra habitación menos fría .
 deseo cambiar mi habitación , por favor .
@@ -2141,7 +2141,7 @@ por favor , quisiera reservar una habitación para veintisiete días .
 ¿ me pueden despertar mañana a las seis y cuarto , por favor ?
 por favor , ¿ podrían llevar nuestras maletas a la habitación ?
 por favor , ¿ me podrían dar la llave de mi habitación ?
-'! de acuerdo !
+¡ de acuerdo !
 ¿ me puede usted llevar la bolsa a la habitación quinientos veinticinco , por favor ?
 hice una reserva a nombre de Marina Borrás .
 ¿ les importaría darnos la llave de la habitación ?
@@ -2238,7 +2238,7 @@ por favor , ¿ le importaría bajarme mi equipaje a la habitación número tres 
 ¿ tiene libre alguna habitación ?
 quiero que me suban mis maletas a mi habitación .
 queremos que nos despierten a las diez y cuarto .
-'! sí !
+¡ sí !
 ¿ puede llamar a un taxi ?
 ¿ me lleva mi equipaje a la estación ?
 tengo una reserva .
@@ -2369,7 +2369,7 @@ desearíamos que nos diesen la llave de la número quinientos doce .
 ¿ están apuntados todos los extras ?
 por favor , ¿ nos pueden dar la llave de la habitación ?
 me llamo Paloma Rivera .
-'! sí !
+¡ sí !
 me parece que hay un problema en la cuenta .
 me parece que se han equivocado en la cuenta .
 quiero que me despierte a las siete y media .
@@ -2532,7 +2532,7 @@ la llave de la número cero veintiséis , por favor .
 por favor , haga la cuenta .
 hicimos una reserva .
 desearía dos habitaciones dobles para quince días .
-'! lo siento !
+¡ lo siento !
 ¿ podría despertarme a las cuatro y cuarto , por favor ?
 ¿ qué precio tiene una habitación individual ?
 tenemos reservada una habitación doble con agua caliente .
@@ -2540,7 +2540,7 @@ por favor , desearía reservar una habitación individual y tranquila .
 he reservado una habitación doble y tranquila .
 nos marchamos el domingo veintiocho a las siete y cuarto de la mañana .
 por favor , ¿ les importaría despertarnos mañana a las seis ?
-'! no importa !
+¡ no importa !
 despiértenme mañana a las nueve .
 ¿ hay una habitación libre con aire acondicionado ?
 por favor , ¿ le importaría que echara un vistazo a otra habitación ?
@@ -2588,7 +2588,7 @@ mi nombre es Carmen Calleja .
 ¿ les importaría subirnos las bolsas de viaje al autobús ?
 nos tenemos que marchar el día doce por la mañana .
 ¿ está anotado el impuesto sobre el valor añadido ?
-'! hola !
+¡ hola !
 ¿ hay televisión en nuestras habitaciones ?
 creo que se han equivocado .
 perdone .
@@ -2840,7 +2840,7 @@ tengo la reserva de una habitación con teléfono y cuarto de baño a nombre de 
 por favor , hice la reserva de una habitación tranquila individual con ducha y teléfono .
 ¿ pueden llevar nuestra maleta a nuestra habitación ?
 por favor , hice una reserva .
-'! gracias !
+¡ gracias !
 ¿ pueden bajarme mis bultos a la habitación ?
 quisiera una habitación doble tranquila que tenga vistas a la ciudad , teléfono y baño , por favor .
 por favor , ¿ me quieren preparar la cuenta ?
@@ -2950,7 +2950,7 @@ tenemos reservada una habitación individual .
 la habitación está bien .
 pienso que hay un problema en mi cuenta .
 hemos reservado una habitación .
-'! buenos días !
+¡ buenos días !
 ¿ podría ver una habitación ?
 me voy el día dieciocho a las nueve y cuarto de la mañana .
 ¿ querría prepararnos la cuenta de la habitación siete cero nueve ? , por favor .
@@ -3097,7 +3097,7 @@ me llamo Paloma Valls .
 ¿ puede despertarnos mañana a las diez y cuarto , por favor ?
 hemos reservado una habitación individual a nombre de Asunción Velasco , por favor .
 lleven nuestros bultos a nuestra habitación .
-'! buenas tardes !
+¡ buenas tardes !
 ¿ podría prepararme la cuenta ?
 tenemos reservada una habitación individual y tranquila , por favor .
 por favor , hemos reservado una habitación .
@@ -3262,7 +3262,7 @@ nos hemos de marchar .
 ¿ hay alguna habitación libre ?
 tengo reservada una habitación tranquila doble con televisión , teléfono y ducha a nombre de Margarita Cerezo .
 hemos de irnos el día veintitrés a las tres .
-'! sí !
+¡ sí !
 pienso que existe un problema en la cuenta de la habitación tres setenta y tres .
 por favor , he hecho una reserva .
 nos tenemos que ir hoy mismo por la tarde .
@@ -3289,7 +3289,7 @@ nos marchamos el miércoles quince .
 nos vamos a ir el viernes a las diez .
 lleve las maletas al coche .
 prepáreme la factura .
-'! buenos días !
+¡ buenos días !
 ¿ puede llevarnos nuestras bolsas de viaje a la estación ?
 ¿ podría cambiarnos a otra habitación con televisión ?
 por favor , una habitación doble .
@@ -3356,7 +3356,7 @@ dénos la llave de nuestra habitación .
 mi nombre es Inmaculada Arroyo .
 ¿ haría el favor de cambiarnos a otra habitación menos ruidosa ?
 vamos a marcharnos el sábado catorce de abril por la mañana .
-'! no !
+¡ no !
 hemos reservado una habitación individual y tranquila .
 ¿ podríamos reservar dos habitaciones individuales ?
 voy a marcharme mañana a las ocho y cuarto de la mañana .
@@ -3372,7 +3372,7 @@ deseo reservar una habitación .
 por favor , tengo hecha una reserva .
 ¿ me podría explicar la cuenta ? , por favor .
 querríamos que nos diera las llaves de la habitación .
-'! buenos días !
+¡ buenos días !
 ¿ hay aire acondicionado en las habitaciones ?
 ¿ podríamos reservar dos habitaciones individuales hasta el próximo sábado ?
 hemos de marcharnos hoy mismo a las siete y cuarto .
@@ -3416,7 +3416,7 @@ la habitación está bien .
 ¿ tienen libre una habitación individual y tranquila ?
 la habitación es demasiado cara .
 ¿ podríamos ver otra habitación ?
-'! buenas noches !
+¡ buenas noches !
 quiero una habitación individual , por favor .
 ¿ nos puede despertar a las once ?
 quiero reservar una habitación hasta mañana .
@@ -3504,7 +3504,7 @@ tengo que marcharme el sábado a las seis de la tarde .
 hice una reserva a nombre de Sonia Cutillas .
 ¿ les importaría subir las bolsas de viaje al coche ?
 por favor , una habitación doble tranquila que tenga cuarto de baño , buena vista y televisión .
-'! perdón !
+¡ perdón !
 me he de marchar esta noche .
 tengo reservada una habitación doble tranquila con ducha , buena vista y televisión a nombre de Micaela Cabrera .
 ¿ le importaría darnos la llave de la habitación ?
@@ -3551,7 +3551,7 @@ de nada .
 hemos de irnos el lunes doce a las once y media de la mañana .
 ¿ tienen habitaciones individuales libres ?
 quisiéramos que subiera nuestras maletas a la habitación número cuatrocientos cuatro , por favor .
-'! sí !
+¡ sí !
 se han equivocado en la cuenta .
 por favor , denme la llave de la habitación uno uno cero .
 deseo una habitación para esta semana , por favor .
@@ -3765,7 +3765,7 @@ deseo reservar una habitación para nueve días .
 súbanme las maletas a la seis noventa .
 por favor , pida un taxi .
 ¿ nos quieren preparar la cuenta ?
-'! no !
+¡ no !
 ¿ hay aseo en la habitación ?
 ¿ nos pueden dar la llave de la habitación número doscientos veinticuatro ?
 por favor , lleven nuestras maletas a la número cuatrocientos treinta y ocho .
@@ -3839,7 +3839,7 @@ por favor , reservé una habitación con televisión , teléfono , vistas al lag
 hemos reservado una habitación doble y tranquila a nombre del señor y la señora Varela .
 nos gustaría cambiarnos de habitación , por favor .
 por favor , ¿ me puede preparar la cuenta ?
-'! por favor !
+¡ por favor !
 ¿ podría cambiarnos de habitación ?
 ¿ hay aire acondicionado y televisión en las habitaciones ?
 súbame mi equipaje a la habitación número tres sesenta y tres .
@@ -3906,7 +3906,7 @@ he hecho una reserva a nombre de Manuela Barrachina .
 repase la cuenta de la habitación novecientos treinta .
 suba nuestra bolsa de viaje a la habitación .
 ¿ pueden llevarme mi equipaje a mi habitación , por favor ?
-'! de acuerdo !
+¡ de acuerdo !
 tengo reservada una habitación .
 me voy el día ocho por la mañana .
 la habitación es demasiado calurosa .
@@ -3956,7 +3956,7 @@ por favor , ¿ le importaría bajar mi equipaje a la habitación cinco sesenta y
 voy a irme el jueves veintiséis de febrero a las seis de la mañana .
 por favor , reservamos una habitación para esta noche a nombre de la señora Cristina Bordons .
 desearía reservar una habitación .
-'! gracias !
+¡ gracias !
 ¿ nos podría usted despertar mañana a la una y cuarto , por favor ?
 ¿ cuánto cuesta una habitación doble ?
 ¿ podemos abonar con cheques de viaje ?
@@ -4049,7 +4049,7 @@ me prepara la factura , por favor .
 deseamos una habitación individual y tranquila .
 ¿ le importaría bajarme mis bolsas a la habitación ?
 quisiera reservar una habitación doble .
-'! muchas gracias !
+¡ muchas gracias !
 por favor , ¿ les importaría llevarme la maleta a la habitación ?
 despiértenos a las doce .
 me parece que se produjo un error en la cuenta .
@@ -4199,7 +4199,7 @@ tenemos que marcharnos hoy mismo a las seis y cuarto de la mañana .
 tenemos que marcharnos el martes ocho de marzo por la noche .
 ¿ pueden darme la llave de la habitación ?
 ¿ tienen libre una habitación tranquila ?
-'! correcto !
+¡ correcto !
 quiero reservar una habitación doble , por favor .
 deseo que nos dé la llave de la siete veintitrés .
 ¿ tiene libre una habitación tranquila ?
@@ -4230,7 +4230,7 @@ nos hemos de marchar el martes por la mañana .
 llámeme a un taxi .
 tengo reservada una habitación con teléfono y ducha a nombre de Manuel Torres .
 quisiera reservar una habitación individual y tranquila .
-'! buenas tardes !
+¡ buenas tardes !
 la habitación es muy cara .
 la habitación es demasiado fría .
 ¿ tienen libre una habitación individual y tranquila ?
@@ -4669,7 +4669,7 @@ vamos a marcharnos el día veintidós a las dos de la tarde .
 ¿ nos pueden ustedes dar la llave de la habitación número uno cero cuatro ?
 ¿ me pueden bajar las bolsas a la habitación número dos tres ocho ?
 hay una equivocación en la cuenta de la habitación dos veintidós .
-'! buenas tardes !
+¡ buenas tardes !
 ¿ tienen libre una habitación ?
 nos llama a un taxi , por favor .
 ¿ tienen habitaciones dobles libres ?
@@ -4871,8 +4871,8 @@ por favor , prepare la cuenta .
 por favor , me gustaría reservar una habitación .
 he reservado dos habitaciones individuales para cuatro semanas a nombre de Eduardo Navarro , por favor .
 hemos reservado una habitación con aire acondicionado a nombre de Rosario Orenga .
-'! adiós !
-'! correcto !
+¡ adiós !
+¡ correcto !
 por favor , he hecho una reserva .
 por favor , hice una reserva .
 ¿ me podría dar la llave de la habitación , por favor ?
@@ -5175,7 +5175,7 @@ hemos reservado dos habitaciones .
 hay una equivocación en mi factura .
 por favor , tenemos reservada una habitación doble .
 quiero que baje nuestra bolsa a la habitación .
-'! no !
+¡ no !
 desearíamos una habitación tranquila , por favor .
 creo que hay un problema en la cuenta .
 mi nombre es Micaela Miralles .
@@ -5247,12 +5247,12 @@ me voy a ir mañana a las ocho menos cuarto de la noche .
 hemos reservado una habitación individual hasta mañana a nombre de Julio Barrachina .
 por favor , reservamos dos habitaciones .
 desearía que me llevasen la maleta a la habitación .
-'! gracias !
+¡ gracias !
 ¿ podríamos reservar dos habitaciones ?
 ¿ podría reservar una habitación tranquila para hoy ?
 ¿ podrían preparar la factura ? , por favor .
 una habitación tranquila individual con televisión y ducha , por favor .
-'! perdone !
+¡ perdone !
 ¿ hay una habitación doble y tranquila libre ?
 ¿ querría pedirme un taxi ?
 por favor , ¿ me pueden ustedes despertar mañana a la una en punto ?
@@ -5342,8 +5342,8 @@ tengo reservada una habitación con televisión y ducha para esta noche a nombre
 por favor , ¿ hay aire acondicionado en la habitación ?
 por favor , ¿ les importaría darnos las llaves de la novecientos veinticinco ?
 ¿ tenemos que firmar la hoja de registro ?
-'! no !
-'! hola !
+¡ no !
+¡ hola !
 por favor , ¿ les importaría darme las llaves de mi habitación ?
 por favor , queremos dos habitaciones individuales para esta noche .
 ¿ podría bajar mis bultos a mi habitación ?
@@ -5352,8 +5352,8 @@ tengo reservada una habitación .
 nos gustaría cambiar la habitación .
 reservé una habitación , por favor .
 por favor , pídame mi taxi .
-'! de acuerdo !
-'! no importa !
+¡ de acuerdo !
+¡ no importa !
 quisiéramos cambiarnos a otra habitación con aire acondicionado , por favor .
 por favor , ¿ pueden subirnos los bultos a la habitación dos dos ocho ?
 ¿ nos pueden dar la llave de la habitación seiscientos diecisiete , por favor ?
@@ -5405,7 +5405,7 @@ la habitación es demasiado calurosa .
 ¿ me lleva el equipaje ?
 tengo reservada una habitación .
 por favor , ¿ podría ver una habitación ?
-'! buenos días !
+¡ buenos días !
 por favor , quiero reservar una habitación hasta pasado mañana .
 ¿ podríamos reservar dos habitaciones ?
 nos tenemos que ir el día veintinueve de mayo a las nueve menos cuarto de la noche .
@@ -5514,7 +5514,7 @@ por favor , tengo reservada una habitación tranquila sencilla a nombre de Beatr
 ¿ qué precio tiene por día una habitación individual ?
 ¿ qué precio tiene una habitación individual ?
 ¿ están incluidos en la cuenta los impuestos ?
-'! gracias !
+¡ gracias !
 por favor , ¿ podría llamarme a un taxi para la habitación cuatrocientos trece ?
 me he de marchar el viernes por la mañana .
 tenemos reservada una habitación individual y tranquila .
@@ -5671,7 +5671,7 @@ deseo que nos despierte a las cinco .
 ¿ les importaría darnos la llave de la habitación , por favor ?
 por favor , una habitación a nombre de la señorita Ballester .
 ¿ nos pueden despertar mañana a las nueve , por favor ?
-'! no importa !
+¡ no importa !
 quisiéramos una habitación .
 de acuerdo .
 vamos a irnos el sábado a las once menos cuarto de la noche .
@@ -6294,7 +6294,7 @@ por favor , tengo reservada una habitación a nombre de Jaime Cabrera .
 por favor , llámeme a un taxi .
 ¿ tienen habitaciones libres ?
 ¿ me quieren hacer la cuenta ?
-'! no !
+¡ no !
 ¿ a qué día estamos ?
 ¿ podría ver una habitación individual , por favor ?
 querríamos que nos subiese nuestra maleta a nuestra habitación , por favor .
@@ -6310,11 +6310,11 @@ he hecho una reserva .
 por favor , ¿ puede llamarnos a un taxi ?
 por favor , tengo reservada una habitación doble con televisión y teléfono .
 quisiera una habitación tranquila para un día .
-'! no importa !
+¡ no importa !
 reservé una habitación individual , por favor .
 quisiéramos que llevara nuestro equipaje a la habitación número veinticinco , por favor .
 por favor , queremos que nos despierten a las cinco y cuarto .
-'! sí !
+¡ sí !
 tengo que marcharme .
 ¿ podría ver alguna habitación ?
 por favor , hice la reserva de una habitación doble tranquila a nombre del señor Paches .
@@ -6346,7 +6346,7 @@ por favor , ¿ podrían hacerme la cuenta de la habitación cuatrocientos catorc
 ¿ le importaría llevar mis maletas a la habitación ?
 pienso que se ha producido un problema .
 ¿ le importaría cambiarme de habitación ?
-'! de acuerdo !
+¡ de acuerdo !
 tenemos reservada una habitación doble , por favor .
 creo que existe un problema en la cuenta .
 hemos hecho una reserva .
@@ -6393,7 +6393,7 @@ por favor , ¿ podría llamar a un taxi ?
 ¿ me pueden dar las llaves de la habitación ?
 ¿ pueden subir mi equipaje al coche ?
 tenemos que irnos esta noche .
-'! muchas gracias !
+¡ muchas gracias !
 ¿ nos lleva nuestro equipaje ?
 por favor , he reservado una habitación .
 ¿ cuánto vale una habitación doble incluyendo servicio de habitaciones ?
@@ -6613,7 +6613,7 @@ por favor , hice la reserva de una habitación con una buena vista y baño a nom
 ¿ hay alguna habitación libre con aire acondicionado y televisión ?
 tengo que irme el viernes a las siete de la mañana .
 mi nombre es Susana Cerezo .
-'! por favor !
+¡ por favor !
 he de marcharme mañana a las tres y media de la tarde .
 ¿ está incluida la factura del teléfono ?
 en la habitación hace mucho calor .
@@ -6697,7 +6697,7 @@ tengo reservada una habitación para esta noche a nombre del señor Miguel Berru
 tengo que marcharme hoy a las siete menos cuarto de la mañana .
 por favor , despiérteme a las ocho y media .
 por favor , ¿ podría explicarnos la cuenta ?
-'! por favor !
+¡ por favor !
 despiértenos mañana a las nueve menos cuarto .
 por favor , he hecho una reserva a nombre de Ignacio Montero .
 nos hace la cuenta .
@@ -6925,7 +6925,7 @@ me voy a marchar el día veintiocho a las dos de la tarde .
 ¿ le importaría llevarnos nuestro equipaje al autobús ?
 dénos la llave de la habitación veinticinco , por favor .
 me parece que existe un problema en mi cuenta .
-'! no estoy de acuerdo !
+¡ no estoy de acuerdo !
 por favor , ¿ nos podría llamar a un taxi ?
 mi nombre es Arturo Vilanova .
 tengo que irme hoy .
@@ -7135,7 +7135,7 @@ por favor , ¿ podrían llamar a un taxi para la habitación setecientos diecioc
 ¿ le importaría bajarme mi equipaje a la habitación ?
 me parece que hay un error en nuestra cuenta .
 ¿ nos lleva el equipaje a recepción ?
-'! hola !
+¡ hola !
 por favor , ¿ cuánto vale una habitación individual incluyendo desayuno ?
 me tengo que ir mañana .
 quiero que me dé la llave de la seis dos cero .
@@ -7267,7 +7267,7 @@ me gustaría cambiarme a otra habitación con menos ruido .
 ¿ hay habitaciones dobles libres ?
 ¿ nos querrían hacer la cuenta ?
 reservé una habitación a nombre del señor Sanfeliú .
-'! buenos días !
+¡ buenos días !
 ¿ podríamos ver otra habitación ?
 por favor , ¿ me podrían dar la llave de la número uno veintinueve ?
 por favor , desearía que me diese la llave de la habitación .
@@ -7321,7 +7321,7 @@ por favor , ¿ podría llamarnos a nuestro taxi ?
 por favor , me repasa la factura de la habitación cero nueve cuatro .
 por favor , quiero una habitación sencilla tranquila a nombre de la señorita Moliner .
 por favor , lleven mis bultos a la habitación número cuatro sesenta .
-'! adiós !
+¡ adiós !
 deseo que nos den las llaves de la habitación cuatro cuatro cinco , por favor .
 reservamos una habitación individual , por favor .
 ¿ puede llevarnos el equipaje al autobús ?
@@ -7397,7 +7397,7 @@ se produjo un error en la cuenta .
 desearía reservar una habitación .
 por favor , ¿ hay aire acondicionado en la habitación ?
 ¿ pueden llevarme mis bultos a la habitación siete dos tres ?
-'! por favor !
+¡ por favor !
 por favor , quisiera una habitación tranquila hasta el próximo jueves .
 quisiera que me diese las llaves de la habitación seis cero nueve , por favor .
 quiero reservar una habitación hasta el treinta , por favor .
@@ -7424,8 +7424,8 @@ por favor , ¿ podríamos ver una habitación con televisión ?
 creo que hay un error en la cuenta .
 ¿ les importaría darme la llave de la habitación ?
 deseo reservar una habitación doble para esta noche .
-'! buenos días !
-'! no importa !
+¡ buenos días !
+¡ no importa !
 queremos que nos den las llaves de la habitación veinticuatro , por favor .
 vamos a marcharnos el seis a las cuatro de la tarde .
 reservamos una habitación individual hasta mañana a nombre del señor Daniel Salgado .
@@ -7451,7 +7451,7 @@ voy a irme el jueves once .
 ¿ le importaría llevarnos nuestras bolsas de viaje a la habitación ?
 ¿ hay televisión en la habitación ?
 ¿ le importaría bajarme mis bultos a mi habitación ?
-'! sí !
+¡ sí !
 ¿ podríamos abonar en efectivo ?
 ¿ podría cambiarme a otra habitación más cálida ?
 ¿ me lleva mi equipaje a la estación ?
@@ -7519,7 +7519,7 @@ por favor , repase nuestra cuenta .
 por favor , ¿ podría ver una habitación ?
 ¿ podríamos ver otra habitación , por favor ?
 tenemos reservada una habitación doble con cuarto de baño , televisión y aire acondicionado .
-'! no !
+¡ no !
 ¿ está todo incluido , por favor ?
 por favor , ¿ nos puede dar las llaves de la habitación seis veintiséis ?
 ¿ hay televisión en las habitaciones ?
@@ -7606,7 +7606,7 @@ reservé una habitación .
 he hecho una reserva .
 quiero que nos suban los bultos a nuestra habitación .
 ¿ podrían bajar mi equipaje a recepción ?
-'! perdón !
+¡ perdón !
 ¿ les importaría subir mis maletas al autobús ?
 despiérteme mañana a las tres , por favor .
 ¿ les importaría darme la llave de la habitación , por favor ?
@@ -7667,7 +7667,7 @@ quisiera una habitación para una noche , por favor .
 nos vamos a marchar el diecinueve .
 por favor , tengo una reserva a nombre de Concepción Alted .
 nos vamos a marchar el día nueve a las diez y cuarto de la noche .
-'! adiós !
+¡ adiós !
 por favor , ¿ les importaría darnos la llave de la habitación número cinco siete dos ?
 ¿ tiene alguna habitación libre con teléfono y televisión ?
 quisiera una habitación para esta semana .
@@ -7713,7 +7713,7 @@ mi nombre es Miguel Colomer .
 ¿ pueden subir nuestro equipaje al autobús ?
 por favor , reservé una habitación con baño , tele y teléfono .
 por favor , quiero una habitación doble y tranquila para esta semana .
-'! lo siento !
+¡ lo siento !
 ¿ puede subirme el equipaje a la cuatro veintisiete ?
 ¿ cuánto vale por semana una habitación doble ?
 quiero una habitación con teléfono , ducha y tele , por favor .
@@ -7760,7 +7760,7 @@ tengo reservada una habitación .
 por favor , deseo que nos den las llaves de mi habitación .
 ¿ están incluidos en la factura los extras ?
 reservamos una habitación tranquila .
-'! buenas noches !
+¡ buenas noches !
 me tengo que ir hoy a las siete .
 por favor , he hecho la reserva de una habitación tranquila doble .
 reservamos una habitación a nombre de Jesús Campo .
@@ -7773,7 +7773,7 @@ hemos reservado una habitación tranquila , por favor .
 por favor , he reservado una habitación a nombre de la señora Lidia Navarro .
 por favor , llámeme a un taxi .
 desearía una habitación .
-'! perdone !
+¡ perdone !
 desearía una habitación hasta pasado mañana .
 ¿ haría el favor de cambiarnos de habitación ?
 ¿ tienen libre alguna habitación con teléfono ?
@@ -7825,7 +7825,7 @@ por favor , deseamos que nos dé la llave de mi habitación .
 desearía una habitación doble .
 por favor , quisiera una habitación doble para cinco semanas .
 nos tenemos que marchar mañana a las once de la noche .
-'! de acuerdo !
+¡ de acuerdo !
 ¿ están incluidas las comidas , por favor ?
 ¿ está apuntado el teléfono ?
 creo que hay una equivocación en la cuenta de la habitación cinco siete tres .
@@ -7865,7 +7865,7 @@ tenemos reservada una habitación individual .
 nuestra habitación es demasiado cara .
 ¿ cuánto cuesta una habitación doble por día ?
 por favor , hice una reserva .
-'! disculpe !
+¡ disculpe !
 ¿ tienen libre una habitación con televisión ?
 me he de ir el sábado nueve de junio a las siete .
 ¿ nos podría despertar mañana a las cinco y cuarto , por favor ?
@@ -8359,7 +8359,7 @@ por favor , tengo una reserva a nombre de Carlos Gil .
 ¿ está apuntada la cuenta del teléfono ?
 ¿ me podrían dar la llave de la habitación uno cuarenta ?
 he hecho la reserva de una habitación con buena vista de la montaña , teléfono , cuarto de baño y televisión a nombre de Silvia Cutillas .
-'! sí !
+¡ sí !
 ¿ nos puede despertar usted mañana a las cuatro y cuarto , por favor ?
 nos pide un taxi , por favor .
 ¿ le importaría subirnos nuestras bolsas al autobús ?
@@ -8380,7 +8380,7 @@ por favor , reservé una habitación a nombre del señor Jorge Valls .
 ¿ le importaría encargarse del equipaje ?
 ¿ podría reservar una habitación individual ?
 ¿ me puede llamar a un taxi ? , por favor .
-'! sí !
+¡ sí !
 me parece que se ha producido una equivocación en la factura .
 tenemos una reserva .
 reservamos una habitación individual , por favor .
@@ -8663,7 +8663,7 @@ tenenos hecha una reserva .
 querría que nos despertaran mañana a las diez , por favor .
 por favor , ¿ cuánto vale una habitación individual por día con pensión completa ?
 reservé una habitación individual .
-'! hola !
+¡ hola !
 reservé una habitación individual con aire acondicionado .
 ¿ podríamos reservar dos habitaciones con aire acondicionado ?
 tenemos reservada una habitación doble .
@@ -8695,7 +8695,7 @@ por favor , reservé una habitación con aire acondicionado para tres días a no
 ¿ tiene libre alguna habitación ?
 tenemos que marcharnos el día veinte a las cinco y cuarto de la tarde .
 por favor , déme las llaves de la habitación .
-'! conforme !
+¡ conforme !
 por favor , nos llama a un taxi .
 ¿ me puede despertar a las dos menos cuarto ?
 existe un error en nuestra cuenta .
@@ -8727,7 +8727,7 @@ me llama a un taxi para la habitación siete veinte , por favor .
 ¿ podría reservar una habitación individual para catorce días ?
 lleve nuestro equipaje a recepción .
 por favor , explíqueme la cuenta .
-'! de acuerdo !
+¡ de acuerdo !
 hemos reservado una habitación para esta semana a nombre de la señorita Concepción Escrig , por favor .
 por favor , he reservado una habitación tranquila doble con buena vista y teléfono a nombre de Silvia Moliner .
 hemos reservado una habitación individual con aire acondicionado .
@@ -8861,7 +8861,7 @@ en la habitación hace mucho frío .
 por favor , pídame un taxi .
 nos iremos esta tarde .
 por favor , ¿ me querría llamar a un taxi ?
-'! correcto !
+¡ correcto !
 déme la llave de la habitación número cero dos nueve , por favor .
 quisiera que me despertaran mañana a las diez y cuarto , por favor .
 por favor , quiero reservar dos habitaciones con baño y teléfono .
@@ -8963,7 +8963,7 @@ por favor , nos llama a un taxi .
 por favor , súbanos nuestro equipaje a la habitación siete cinco dos .
 ¿ podemos abonar el recibo con cheques de viaje ?
 pienso que se ha producido un error en la cuenta .
-'! hola !
+¡ hola !
 ¿ hay habitaciones individuales libres ?
 ¿ podrían repasarme mi cuenta ?
 la habitación está bien .
@@ -9241,7 +9241,7 @@ vamos a marcharnos hoy mismo a las diez y cuarto de la noche .
 vamos a marcharnos hoy mismo a las once de la mañana .
 tengo la reserva de una habitación a nombre de Vicente Bordons .
 desearía que me bajasen mi maleta a la número cuatro siete , por favor .
-'! buenos días !
+¡ buenos días !
 por favor , quiero una habitación doble .
 reservé una habitación doble con baño a nombre del señor Celestino Soria .
 ¿ hay una habitación libre con cuarto de baño ?
@@ -9320,7 +9320,7 @@ despiértenos a las ocho y cuarto .
 reservamos una habitación individual .
 ¿ cuál ?
 por favor , ¿ me podría preparar la cuenta de la habitación doscientos veintidós ?
-'! no !
+¡ no !
 nos llama a nuestro taxi , por favor .
 hemos reservado una habitación doble con servicio de bar , por favor .
 creo que hay una equivocación en mi cuenta .
@@ -9470,7 +9470,7 @@ por favor , nos gustaría cambiarnos a otra habitación con teléfono .
 ¿ hay alguna habitación individual y tranquila libre ?
 ¿ podríamos ver una habitación ?
 por favor , he hecho la reserva de una habitación doble tranquila con teléfono , tele y ducha a nombre del señor Colomer .
-'! no estoy de acuerdo !
+¡ no estoy de acuerdo !
 por favor , llámeme a un taxi .
 por favor , ¿ qué precio tiene por día una habitación doble incluyendo desayuno ?
 ¿ le importaría cambiarme de habitación ?
@@ -9662,7 +9662,7 @@ hemos hecho una reserva , por favor .
 por favor , ¿ nos puede despertar mañana a las doce y cuarto ?
 por favor , una habitación .
 ¿ querría llamar a un taxi ? , por favor .
-'! no estoy de acuerdo !
+¡ no estoy de acuerdo !
 tengo reservada una habitación para hoy a nombre del señor y la señora Bellver .
 nos pide un taxi para la habitación seiscientos cuarenta y tres , por favor .
 tengo que irme mañana .
@@ -9851,7 +9851,7 @@ por favor , despiérteme mañana a las tres y cuarto .
 tengo reservada una habitación individual con teléfono a nombre de óscar Cornelles .
 pienso que se han equivocado en la factura .
 ¿ hay habitaciones libres ?
-'! no !
+¡ no !
 ¿ podrían darnos la llave de mi habitación ?
 me parece que se produjo un problema en la cuenta de la habitación cero veinticuatro .
 quisiera una habitación hasta el día trece de septiembre .
@@ -9862,7 +9862,7 @@ por favor , ¿ podrían preparar la factura ?
 ¿ tengo que firmar alguna hoja de registro ?
 ¿ hay alguna habitación libre con agua caliente y televisión ?
 hice una reserva .
-'! correcto !
+¡ correcto !
 ¿ hay una habitación doble libre ?
 desearíamos que llevase nuestra maleta a la habitación , por favor .
 hice una reserva .
