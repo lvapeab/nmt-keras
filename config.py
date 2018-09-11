@@ -131,7 +131,8 @@ def load_parameters():
     RHO = 0.9                                     # Rho value (for Adadelta and RMSprop optimizers).
     BETA_1 = 0.9                                  # Beta 1 value (for Adam, Adamax Nadam optimizers).
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
-    EPSILON = 1e-7                                # Oprimizers epsilon value.
+    AMSGRAD = False                               # Whether to apply the AMSGrad variant of Adam (see https://openreview.net/pdf?id=ryQu7f-RZ).
+    EPSILON = 1e-7                                # Optimizers epsilon value.
 
     # Learning rate schedule
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
@@ -149,6 +150,7 @@ def load_parameters():
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs.
     BATCH_SIZE = 50                               # Size of each minibatch.
+    N_GPUS = 1                                    # Number of GPUs to use. Only for Tensorflow backend. Each GPU will receive mini-batches of BATCH_SIZE / N_GPUS.
 
     HOMOGENEOUS_BATCHES = False                   # Use batches with homogeneous output lengths (Dangerous!!).
     JOINT_BATCHES = 4                             # When using homogeneous batches, get this number of batches to sort.
@@ -204,14 +206,17 @@ def load_parameters():
     # AttentionRNNEncoderDecoder model hyperparameters
     # # # # # # # # # # # # # # # # # # # # # # # #
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported).
+    USE_CUDNN = True                              # Use CuDNN's implementation of GRU and LSTM (only for Tensorflow backend).
+
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type.
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported).
-    ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau-style) or 'dot' (Luong-style).
+    ATTENTION_MODE = 'add'                        # Attention mode. 'add' (Bahdanau-style), 'dot' (Luong-style) or 'scaled-dot'.
 
     # Encoder configuration
     ENCODER_HIDDEN_SIZE = 32                      # For models with RNN encoder.
     BIDIRECTIONAL_ENCODER = True                  # Use bidirectional encoder.
     BIDIRECTIONAL_DEEP_ENCODER = True             # Use bidirectional encoder in all encoding layers.
+    BIDIRECTIONAL_MERGE_MODE = 'concat'           # Merge function for bidirectional layers.
 
     # Fully-Connected layers for initializing the first decoder RNN state.
     #       Here we should only specify the activation function of each layer (as they have a potentially fixed size)
@@ -314,7 +319,6 @@ def load_parameters():
     TRAIN_ON_TRAINVAL = False                          # train the model on both training and validation sets combined.
     FORCE_RELOAD_VOCABULARY = False                    # force building a new vocabulary from the training samples
                                                        # applicable if RELOAD > 1
-
     # ================================================ #
     parameters = locals().copy()
     return parameters

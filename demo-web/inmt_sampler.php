@@ -12,9 +12,16 @@ function file_get_contents_utf8($fn) {
 
 if (flock($fp, LOCK_EX))
 {
-	$source=$_GET['source']; $prefix=$_GET['prefix']; $learn=$_GET['learn'];
-	$url = '158.42.161.42:6542/?source='.urlencode($source).'&prefix='.urlencode($prefix).'&learn='.urlencode($learn);
-        $ch = curl_init();
+	$source=$_GET['source'];
+	$prefix=$_GET['prefix'];
+	$learn=$_GET['learn'];
+	$beam_size=$_GET['beam_size'];
+	$length_norm=$_GET['length_norm'];
+	$coverage_norm=$_GET['coverage_norm'];
+	$alpha_norm=$_GET['alpha_norm'];
+
+	$url = '127.0.0.1:6542/?source='.urlencode($source).'&prefix='.urlencode($prefix).'&learn='.urlencode($learn).'&beam_size='.urlencode($beam_size).'&length_norm='.urlencode($length_norm).'&coverage_norm='.urlencode($coverage_norm).'&alpha_norm='.urlencode($alpha_norm);
+    $ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, -1);
 	$out = curl_exec($ch);

@@ -232,8 +232,7 @@ def build_dataset(params):
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(
-            params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
         # If we had multiple references per sentence
         keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])

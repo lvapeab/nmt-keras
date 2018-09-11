@@ -8,6 +8,8 @@ matrix:
         - python: 2.7
           env: KERAS_BACKEND=theano TEST_MODE=GENERAL
         - python: 2.7
+          env: KERAS_BACKEND=theano TEST_MODE=ENCODINGS
+        - python: 2.7
           env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
         - python: 2.7
           env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
@@ -35,6 +37,8 @@ matrix:
           env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
+        - python: 2.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
         - python: 2.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
         - python: 2.7
@@ -64,6 +68,8 @@ matrix:
         - python: 3.6
           env: KERAS_BACKEND=theano TEST_MODE=GENERAL
         - python: 3.6
+          env: KERAS_BACKEND=theano TEST_MODE=ENCODINGS
+        - python: 3.6
           env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
         - python: 3.6
           env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
@@ -91,6 +97,8 @@ matrix:
           env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
         - python: 3.6
           env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
+        - python: 3.6
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
         - python: 3.6
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
         - python: 3.6
@@ -173,11 +181,14 @@ script:
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest --pep8 -m pep8 -n0;
     elif [[ "$TEST_MODE" == "GENERAL" ]]; then
-      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/*py tests/utils/*py tests/data_engine/*py 2>&1 ;
+      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/ tests/utils/ tests/data_engine/ 2>&1 ;
+    elif [[ "$TEST_MODE" == "ENCODINGS" ]]; then
+      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/encodings/ 2>&1 ;
     else
       if [[ "$DEPTH" == "shallow" ]]; then
-        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DEPTH}*_${TEST_MODE}.py 2>&1 ;
+        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/NMT_architectures/${DEPTH}*_${TEST_MODE}.py  2>&1 ;
+        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/NMT_architectures/attention_${TEST_MODE}.py  2>&1 ;
       else
-        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_NMT_architectures/${DIR}_${DEPTH}*_${TEST_MODE}.py 2>&1 ;
+        PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/NMT_architectures/${DIR}_${DEPTH}*_${TEST_MODE}.py 2>&1 ;
       fi
     fi

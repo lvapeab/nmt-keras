@@ -63,12 +63,13 @@ To appear at CoNLL'18. 2018.
 This branch requires—in addition to the regular NMT-Keras requirements—the `InteractiveNMT` branch from [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper/tree/Interactive_NMT).
 
 
-## Features (in addition to the full Keras cosmos): 
- * :heavy_exclamation_mark: [Transformer model](https://arxiv.org/abs/1706.03762)) (missing the tied embeddings).
+## Features (in addition to the full Keras cosmos): .
+ * :heavy_exclamation_mark: Multi-GPU training (only for Tensorflow). 
+ * [Transformer model](https://arxiv.org/abs/1706.03762) (missing the tied embeddings).
  * [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
-   - Supporting [Bahdanau (Add)](https://arxiv.org/abs/1409.0473) and [Luong (Dot)](https://arxiv.org/abs/1508.04025) attention mechanisms.
+   - Supporting [Bahdanau (Add)](https://arxiv.org/abs/1409.0473) [Luong (Dot)](https://arxiv.org/abs/1508.04025) attention mechanisms.
    - Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
@@ -187,17 +188,23 @@ optional arguments:
 
     4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a state-of-the-art NMT model with Keras in few (~50) lines. 
 
+ * In the [examples/configs](https://github.com/lvapeab/nmt-keras/blob/master/examples/configs) folder you'll find two examples of configs for larger models.
 
 ## Citation
 
 If you use this toolkit in your research, please cite:
 
 ```
-@unpublished{nmt-keras18,
-	title={{NMT-Keras}: a Very Flexible Toolkit with a Focus on Interactive {NMT} and Online Learning},
-	author={Peris, Álvaro and Casacuberta, Francisco},
-	note={\textit{arXiv:1807.03096}}, 
-	year={2018}
+@article{nmt-keras:2018,
+ journal = {The Prague Bulletin of Mathematical Linguistics},
+ title = {{NMT-Keras: a Very Flexible Toolkit with a Focus on Interactive NMT and Online Learning}},
+ author = {\'{A}lvaro Peris and Francisco Casacuberta},
+ year = {2018},
+ volume = {111},
+ pages = {113--124},
+ doi = {10.2478/pralin-2018-0010},
+ issn = {0032-6585},
+ url = {https://ufal.mff.cuni.cz/pbml/111/art-peris-casacuberta.pdf}
 }
 ```
 
@@ -215,13 +222,15 @@ Much of this library has been developed together with [Marc Bolaños](https://gi
 
 To see other projects following the same philosophy and style of NMT-Keras, take a look to:
 
-[TMA for egocentric captioning based on temporally-linked sequences](https://github.com/MarcBS/TMA).
+[TMA: Egocentric captioning based on temporally-linked sequences](https://github.com/MarcBS/TMA).
 
-[VIBIKNet for visual question answering](https://github.com/MarcBS/VIBIKNet).
+[VIBIKNet: Visual question answering](https://github.com/MarcBS/VIBIKNet).
 
-[ABiViRNet for video description](https://github.com/lvapeab/ABiViRNet).
+[ABiViRNet: Video description](https://github.com/lvapeab/ABiViRNet).
 
-[Sentence SelectioNN for sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
+[Sentence SelectioNN: Sentence classification and selection](https://github.com/lvapeab/sentence-selectioNN).
+
+[DeepQuest: State-of-the-art models for multi-level Quality Estimation](https://github.com/sheffieldnlp/deepQuest).
 
 
 ### Warning!

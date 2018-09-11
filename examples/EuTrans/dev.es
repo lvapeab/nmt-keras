@@ -1,100 +1,100 @@
 nos hemos de marchar el jueves cinco de enero por la tarde .
-'? le importar'ia que ech'aramos un vistazo a otra habitaci'on ?
-ll'eveme el equipaje al coche .
-por favor , '? les importar'ia llevar nuestras bolsas a la habitaci'on ?
-por favor , tengo hecha la reserva de una habitaci'on a nombre de Ricardo Monferrer .
-en la habitaci'on hace demasiado fr'io .
-'? les importar'ia llevar nuestro equipaje al autob'us ?
-'? podr'ia reservar una habitaci'on con aseo hasta el d'ia veintid'os ?
+¿ le importaría que echáramos un vistazo a otra habitación ?
+lléveme el equipaje al coche .
+por favor , ¿ les importaría llevar nuestras bolsas a la habitación ?
+por favor , tengo hecha la reserva de una habitación a nombre de Ricardo Monferrer .
+en la habitación hace demasiado frío .
+¿ les importaría llevar nuestro equipaje al autobús ?
+¿ podría reservar una habitación con aseo hasta el día veintidós ?
 me voy a ir .
-'? hay aire acondicionado en mi habitaci'on ?
-en la habitaci'on hace demasiado fr'io .
-'? podr'ia llamar a un taxi ? , por favor .
-quisiera reservar una habitaci'on .
-tengo una reserva a nombre de C'esar Calleja .
+¿ hay aire acondicionado en mi habitación ?
+en la habitación hace demasiado frío .
+¿ podría llamar a un taxi ? , por favor .
+quisiera reservar una habitación .
+tengo una reserva a nombre de César Calleja .
 existe un problema en nuestra cuenta .
 tengo una reserva a nombre de Micaela Lobo .
-'? tiene ducha la habitaci'on ?
+¿ tiene ducha la habitación ?
 nos vamos a ir esta noche .
-s'ubannos nuestra maleta a la habitaci'on .
-'? tienen habitaciones individuales libres ?
-me he de marchar el d'ia siete de febrero .
-desear'ia una habitaci'on doble y tranquila con aseo para veintiuno d'ias .
-quisiera que nos dieran las llaves de la habitaci'on .
-nos prepara la cuenta de la habitaci'on cero ocho .
-'? tienen libre una habitaci'on con tel'efono ?
-desear'ia cambiar la habitaci'on .
-la habitaci'on es muy fr'ia .
-'? nos querr'ian pedir un taxi ? , por favor .
-'? tiene libre alguna habitaci'on doble ?
-me voy a marchar el domingo cinco por la ma~nana .
-por favor , '? nos pueden dar la llave de la habitaci'on dos seis seis ?
-'? cu'anto vale una habitaci'on individual incluyendo desayuno ?
-'? le importar'ia darme las llaves de la habitaci'on ?
-me voy a ir el d'ia ocho de abril por la tarde .
-por favor , tengo hecha la reserva de una habitaci'on doble tranquila con televisi'on y tel'efono a nombre de Amador Campo .
-'? har'ia el favor de cambiarnos a otra habitaci'on m'as c'alida ?
-deseo reservar una habitaci'on doble hasta el veintitr'es de enero .
-por favor , '? nos podr'ian hacer nuestra cuenta de la habitaci'on dos siete ?
-'? cu'anto cuesta una habitaci'on doble ?
+súbannos nuestra maleta a la habitación .
+¿ tienen habitaciones individuales libres ?
+me he de marchar el día siete de febrero .
+desearía una habitación doble y tranquila con aseo para veintiuno días .
+quisiera que nos dieran las llaves de la habitación .
+nos prepara la cuenta de la habitación cero ocho .
+¿ tienen libre una habitación con teléfono ?
+desearía cambiar la habitación .
+la habitación es muy fría .
+¿ nos querrían pedir un taxi ? , por favor .
+¿ tiene libre alguna habitación doble ?
+me voy a marchar el domingo cinco por la mañana .
+por favor , ¿ nos pueden dar la llave de la habitación dos seis seis ?
+¿ cuánto vale una habitación individual incluyendo desayuno ?
+¿ le importaría darme las llaves de la habitación ?
+me voy a ir el día ocho de abril por la tarde .
+por favor , tengo hecha la reserva de una habitación doble tranquila con televisión y teléfono a nombre de Amador Campo .
+¿ haría el favor de cambiarnos a otra habitación más cálida ?
+deseo reservar una habitación doble hasta el veintitrés de enero .
+por favor , ¿ nos podrían hacer nuestra cuenta de la habitación dos siete ?
+¿ cuánto cuesta una habitación doble ?
 '! correcto !
 tengo reservadas dos habitaciones dobles .
-hemos reservado una habitaci'on doble y tranquila a nombre de Celestino Lobo , por favor .
+hemos reservado una habitación doble y tranquila a nombre de Celestino Lobo , por favor .
 vamos a irnos hoy a las ocho y media de la noche .
-'? les importar'ia darnos la llave de la habitaci'on uno nueve dos , por favor ?
-'? podr'ia reservar una habitaci'on doble y tranquila con tel'efono ?
-deseo una habitaci'on , por favor .
-ll'evenos nuestro equipaje .
-por favor , '? podr'ia ver alguna habitaci'on individual y tranquila ?
-por favor , deseo reservar una habitaci'on individual para veintis'eis d'ias .
+¿ les importaría darnos la llave de la habitación uno nueve dos , por favor ?
+¿ podría reservar una habitación doble y tranquila con teléfono ?
+deseo una habitación , por favor .
+llévenos nuestro equipaje .
+por favor , ¿ podría ver alguna habitación individual y tranquila ?
+por favor , deseo reservar una habitación individual para veintiséis días .
 creo que se han equivocado en la cuenta .
-'? hay servicio de bar en mi habitaci'on ?
-'? qu'e precio tiene una habitaci'on doble ?
-la habitaci'on es muy ruidosa .
-'? nos pueden bajar nuestra maleta a la habitaci'on n'umero ocho cincuenta y siete , por favor ?
-por favor , querr'ia que nos despertara ma~nana a las doce y media .
-denme la llave de nuestra habitaci'on , por favor .
-por favor , '? me podr'ia despertar a las siete menos cuarto ?
-por favor , '? me podr'ian explicar la factura ?
-ll'amenos a un taxi .
+¿ hay servicio de bar en mi habitación ?
+¿ qué precio tiene una habitación doble ?
+la habitación es muy ruidosa .
+¿ nos pueden bajar nuestra maleta a la habitación número ocho cincuenta y siete , por favor ?
+por favor , querría que nos despertara mañana a las doce y media .
+denme la llave de nuestra habitación , por favor .
+por favor , ¿ me podría despertar a las siete menos cuarto ?
+por favor , ¿ me podrían explicar la factura ?
+llámenos a un taxi .
 por favor , tenemos una reserva .
-hemos reservado una habitaci'on .
-'? podr'ia reservar una habitaci'on individual y tranquila ?
-hemos reservado una habitaci'on a nombre del se~nor Antonio Borr'as , por favor .
-por favor , '? le importar'ia que echara un vistazo a una habitaci'on individual ?
-la habitaci'on est'a bien .
+hemos reservado una habitación .
+¿ podría reservar una habitación individual y tranquila ?
+hemos reservado una habitación a nombre del señor Antonio Borrás , por favor .
+por favor , ¿ le importaría que echara un vistazo a una habitación individual ?
+la habitación está bien .
 nos tenemos que marchar el once de noviembre .
-por favor , '? le importar'ia mostrarnos otra habitaci'on ?
-'? pueden preparar la cuenta ? , por favor .
-tenemos reservada una habitaci'on doble a nombre de C'esar Pallar'es .
-'? hay una habitaci'on tranquila libre ?
-me gustar'ia cambiar mi habitaci'on , por favor .
-'? pueden llevarnos nuestro equipaje al autob'us ?
+por favor , ¿ le importaría mostrarnos otra habitación ?
+¿ pueden preparar la cuenta ? , por favor .
+tenemos reservada una habitación doble a nombre de César Pallarés .
+¿ hay una habitación tranquila libre ?
+me gustaría cambiar mi habitación , por favor .
+¿ pueden llevarnos nuestro equipaje al autobús ?
 nos hemos de ir hoy a las cinco y cuarto .
-'? nos puede repasar la factura ? , por favor .
+¿ nos puede repasar la factura ? , por favor .
 '! no estoy de acuerdo !
-me voy a marchar el d'ia doce .
-'? podr'ia darnos las llaves de mi habitaci'on ?
-'? tienen habitaciones libres ?
-hemos reservado una habitaci'on con tel'efono para catorce d'ias a nombre de la se~nora Alicia Arag'on .
-denme la llave de la n'umero ochocientos veintinueve .
-'? podr'ia ver una habitaci'on individual ?
+me voy a marchar el día doce .
+¿ podría darnos las llaves de mi habitación ?
+¿ tienen habitaciones libres ?
+hemos reservado una habitación con teléfono para catorce días a nombre de la señora Alicia Aragón .
+denme la llave de la número ochocientos veintinueve .
+¿ podría ver una habitación individual ?
 hemos de marcharnos hoy a las once de la noche .
-'? cu'anto cuesta por d'ia una habitaci'on individual ?
-hice la reserva de una habitaci'on individual tranquila .
+¿ cuánto cuesta por día una habitación individual ?
+hice la reserva de una habitación individual tranquila .
 por favor , tenemos reservadas dos habitaciones .
-'? hay televisi'on en las habitaciones ?
-tenemos que marcharnos el d'ia diecisiete a las nueve y media de la noche .
-'? querr'ia pedir un taxi ?
-'? tiene alguna habitaci'on doble libre ?
-'? podr'ian llamarme a un taxi ?
-'? le importar'ia subirnos nuestras maletas a la habitaci'on setecientos veintitr'es , por favor ?
-quiero reservar una habitaci'on individual con televisi'on y aire acondicionado .
-por favor , prep'areme mi cuenta de la habitaci'on dos tres nueve .
-quisiera una habitaci'on hasta el veintisiete .
-'? cu'anto cuesta una habitaci'on individual ?
-'? puede despertarme a la una ?
-'? le importar'ia darme las llaves de la ocho diez ?
+¿ hay televisión en las habitaciones ?
+tenemos que marcharnos el día diecisiete a las nueve y media de la noche .
+¿ querría pedir un taxi ?
+¿ tiene alguna habitación doble libre ?
+¿ podrían llamarme a un taxi ?
+¿ le importaría subirnos nuestras maletas a la habitación setecientos veintitrés , por favor ?
+quiero reservar una habitación individual con televisión y aire acondicionado .
+por favor , prepáreme mi cuenta de la habitación dos tres nueve .
+quisiera una habitación hasta el veintisiete .
+¿ cuánto cuesta una habitación individual ?
+¿ puede despertarme a la una ?
+¿ le importaría darme las llaves de la ocho diez ?
 por favor , nos prepara la factura .
-'? les importar'ia despertarnos a las tres , por favor ?
-desear'ia dos habitaciones dobles y tranquilas .
+¿ les importaría despertarnos a las tres , por favor ?
+desearía dos habitaciones dobles y tranquilas .

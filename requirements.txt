@@ -8,7 +8,6 @@ keras_preprocessing
 future
 h5py
 matplotlib
-nltk
 numpy
 scikit-image
 scikit-learn
@@ -22,5 +21,6 @@ pytest-cov
 pytest-forked
 pytest-pep8
 pytest-xdist
+sacremoses
 scipy
 theano

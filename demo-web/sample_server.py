@@ -41,18 +41,49 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         source_sentence = None
         validated_prefix = None
         learn = False
+        beam_size = 6
+        length_norm = 0.
+        coverage_norm = 0.
+        alpha_norm = 1.
         args_processing_start_time = time.time()
+        print (args)
         for aa in args:
             cc = aa.split('=')
             if cc[0] == 'source':
                 source_sentence = urllib.unquote_plus(cc[1])
+
             if cc[0] == 'prefix':
                 validated_prefix = cc[1]
                 validated_prefix = urllib.unquote_plus(validated_prefix)
+
             if cc[0] == 'learn':
                 learn = cc[1]
                 learn = urllib.unquote_plus(learn)
                 learn = eval(learn)
+
+            if cc[0] == 'beam_size':
+                beam_size = cc[1]
+                beam_size = urllib.unquote_plus(beam_size)
+                beam_size = int(beam_size)
+                self.server.sampler.params_prediction['beam_size'] = beam_size
+
+            if cc[0] == 'length_norm':
+                length_norm = cc[1]
+                length_norm = urllib.unquote_plus(length_norm)
+                length_norm = float(length_norm)
+                self.server.sampler.params_prediction['length_norm_factor'] = length_norm
+
+            if cc[0] == 'coverage_norm':
+                coverage_norm = cc[1]
+                coverage_norm = urllib.unquote_plus(coverage_norm)
+                coverage_norm = float(coverage_norm)
+                self.server.sampler.params_prediction['coverage_norm_factor'] = coverage_norm
+
+            if cc[0] == 'alpha_norm':
+                alpha_norm = cc[1]
+                alpha_norm = urllib.unquote_plus(alpha_norm)
+                alpha_norm = float(alpha_norm)
+                self.server.sampler.params_prediction['alpha_factor'] = alpha_norm
 
         if source_sentence is None:
             self.send_response(400)  # 400: ('Bad Request', 'Bad request syntax or unsupported method')
@@ -155,7 +186,8 @@ class NMTSampler:
 
     def generate_sample(self, source_sentence, validated_prefix=None, max_N=5, isle_indices=None,
                         filtered_idx2word=None, unk_indices=None, unk_words=None):
-
+        print ("In params prediction beam_size: ", self.params_prediction['beam_size'])
+        logger.log(2, 'Beam size: %d' % (self.params_prediction['beam_size']))
         generate_sample_start_time = time.time()
         if unk_indices is None:
             unk_indices = []
@@ -322,7 +354,10 @@ class NMTSampler:
                                               sample_weights=self.params['SAMPLE_WEIGHTS'],
                                               loading_X=False)
         # 4.2 Train online!
-        self.online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[target_sentence])
+        if self.online_trainer is not None:
+            self.online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[target_sentence])
+        else:
+            logging.warning('Online learning is disabled.')
 
 
 def main():
@@ -384,10 +419,10 @@ def main():
     parameters_prediction['dataset_inputs'] = parameters['INPUTS_IDS_DATASET']
     parameters_prediction['dataset_outputs'] = parameters['OUTPUTS_IDS_DATASET']
     parameters_prediction['search_pruning'] = parameters.get('SEARCH_PRUNING', False)
-    parameters_prediction['normalize_probs'] = parameters.get('NORMALIZE_SAMPLING', False)
+    parameters_prediction['normalize_probs'] = True
     parameters_prediction['alpha_factor'] = parameters.get('ALPHA_FACTOR', 1.0)
-    parameters_prediction['coverage_penalty'] = parameters.get('COVERAGE_PENALTY', False)
-    parameters_prediction['length_penalty'] = parameters.get('LENGTH_PENALTY', False)
+    parameters_prediction['coverage_penalty'] = True
+    parameters_prediction['length_penalty'] = True
     parameters_prediction['length_norm_factor'] = parameters.get('LENGTH_NORM_FACTOR', 0.0)
     parameters_prediction['coverage_norm_factor'] = parameters.get('COVERAGE_NORM_FACTOR', 0.0)
     parameters_prediction['pos_unk'] = parameters.get('POS_UNK', False)
