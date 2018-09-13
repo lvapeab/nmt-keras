@@ -5,16 +5,24 @@ NMT-Keras
 Neural Machine Translation with Keras (Theano and Tensorflow).
 
 .. image:: ../../examples/documentation/attention_nmt_model.png
-   :scale: 80 %
+   :scale: 40 %
    :alt: alternate text
    :align: left
+
+.. image:: ../../examples/documentation/transformer_nmt_model.png
+   :scale: 10 %
+   :alt: alternate text
+   :align: left
+
 
 ********
 Features
 ********
-
+ * Attention RNN and Transformer models.
  * Online learning and Interactive neural machine translation (INMT). See `the interactive NMT branch`_.
+ * Tensorboard integration. Training process, models and word embeddings visualization.
  * Attention model over the input sequence of annotations.
+   - Supporting Bahdanau (Add) and Luong (Dot) attention mechanisms.
    - Also supports double stochastic attention.
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
@@ -30,12 +38,14 @@ Features
  * Use of pretrained (Glove_ or Word2Vec_) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.
  * Spearmint_ wrapper for hyperparameter optimization.
+ * Client-server_ architecture for web demos.
 
 .. _Spearmint: https://github.com/HIPS/Spearmint
 .. _Glove: http://nlp.stanford.edu/projects/glove/
 .. _Conditional: https://arxiv.org/abs/1703.04357
 .. _Word2Vec: https://code.google.com/archive/p/word2vec/
 .. _the interactive NMT branch: https://github.com/lvapeab/nmt-keras/tree/interactive_NMT
+.. _Client-server: https://github.com/lvapeab/nmt-keras/tree/master/demo-web
 
 *****
 Guide
@@ -45,6 +55,7 @@ Guide
 
    requirements
    usage
+   configuration
    resources
    tutorial
    modules

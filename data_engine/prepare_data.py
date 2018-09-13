@@ -54,6 +54,7 @@ def update_dataset_from_file(ds,
                          max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                          min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
                          bpe_codes=params.get('BPE_CODES_PATH', None),
+                         label_smoothing=params.get('LABEL_SMOOTHING', 0.),
                          overwrite_split=True)
 
         # INPUT DATA
@@ -142,7 +143,8 @@ def build_tm_dataset(params):
                      max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
                      max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                      min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
-                     bpe_codes=params.get('BPE_CODES_PATH', None))
+                     bpe_codes=params.get('BPE_CODES_PATH', None),
+                     label_smoothing=params.get('LABEL_SMOOTHING', 0.))
         if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
             ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                             'train',
@@ -160,7 +162,8 @@ def build_tm_dataset(params):
                              sample_weights=params.get('SAMPLE_WEIGHTS', True),
                              max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
                              max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
-                             bpe_codes=params.get('BPE_CODES_PATH', None))
+                             bpe_codes=params.get('BPE_CODES_PATH', None),
+                             label_smoothing=0.)
                 if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
                     ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
                                     split,
@@ -227,8 +230,7 @@ def build_tm_dataset(params):
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(
-            params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
         # If we had multiple references per sentence
         keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
@@ -340,40 +342,38 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
     :return:
     """
 
-    n_samples = None
-    X = None
-    Y = None
-
     if set_names is None:
         set_names = ['val', 'test']
     for s in set_names:
         logging.info('Keeping ' + str(n) + ' captions per input on the ' + str(s) + ' set.')
 
         ds.extra_variables[s] = dict()
-        exec ('n_samples = ds.len_' + s)
-
+        n_samples = getattr(ds, 'len_' + s)
         # Process inputs
         for id_in in ds.ids_inputs:
             new_X = []
             if id_in in ds.optional_inputs:
                 try:
-                    exec ('X = ds.X_' + s)
+                    X = getattr(ds, 'X_' + s)
                     for i in range(0, n_samples, repeat):
                         for j in range(n):
                             new_X.append(X[id_in][i + j])
-                    exec ('ds.X_' + s + '[id_in] = new_X')
+                    setattr(ds, 'X_' + s + '[' + id_in + ']', new_X)
                 except Exception:
                     pass
             else:
-                exec ('X = ds.X_' + s)
+                X = getattr(ds, 'X_' + s)
                 for i in range(0, n_samples, repeat):
                     for j in range(n):
                         new_X.append(X[id_in][i + j])
-                exec ('ds.X_' + s + '[id_in] = new_X')
+                aux_list = getattr(ds, 'X_' + s)
+                aux_list[id_in] = new_X
+                setattr(ds, 'X_' + s, aux_list)
+                del aux_list
         # Process outputs
         for id_out in ds.ids_outputs:
             new_Y = []
-            exec ('Y = ds.Y_' + s)
+            Y = getattr(ds, 'Y_' + s)
             dict_Y = dict()
             count_samples = 0
             for i in range(0, n_samples, repeat):
@@ -383,10 +383,16 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
                         new_Y.append(Y[id_out][i + j])
                     dict_Y[count_samples].append(Y[id_out][i + j])
                 count_samples += 1
-            exec ('ds.Y_' + s + '[id_out] = new_Y')
+
+            aux_list = getattr(ds, 'Y_' + s)
+            aux_list[id_out] = new_Y
+            setattr(ds, 'Y_' + s, aux_list)
+            del aux_list
+
             # store dictionary with img_pos -> [cap1, cap2, cap3, ..., capN]
             ds.extra_variables[s][id_out] = dict_Y
 
         new_len = len(new_Y)
-        exec ('ds.len_' + s + ' = new_len')
+        setattr(ds, 'len_' + s, new_len)
+
         logging.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')

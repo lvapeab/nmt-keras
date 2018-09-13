@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+from six import iteritems
 import argparse
 import ast
 import sys
@@ -30,18 +33,18 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
             except ValueError:
                 params[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
     if args.dest is not None:
-        print args.dest
+        print (args.dest)
         output = open(args.dest, 'w')
     else:
         output = sys.stdout
@@ -52,7 +55,7 @@ if __name__ == "__main__":
     output.write('\tLoads the defined hyperparameters\n')
     output.write('\t:return parameters: Dictionary of loaded parameters\n')
     output.write('\t"""\n')
-    for key, value in params.iteritems():
+    for key, value in iteritems(params):
         output.write('\t' + key + '=' + str(value) + '\n')
     # Print ending
     output.write('\t# ================================================ #\n')
