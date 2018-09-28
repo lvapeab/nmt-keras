@@ -885,7 +885,7 @@ tengo que marcharme el día tres a las cuatro .
 ¿ puede explicarnos la factura ?
 tengo reservada una habitación individual y tranquila , por favor .
 quiero una habitación individual para un día , por favor .
-'! de nada !
+¡ de nada !
 ¿ podría reservar una habitación doble y tranquila hasta el próximo lunes ?
 por favor , me gustaría cambiarme a otra habitación más tranquila .
 una habitación a nombre de Sergio Ballester , por favor .
