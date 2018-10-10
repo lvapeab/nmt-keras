@@ -206,6 +206,8 @@ def build_dataset(params):
                                     max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
                                     max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                                     bpe_codes=params.get('BPE_CODES_PATH', None))
+                        if params.get('TIE_EMBEDDINGS', False):
+                            ds.merge_vocabularies([params['INPUTS_IDS_DATASET'][1], params['INPUTS_IDS_DATASET'][0]])
                     else:
                         ds.setInput(None,
                                     split,
@@ -217,7 +219,6 @@ def build_dataset(params):
                                    split,
                                    type='file-name',
                                    id='raw_' + params['INPUTS_IDS_DATASET'][0])
-
         if params.get('POS_UNK', False):
             if params.get('HEURISTIC', 0) > 0:
                 ds.loadMapping(params['MAPPING'])

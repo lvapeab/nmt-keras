@@ -335,13 +335,14 @@ class TranslationModel(Model_Wrapper):
         src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')
         # 2. Encoder
         # 2.1. Source word embedding
-        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
+        embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding',
                                   embeddings_regularizer=l2(params['WEIGHT_DECAY']),
                                   embeddings_initializer=params['INIT_FUNCTION'],
                                   trainable=self.src_embedding_weights_trainable,
                                   weights=self.src_embedding_weights,
-                                  mask_zero=True)(src_text)
+                                  mask_zero=True)
+        src_embedding = embedding(src_text)
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
             src_embedding = SqrtScaling(params['SOURCE_TEXT_EMBEDDING_SIZE'])(src_embedding)
@@ -417,13 +418,17 @@ class TranslationModel(Model_Wrapper):
         # 3.1.1. Previously generated words as inputs for training -> Teacher forcing
         next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
         # 3.1.2. Target word embedding
-        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                name='target_word_embedding',
-                                embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                embeddings_initializer=params['INIT_FUNCTION'],
-                                trainable=self.trg_embedding_weights_trainable,
-                                weights=self.trg_embedding_weights,
-                                mask_zero=True)(next_words)
+        if params.get('TIE_EMBEDDINGS', False):
+            state_below = embedding(next_words)
+        else:
+            state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                    name='target_word_embedding',
+                                    embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                                    embeddings_initializer=params['INIT_FUNCTION'],
+                                    trainable=self.trg_embedding_weights_trainable,
+                                    weights=self.trg_embedding_weights,
+                                    mask_zero=True)(next_words)
+
         if params.get('SCALE_TARGET_WORD_EMBEDDINGS', False):
             state_below = SqrtScaling(params['TARGET_TEXT_EMBEDDING_SIZE'])(state_below)
         state_below = Regularize(state_below, params, name='state_below')
@@ -792,14 +797,14 @@ class TranslationModel(Model_Wrapper):
 
         # 2. Encoder
         # 2.1. Source word embedding
-        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'],
-                                  params['SOURCE_TEXT_EMBEDDING_SIZE'],
+        embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
                                   name='source_word_embedding',
                                   embeddings_regularizer=l2(params['WEIGHT_DECAY']),
                                   embeddings_initializer=params['INIT_FUNCTION'],
                                   trainable=self.src_embedding_weights_trainable,
                                   weights=self.src_embedding_weights,
-                                  mask_zero=True)(src_text)
+                                  mask_zero=True)
+        src_embedding = embedding(src_text)
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
             src_embedding = SqrtScaling(params['MODEL_SIZE'])(src_embedding)
@@ -859,14 +864,17 @@ class TranslationModel(Model_Wrapper):
         next_words_positions = PositionLayer(name='position_layer_next_words')(next_words)
 
         # 3.1.2. Target word embedding
-        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'],
-                                params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                name='target_word_embedding',
-                                embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                embeddings_initializer=params['INIT_FUNCTION'],
-                                trainable=self.trg_embedding_weights_trainable,
-                                weights=self.trg_embedding_weights,
-                                mask_zero=True)(next_words)
+        if params.get('TIE_EMBEDDINGS', False):
+            state_below = embedding(next_words)
+        else:
+            state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                    name='target_word_embedding',
+                                    embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                                    embeddings_initializer=params['INIT_FUNCTION'],
+                                    trainable=self.trg_embedding_weights_trainable,
+                                    weights=self.trg_embedding_weights,
+                                    mask_zero=True)(next_words)
+
 
         if params.get('SCALE_TARGET_WORD_EMBEDDINGS', False):
             state_below = SqrtScaling(params['MODEL_SIZE'])(state_below)

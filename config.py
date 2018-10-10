@@ -194,6 +194,8 @@ def load_parameters():
     SCALE_SOURCE_WORD_EMBEDDINGS = False          # Scale source word embeddings by Sqrt(SOURCE_TEXT_EMBEDDING_SIZE).
     SCALE_TARGET_WORD_EMBEDDINGS = False          # Scale target word embeddings by Sqrt(TARGET_TEXT_EMBEDDING_SIZE).
 
+    TIE_EMBEDDINGS = False                        # Use the same embeddings for source and target language.
+
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers.
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
 
