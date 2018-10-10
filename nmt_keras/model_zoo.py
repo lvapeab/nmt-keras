@@ -336,12 +336,12 @@ class TranslationModel(Model_Wrapper):
         # 2. Encoder
         # 2.1. Source word embedding
         embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
-                                  name='source_word_embedding',
-                                  embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                  embeddings_initializer=params['INIT_FUNCTION'],
-                                  trainable=self.src_embedding_weights_trainable,
-                                  weights=self.src_embedding_weights,
-                                  mask_zero=True)
+                              name='source_word_embedding',
+                              embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                              embeddings_initializer=params['INIT_FUNCTION'],
+                              trainable=self.src_embedding_weights_trainable,
+                              weights=self.src_embedding_weights,
+                              mask_zero=True)
         src_embedding = embedding(src_text)
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
@@ -798,12 +798,12 @@ class TranslationModel(Model_Wrapper):
         # 2. Encoder
         # 2.1. Source word embedding
         embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
-                                  name='source_word_embedding',
-                                  embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                  embeddings_initializer=params['INIT_FUNCTION'],
-                                  trainable=self.src_embedding_weights_trainable,
-                                  weights=self.src_embedding_weights,
-                                  mask_zero=True)
+                              name='source_word_embedding',
+                              embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                              embeddings_initializer=params['INIT_FUNCTION'],
+                              trainable=self.src_embedding_weights_trainable,
+                              weights=self.src_embedding_weights,
+                              mask_zero=True)
         src_embedding = embedding(src_text)
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
@@ -874,7 +874,6 @@ class TranslationModel(Model_Wrapper):
                                     trainable=self.trg_embedding_weights_trainable,
                                     weights=self.trg_embedding_weights,
                                     mask_zero=True)(next_words)
-
 
         if params.get('SCALE_TARGET_WORD_EMBEDDINGS', False):
             state_below = SqrtScaling(params['MODEL_SIZE'])(state_below)
