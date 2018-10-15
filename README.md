@@ -65,6 +65,7 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
 
 ## Features (in addition to the full Keras cosmos): .
  * :heavy_exclamation_mark: Multi-GPU training (only for Tensorflow). 
+ * [Transformer model](https://arxiv.org/abs/1706.03762) (missing the tied embeddings).
  * [Transformer model](https://arxiv.org/abs/1706.03762).
  * [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
