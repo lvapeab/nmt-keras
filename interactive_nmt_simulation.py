@@ -10,7 +10,7 @@ from collections import OrderedDict
 from config import load_parameters
 from config_online import load_parameters as load_parameters_online
 from data_engine.prepare_data import update_dataset_from_file
-from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
+from keras_wrapper.model_ensemble import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *

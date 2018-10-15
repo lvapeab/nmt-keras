@@ -18,7 +18,7 @@ import BaseHTTPServer
 import urllib
 from collections import OrderedDict
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
-from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
+from keras_wrapper.model_ensemble import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *

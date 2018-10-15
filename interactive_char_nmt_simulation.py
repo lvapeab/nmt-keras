@@ -7,7 +7,7 @@ import logging
 import time
 from collections import OrderedDict
 
-from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
+from keras_wrapper.model_ensemble import InteractiveBeamSearchSampler
 from keras_wrapper.extra.isles_utils import *
 from keras_wrapper.online_trainer import OnlineTrainer
 
