@@ -13,11 +13,14 @@ parser = argparse.ArgumentParser(
     description="""Computes BLEU, TER, METEOR, ROUGE-L and CIDEr from a htypotheses file with respect to one
     or more reference files.""", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-t', '--hypotheses', type=str, help='Hypotheses file')
-parser.add_argument('-m', '--metrics', default=['bleu', 'ter', 'meteor', 'rouge_l', 'cider'], nargs='*',
+parser.add_argument('-m', '--metrics',
+                    default=['bleu', 'ter', 'meteor', 'rouge_l', 'cider'], nargs='*',
                     help='Metrics to evaluate on')
-parser.add_argument('-l', '--language', type=str, default='en', help='Meteor language')
-parser.add_argument('-s', '--step-size', type=int, default=0, help='Step size. 0 == Evaluate all sentences')
-parser.add_argument('-r', '--references', type=argparse.FileType('r'), nargs="+",
+parser.add_argument('-l', '--language', type=str, default='en',
+                    help='Meteor language')
+parser.add_argument('-s', '--step-size', type=int, default=0,
+                    help='Step size. 0 == Evaluate all sentences')
+parser.add_argument('-r', '--references', type=str, nargs="+",
                     help='Path to all the reference files (single-reference files)')
 
 
@@ -25,14 +28,14 @@ def load_textfiles(references, hypotheses):
     """
     Loads the references and hypothesis text files.
 
-    :param references: Path to the references files.
-    :param hypotheses: Path to the hypotheses file.
+    :param references: References files.
+    :param hypotheses: Hypotheses file.
     :return:
     """
-    print ("The number of references is {}".format(len(references)))
+    print("The number of references is {}".format(len(references)))
     hypo = {idx: [lines.strip()] for (idx, lines) in enumerate(hypotheses)}
     # take out newlines before creating dictionary
-    raw_refs = list([list(map(str.strip, r)) for r in list(zip(*references))])
+    raw_refs = list([list(map(lambda x: x.strip(), r)) for r in list(zip(*references))])
     refs = {idx: rr for idx, rr in enumerate(raw_refs)}
     # sanity check that we have the same number of references as hypothesis
     if len(hypo) != len(refs):
@@ -52,6 +55,7 @@ def CocoScore(ref, hyp, metrics_list=None, language='en'):
     :param language: Language of the sentences (for METEOR)
     :return: dictionary of scores
     """
+
     if metrics_list is None:
         metrics_list = ['bleu', 'ter', 'meteor', 'rouge_l', 'cider']
     else:
@@ -87,14 +91,18 @@ def evaluate_from_file(args):
     """
     language = args.language
     hypotheses_file = codecs.open(args.hypotheses, 'r', encoding='utf-8')
+    references_files = [codecs.open(references, 'r', encoding='utf-8').readlines()
+                        for references in args.references]
     step_size = args.step_size
-    ref, hypothesis = load_textfiles(args.references, hypotheses_file)
+    ref, hypothesis = load_textfiles(references_files, hypotheses_file)
     if step_size < 1:
-        score = CocoScore(ref, hypothesis, metrics_list=args.metrics, language=language)
-        print ("Scores: ")
+        score = CocoScore(ref, hypothesis, metrics_list=args.metrics,
+                          language=language)
+        print("Scores: ")
         max_score_name_len = max([len(x) for x in list(score)])
         for score_name in sorted(list(score)):
-            print ("\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" % score[score_name])
+            print("\t {0:{1}}".format(score_name, max_score_name_len) + ": %.5f" %
+                  score[score_name])
     else:
         n = 0
         while True:
@@ -105,8 +113,9 @@ def evaluate_from_file(args):
             for i in indices:
                 partial_refs[i] = ref[i]
                 partial_hyps[i] = hypothesis[i]
-            score = CocoScore(partial_refs, partial_hyps, metrics_list=args.metrics, language=language)
-            print (str(min(n, len(ref))) + " \tScore: ", score)
+            score = CocoScore(partial_refs, partial_hyps, metrics_list=args.metrics,
+                              language=language)
+            print(str(min(n, len(ref))) + " \tScore: ", score)
             if n > len(ref):
                 break
     return

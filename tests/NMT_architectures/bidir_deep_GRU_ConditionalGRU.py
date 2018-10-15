@@ -30,6 +30,7 @@ def load_tests_params():
     params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
     params['RELOAD'] = 0
     params['MAX_EPOCH'] = 1
+    params['USE_CUDNN'] = False
 
     return params
 
@@ -38,6 +39,7 @@ def test_NMT_Bidir_deep_GRU_ConditionalGRU():
     params = load_tests_params()
 
     # Current test params: Single layered GRU - ConditionalGRU
+    params['TIED_EMBEDDINGS'] = True
     params['BIDIRECTIONAL_ENCODER'] = True
     params['N_LAYERS_ENCODER'] = 2
     params['BIDIRECTIONAL_DEEP_ENCODER'] = True

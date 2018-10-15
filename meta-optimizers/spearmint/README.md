@@ -1,6 +1,6 @@
-Package for performing hyperparameter optimization with [Spearmint] (https://github.com/HIPS/Spearmint).
+Package for performing hyperparameter optimization with [Spearmint](https://github.com/HIPS/Spearmint).
 
-Requirements:  Those specified in the [Spearmint] (https://github.com/HIPS/Spearmint) package:
+Requirements:  Those specified in the [Spearmint](https://github.com/HIPS/Spearmint) package:
 
 * [NumPy](http://www.numpy.org/)
 * [scikit learn](http://scikit-learn.org/stable/index.html)
@@ -9,7 +9,7 @@ Requirements:  Those specified in the [Spearmint] (https://github.com/HIPS/Spear
 
 Installation: 
 
-* Install [Spearmint] (https://github.com/HIPS/Spearmint/blob/master/README.md)
+* Install [Spearmint](https://github.com/HIPS/Spearmint/blob/master/README.md)
 
 Usage:
 

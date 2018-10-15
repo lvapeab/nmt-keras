@@ -63,12 +63,13 @@ To appear at CoNLL'18. 2018.
 This branch requires—in addition to the regular NMT-Keras requirements—the `InteractiveNMT` branch from [Staged Keras Wrapper](https://github.com/lvapeab/staged_keras_wrapper/tree/Interactive_NMT).
 
 
-## Features (in addition to the full Keras cosmos): 
- * :heavy_exclamation_mark: [Transformer model](https://arxiv.org/abs/1706.03762) (missing the tied embeddings).
+## Features (in addition to the full Keras cosmos): .
+ * :heavy_exclamation_mark: Multi-GPU training (only for Tensorflow). 
+ * [Transformer model](https://arxiv.org/abs/1706.03762).
  * [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
-   - Supporting [Bahdanau (Add)](https://arxiv.org/abs/1409.0473) and [Luong (Dot)](https://arxiv.org/abs/1508.04025) attention mechanisms.
+   - Supporting [Bahdanau (Add)](https://arxiv.org/abs/1409.0473) [Luong (Dot)](https://arxiv.org/abs/1508.04025) attention mechanisms.
    - Also supports double stochastic attention (Eq. 14 from [arXiv:1502.03044](https://arxiv.org/pdf/1502.03044.pdf))
  * Peeked decoder: The previously generated word is an input of the current timestep.
  * Beam search decoding.
@@ -187,6 +188,7 @@ optional arguments:
 
     4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a state-of-the-art NMT model with Keras in few (~50) lines. 
 
+ * In the [examples/configs](https://github.com/lvapeab/nmt-keras/blob/master/examples/configs) folder you'll find two examples of configs for larger models.
 
 ## Citation
 

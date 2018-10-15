@@ -5,17 +5,14 @@ from keras import backend as K
 
 from config import load_parameters
 from data_engine.prepare_data import build_dataset
-from main import train_model
-from sample_ensemble import sample_ensemble
-from score import score_corpus
+from nmt_keras.training import train_model
+from nmt_keras.apply_model import sample_ensemble, score_corpus
 
 
 def load_tests_params():
     params = load_parameters()
     params['BATCH_SIZE'] = 10
-    params['WEIGHT_DECAY'] = 1e-4
-    params['RECURRENT_WEIGHT_DECAY'] = 1e-4
-    params['DROPOUT_P'] = 0.01
+    params['DROPOUT_P'] = 0.1
     params['RECURRENT_INPUT_DROPOUT_P'] = 0.01
     params['RECURRENT_DROPOUT_P'] = 0.01
     params['USE_NOISE'] = True
@@ -26,9 +23,6 @@ def load_tests_params():
     params['TARGET_TEXT_EMBEDDING_SIZE'] = 8
     params['DECODER_HIDDEN_SIZE'] = 4
     params['ENCODER_HIDDEN_SIZE'] = 4
-    params['ATTENTION_SIZE'] = params['DECODER_HIDDEN_SIZE']
-    params['SKIP_VECTORS_HIDDEN_SIZE'] = params['DECODER_HIDDEN_SIZE']
-    params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
     params['RELOAD'] = 0
     params['MAX_EPOCH'] = 1
     params['USE_CUDNN'] = False
@@ -36,32 +30,35 @@ def load_tests_params():
     return params
 
 
-def test_NMT_Unidir_deep_GRU_LSTM():
+def test_transformer():
     params = load_tests_params()
 
-    # Current test params: Single layered GRU - LSTM
-    params['BIDIRECTIONAL_ENCODER'] = False
+    # Current test params: Transformer
+    params['MODEL_TYPE'] = 'Transformer'
+    params['TIED_EMBEDDINGS'] = True
     params['N_LAYERS_ENCODER'] = 2
-    params['BIDIRECTIONAL_DEEP_ENCODER'] = False
-    params['ENCODER_RNN_TYPE'] = 'GRU'
-    params['DECODER_RNN_TYPE'] = 'LSTM'
     params['N_LAYERS_DECODER'] = 2
-
+    params['MULTIHEAD_ATTENTION_ACTIVATION'] = 'relu'
+    params['MODEL_SIZE'] = 8
+    params['FF_SIZE'] = params['MODEL_SIZE'] * 4
+    params['N_HEADS'] = 2
     params['REBUILD_DATASET'] = True
+    params['OPTIMIZED_SEARCH'] = False
+    params['POS_UNK'] = False
     dataset = build_dataset(params)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
+
     params['MODEL_NAME'] = \
         params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + params['MODEL_TYPE'] + \
-        '_src_emb_' + str(params['SOURCE_TEXT_EMBEDDING_SIZE']) + \
-        '_bidir_' + str(params['BIDIRECTIONAL_ENCODER']) + \
-        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(
-            params['ENCODER_HIDDEN_SIZE']) + \
-        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(
-            params['DECODER_HIDDEN_SIZE']) + \
+        '_model_size_' + str(params['MODEL_SIZE']) + \
+        '_ff_size_' + str(params['FF_SIZE']) + \
+        '_num_heads_' + str(params['N_HEADS']) + \
+        '_encoder_blocks_' + str(params['N_LAYERS_ENCODER']) + \
+        '_decoder_blocks_' + str(params['N_LAYERS_DECODER']) + \
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
-        '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
+
     params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...

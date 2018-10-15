@@ -37,7 +37,7 @@ por favor , tengo hecha la reserva de una habitación doble tranquila con televi
 deseo reservar una habitación doble hasta el veintitrés de enero .
 por favor , ¿ nos podrían hacer nuestra cuenta de la habitación dos siete ?
 ¿ cuánto cuesta una habitación doble ?
-'! correcto !
+¡ correcto !
 tengo reservadas dos habitaciones dobles .
 hemos reservado una habitación doble y tranquila a nombre de Celestino Lobo , por favor .
 vamos a irnos hoy a las ocho y media de la noche .
@@ -72,7 +72,7 @@ me gustaría cambiar mi habitación , por favor .
 ¿ pueden llevarnos nuestro equipaje al autobús ?
 nos hemos de ir hoy a las cinco y cuarto .
 ¿ nos puede repasar la factura ? , por favor .
-'! no estoy de acuerdo !
+¡ no estoy de acuerdo !
 me voy a marchar el día doce .
 ¿ podría darnos las llaves de mi habitación ?
 ¿ tienen habitaciones libres ?
