@@ -73,6 +73,12 @@ NMT-Keras requires the following libraries:
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation). This package requires `java` (version 1.8.0 or newer).
 
 
+For accelerating the training and decoding on CUDA GPUs, you can optionally install:
+
+ - [CuDNN](https://developer.nvidia.com/cudnn).
+ - [CuPy](https://github.com/cupy/cupy).
+
+
 ## Usage
 
 ### Training
@@ -98,7 +104,7 @@ In short, if we want to use the models from the first three epochs to translate 
   ```
  
  
- ### Scoring
+### Scoring
  
  The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
 ```
@@ -127,7 +133,7 @@ optional arguments:
   ```
   
   
- ### Advanced features
+### Advanced features
  Other features such as online learning or interactive NMT protocols are implemented in the [interactiveNMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT) branch.
 
 
