@@ -163,16 +163,19 @@ class TranslationModel(Model_Wrapper):
         The configuration is read from Translation_Model.params.
         :return: None
         """
-
+        if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1 and self.params['OPTIMIZER'].lower() != 'adam':
+            logging.warning('Gradient accumulate is only implemented for the Adam optimizer. Setting "ACCUMULATE_GRADIENTS" to 1.')
+            self.params['ACCUMULATE_GRADIENTS'] = 1
         if self.verbose > 0:
             logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s - "
-                         "CLIP_C %s - CLIP_V  %s - LR_OPTIMIZER_DECAY %s] and compiling." %
+                         "CLIP_C %s - CLIP_V  %s - LR_OPTIMIZER_DECAY %s - ACCUMULATE_GRADIENTS %s] and compiling." %
                          (str(self.params['OPTIMIZER']),
                           str(self.params.get('LR', 0.01)),
                           str(self.params.get('LOSS', 'categorical_crossentropy')),
                           str(self.params.get('CLIP_C', 0.)),
                           str(self.params.get('CLIP_V', 0.)),
-                          str(self.params.get('LR_OPTIMIZER_DECAY', 0.0))
+                          str(self.params.get('LR_OPTIMIZER_DECAY', 0.0)),
+                          str(self.params.get('ACCUMULATE_GRADIENTS', 1))
                           ))
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow':
@@ -180,6 +183,9 @@ class TranslationModel(Model_Wrapper):
                 logging.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
             if self.params.get('LR_DECAY') is not None:
                 logging.warning('The learning rate decay is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
+                self.params['USE_TF_OPTIMIZER'] = False
+            if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1:
+                logging.warning('The gradient accumulation is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
                 self.params['USE_TF_OPTIMIZER'] = False
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
@@ -239,14 +245,26 @@ class TranslationModel(Model_Wrapper):
                                      epsilon=self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adam':
-                optimizer = Adam(lr=self.params.get('LR', 0.001),
+                if self.params.get('ACCUMULATE_GRADIENTS') > 1:
+
+                    optimizer = AdamAccumulate(lr=self.params.get('LR', 0.001),
                                  beta_1=self.params.get('BETA_1', 0.9),
                                  beta_2=self.params.get('BETA_2', 0.999),
                                  amsgrad=self.params.get('AMSGRAD', False),
                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
                                  clipnorm=self.params.get('CLIP_C', 0.),
                                  clipvalue=self.params.get('CLIP_V', 0.),
-                                 epsilon=self.params.get('EPSILON', 1e-7))
+                                 epsilon=self.params.get('EPSILON', 1e-7),
+                                 accum_iters=self.params.get('ACCUMULATE_GRADIENTS'))
+                else:
+                    optimizer = Adam(lr=self.params.get('LR', 0.001),
+                                     beta_1=self.params.get('BETA_1', 0.9),
+                                     beta_2=self.params.get('BETA_2', 0.999),
+                                     amsgrad=self.params.get('AMSGRAD', False),
+                                     decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                     clipnorm=self.params.get('CLIP_C', 0.),
+                                     clipvalue=self.params.get('CLIP_V', 0.),
+                                     epsilon=self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adamax':
                 optimizer = Adamax(lr=self.params.get('LR', 0.002),

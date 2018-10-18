@@ -133,6 +133,7 @@ def load_parameters():
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
     AMSGRAD = False                               # Whether to apply the AMSGrad variant of Adam (see https://openreview.net/pdf?id=ryQu7f-RZ).
     EPSILON = 1e-7                                # Optimizers epsilon value.
+    ACCUMULATE_GRADIENTS = 1                      # Accumulate gradients for this number of batches. Currently only implemented for Adam.
 
     # Learning rate schedule
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
