@@ -246,16 +246,15 @@ class TranslationModel(Model_Wrapper):
 
             elif self.params['OPTIMIZER'].lower() == 'adam':
                 if self.params.get('ACCUMULATE_GRADIENTS') > 1:
-
                     optimizer = AdamAccumulate(lr=self.params.get('LR', 0.001),
-                                 beta_1=self.params.get('BETA_1', 0.9),
-                                 beta_2=self.params.get('BETA_2', 0.999),
-                                 amsgrad=self.params.get('AMSGRAD', False),
-                                 decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                                 clipnorm=self.params.get('CLIP_C', 0.),
-                                 clipvalue=self.params.get('CLIP_V', 0.),
-                                 epsilon=self.params.get('EPSILON', 1e-7),
-                                 accum_iters=self.params.get('ACCUMULATE_GRADIENTS'))
+                                               beta_1=self.params.get('BETA_1', 0.9),
+                                               beta_2=self.params.get('BETA_2', 0.999),
+                                               amsgrad=self.params.get('AMSGRAD', False),
+                                               decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                               clipnorm=self.params.get('CLIP_C', 0.),
+                                               clipvalue=self.params.get('CLIP_V', 0.),
+                                               epsilon=self.params.get('EPSILON', 1e-7),
+                                               accum_iters=self.params.get('ACCUMULATE_GRADIENTS'))
                 else:
                     optimizer = Adam(lr=self.params.get('LR', 0.001),
                                      beta_1=self.params.get('BETA_1', 0.9),
