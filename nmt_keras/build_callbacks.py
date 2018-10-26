@@ -86,6 +86,7 @@ def buildCallbacks(params, model, dataset):
                                                                              write_type=params['SAMPLING_SAVE_MODE'],
                                                                              eval_on_epochs=params['EVAL_EACH_EPOCHS'],
                                                                              save_each_evaluation=params['SAVE_EACH_EVALUATION'],
+                                                                             do_plot=params.get('PLOT_EVALUATION', False),
                                                                              verbose=params['VERBOSE'])
 
             callbacks.append(callback_metric)

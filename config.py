@@ -309,6 +309,8 @@ def load_parameters():
         'target_text']
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
+    PLOT_EVALUATION = False                            # If True, the evaluation will be plotted into the model folder.
+    
     VERBOSE = 1                                        # Verbosity level.
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model.
                                                        # Saved on epoch 'RELOAD' will be used.
