@@ -133,6 +133,7 @@ def load_parameters():
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
     AMSGRAD = False                               # Whether to apply the AMSGrad variant of Adam (see https://openreview.net/pdf?id=ryQu7f-RZ).
     EPSILON = 1e-7                                # Optimizers epsilon value.
+    ACCUMULATE_GRADIENTS = 1                      # Accumulate gradients for this number of batches. Currently only implemented for Adam.
 
     # Learning rate schedule
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
@@ -308,6 +309,8 @@ def load_parameters():
         'target_text']
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
+    PLOT_EVALUATION = False                            # If True, the evaluation will be plotted into the model folder.
+    
     VERBOSE = 1                                        # Verbosity level.
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model.
                                                        # Saved on epoch 'RELOAD' will be used.
