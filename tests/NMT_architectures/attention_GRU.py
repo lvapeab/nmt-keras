@@ -80,6 +80,7 @@ def test_GRU_add():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
@@ -137,6 +138,7 @@ def test_ConditionalGRU_dot():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
@@ -194,6 +196,7 @@ def test_ConditionalGRU_scaled():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best

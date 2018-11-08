@@ -82,6 +82,7 @@ def test_unk_replace_0():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
@@ -141,6 +142,7 @@ def test_unk_replace_1():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
@@ -200,6 +202,7 @@ def test_unk_replace_2():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best

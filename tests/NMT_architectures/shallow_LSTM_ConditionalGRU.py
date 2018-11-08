@@ -81,6 +81,7 @@ def test_NMT_Bidir_LSTM_ConditionalGRU():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
@@ -139,6 +140,7 @@ def test_NMT_Unidir_LSTM_ConditionalGRU():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
