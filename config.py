@@ -13,9 +13,11 @@ def load_parameters():
     DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored.
 
     # SRC_LAN or TRG_LAN will be added to the file names.
-    TEXT_FILES = {'train': 'training.',        # Data files.
+    TEXT_FILES = {'train': 'training.',             # Data files.
                   'val': 'dev.',
                   'test': 'test.'}
+
+    GLOSSARY = None                               # Glossary location. If not None, it overwrites translations according to this glossary file
 
     # Dataset class parameters
     INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset.
