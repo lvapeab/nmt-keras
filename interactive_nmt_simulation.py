@@ -225,6 +225,7 @@ if __name__ == "__main__":
                                  'output_max_length_depending_on_x_factor': params.get('MAXLEN_GIVEN_X_FACTOR', 3),
                                  'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
                                  'output_min_length_depending_on_x_factor': params.get('MINLEN_GIVEN_X_FACTOR', 2),
+                                 'attend_on_output': params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower()),
                                  'n_best_optimizer': params.get('N_BEST_OPTIMIZER', False)
                                  }
 
