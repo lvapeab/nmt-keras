@@ -569,4 +569,3 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                       float(online_trainer.get_n_updates()) / n_lines))
     [saveModel(nmt_model, -1, path=params.get('STORE_PATH', 'retrained_model'), full_path=True)
      for nmt_model in models]
-

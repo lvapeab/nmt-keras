@@ -22,6 +22,7 @@ from nmt_keras.model_zoo import TranslationModel
 from nmt_keras.online_models import build_online_models
 from utils.utils import update_parameters
 
+
 logging.basicConfig(level=logging.DEBUG,
                     format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -88,6 +89,7 @@ def generate_constrained_hypothesis(beam_searcher, src_seq, fixed_words_user, pa
                                        isles=isle_indices,
                                        valid_next_words=filtered_idx2word,
                                        idx2word=index2word_y)
+
     # Substitute possible unknown words in isles
     unk_in_isles = []
     for isle_idx, isle_sequence, isle_words in unks_in_isles:
@@ -98,6 +100,7 @@ def generate_constrained_hypothesis(beam_searcher, src_seq, fixed_words_user, pa
         alphas = [alphas]
     else:
         alphas = None
+
     # Decode predictions
     hypothesis = decode_predictions_beam_search([trans_indices],
                                                 index2word_y,
@@ -128,7 +131,8 @@ def generate_constrained_hypothesis(beam_searcher, src_seq, fixed_words_user, pa
 
     return hypothesis
 
-if __name__ == "__main__":
+
+def interactive_simulation():
 
     args = parse_args()
     # Update parameters
@@ -164,8 +168,7 @@ if __name__ == "__main__":
     dataset = loadDataset(args.dataset)
     dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits, remove_outputs=True)
     # Dataset backwards compatibility
-    bpe_separator = dataset.BPE_separator if hasattr(dataset,
-                                                     "BPE_separator") and dataset.BPE_separator is not None else '@@'
+    bpe_separator = dataset.BPE_separator if hasattr(dataset, "BPE_separator") and dataset.BPE_separator is not None else u'@@'
     # Set tokenization method
     params['TOKENIZATION_METHOD'] = 'tokenize_bpe' if args.tokenize_bpe else \
         params.get('TOKENIZATION_METHOD', 'tokenize_none')
@@ -337,7 +340,16 @@ if __name__ == "__main__":
                 tokenized_input = src_line.strip()
                 if params_prediction.get('apply_tokenization'):
                     tokenized_input = tokenize_f(tokenized_input)
-                src_seq, src_words = parse_input(tokenized_input.encode('utf-8'), dataset, word2index_x)
+
+                # Go from text to indices
+                src_seq = dataset.loadText([tokenized_input],
+                                           vocabularies=dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]],
+                                           max_len=params['MAX_INPUT_TEXT_LEN'],
+                                           offset=0,
+                                           fill=dataset.fill_text[params['INPUTS_IDS_DATASET'][0]],
+                                           pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
+                                           words_so_far=False,
+                                           loading_X=True)[0][0]
 
                 tokenized_reference = tokenize_f(target_lines[n_line]) if args.tokenize_references else \
                     target_lines[n_line]
@@ -356,6 +368,7 @@ if __name__ == "__main__":
 
                 # 1. Get a first hypothesis
                 trans_indices, costs, alphas = interactive_beam_searcher.sample_beam_search_interactive(src_seq)
+
                 # 1.1 Set unk replacemet strategy
                 if params_prediction['pos_unk']:
                     alphas = [alphas]
@@ -381,7 +394,7 @@ if __name__ == "__main__":
                 if args.original_dest is not None:
                     filepath = args.original_dest  # results file
                     if params['SAMPLING_SAVE_MODE'] == 'list':
-                        list2file(filepath, [hypothesis + '\n'], permission='a')
+                        list2file(filepath, [hypothesis], permission='a')
                     else:
                         raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
                 logger.debug(u'Hypo_%d: %s' % (hypothesis_number, hypothesis))
@@ -403,6 +416,7 @@ if __name__ == "__main__":
                         if not args.prefix:
                             Exception(NotImplementedError, 'Segment-based interaction at'
                                                            ' character level is still unimplemented')
+
                         # 2.2.2 Compute longest common character prefix (LCCP)
                         next_correction_pos, validated_prefix = common_prefix(hypothesis, reference)
                         if next_correction_pos == len(reference):
@@ -410,6 +424,7 @@ if __name__ == "__main__":
                             break
                         # 2.2.3 Get next correction by checking against the reference
                         next_correction = reference[next_correction_pos]
+
                         # 2.2.4 Tokenize the prefix properly (possibly applying BPE)
                         tokenized_validated_prefix = tokenize_f(validated_prefix + next_correction)
 
@@ -425,8 +440,7 @@ if __name__ == "__main__":
                             last_user_word = tokenized_validated_prefix.split()[-1]
                             filtered_idx2word = dict((word2index_y[candidate_word], candidate_word)
                                                      for candidate_word in word2index_y if
-                                                     candidate_word.decode('utf-8')[:
-                                                     len(last_user_word)] == last_user_word)
+                                                     candidate_word[:len(last_user_word)] == last_user_word)
                             if filtered_idx2word != dict():
                                 del fixed_words_user[last_user_word_pos]
                                 if last_user_word_pos in unk_words_dict.keys():
@@ -459,7 +473,7 @@ if __name__ == "__main__":
                     if len(reference) < len(hypothesis):
                         hypothesis = hypothesis[:len(reference)]
                         errors_sentence += 1
-                        logger.debug("Cutting hypothesis")
+                        logger.debug(u"Cutting hypothesis")
 
                 # 2.4 Security assertion
                 assert hypothesis == reference, "Error: The final hypothesis does not match with the reference! \n" \
@@ -479,17 +493,17 @@ if __name__ == "__main__":
 
                 # 3.1 Log some info
                 logger.debug(u"Final hypotesis: %s" % hypothesis)
-                logger.debug("%d errors. "
-                             "Sentence WSR: %4f. "
-                             "Sentence mouse strokes: %d "
-                             "Sentence MAR: %4f. "
-                             "Sentence MAR_c: %4f. "
-                             "Sentence KSMR: %4f. "
-                             "Accumulated (should only be considered for debugging purposes!) "
-                             "WSR: %4f. "
-                             "MAR: %4f. "
-                             "MAR_c: %4f. "
-                             "KSMR: %4f.\n\n\n\n" %
+                logger.debug(u"%d errors. "
+                             u"Sentence WSR: %4f. "
+                             u"Sentence mouse strokes: %d "
+                             u"Sentence MAR: %4f. "
+                             u"Sentence MAR_c: %4f. "
+                             u"Sentence KSMR: %4f. "
+                             u"Accumulated (should only be considered for debugging purposes!) "
+                             u"WSR: %4f. "
+                             u"MAR: %4f. "
+                             u"MAR_c: %4f. "
+                             u"KSMR: %4f.\n\n\n\n" %
                              (errors_sentence,
                               float(errors_sentence) / len(hypothesis),
                               mouse_actions_sentence,
@@ -507,7 +521,7 @@ if __name__ == "__main__":
                     # 4.1 Compute model inputs
                     # 4.1.1 Source text -> Already computed (used for the INMT process)
                     # 4.1.2 State below
-                    state_below = dataset.loadText([tokenized_reference.encode('utf-8')],
+                    state_below = dataset.loadText([tokenized_reference],
                                                    vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                                    max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                                    offset=1,
@@ -517,15 +531,14 @@ if __name__ == "__main__":
                                                    loading_X=True)[0]
 
                     # 4.1.3 Ground truth sample -> Interactively translated sentence
-                    trg_seq = dataset.loadTextOneHot([tokenized_reference.encode('utf-8')],
+                    trg_seq = dataset.loadTextOneHot([tokenized_reference],
                                                      vocabularies=dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
                                                      vocabulary_len=dataset.vocabulary_len[
                                                          params['OUTPUTS_IDS_DATASET'][0]],
                                                      max_len=params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                                      offset=0,
                                                      fill=dataset.fill_text[params['OUTPUTS_IDS_DATASET'][0]],
-                                                     pad_on_batch=dataset.pad_on_batch[
-                                                         params['OUTPUTS_IDS_DATASET'][0]],
+                                                     pad_on_batch=dataset.pad_on_batch[params['OUTPUTS_IDS_DATASET'][0]],
                                                      words_so_far=False,
                                                      sample_weights=params['SAMPLE_WEIGHTS'],
                                                      loading_X=False)
@@ -539,29 +552,33 @@ if __name__ == "__main__":
                     ftrans.flush()
                     if args.original_dest is not None:
                         ftrans_ori.flush()
-                    logger.info("%d sentences processed" % (n_line + 1))
-                    logger.info("Current speed is {} per sentence".format((time.time() - start_time) / (n_line + 1)))
-                    logger.info("Current WSR is: %f" % (float(total_errors) / total_words))
-                    logger.info("Current MAR is: %f" % (float(total_mouse_actions) / total_words))
-                    logger.info("Current MAR_c is: %f" % (float(total_mouse_actions) / total_chars))
-                    logger.info("Current KSMR is: %f" % (float(total_errors + total_mouse_actions) / total_chars))
+                    logger.info(u"%d sentences processed" % (n_line + 1))
+                    logger.info(u"Current speed is {} per sentence".format((time.time() - start_time) / (n_line + 1)))
+                    logger.info(u"Current WSR is: %f" % (float(total_errors) / total_words))
+                    logger.info(u"Current MAR is: %f" % (float(total_mouse_actions) / total_words))
+                    logger.info(u"Current MAR_c is: %f" % (float(total_mouse_actions) / total_chars))
+                    logger.info(u"Current KSMR is: %f" % (float(total_errors + total_mouse_actions) / total_chars))
         # 6. Final!
         # 6.1 Log some information
-        print "Total number of errors:", total_errors
-        print "Total number selections", total_mouse_actions
-        print "WSR: %f" % (float(total_errors) / total_words)
-        print "MAR: %f" % (float(total_mouse_actions) / total_words)
-        print "MAR_c: %f" % (float(total_mouse_actions) / total_chars)
-        print "KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
+        print u"Total number of errors:", total_errors
+        print u"Total number selections", total_mouse_actions
+        print u"WSR: %f" % (float(total_errors) / total_words)
+        print u"MAR: %f" % (float(total_mouse_actions) / total_words)
+        print u"MAR_c: %f" % (float(total_mouse_actions) / total_chars)
+        print u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
         # 6.2 Close open files
         fsrc.close()
         ftrans.close()
         if args.original_dest is not None:
             ftrans_ori.close()
     except KeyboardInterrupt:
-        print 'Interrupted!'
-        print "Total number of corrections (up to now):", total_errors
-        print "WSR: %f" % (float(total_errors) / total_words)
-        print "MAR: %f" % (float(total_mouse_actions) / total_words)
-        print "MAR_c: %f" % (float(total_mouse_actions) / total_chars)
-        print "KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
+        print u'Interrupted!'
+        print u"Total number of corrections (up to now):", total_errors
+        print u"WSR: %f" % (float(total_errors) / total_words)
+        print u"MAR: %f" % (float(total_mouse_actions) / total_words)
+        print u"MAR_c: %f" % (float(total_mouse_actions) / total_chars)
+        print u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
+
+
+if __name__ == "__main__":
+    interactive_simulation()

@@ -87,7 +87,9 @@ def sample_ensemble(args, params):
         # Apply model predictions
         params_prediction['predict_on_sets'] = [s]
         beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction,
-                                           model_weights=model_weights, n_best=args.n_best, verbose=args.verbose)
+                                           model_weights=model_weights,
+                                           n_best=args.n_best,
+                                           verbose=args.verbose)
         if args.n_best:
             predictions, n_best = beam_searcher.predictBeamSearchNet()[s]
         else:
