@@ -80,6 +80,7 @@ def test_LSTM_add():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
@@ -137,6 +138,7 @@ def test_LSTM_dot():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best
@@ -194,6 +196,7 @@ def test_LSTM_scaled():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best

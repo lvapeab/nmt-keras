@@ -27,6 +27,7 @@ def parse_args():
     parser.add_argument("-n", "--n-best", action="store_true", default=False, help="Write n-best list (n = beam size)")
     parser.add_argument("-w", "--weights", nargs="*", help="Weight given to each model in the ensemble. You should provide the same number of weights than models."
                                                            "By default, it applies the same weight to each model (1/N).", default=[])
+    parser.add_argument("-g", "--glossary", required=False, help="Glossary file for overwriting translations.")
     parser.add_argument("-m", "--models", nargs="+", required=True, help="Path to the models")
     parser.add_argument("-ch", "--changes", nargs="*", help="Changes to the config. Following the syntax Key=Value",
                         default="")
