@@ -202,13 +202,13 @@ class NMTSampler:
         parse_input_start_time = time.time()
         # Go from text to indices
         src_seq = self.dataset.loadText([tokenized_input],
-                                   vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
-                                   max_len=self.params['MAX_INPUT_TEXT_LEN'],
-                                   offset=0,
-                                   fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
-                                   pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
-                                   words_so_far=False,
-                                   loading_X=True)[0][0]
+                                        vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
+                                        max_len=self.params['MAX_INPUT_TEXT_LEN'],
+                                        offset=0,
+                                        fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
+                                        pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
+                                        words_so_far=False,
+                                        loading_X=True)[0][0]
 
         parse_input_end_time = time.time()
         logger.log(2, 'parse_input time: %.6f' % (parse_input_end_time - parse_input_start_time))
@@ -335,13 +335,13 @@ class NMTSampler:
         tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
         src_seq = self.dataset.loadText([tokenized_input],
-                                   vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
-                                   max_len=self.params['MAX_INPUT_TEXT_LEN'],
-                                   offset=0,
-                                   fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
-                                   pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
-                                   words_so_far=False,
-                                   loading_X=True)[0][0]
+                                        vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
+                                        max_len=self.params['MAX_INPUT_TEXT_LEN'],
+                                        offset=0,
+                                        fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
+                                        pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
+                                        words_so_far=False,
+                                        loading_X=True)[0][0]
         # Tokenize output
         tokenized_reference = self.general_tokenize_f(target_sentence, escape=False)
         tokenized_reference = self.model_tokenize_f(tokenized_reference)
