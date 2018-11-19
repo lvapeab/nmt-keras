@@ -200,7 +200,16 @@ class NMTSampler:
         tokenization_end_time = time.time()
         logger.log(2, 'tokenization time: %.6f' % (tokenization_end_time - tokenization_start_time))
         parse_input_start_time = time.time()
-        src_seq, src_words = parse_input(tokenized_input, self.dataset, self.word2index_x)
+        # Go from text to indices
+        src_seq = self.dataset.loadText([tokenized_input],
+                                        vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
+                                        max_len=self.params['MAX_INPUT_TEXT_LEN'],
+                                        offset=0,
+                                        fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
+                                        pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
+                                        words_so_far=False,
+                                        loading_X=True)[0][0]
+
         parse_input_end_time = time.time()
         logger.log(2, 'parse_input time: %.6f' % (parse_input_end_time - parse_input_start_time))
 
@@ -325,8 +334,14 @@ class NMTSampler:
         # Tokenize input
         tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
-        src_seq, src_words = parse_input(tokenized_input, self.dataset, self.word2index_x)
-
+        src_seq = self.dataset.loadText([tokenized_input],
+                                        vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
+                                        max_len=self.params['MAX_INPUT_TEXT_LEN'],
+                                        offset=0,
+                                        fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
+                                        pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
+                                        words_so_far=False,
+                                        loading_X=True)[0][0]
         # Tokenize output
         tokenized_reference = self.general_tokenize_f(target_sentence, escape=False)
         tokenized_reference = self.model_tokenize_f(tokenized_reference)
@@ -434,7 +449,7 @@ def main():
     params_prediction['output_max_length_depending_on_x_factor'] = parameters.get('MAXLEN_GIVEN_X_FACTOR', 3)
     params_prediction['output_min_length_depending_on_x'] = parameters.get('MINLEN_GIVEN_X', True)
     params_prediction['output_min_length_depending_on_x_factor'] = parameters.get('MINLEN_GIVEN_X_FACTOR', 2)
-    params_prediction['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
+    params_prediction['attend_on_output'] = parameters.get('ATTEND_ON_OUTPUT', 'transformer' in parameters['MODEL_TYPE'].lower())
 
     # Manage pos_unk strategies
     if parameters['POS_UNK']:
