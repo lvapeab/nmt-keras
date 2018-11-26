@@ -1,5 +1,5 @@
 
-def load_parameters():
+def load_parameters(original_params):
     """
     Loads the defined hyperparameters
     :return parameters: Dictionary of loaded parameters
@@ -18,7 +18,7 @@ def load_parameters():
     OPTIMIZER_REGULARIZER = ''                    # Metric to optimize (BLEU or TER)
 
     # General params
-    CLIP_C = 5.                                   # During training, clip gradients to this norm
+    CLIP_C = 0.                                   # During training, clip gradients to this norm
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
 
@@ -36,7 +36,7 @@ def load_parameters():
     MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     NOISE_AMOUNT = 0.0                            # Amount of noise
 
-    STORE_PATH = 'trained_models/retrained_model2/'  # Models and evaluation results will be stored here
+    STORE_PATH = original_params.get('STORE_PATH', 'trained_models') + ' /retrained_model/'  # Models and evaluation results will be stored here
 
     # ================================================ #
     parameters = locals().copy()

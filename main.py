@@ -41,7 +41,7 @@ if __name__ == "__main__":
         parameters = update_parameters(parameters, pkl2dict(args.config))
 
     if args.online:
-        online_parameters = load_parameters_online()
+        online_parameters = load_parameters_online(parameters)
         parameters = update_parameters(parameters, online_parameters)
     try:
         for arg in args.changes:
@@ -64,12 +64,16 @@ if __name__ == "__main__":
         dataset = update_dataset_from_file(dataset, args.source, parameters,
                                            output_text_filename=args.references, splits=['train'], remove_outputs=False,
                                            compute_state_below=True)
-        train_model_online(parameters, args.source, args.references, models_path=args.models, dataset=dataset,
-                           store_hypotheses=args.hypotheses, verbose=args.verbose)
+        train_model_online(parameters, args.source, args.references,
+                           models_path=args.models,
+                           dataset=dataset,
+                           stored_hypotheses_filename=args.hypotheses,
+                           verbose=args.verbose)
 
     elif parameters['MODE'] == 'training':
         logging.info('Running training.')
         train_model(parameters, args.dataset)
+
     elif parameters['MODE'] == 'sampling':
         logging.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
         exit(2)
