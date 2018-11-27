@@ -144,7 +144,7 @@ def interactive_simulation():
         params = load_parameters()
 
     if args.online:
-        online_parameters = load_parameters_online()
+        online_parameters = load_parameters_online(params)
         params = update_parameters(params, online_parameters)
 
     try:
