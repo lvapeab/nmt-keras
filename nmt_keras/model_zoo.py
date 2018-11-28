@@ -638,10 +638,10 @@ class TranslationModel(Model_Wrapper):
                                                activation=params['CLASSIFIER_ACTIVATION'],
                                                kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                                bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                               trainable=params.get('TRAINABLE_DECODER', True),
+                                               trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                                name=params['CLASSIFIER_ACTIVATION']
                                                ),
-                                         trainable=params.get('TRAINABLE_DECODER', True),
+                                         trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
 
@@ -1060,10 +1060,10 @@ class TranslationModel(Model_Wrapper):
                                                activation=params['CLASSIFIER_ACTIVATION'],
                                                kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                                bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                               trainable=params.get('TRAINABLE_DECODER', True),
+                                               trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                                name=params['CLASSIFIER_ACTIVATION']
                                                ),
-                                         trainable=params.get('TRAINABLE_DECODER', True),
+                                         trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
         self.model = Model(inputs=[src_text, next_words], outputs=softout)

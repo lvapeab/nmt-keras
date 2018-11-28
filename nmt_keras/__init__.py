@@ -46,4 +46,10 @@ def check_params(params):
     if params['COVERAGE_PENALTY']:
         assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+
+    if params.get('TRAIN_ONLY_LAST_LAYER'):
+        logger.info('Training only last layer.')
+        params['TRAINABLE_ENCODER'] = False
+        params['TRAINABLE_DECODER'] = False
+
     return params

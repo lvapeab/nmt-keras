@@ -35,6 +35,8 @@ def load_parameters(original_params):
     # Model parameters
     MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     NOISE_AMOUNT = 0.0                            # Amount of noise
+    TRAIN_ONLY_LAST_LAYER = False
+
 
     STORE_PATH = original_params.get('STORE_PATH', 'trained_models') + ' /retrained_model/'  # Models and evaluation results will be stored here
 
