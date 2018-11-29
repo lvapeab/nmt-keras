@@ -20,10 +20,12 @@ def load_parameters():
     GLOSSARY = None                               # Glossary location. If not None, it overwrites translations according to this glossary file
 
     # Dataset class parameters
-    INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset.
-    OUTPUTS_IDS_DATASET = ['target_text']                   # Corresponding outputs of the dataset.
-    INPUTS_IDS_MODEL = ['source_text', 'state_below']       # Corresponding inputs of the built model.
-    OUTPUTS_IDS_MODEL = ['target_text']                     # Corresponding outputs of the built model.
+    INPUTS_IDS_DATASET = ['source_text', 'state_below']        # Corresponding inputs of the dataset.
+    OUTPUTS_IDS_DATASET = ['target_text']                      # Corresponding outputs of the dataset.
+    INPUTS_IDS_MODEL = ['source_text', 'state_below']          # Corresponding inputs of the built model.
+    OUTPUTS_IDS_MODEL = ['target_text']                        # Corresponding outputs of the built model.
+    INPUTS_TYPES_DATASET = ['text-features', 'text-features']  # Corresponding types of the data. 'text' or 'text-features' allowed.
+    OUTPUTS_TYPES_DATASET = ['text-features']                  # They are equivalent, only differ on how the data is loaded.
 
     # Evaluation params
     METRICS = ['coco']                            # Metric used for evaluating the model.

@@ -23,6 +23,7 @@ def update_dataset_from_file(ds,
     :param output_text_filename: Target language sentences
     :param remove_outputs: Remove outputs from dataset (if True, will ignore the output_text_filename parameter)
     :param compute_state_below: Compute state below input (shifted target text for professor teaching)
+    :param recompute_references: Whether we should rebuild the references of the dataset or not.
 
     :return: Dataset object with the processed data
     """
@@ -34,16 +35,22 @@ def update_dataset_from_file(ds,
         recompute_references = False
 
     for split in splits:
+        if split == 'train':
+            output_type = params.get('OUTPUTS_TYPES_DATASET', ['dense_text'] if 'sparse' in params['LOSS'] else ['text'])[0]
+            input_type = params.get('INPUTS_TYPES_DATASET', ['dense_text'] if 'sparse' in params['LOSS'] else ['text'])[0]
+        else:
+            # Type of val/test outuput is always 'text' or 'dense_text'
+            output_type = 'dense_text' if 'sparse' in params['LOSS'] else 'text'
+
         if remove_outputs:
             ds.removeOutput(split,
-                            type='dense_text' if 'sparse' in params['LOSS'] else 'text',
                             id=params['OUTPUTS_IDS_DATASET'][0])
             recompute_references = False
 
         elif output_text_filename is not None:
             ds.setOutput(output_text_filename,
                          split,
-                         type='dense_text' if 'sparse' in params['LOSS'] else 'text',
+                         type=output_type,
                          id=params['OUTPUTS_IDS_DATASET'][0],
                          tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                          build_vocabulary=False,
@@ -60,7 +67,7 @@ def update_dataset_from_file(ds,
         # INPUT DATA
         ds.setInput(input_text_filename,
                     split,
-                    type='text',
+                    type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[0],
                     id=params['INPUTS_IDS_DATASET'][0],
                     tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                     build_vocabulary=False,
@@ -75,7 +82,7 @@ def update_dataset_from_file(ds,
             # INPUT DATA
             ds.setInput(output_text_filename,
                         split,
-                        type='text',
+                        type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[1],
                         id=params['INPUTS_IDS_DATASET'][1],
                         pad_on_batch=params.get('PAD_ON_BATCH', True),
                         tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
@@ -119,8 +126,7 @@ def build_dataset(params):
     if params['REBUILD_DATASET']:  # We build a new dataset instance
         if params['VERBOSE'] > 0:
             silence = False
-            logging.info(
-                'Building ' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + ' dataset')
+            logging.info('Building ' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + ' dataset')
         else:
             silence = True
 
@@ -129,11 +135,10 @@ def build_dataset(params):
         ds = Dataset(name, base_path, silence=silence)
 
         # OUTPUT DATA
-        # Let's load the train, val and test splits of the target language sentences (outputs)
-        #    the files include a sentence per line.
+        # Load the train, val and test splits of the target language sentences (outputs). The files include a sentence per line.
         ds.setOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                      'train',
-                     type='dense_text' if 'sparse' in params['LOSS'] else 'text',
+                     type=params.get('OUTPUTS_TYPES_DATASET', ['dense_text'] if 'sparse' in params['LOSS'] else ['text'])[0],
                      id=params['OUTPUTS_IDS_DATASET'][0],
                      tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                      build_vocabulary=True,
@@ -155,7 +160,7 @@ def build_dataset(params):
             if params['TEXT_FILES'].get(split) is not None:
                 ds.setOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
                              split,
-                             type='dense_text' if 'sparse' in params['LOSS'] else 'text',
+                             type='text',  # The type of the references should be always 'text'
                              id=params['OUTPUTS_IDS_DATASET'][0],
                              pad_on_batch=params.get('PAD_ON_BATCH', True),
                              tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
@@ -180,7 +185,7 @@ def build_dataset(params):
                     build_vocabulary = False
                 ds.setInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
                             split,
-                            type='text',
+                            type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[0],
                             id=params['INPUTS_IDS_DATASET'][0],
                             pad_on_batch=params.get('PAD_ON_BATCH', True),
                             tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
@@ -195,7 +200,7 @@ def build_dataset(params):
                     if 'train' in split:
                         ds.setInput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
                                     split,
-                                    type='text',
+                                    type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[1],
                                     id=params['INPUTS_IDS_DATASET'][1],
                                     required=False,
                                     tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
