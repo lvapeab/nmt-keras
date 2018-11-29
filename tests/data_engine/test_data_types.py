@@ -34,6 +34,7 @@ def load_tests_params():
 
     return params
 
+
 def test_text_features_none():
     params = load_tests_params()
 
@@ -87,6 +88,7 @@ def test_text_features_none():
     print ("Scoring corpus")
     score_corpus(parser, params)
     print ("Done")
+
 
 def test_text_features_target_text():
     params = load_tests_params()
@@ -142,6 +144,7 @@ def test_text_features_target_text():
     score_corpus(parser, params)
     print ("Done")
 
+
 def test_text_features_state_below():
     params = load_tests_params()
 
@@ -195,6 +198,7 @@ def test_text_features_state_below():
     print ("Scoring corpus")
     score_corpus(parser, params)
     print ("Done")
+
 
 def test_text_features_src():
     params = load_tests_params()
