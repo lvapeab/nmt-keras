@@ -8,6 +8,7 @@ except ImportError:
 
 import logging
 import os
+import sys
 
 from keras.layers import *
 from keras.models import model_from_json, Model
@@ -151,6 +152,8 @@ class TranslationModel(Model_Wrapper):
         if verbose > 0:
             print(str(self))
             self.model.summary()
+            sys.stdout.flush()
+
         if set_optimizer:
             self.setOptimizer()
 
