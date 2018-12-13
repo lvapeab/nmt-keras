@@ -357,7 +357,7 @@ class NMTSampler:
                                             loading_X=True)[0]
 
         # 4.1.3 Ground truth sample -> Interactively translated sentence
-        # TODO: Load dense_text if necessary
+        # TODO: Load dense-text if necessary
         trg_seq = self.dataset.loadTextOneHot([tokenized_reference.encode('utf-8')],
                                               vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
                                               vocabulary_len=self.dataset.vocabulary_len[self.params['OUTPUTS_IDS_DATASET'][0]],

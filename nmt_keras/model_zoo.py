@@ -641,10 +641,9 @@ class TranslationModel(Model_Wrapper):
                                                activation=params['CLASSIFIER_ACTIVATION'],
                                                kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                                bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                               trainable=params.get('TRAINABLE_DECODER', True),
-                                               name=params['CLASSIFIER_ACTIVATION']
+                                               trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                                ),
-                                         trainable=params.get('TRAINABLE_DECODER', True),
+                                         trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
 
@@ -1011,8 +1010,9 @@ class TranslationModel(Model_Wrapper):
             trg_multihead_norm = shared_trg_norm_multihead_list[n_block](trg_multihead_add)
 
             # Second Multi-Head Attention block
-            src_trg_multihead = shared_src_trg_multihead_list[n_block]([trg_multihead_norm,
-                                                                        masked_src_multihead])
+            src_trg_multihead = shared_src_trg_multihead_list[n_block]([trg_multihead_norm,   # Queries from the previous decoder layer.
+                                                                        masked_src_multihead  # Keys and values from the output of the encoder.
+                                                                        ])
 
             # Regularize
             src_trg_multihead_dropout = shared_src_trg_dropout_multihead_list[n_block](src_trg_multihead)
@@ -1063,10 +1063,9 @@ class TranslationModel(Model_Wrapper):
                                                activation=params['CLASSIFIER_ACTIVATION'],
                                                kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                                bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                               trainable=params.get('TRAINABLE_DECODER', True),
-                                               name=params['CLASSIFIER_ACTIVATION']
+                                               trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                                ),
-                                         trainable=params.get('TRAINABLE_DECODER', True),
+                                         trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
         self.model = Model(inputs=[src_text, next_words], outputs=softout)

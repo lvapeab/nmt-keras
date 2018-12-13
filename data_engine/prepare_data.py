@@ -36,11 +36,11 @@ def update_dataset_from_file(ds,
 
     for split in splits:
         if split == 'train':
-            output_type = params.get('OUTPUTS_TYPES_DATASET', ['dense_text'] if 'sparse' in params['LOSS'] else ['text'])[0]
-            input_type = params.get('INPUTS_TYPES_DATASET', ['dense_text'] if 'sparse' in params['LOSS'] else ['text'])[0]
+            output_type = params.get('OUTPUTS_TYPES_DATASET', ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0]
+            input_type = params.get('INPUTS_TYPES_DATASET', ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0]
         else:
-            # Type of val/test outuput is always 'text' or 'dense_text'
-            output_type = 'dense_text' if 'sparse' in params['LOSS'] else 'text'
+            # Type of val/test outuput is always 'text' or 'dense-text'
+            output_type = 'dense-text' if 'sparse' in params['LOSS'] else 'text'
 
         if remove_outputs:
             ds.removeOutput(split,
@@ -138,7 +138,7 @@ def build_dataset(params):
         # Load the train, val and test splits of the target language sentences (outputs). The files include a sentence per line.
         ds.setOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
                      'train',
-                     type=params.get('OUTPUTS_TYPES_DATASET', ['dense_text'] if 'sparse' in params['LOSS'] else ['text'])[0],
+                     type=params.get('OUTPUTS_TYPES_DATASET', ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0],
                      id=params['OUTPUTS_IDS_DATASET'][0],
                      tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                      build_vocabulary=True,
