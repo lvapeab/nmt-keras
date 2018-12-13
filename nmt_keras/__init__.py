@@ -47,7 +47,7 @@ def check_params(params):
         assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
 
-    if params.get('LOSS', 'categorical_crossentropy') == 'sparse_categorical_crossentropy_from_logits':
+    if 'from_logits' in params.get('LOSS', 'categorical_crossentropy'):
         if params.get('CLASSIFIER_ACTIVATION', 'softmax'):
             params['CLASSIFIER_ACTIVATION'] = None
 

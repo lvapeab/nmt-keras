@@ -37,7 +37,6 @@ def update_dataset_from_file(ds,
     for split in splits:
         if split == 'train':
             output_type = params.get('OUTPUTS_TYPES_DATASET', ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0]
-            input_type = params.get('INPUTS_TYPES_DATASET', ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0]
         else:
             # Type of val/test outuput is always 'text' or 'dense-text'
             output_type = 'dense-text' if 'sparse' in params['LOSS'] else 'text'
