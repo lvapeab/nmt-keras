@@ -285,6 +285,30 @@ class TranslationModel(Model_Wrapper):
                                   clipnorm=self.params.get('CLIP_C', 0.),
                                   clipvalue=self.params.get('CLIP_V', 0.),
                                   epsilon=self.params.get('EPSILON', 1e-7))
+            elif self.params['OPTIMIZER'].lower() == 'sgdhd':
+                optimizer = SGDHD(lr=self.params.get('LR', 0.002),
+                                  clipnorm=self.params.get('CLIP_C', 10.),
+                                  clipvalue=self.params.get('CLIP_V', 0.),
+                                  hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001))
+            elif self.params['OPTIMIZER'].lower() == 'qhsgd':
+                optimizer = QHSGD(lr=self.params.get('LR', 0.002),
+                                  momentum=self.params.get('MOMENTUM', 0.0),
+                                  quasi_hyperbolic_momentum=self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0),
+                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                  nesterov=self.params.get('NESTEROV_MOMENTUM', False),
+                                  dampening=self.params.get('DAMPENING', 0.),
+                                  clipnorm=self.params.get('CLIP_C', 10.),
+                                  clipvalue=self.params.get('CLIP_V', 0.))
+            elif self.params['OPTIMIZER'].lower() == 'qhsgdhd':
+                optimizer = QHSGDHD(lr=self.params.get('LR', 0.002),
+                                    momentum=self.params.get('MOMENTUM', 0.0),
+                                    quasi_hyperbolic_momentum=self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0),
+                                    dampening=self.params.get('DAMPENING', 0.),
+                                    hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
+                                    decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                    nesterov=self.params.get('NESTEROV_MOMENTUM', False),
+                                    clipnorm=self.params.get('CLIP_C', 10.),
+                                    clipvalue=self.params.get('CLIP_V', 0.))
             else:
                 logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
                 optimizer = eval(self.params['OPTIMIZER'])

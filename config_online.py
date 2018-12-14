@@ -8,7 +8,13 @@ def load_parameters(original_params):
     CLASSIFIER_ACTIVATION = 'softmax'
     LOSS = 'categorical_crossentropy'
     OPTIMIZER = 'adadelta'                        # Optimizer
+
+    # Optimizer hyperparameters
     LR = 0.1                                      # Learning rate.
+    QUASI_HYPERBOLIC_MOMENTUM = 0.7               # Quasi-hyperbolic momentum factor
+    DAMPENING = False                             # Momentum dampening
+    CLIP_C = 0.                                   # During training, clip gradients to this norm
+
     # PAS-like params
     C = 0.1                                       # Constant parameter for PAS and PPAS optimizer.
     D = 0.1                                       # Constant parameter for PAS and PPAS optimizer.
@@ -17,10 +23,10 @@ def load_parameters(original_params):
     N_BEST_OPTIMIZER = False                      # Use N-Best list-based optimization
     OPTIMIZER_REGULARIZER = ''                    # Metric to optimize (BLEU or TER)
 
-    # General params
-    CLIP_C = 0.                                   # During training, clip gradients to this norm
+    # Learning rate scheduling params
     LR_DECAY = None                               # Minimum number of epochs before the next LR decay. Set to None if don't want to decay the learning rate
     LR_GAMMA = 0.8                                # Multiplier used for decreasing the LR
+
 
     # Training parameters
     MAX_EPOCH = 1                                 # Stop when computed this number of epochs
@@ -33,10 +39,8 @@ def load_parameters(original_params):
     EARLY_STOP = False                            # Turns on/off the early stop protocol
 
     # Model parameters
-    MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo() for the supported architectures
     NOISE_AMOUNT = 0.0                            # Amount of noise
     TRAIN_ONLY_LAST_LAYER = False
-
 
     STORE_PATH = original_params.get('STORE_PATH', 'trained_models') + ' /retrained_model/'  # Models and evaluation results will be stored here
 

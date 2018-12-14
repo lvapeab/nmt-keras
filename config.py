@@ -132,12 +132,18 @@ def load_parameters():
     # Advanced parameters for optimizers. Default values are usually effective.
     MOMENTUM = 0.                                 # Momentum value (for SGD optimizer).
     NESTEROV_MOMENTUM = False                     # Use Nesterov momentum (for SGD optimizer).
+    EPSILON = 1e-7                                # Optimizers epsilon value.
+    # Adadelta / RMSprop parameters
     RHO = 0.9                                     # Rho value (for Adadelta and RMSprop optimizers).
+    # Adam-related parameters
     BETA_1 = 0.9                                  # Beta 1 value (for Adam, Adamax Nadam optimizers).
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
     AMSGRAD = False                               # Whether to apply the AMSGrad variant of Adam (see https://openreview.net/pdf?id=ryQu7f-RZ).
-    EPSILON = 1e-7                                # Optimizers epsilon value.
     ACCUMULATE_GRADIENTS = 1                      # Accumulate gradients for this number of batches. Currently only implemented for Adam.
+    # Untested optimizers
+    HYPERGRAD_LR = 0.001                          # Hypergradient learning rate (for *HG optimizers)
+    QUASI_HYPERBOLIC_MOMENTUM = 0.7               # Quasi-hyperbolic momentum factor (for QH* optimizers)
+    DAMPENING = False                             # Momentum dampening (for QH* optimizers)
 
     # Learning rate schedule
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
