@@ -42,7 +42,7 @@ def test_transformer():
     params['FF_SIZE'] = params['MODEL_SIZE'] * 4
     params['N_HEADS'] = 2
     params['REBUILD_DATASET'] = True
-    params['OPTIMIZED_SEARCH'] = False
+    params['OPTIMIZED_SEARCH'] = True
     params['POS_UNK'] = False
     dataset = build_dataset(params)
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]

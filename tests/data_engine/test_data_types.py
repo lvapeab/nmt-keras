@@ -12,9 +12,7 @@ from nmt_keras.apply_model import sample_ensemble, score_corpus
 def load_tests_params():
     params = load_parameters()
     params['BATCH_SIZE'] = 10
-    params['WEIGHT_DECAY'] = 1e-4
-    params['RECURRENT_WEIGHT_DECAY'] = 1e-4
-    params['DROPOUT_P'] = 0.01
+    params['DROPOUT_P'] = 0.1
     params['RECURRENT_INPUT_DROPOUT_P'] = 0.01
     params['RECURRENT_DROPOUT_P'] = 0.01
     params['USE_NOISE'] = True
@@ -25,13 +23,20 @@ def load_tests_params():
     params['TARGET_TEXT_EMBEDDING_SIZE'] = 8
     params['DECODER_HIDDEN_SIZE'] = 4
     params['ENCODER_HIDDEN_SIZE'] = 4
-    params['ATTENTION_SIZE'] = params['DECODER_HIDDEN_SIZE']
-    params['SKIP_VECTORS_HIDDEN_SIZE'] = params['DECODER_HIDDEN_SIZE']
-    params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
     params['RELOAD'] = 0
     params['MAX_EPOCH'] = 1
     params['USE_CUDNN'] = False
 
+    params['MODEL_TYPE'] = 'Transformer'
+    params['N_LAYERS_ENCODER'] = 2
+    params['N_LAYERS_DECODER'] = 2
+    params['MULTIHEAD_ATTENTION_ACTIVATION'] = 'relu'
+    params['MODEL_SIZE'] = 8
+    params['FF_SIZE'] = params['MODEL_SIZE'] * 4
+    params['N_HEADS'] = 2
+    params['REBUILD_DATASET'] = True
+    params['OPTIMIZED_SEARCH'] = True
+    params['POS_UNK'] = False
     return params
 
 
