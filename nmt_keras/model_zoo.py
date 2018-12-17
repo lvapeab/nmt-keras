@@ -169,17 +169,9 @@ class TranslationModel(Model_Wrapper):
         if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1 and self.params['OPTIMIZER'].lower() != 'adam':
             logging.warning('Gradient accumulate is only implemented for the Adam optimizer. Setting "ACCUMULATE_GRADIENTS" to 1.')
             self.params['ACCUMULATE_GRADIENTS'] = 1
-        if self.verbose > 0:
-            logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s - "
-                         "CLIP_C %s - CLIP_V  %s - LR_OPTIMIZER_DECAY %s - ACCUMULATE_GRADIENTS %s] and compiling." %
-                         (str(self.params['OPTIMIZER']),
-                          str(self.params.get('LR', 0.01)),
-                          str(self.params.get('LOSS', 'categorical_crossentropy')),
-                          str(self.params.get('CLIP_C', 0.)),
-                          str(self.params.get('CLIP_V', 0.)),
-                          str(self.params.get('LR_OPTIMIZER_DECAY', 0.0)),
-                          str(self.params.get('ACCUMULATE_GRADIENTS', 1))
-                          ))
+
+        optimizer_str = '\t LR: ' + str(self.params.get('LR', 0.01)) + \
+                        '\n\t LOSS: ' + str(self.params.get('LOSS', 'categorical_crossentropy'))
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow':
             if self.params['OPTIMIZER'].lower() not in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
@@ -200,19 +192,36 @@ class TranslationModel(Model_Wrapper):
                     optimizer = TFOptimizer(tf.train.MomentumOptimizer(self.params.get('LR', 0.01),
                                                                        self.params.get('MOMENTUM', 0.0),
                                                                        use_nesterov=self.params.get('NESTEROV_MOMENTUM', False)))
+                    optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                     '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
+
             elif self.params['OPTIMIZER'].lower() == 'adam':
                 optimizer = TFOptimizer(tf.train.AdamOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                               beta1=self.params.get('BETA_1', 0.9),
+                                                               beta2=self.params.get('BETA_2', 0.999),
                                                                epsilon=self.params.get('EPSILON', 1e-7)))
+                optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
             elif self.params['OPTIMIZER'].lower() == 'adagrad':
                 optimizer = TFOptimizer(tf.train.AdagradOptimizer(self.params.get('LR', 0.01)))
+
             elif self.params['OPTIMIZER'].lower() == 'rmsprop':
                 optimizer = TFOptimizer(tf.train.RMSPropOptimizer(self.params.get('LR', 0.01),
                                                                   decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
                                                                   momentum=self.params.get('MOMENTUM', 0.0),
                                                                   epsilon=self.params.get('EPSILON', 1e-7)))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
             elif self.params['OPTIMIZER'].lower() == 'adadelta':
                 optimizer = TFOptimizer(tf.train.AdadeltaOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                                   rho=self.params.get('RHO', 0.95),
                                                                    epsilon=self.params.get('EPSILON', 1e-7)))
+                optimizer_str += '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
             else:
                 raise Exception('\tThe chosen optimizer is not implemented.')
         else:
@@ -223,6 +232,8 @@ class TranslationModel(Model_Wrapper):
                                 nesterov=self.params.get('NESTEROV_MOMENTUM', False),
                                 clipnorm=self.params.get('CLIP_C', 0.),
                                 clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                 '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
 
             elif self.params['OPTIMIZER'].lower() == 'rsmprop':
                 optimizer = RMSprop(lr=self.params.get('LR', 0.001),
@@ -231,6 +242,8 @@ class TranslationModel(Model_Wrapper):
                                     clipnorm=self.params.get('CLIP_C', 0.),
                                     clipvalue=self.params.get('CLIP_V', 0.),
                                     epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adagrad':
                 optimizer = Adagrad(lr=self.params.get('LR', 0.01),
@@ -238,6 +251,7 @@ class TranslationModel(Model_Wrapper):
                                     clipnorm=self.params.get('CLIP_C', 0.),
                                     clipvalue=self.params.get('CLIP_V', 0.),
                                     epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adadelta':
                 optimizer = Adadelta(lr=self.params.get('LR', 1.0),
@@ -246,6 +260,8 @@ class TranslationModel(Model_Wrapper):
                                      clipnorm=self.params.get('CLIP_C', 0.),
                                      clipvalue=self.params.get('CLIP_V', 0.),
                                      epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adam':
                 if self.params.get('ACCUMULATE_GRADIENTS') > 1:
@@ -258,6 +274,11 @@ class TranslationModel(Model_Wrapper):
                                                clipvalue=self.params.get('CLIP_V', 0.),
                                                epsilon=self.params.get('EPSILON', 1e-7),
                                                accum_iters=self.params.get('ACCUMULATE_GRADIENTS'))
+                    optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                     '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                     '\n\t AMSGRAD: ' + str(self.params.get('AMSGRAD', False)) + \
+                                     '\n\t ACCUMULATE_GRADIENTS: ' + str(self.params.get('ACCUMULATE_GRADIENTS')) + \
+                                     '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
                 else:
                     optimizer = Adam(lr=self.params.get('LR', 0.001),
                                      beta_1=self.params.get('BETA_1', 0.9),
@@ -267,6 +288,10 @@ class TranslationModel(Model_Wrapper):
                                      clipnorm=self.params.get('CLIP_C', 0.),
                                      clipvalue=self.params.get('CLIP_V', 0.),
                                      epsilon=self.params.get('EPSILON', 1e-7))
+                    optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                     '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                     '\n\t AMSGRAD: ' + str(self.params.get('AMSGRAD', False)) + \
+                                     '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adamax':
                 optimizer = Adamax(lr=self.params.get('LR', 0.002),
@@ -276,7 +301,9 @@ class TranslationModel(Model_Wrapper):
                                    clipnorm=self.params.get('CLIP_C', 0.),
                                    clipvalue=self.params.get('CLIP_V', 0.),
                                    epsilon=self.params.get('EPSILON', 1e-7))
-
+                optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
             elif self.params['OPTIMIZER'].lower() == 'nadam':
                 optimizer = Nadam(lr=self.params.get('LR', 0.002),
                                   beta_1=self.params.get('BETA_1', 0.9),
@@ -285,11 +312,17 @@ class TranslationModel(Model_Wrapper):
                                   clipnorm=self.params.get('CLIP_C', 0.),
                                   clipvalue=self.params.get('CLIP_V', 0.),
                                   epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
             elif self.params['OPTIMIZER'].lower() == 'sgdhd':
                 optimizer = SGDHD(lr=self.params.get('LR', 0.002),
                                   clipnorm=self.params.get('CLIP_C', 10.),
                                   clipvalue=self.params.get('CLIP_V', 0.),
                                   hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001))
+                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001))
+
             elif self.params['OPTIMIZER'].lower() == 'qhsgd':
                 optimizer = QHSGD(lr=self.params.get('LR', 0.002),
                                   momentum=self.params.get('MOMENTUM', 0.0),
@@ -299,6 +332,11 @@ class TranslationModel(Model_Wrapper):
                                   dampening=self.params.get('DAMPENING', 0.),
                                   clipnorm=self.params.get('CLIP_C', 10.),
                                   clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                 '\n\t QUASI_HYPERBOLIC_MOMENTUM: ' + str(self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0)) + \
+                                 '\n\t DAMPENING: ' + str(self.params.get('DAMPENING', 0.0)) + \
+                                 '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
+
             elif self.params['OPTIMIZER'].lower() == 'qhsgdhd':
                 optimizer = QHSGDHD(lr=self.params.get('LR', 0.002),
                                     momentum=self.params.get('MOMENTUM', 0.0),
@@ -309,9 +347,21 @@ class TranslationModel(Model_Wrapper):
                                     nesterov=self.params.get('NESTEROV_MOMENTUM', False),
                                     clipnorm=self.params.get('CLIP_C', 10.),
                                     clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                 '\n\t QUASI_HYPERBOLIC_MOMENTUM: ' + str(self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0)) + \
+                                 '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
+                                 '\n\t DAMPENING: ' + str(self.params.get('DAMPENING', 0.0)) + \
+                                 '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
             else:
                 logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
                 optimizer = eval(self.params['OPTIMIZER'])
+
+            optimizer_str += '\n\t CLIP_C ' + str(self.params.get('CLIP_C', 0.)) + \
+                             '\n\t CLIP_V ' + str(self.params.get('CLIP_V', 0.)) + \
+                             '\n\t LR_OPTIMIZER_DECAY ' + str(self.params.get('LR_OPTIMIZER_DECAY', 0.0)) + \
+                             '\n\t ACCUMULATE_GRADIENTS ' + str(self.params.get('ACCUMULATE_GRADIENTS', 1)) + '\n'
+        if self.verbose > 0:
+            logging.info("Preparing optimizer and compiling. Optimizer configuration: \n" + optimizer_str)
 
         if hasattr(self, 'multi_gpu_model') and self.multi_gpu_model is not None:
             model_to_compile = self.multi_gpu_model
