@@ -55,7 +55,7 @@ Finally, the active learning + INMT framework described at [Active Learning for 
 ```
 Active Learning for Interactive Neural Machine Translation of Data Streams
 Álvaro Peris and Francisco Casacuberta.
-To appear at CoNLL'18. 2018.
+ Proceedings of the 22nd Conference on Computational Natural Language Learning (CoNLL), pp. 151-160. 2018.. 
 ```
 
 ## Requirements
