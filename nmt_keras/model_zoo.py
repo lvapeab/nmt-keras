@@ -166,7 +166,7 @@ class TranslationModel(Model_Wrapper):
         The configuration is read from Translation_Model.params.
         :return: None
         """
-        if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1 and self.params['OPTIMIZER'].lower() != 'adam':
+        if int(self.params.get('ACCUMULATE_GRADIENTS', 1)) > 1 and self.params['OPTIMIZER'].lower() != 'adam':
             logging.warning('Gradient accumulate is only implemented for the Adam optimizer. Setting "ACCUMULATE_GRADIENTS" to 1.')
             self.params['ACCUMULATE_GRADIENTS'] = 1
 
@@ -264,7 +264,7 @@ class TranslationModel(Model_Wrapper):
                                  '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adam':
-                if self.params.get('ACCUMULATE_GRADIENTS') > 1:
+                if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1:
                     optimizer = AdamAccumulate(lr=self.params.get('LR', 0.001),
                                                beta_1=self.params.get('BETA_1', 0.9),
                                                beta_2=self.params.get('BETA_2', 0.999),
@@ -926,6 +926,7 @@ class TranslationModel(Model_Wrapper):
         for n_block in range(params['N_LAYERS_ENCODER']):
             src_multihead = MultiHeadAttention(params['N_HEADS'],
                                                params['MODEL_SIZE'],
+                                               activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
                                                dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                name='src_MultiHeadAttention_' + str(n_block))([src_residual_multihead,
                                                                                                src_residual_multihead])
@@ -1017,6 +1018,7 @@ class TranslationModel(Model_Wrapper):
             # Masked Multi-Head Attention block
             shared_trg_multihead = MultiHeadAttention(params['N_HEADS'],
                                                       params['MODEL_SIZE'],
+                                                      activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
                                                       dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                       mask_future=True,  # Avoid attending on future sequences
                                                       name='trg_MultiHeadAttention_' + str(n_block))
@@ -1035,7 +1037,9 @@ class TranslationModel(Model_Wrapper):
             shared_trg_norm_multihead_list.append(shared_trg_multihead_norm)
 
             # Second Multi-Head Attention block
-            shared_src_trg_multihead = MultiHeadAttention(params['N_HEADS'], params['MODEL_SIZE'],
+            shared_src_trg_multihead = MultiHeadAttention(params['N_HEADS'],
+                                                          params['MODEL_SIZE'],
+                                                          activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
                                                           dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                           name='src_trg_MultiHeadAttention_' + str(n_block))
             shared_src_trg_multihead_list.append(shared_src_trg_multihead)
