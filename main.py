@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import argparse
 import ast
 import logging
@@ -10,9 +12,6 @@ from keras_wrapper.extra.callbacks import *
 from nmt_keras import check_params
 from nmt_keras.training import train_model, train_model_online
 from utils.utils import *
-import cProfile
-
-logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 
 def parse_args():
@@ -73,10 +72,8 @@ if __name__ == "__main__":
 
     elif parameters['MODE'] == 'training':
         logging.info('Running training.')
-        cProfile.run('train_model(parameters, args.dataset)', 'training_profiler')
-
+        train_model(parameters, args.dataset)
     elif parameters['MODE'] == 'sampling':
         logging.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
         exit(2)
-
     logging.info('Done!')
