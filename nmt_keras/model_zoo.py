@@ -352,6 +352,32 @@ class TranslationModel(Model_Wrapper):
                                  '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
                                  '\n\t DAMPENING: ' + str(self.params.get('DAMPENING', 0.0)) + \
                                  '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
+
+            elif self.params['OPTIMIZER'].lower() == 'adadeltahd':
+                optimizer = AdadeltaHD(lr=self.params.get('LR', 0.002),
+                                       hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
+                                       rho=self.params.get('RHO', 0.9),
+                                       decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                       epsilon=self.params.get('EPSILON', 1e-7),
+                                       clipnorm=self.params.get('CLIP_C', 10.),
+                                       clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
+                                 '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
+            elif self.params['OPTIMIZER'].lower() == 'adamhd':
+                optimizer = AdamHD(lr=self.params.get('LR', 0.002),
+                                   hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
+                                   beta_1=self.params.get('BETA_1', 0.9),
+                                   beta_2=self.params.get('BETA_2', 0.999),
+                                   decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                   clipnorm=self.params.get('CLIP_C', 10.),
+                                   clipvalue=self.params.get('CLIP_V', 0.),
+                                   epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
+                                 '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
             else:
                 logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
                 optimizer = eval(self.params['OPTIMIZER'])
@@ -721,7 +747,9 @@ class TranslationModel(Model_Wrapper):
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
 
-        self.model = Model(inputs=[src_text, next_words], outputs=softout)
+        self.model = Model(inputs=[src_text, next_words],
+                           outputs=softout,
+                           name=self.name + '_training')
 
         if params['DOUBLE_STOCHASTIC_ATTENTION_REG'] > 0.:
             self.model.add_loss(alpha_regularizer)
@@ -745,7 +773,9 @@ class TranslationModel(Model_Wrapper):
             model_init_output += h_memories_list
         if self.return_alphas:
             model_init_output.append(alphas)
-        self.model_init = Model(inputs=model_init_input, outputs=model_init_output)
+        self.model_init = Model(inputs=model_init_input,
+                                outputs=model_init_output,
+                                name=self.name + '_model_init')
 
         # Store inputs and outputs names for model_init
         self.ids_inputs_init = self.ids_inputs
@@ -840,7 +870,8 @@ class TranslationModel(Model_Wrapper):
             model_next_outputs.append(alphas)
 
         self.model_next = Model(inputs=model_next_inputs,
-                                outputs=model_next_outputs)
+                                outputs=model_next_outputs,
+                                name=self.name + '_model_next')
         # Store inputs and outputs names for model_next
         # first input must be previous word
         self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input']
@@ -1146,7 +1177,9 @@ class TranslationModel(Model_Wrapper):
                                          trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
-        self.model = Model(inputs=[src_text, next_words], outputs=softout)
+        self.model = Model(inputs=[src_text, next_words],
+                           outputs=softout,
+                           name=self.name + '_training')
 
         if params.get('N_GPUS', 1) > 1:
             self.multi_gpu_model = multi_gpu_model(self.model, gpus=params['N_GPUS'])
@@ -1165,9 +1198,9 @@ class TranslationModel(Model_Wrapper):
         model_init_input = [src_text, next_words]
         model_init_output = [softout, masked_src_multihead]
 
-        # if self.return_alphas:
-        #    model_init_output.append(alphas)
-        self.model_init = Model(inputs=model_init_input, outputs=model_init_output)
+        self.model_init = Model(inputs=model_init_input,
+                                outputs=model_init_output,
+                                name=self.name + '_model_init')
 
         # Store inputs and outputs names for model_init
         self.ids_inputs_init = self.ids_inputs
@@ -1250,7 +1283,8 @@ class TranslationModel(Model_Wrapper):
         #     model_next_outputs.append(alphas)
 
         self.model_next = Model(inputs=model_next_inputs,
-                                outputs=model_next_outputs)
+                                outputs=model_next_outputs,
+                                name=self.name + '_model_next')
 
         # Store inputs and outputs names for model_next
         # first input must be previous word
