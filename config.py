@@ -157,6 +157,7 @@ def load_parameters():
     LR_REDUCER_EXP_BASE = -0.5                     # Base for the exponential decay.
     LR_HALF_LIFE = 100                           # Factor/warmup steps for exponenital/noam decay.
     WARMUP_EXP = -1.5                             # Warmup steps for noam decay.
+    MIN_LR = 1e-9                                 # Minimum value allowed for the decayed LR
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs.

@@ -135,6 +135,7 @@ def train_model(params, load_dataset=None):
                        'lr_reducer_exp_base': params.get('LR_REDUCER_EXP_BASE', 0),
                        'lr_half_life': params.get('LR_HALF_LIFE', 50000),
                        'lr_warmup_exp': params.get('WARMUP_EXP', -1.5),
+                       'min_lr': params.get('MIN_LR', 1e-9),
                        'epochs_for_save': params['EPOCHS_FOR_SAVE'],
                        'verbose': params['VERBOSE'],
                        'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
