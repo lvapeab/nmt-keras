@@ -197,7 +197,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Load models
     if models_path is not None:
-        logging.info('Loading models from %s' % str(models_path))
+        logging.info(u'Loading models from %s' % models_path)
         model_instances = [TranslationModel(params,
                                             model_type=params['MODEL_TYPE'],
                                             verbose=params['VERBOSE'],
@@ -242,7 +242,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
         'output_min_length_depending_on_x_factor': params.get('MINLEN_GIVEN_X_FACTOR', 2),
         'n_best_optimizer': params['N_BEST_OPTIMIZER'],
-        'optimizer_regularizer': params['OPTIMIZER_REGULARIZER']
+        'optimizer_regularizer': params['OPTIMIZER_REGULARIZER'],
+        'attend_on_output': params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower()),
+        'glossary': params.get('GLOSSARY', None)
     }
     params_training = {  # Traning params
         'n_epochs': params['MAX_EPOCH'],
@@ -268,11 +270,11 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
         'each_n_epochs': params.get('EVAL_EACH', 1),
         'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
         'additional_training_settings': {'k': params.get('K', 1),
+                                         'lr_hyp': params.get('LR_HYP', params.get('LR', 0.1)),
                                          'tau': params.get('TAU', 1),
                                          'lambda': params.get('LAMBDA', 0.5),
                                          'c': params.get('C', 0.5),
                                          'd': params.get('D', 0.5)
-
                                          }
     }
 
@@ -281,7 +283,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Create sampler
     logging.info('Creating sampler...')
-    beam_searcher = BeamSearchEnsemble(models, dataset, params_prediction,
+    beam_searcher = BeamSearchEnsemble(models,
+                                       dataset,
+                                       params_prediction,
                                        n_best=params['N_BEST_OPTIMIZER'],
                                        verbose=verbose)
     params_prediction = copy.copy(params_prediction)
@@ -309,7 +313,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     n_lines = len(source_lines)
     # Empty dest file
     if stored_hypotheses_filename:
-        logging.info('Storing htypotheses in: %s' % stored_hypotheses_filename)
+        logging.info(u'Storing htypotheses in: %s' % stored_hypotheses_filename)
         codecs.open(stored_hypotheses_filename, 'w').close()
 
     start_time = time.time()
@@ -322,9 +326,9 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                    pad_on_batch=dataset.pad_on_batch[params['INPUTS_IDS_DATASET'][0]],
                                    words_so_far=False,
                                    loading_X=True)[0]
-        if verbose > 1:
-            logging.info('Input sentence:  %s' % str(src_seq))
-            logging.info('Parsed sentence: %s' % str(map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0])))
+        if verbose > 2:
+            logging.info(u'Input sentence:  %s' % src_seq)
+            logging.info(u'Parsed sentence: %s' % map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0]))
 
         state_below = dataset.loadText([target_line],
                                        dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
@@ -344,30 +348,29 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                          words_so_far=False,
                                          sample_weights=params['SAMPLE_WEIGHTS'],
                                          loading_X=False)
-        if verbose > 1:
-            logging.info('Output sentence:  %s' % str(params_prediction['detokenize_f'](target_line)))
-            logging.info('Parsed sentence (state below): %s ' % map(
-                lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
+        if verbose > 2:
+            logging.info(u'Output sentence:  %s' % params_prediction['detokenize_f'](target_line))
+            logging.info(u'Parsed sentence (state below): %s ' % map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
         online_trainer.sample_and_train_online([src_seq, state_below],
                                                trg_seq,
                                                src_words=[source_line],
                                                trg_words=[params_prediction['detokenize_f'](target_line)])
         eta = (n_lines - (n_line + 1)) * (time.time() - start_time) / (n_line + 1)
-        sys.stdout.write("Processed %d/%d  -  ETA: %ds " % ((n_line + 1), n_lines, int(eta)))
+        sys.stdout.write(u"Processed %d/%d  -  ETA: %ds " % ((n_line + 1), n_lines, int(eta)))
         if dynamic_display:
             sys.stdout.write('\r')
         else:
             sys.stdout.write('\n')
         sys.stdout.flush()
 
-    sys.stdout.write('The online training took: %f secs (Speed: %f sec/sample)\n' %
+    sys.stdout.write(u'The online training took: %f secs (Speed: %f sec/sample)\n' %
                      ((time.time() - start_time), (time.time() - start_time) / n_lines))
 
-    sys.stdout.write('We updated the model %d times for %d samples (%.3f%%)\n' %
+    sys.stdout.write(u'We updated the model %d times for %d samples (%.3f%%)\n' %
                      (online_trainer.get_n_updates(), n_lines, float(online_trainer.get_n_updates()) / n_lines))
     if stored_hypotheses_filename is not None:
-        sys.stdout.write('The original hypotheses were stored in %s\n' % stored_hypotheses_filename)
+        sys.stdout.write(u'The original hypotheses were stored in %s\n' % stored_hypotheses_filename)
 
     [saveModel(nmt_model,
                -1,
