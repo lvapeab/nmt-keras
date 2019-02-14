@@ -958,6 +958,7 @@ class TranslationModel(Model_Wrapper):
             src_multihead = MultiHeadAttention(params['N_HEADS'],
                                                params['MODEL_SIZE'],
                                                activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
+                                               use_bias=True,
                                                dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                name='src_MultiHeadAttention_' + str(n_block))([src_residual_multihead,
                                                                                                src_residual_multihead])
@@ -1050,6 +1051,7 @@ class TranslationModel(Model_Wrapper):
             shared_trg_multihead = MultiHeadAttention(params['N_HEADS'],
                                                       params['MODEL_SIZE'],
                                                       activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
+                                                      use_bias=True,
                                                       dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                       mask_future=True,  # Avoid attending on future sequences
                                                       name='trg_MultiHeadAttention_' + str(n_block))
@@ -1071,6 +1073,7 @@ class TranslationModel(Model_Wrapper):
             shared_src_trg_multihead = MultiHeadAttention(params['N_HEADS'],
                                                           params['MODEL_SIZE'],
                                                           activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
+                                                          use_bias=True,
                                                           dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                           name='src_trg_MultiHeadAttention_' + str(n_block))
             shared_src_trg_multihead_list.append(shared_src_trg_multihead)
