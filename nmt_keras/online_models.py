@@ -3,6 +3,7 @@ from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import *
 from keras.losses import *
+from keras.regularizers import *
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
@@ -95,21 +96,58 @@ def build_online_models(models, params):
         # Add additional input layer to models in order to train with custom loss function
         for nmt_model in models:
             nmt_model.setParams(params)
-            if params['LOSS'] == 'log_diff' or params['LOSS'] == 'kl_diff':
-                x = Input(name="x", batch_shape=tuple([None, None]))
+            if params['LOSS'] == 'log_diff':
                 h_true = Input(name="h_true", batch_shape=tuple([None, None, None]))
                 y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
                 state_below_h = Input(name="state_below_h", batch_shape=tuple([None, None]))
                 y_pred = nmt_model.model.outputs[0]
                 h_pred = nmt_model.model([nmt_model.model.inputs[0], state_below_h])
+
                 loss_out = Lambda(eval(params['LOSS']),
                                   output_shape=(1,),
                                   name=params['LOSS'],
                                   supports_masking=False)([y_true, y_pred, h_true, h_pred])
+
                 trainer_model = Model(inputs=nmt_model.model.inputs + [state_below_h, y_true, h_true],
                                       outputs=loss_out)
+            elif params['LOSS'] == 'log_prob_kl_diff':
+                h_true = Input(name="h_true", batch_shape=tuple([None, None, None]))
+                y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
+                state_below_h = Input(name="state_below_h", batch_shape=tuple([None, None]))
+                y_pred = nmt_model.model.outputs[0]
+                h_pred = nmt_model.model([nmt_model.model.inputs[0], state_below_h])
+                weight = Input(name="weight", batch_shape=[None, 1])
 
-            elif params['LOSS'] == 'weighted_log_diff':
+                mask_y = Input(name="mask_y", batch_shape=tuple([None, None]))
+                mask_h = Input(name="mask_h", batch_shape=tuple([None, None]))
+
+                loss_out = Lambda(eval(params['LOSS']),
+                                  output_shape=(1,),
+                                  name=params['LOSS'],
+                                  supports_masking=False)([y_true, y_pred, h_true, h_pred, mask_y, mask_h, weight])
+
+                trainer_model = Model(inputs=nmt_model.model.inputs + [state_below_h, weight] + [y_true, h_true, mask_y, mask_h],
+                                      outputs=loss_out)
+            elif params['LOSS'] == 'minmax_categorical_crossentropy':
+                h_true = Input(name="h_true", batch_shape=tuple([None, None, None]))
+                y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
+                state_below_h = Input(name="state_below_h", batch_shape=tuple([None, None]))
+                y_pred = nmt_model.model.outputs[0]
+                h_pred = nmt_model.model([nmt_model.model.inputs[0], state_below_h])
+                weight_y = Input(name="weight_y", batch_shape=[None, 1])
+                weight_h = Input(name="weight_h", batch_shape=[None, 1])
+
+                mask_y = Input(name="mask_y", batch_shape=tuple([None, None]))
+                mask_h = Input(name="mask_h", batch_shape=tuple([None, None]))
+
+                loss_out = Lambda(eval(params['LOSS']),
+                                  output_shape=(1,),
+                                  name=params['LOSS'],
+                                  supports_masking=False)([y_true, y_pred, h_true, h_pred, mask_y, mask_h, weight_y, weight_h])
+
+                trainer_model = Model(inputs=nmt_model.model.inputs + [state_below_h] + [weight_y, weight_h] + [y_true, h_true, mask_y, mask_h],
+                                      outputs=loss_out)
+            elif params['LOSS'] == 'weighted_log_diff' or params['LOSS'] == 'pas_weighted_log_diff':
                 h_true = Input(name="h_true", batch_shape=tuple([None, None, None]))
                 y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
                 state_below_h = Input(name="state_below_h", batch_shape=tuple([None, None]))
@@ -123,57 +161,6 @@ def build_online_models(models, params):
                                   name=params['LOSS'],
                                   supports_masking=False)([y_true, y_pred, h_true, h_pred, mask_y, mask_h, weight])
                 trainer_model = Model(inputs=nmt_model.model.inputs + [state_below_h, weight] + [y_true, h_true, mask_y, mask_h],
-                                      outputs=loss_out)
-
-            elif params['LOSS'] == 'log_diff_plus_categorical_crossentropy':
-                hyp1 = Input(name="hyp1", batch_shape=tuple([None, None, None]))
-                hyp2 = Input(name="hyp2", batch_shape=tuple([None, None, None]))
-                y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
-                state_below_h1 = Input(name="state_below_h1", batch_shape=tuple([None, None]))
-                state_below_h2 = Input(name="state_below_h2", batch_shape=tuple([None, None]))
-                preds_h1 = nmt_model.model([nmt_model.model.inputs[0], state_below_h1])
-                preds_h2 = nmt_model.model([nmt_model.model.inputs[0], state_below_h2])
-                y_pred = nmt_model.model.outputs[0]
-                weight = Input(name="weight", batch_shape=tuple([None, 1]))
-                loss_out = Lambda(eval(params['LOSS']),
-                                  output_shape=(1,),
-                                  name=params['LOSS'],
-                                  supports_masking=False)([y_true, y_pred, hyp1, preds_h1, hyp2, preds_h2, weight])
-
-                trainer_model = Model(
-                    inputs=nmt_model.model.inputs + [state_below_h1, state_below_h2, weight] + [y_true, hyp1, hyp2],
-                    outputs=loss_out)
-
-            elif params['LOSS'] == 'linear_interpolation_categorical_crossentropy':
-                metric_value = Input(name="metric_value", batch_shape=tuple([None, 1]))
-                weight = Input(name="weight", batch_shape=tuple([None, 1]))
-                y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
-                y_pred = nmt_model.model.outputs[0]
-                loss_out = Lambda(eval(params['LOSS']),
-                                  output_shape=(None,),
-                                  name=params['LOSS'],
-                                  supports_masking=False)([y_true, y_pred, metric_value, weight])
-                trainer_model = Model(inputs=nmt_model.model.inputs + [y_true, metric_value, weight],
-                                      outputs=loss_out)
-
-            elif params['LOSS'] == 'hybrid_log_diff':
-                state_below_h1 = Input(name="state_below_h1", batch_shape=tuple([None, None]))
-                preds_h1 = nmt_model.model([nmt_model.model.inputs[0], state_below_h1])
-                hyp1 = Input(name="hyp1", batch_shape=tuple([None, None, None]))
-                y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
-                y_pred = nmt_model.model.outputs[0]
-
-                constant = Input(name="p_ty", batch_shape=tuple([None, 1]))
-                weight1 = Input(name="weight1", batch_shape=tuple([None, 1]))
-                weight2 = Input(name="weight2", batch_shape=tuple([None, 1]))
-                inputs = [y_true, y_pred, hyp1, preds_h1, weight1, weight2, constant]
-
-                loss_out = Lambda(eval(params['LOSS']),
-                                  output_shape=(None,),
-                                  name=params['LOSS'],
-                                  supports_masking=False)(inputs)
-                trainer_model = Model(inputs=nmt_model.model.inputs + [state_below_h1] + [y_true, hyp1, weight1,
-                                                                                          weight2, constant],
                                       outputs=loss_out)
 
             elif isinstance(params['LOSS'], list):
@@ -197,14 +184,13 @@ def build_online_models(models, params):
                                   supports_masking=False)([y_true, y_pred])
                 trainer_model = Model(inputs=nmt_model.model.inputs + [y_true],
                                       outputs=loss_out)
-
-            trainer_models.append(trainer_model)
-            # Set custom optimizer
-            weights = trainer_model.trainable_weights
-            # Weights from Keras 2 are already (topologically) sorted!
-            if not weights:
-                logging.warning("You don't have any trainable weight!!")
-            params['WEIGHT_SHAPES'] = [(w.name, K.get_variable_shape(w)) for w in weights]
+            if 'PAS' in params['OPTIMIZER']:
+                # Set custom optimizer
+                weights = trainer_model.trainable_weights
+                # Weights from Keras 2 are already (topologically) sorted!
+                if not weights:
+                    logging.warning("You don't have any trainable weight!!")
+                    params['WEIGHT_SHAPES'] = [(w.name, K.get_variable_shape(w)) for w in weights]
 
             if isinstance(params['LOSS'], str):
                 params['LOSS'] = {params['LOSS']: lambda y_true, y_pred: y_pred}
@@ -224,6 +210,7 @@ def build_online_models(models, params):
                                   #  As this is online training, we probably won't need sample_weight
                                   sample_weight_mode=None,  # 'temporal' if params['SAMPLE_WEIGHTS'] else None,
                                   metrics=params.get('KERAS_METRICS', []))
+            trainer_models.append(trainer_model)
         return trainer_models
     else:
         for nmt_model in models:
