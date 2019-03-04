@@ -6,7 +6,7 @@ scikit-image
 scikit-learn
 six
 pytables
-numpy
+numpy=1.15
 pandas
 scipy
 theano
