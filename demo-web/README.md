@@ -2,7 +2,7 @@
 
 This is a web demo of an interactive, adaptive neural machine translation system.
 
-![](https://github.com/lvapeab/nmt-keras/blob/master/demo-web/images/demo-system.gif)
+![](https://github.com/lvapeab/inmt_demo_web/blob/master/demo-web/images/demo-system.gif)
 
 ## Structure
 
