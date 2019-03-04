@@ -161,6 +161,9 @@ install:
   - export CORE_CHANGED=False;
   - export APP_CHANGED=False;
 
+  # Install Theano-1.0.4 (for compatibility with numpy>=1.16
+  - conda install -c conda-forge theano
+
   #install open mpi
   #  - rm -rf ~/mpi
   #  - mkdir ~/mpi
