@@ -464,10 +464,10 @@ def interactive_simulation():
                                 new_words[-1] = new_words[-1][:-2]
                             if checked_index_h >= len(hypothesis):
                                 # Insertions (at the end of the sentence)
+                                errors_sentence += 1
                                 # 2.2.9 Add a mouse action if we moved the pointer
                                 if checked_index_h - last_checked_index > 1:
                                     mouse_actions_sentence += 1
-                                mouse_actions_sentence += 1
                                 keystrokes_sentence += new_word_len
                                 new_word_indices = [word2index_y.get(word, unk_id) for word in new_words]
                                 validated_prefix.append(new_word_indices)
