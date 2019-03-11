@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
-    parser.add_argument("--max-n", type=int, default=5, help="Maximum number of words generated between isles")
+    parser.add_argument("--max-n", type=int, default=10, help="Maximum number of words generated between isles")
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=True)
     parser.add_argument("-trg", "--references", help="Reference sentence (for simulation)", required=True)
     parser.add_argument("-bpe-tok", "--tokenize-bpe", help="Apply BPE tokenization", action='store_true', default=True)
@@ -355,13 +355,12 @@ def interactive_simulation():
                                            words_so_far=False,
                                            loading_X=True)[0][0]
 
-                encoded_reference = tokenize_f(target_lines[n_line]) if args.tokenize_references else \
-                    target_lines[n_line]
+                encoded_reference = target_lines[n_line]
 
                 # Get reference as desired by the user, i.e. detokenized if necessary
                 reference = params_prediction['detokenize_f'](encoded_reference).split() if \
                     args.detokenize_bpe else encoded_reference.split()
-
+                encoded_reference = encoded_reference.split()
                 # Detokenize line for nicer logging :)
                 if args.detokenize_bpe:
                     src_line = params_prediction['detokenize_f'](src_line)
@@ -385,13 +384,13 @@ def interactive_simulation():
 
                 # 1.2 Decode hypothesis
                 encoded_hypothesis = decode_predictions_beam_search([trans_indices],
-                                                            index2word_y,
-                                                            alphas=alphas,
-                                                            x_text=sources,
-                                                            heuristic=heuristic,
-                                                            mapping=mapping,
-                                                            pad_sequences=True,
-                                                            verbose=0)[0]
+                                                                    index2word_y,
+                                                                    alphas=alphas,
+                                                                    x_text=sources,
+                                                                    heuristic=heuristic,
+                                                                    mapping=mapping,
+                                                                    pad_sequences=True,
+                                                                    verbose=0)[0]
                 # 1.3 Store result (optional)
                 hypothesis = params_prediction['detokenize_f'](encoded_hypothesis) \
                     if params_prediction.get('apply_detokenization', False) else encoded_hypothesis
@@ -423,26 +422,33 @@ def interactive_simulation():
                         # Stage 1: Isles selection
                         #   1. Select the multiple isles in the hypothesis.
                         if not args.prefix:
-                            hypothesis_isles = find_isles(encoded_hypothesis, encoded_reference)[0]
+                            hypothesis_isles = find_isles(hypothesis, reference)[0]
+                            tokenized_isles = []
+                            next_isle_bpe_offset = 0
+                            for isle_idx, isle in hypothesis_isles:
+                                tokenized_words_in_isle = []
+                                for word in isle:
+                                    tokenized_word = tokenize_f(word.encode('utf-8')).split()
+                                    tokenized_words_in_isle += tokenized_word
+                                tokenized_isle = (isle_idx + next_isle_bpe_offset, tokenized_words_in_isle)
+                                # tokenized_isle_indices = (isle_idx + next_isle_bpe_offset, [map(lambda x: word2index_y.get(x, unk_id), tokenized_isle)])
+                                # logger.debug(u"tokenized_isle_indices: %s" % (str(tokenized_isle_indices)))
+                                next_isle_bpe_offset += len(tokenized_words_in_isle) - len(isle)
+                                tokenized_isles.append(tokenized_isle)
+                            # isle_indices =  [(index, map(lambda x: word2index_y.get(x, unk_id), word)) for index, word in hypothesis_isles]
+
+                            # hypothesis_isles_words = [(index, params_prediction['detokenize_f'](u' '.join(isle)) for index, isle in hypothesis_isles)]
                             logger.debug(u"Isles: %s" % (str(hypothesis_isles)))
                             isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id),
                                                         flatten_list_of_lists(map(lambda y:
                                                                                   tokenize_f(y).split(),
                                                                                   word))))
-                                            for index, word in hypothesis_isles] \
+                                            for index, word in tokenized_isles] \
                                 if params_prediction['apply_tokenization'] else \
                                 [(index, map(lambda x: word2index_y.get(x, unk_id), word))
-                                 for index, word in hypothesis_isles]
+                                 for index, word in tokenized_isles]
 
-                            hypothesis_isles = [(index, flatten_list_of_lists(map(lambda y:
-                                                                                  tokenize_f(y).split(),
-                                                                                  word)))
-                                                for index, word in hypothesis_isles] \
-                                if params_prediction['apply_tokenization'] else hypothesis_isles
-
-                            unks_in_isles = [(index, map(lambda w: word2index_y.get(w, unk_id), word), word)
-                                             for index, word in hypothesis_isles]
-
+                            unks_in_isles = [(index, map(lambda w: word2index_y.get(w, unk_id), word), word) for index, word in tokenized_isles]
                             # Count only for non selected isles
                             # Isles of length 1 account for 1 mouse action
                             mouse_actions_sentence += compute_mouse_movements(isle_indices,
@@ -451,6 +457,7 @@ def interactive_simulation():
                         else:
                             isle_indices = []
                             unks_in_isles = []
+
                         # Stage 2: INMT
                         # From left to right, we will correct the hypotheses, taking into account the isles info
                         # At each timestep, the user can make two operations:
@@ -459,8 +466,7 @@ def interactive_simulation():
                         while checked_index_r < len(reference):  # We check all words in the reference
                             new_word = reference[checked_index_r]
                             new_word_len = len(new_word)
-                            new_words = tokenize_f(new_word).split() if \
-                                params_prediction['apply_tokenization'] else [new_word]
+                            new_words = tokenize_f(new_word.encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [new_word]
                             if new_words[-1][-2:] == bpe_separator:  # Remove potential subwords in user feedback.
                                 new_words[-1] = new_words[-1][:-2]
                             if checked_index_h >= len(hypothesis):
@@ -504,8 +510,7 @@ def interactive_simulation():
                                 break
                             else:
                                 # No errors
-                                correct_words_h = tokenize_f(hypothesis[checked_index_h]).split() if \
-                                    params_prediction['apply_tokenization'] else [hypothesis[checked_index_h]]
+                                correct_words_h = tokenize_f(hypothesis[checked_index_h].encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [reference[checked_index_h]]
                                 new_word_indices = [word2index_y.get(word, unk_id) for word in correct_words_h]
                                 validated_prefix.append(new_word_indices)
                                 for n_word, new_subword in enumerate(new_words):
@@ -542,15 +547,15 @@ def interactive_simulation():
                             alphas = None
 
                             encoded_hypothesis = decode_predictions_beam_search([trans_indices],
-                                                                        index2word_y,
-                                                                        alphas=alphas,
-                                                                        x_text=sources,
-                                                                        heuristic=heuristic,
-                                                                        mapping=mapping,
-                                                                        pad_sequences=True,
-                                                                        verbose=0)[0]
+                                                                                index2word_y,
+                                                                                alphas=alphas,
+                                                                                x_text=sources,
+                                                                                heuristic=heuristic,
+                                                                                mapping=mapping,
+                                                                                pad_sequences=True,
+                                                                                verbose=0)[0]
                             encoded_hypothesis = encoded_hypothesis.split()
-                            hypothesis = encoded_hypothesis.split()
+                            hypothesis = encoded_hypothesis
                             for (words_idx, starting_pos), words in unk_in_isles:
                                 for pos_unk_word, pos_hypothesis in enumerate(range(starting_pos, starting_pos + len(words_idx))):
                                     hypothesis[pos_hypothesis] = words[pos_unk_word]
