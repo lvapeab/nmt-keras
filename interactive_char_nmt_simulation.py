@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+import time
 import argparse
 import ast
 import codecs
 import copy
 import logging
-import time
 from collections import OrderedDict
 
 from keras_wrapper.model_ensemble import InteractiveBeamSearchSampler
@@ -96,7 +97,7 @@ def generate_constrained_hypothesis(beam_searcher, src_seq, fixed_words_user, pa
         if unk_id in isle_sequence:
             unk_in_isles.append((subfinder(isle_sequence, list(trans_indices)), isle_words))
 
-    if params['pos_unk']:
+    if params.get('pos_unk', False):
         alphas = [alphas]
     else:
         alphas = None
@@ -152,14 +153,14 @@ def interactive_simulation():
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
             except ValueError:
                 params[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
     check_params(params)
@@ -170,14 +171,12 @@ def interactive_simulation():
     # Dataset backwards compatibility
     bpe_separator = dataset.BPE_separator if hasattr(dataset, "BPE_separator") and dataset.BPE_separator is not None else u'@@'
     # Set tokenization method
-    params['TOKENIZATION_METHOD'] = 'tokenize_bpe' if args.tokenize_bpe else \
-        params.get('TOKENIZATION_METHOD', 'tokenize_none')
+    params['TOKENIZATION_METHOD'] = 'tokenize_bpe' if args.tokenize_bpe else params.get('TOKENIZATION_METHOD', 'tokenize_none')
     # Build BPE tokenizer if necessary
     if 'bpe' in params['TOKENIZATION_METHOD'].lower():
         logger.info('Building BPE')
         if not dataset.BPE_built:
-            dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'),
-                              bpe_separator)
+            dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'), bpe_separator)
     # Build tokenization function
     tokenize_f = eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none'))
 
@@ -214,6 +213,8 @@ def interactive_simulation():
 
                                              }
         }
+    else:
+        params_training = dict()
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -257,6 +258,8 @@ def interactive_simulation():
     if args.original_dest is not None:
         logger.info("<<< Storing original hypotheses into: %s >>>" % str(args.original_dest))
         ftrans_ori = open(args.original_dest, 'w')
+        ftrans_ori.close()
+
     ftrg = codecs.open(args.references, 'r', encoding='utf-8')  # File with post-edited (or reference) sentences.
     target_lines = ftrg.read().split('\n')
     if target_lines[-1] == u'':
@@ -295,16 +298,14 @@ def interactive_simulation():
                                  'state_below_index': -1,
                                  'output_text_index': 0,
                                  'apply_tokenization': params.get('APPLY_TOKENIZATION', False),
-                                 'tokenize_f': eval('dataset.' +
-                                                    params.get('TOKENIZATION_METHOD', 'tokenize_none')),
-
+                                 'tokenize_f': eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none')),
                                  'apply_detokenization': params.get('APPLY_DETOKENIZATION', True),
-                                 'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD',
-                                                                              'detokenize_none')),
+                                 'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none')),
                                  'coverage_penalty': params.get('COVERAGE_PENALTY', False),
                                  'length_penalty': params.get('LENGTH_PENALTY', False),
                                  'length_norm_factor': params.get('LENGTH_NORM_FACTOR', 0.0),
                                  'coverage_norm_factor': params.get('COVERAGE_NORM_FACTOR', 0.0),
+                                 'state_below_maxlen': -1 if params.get('PAD_ON_BATCH', True) else params.get('MAX_OUTPUT_TEXT_LEN_TEST', 50),
                                  'output_max_length_depending_on_x': params.get('MAXLEN_GIVEN_X', True),
                                  'output_max_length_depending_on_x_factor': params.get('MAXLEN_GIVEN_X_FACTOR', 3),
                                  'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
@@ -393,12 +394,12 @@ def interactive_simulation():
                 hypothesis = params_prediction['detokenize_f'](hypothesis) \
                     if params_prediction.get('apply_detokenization', False) else hypothesis
                 if args.original_dest is not None:
-                    filepath = args.original_dest  # results file
                     if params['SAMPLING_SAVE_MODE'] == 'list':
-                        list2file(filepath, [hypothesis], permission='a')
+                        list2file(args.original_dest, [hypothesis], permission='a')
                     else:
                         raise Exception('Only "list" is allowed in "SAMPLING_SAVE_MODE"')
                 logger.debug(u'Hypo_%d: %s' % (hypothesis_number, hypothesis))
+
                 # 2.0 Interactive translation
                 if hypothesis == reference:
                     # 2.1 If the sentence is correct, we  validate it
@@ -516,7 +517,6 @@ def interactive_simulation():
                               float(total_mouse_actions) / total_chars,
                               float(total_errors + total_mouse_actions) / total_chars
                               ))
-
                 # 4. If we are performing OL after each correct sample:
                 if args.online:
                     # 4.1 Compute model inputs
@@ -547,12 +547,9 @@ def interactive_simulation():
                     online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq,
                                                 trg_words=[reference])
                 # 5 Write correct sentences into a file
-                print >> ftrans, hypothesis
+                list2file(args.dest, [hypothesis], permission='a')
 
                 if (n_line + 1) % 50 == 0:
-                    ftrans.flush()
-                    if args.original_dest is not None:
-                        ftrans_ori.flush()
                     logger.info(u"%d sentences processed" % (n_line + 1))
                     logger.info(u"Current speed is {} per sentence".format((time.time() - start_time) / (n_line + 1)))
                     logger.info(u"Current WSR is: %f" % (float(total_errors) / total_words))
@@ -561,25 +558,25 @@ def interactive_simulation():
                     logger.info(u"Current KSMR is: %f" % (float(total_errors + total_mouse_actions) / total_chars))
         # 6. Final!
         # 6.1 Log some information
-        print u"Total number of errors:", total_errors
-        print u"Total number selections", total_mouse_actions
-        print u"WSR: %f" % (float(total_errors) / total_words)
-        print u"MAR: %f" % (float(total_mouse_actions) / total_words)
-        print u"MAR_c: %f" % (float(total_mouse_actions) / total_chars)
-        print u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
+        print (u"Total number of errors:", total_errors)
+        print (u"Total number selections", total_mouse_actions)
+        print (u"WSR: %f" % (float(total_errors) / total_words))
+        print (u"MAR: %f" % (float(total_mouse_actions) / total_words))
+        print (u"MAR_c: %f" % (float(total_mouse_actions) / total_chars))
+        print (u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars))
         # 6.2 Close open files
         fsrc.close()
         ftrans.close()
-        if args.original_dest is not None:
-            ftrans_ori.close()
     except KeyboardInterrupt:
-        print u'Interrupted!'
-        print u"Total number of corrections (up to now):", total_errors
-        print u"WSR: %f" % (float(total_errors) / total_words)
-        print u"MAR: %f" % (float(total_mouse_actions) / total_words)
-        print u"MAR_c: %f" % (float(total_mouse_actions) / total_chars)
-        print u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
-
+        print (u'Interrupted!')
+        print (u"Total number of corrections (up to now):", total_errors)
+        print (u"WSR: %f" % (float(total_errors) / total_words))
+        print (u"MAR: %f" % (float(total_mouse_actions) / total_words))
+        print (u"MAR_c: %f" % (float(total_mouse_actions) / total_chars))
+        print (u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars))
+        # 6.2 Close open files
+        fsrc.close()
+        ftrans.close()
 
 if __name__ == "__main__":
     interactive_simulation()
