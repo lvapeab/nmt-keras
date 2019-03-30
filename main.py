@@ -73,7 +73,7 @@ if __name__ == "__main__":
     elif parameters['MODE'] == 'training':
         logging.info('Running training.')
         train_model(parameters, args.dataset)
+        logging.info('Done!')
     elif parameters['MODE'] == 'sampling':
         logging.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
         exit(2)
-    logging.info('Done!')

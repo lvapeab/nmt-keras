@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+import time
 import argparse
 import ast
 import codecs
@@ -42,7 +44,7 @@ def parse_args():
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
-    parser.add_argument("--max-n", type=int, default=5, help="Maximum number of words generated between isles")
+    parser.add_argument("--max-n", type=int, default=3, help="Maximum number of words generated between isles")
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=True)
     parser.add_argument("-trg", "--references", help="Reference sentence (for simulation)", required=True)
     parser.add_argument("-bpe-tok", "--tokenize-bpe", help="Apply BPE tokenization", action='store_true', default=True)
@@ -152,14 +154,14 @@ def interactive_simulation():
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
             except ValueError:
                 params[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
     check_params(params)
@@ -170,14 +172,12 @@ def interactive_simulation():
     # Dataset backwards compatibility
     bpe_separator = dataset.BPE_separator if hasattr(dataset, "BPE_separator") and dataset.BPE_separator is not None else u'@@'
     # Set tokenization method
-    params['TOKENIZATION_METHOD'] = 'tokenize_bpe' if args.tokenize_bpe else \
-        params.get('TOKENIZATION_METHOD', 'tokenize_none')
+    params['TOKENIZATION_METHOD'] = 'tokenize_bpe' if args.tokenize_bpe else params.get('TOKENIZATION_METHOD', 'tokenize_none')
     # Build BPE tokenizer if necessary
     if 'bpe' in params['TOKENIZATION_METHOD'].lower():
         logger.info('Building BPE')
         if not dataset.BPE_built:
-            dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'),
-                              bpe_separator)
+            dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'), bpe_separator)
     # Build tokenization function
     tokenize_f = eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none'))
 
@@ -214,6 +214,8 @@ def interactive_simulation():
 
                                              }
         }
+    else:
+        params_training = dict()
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -257,6 +259,8 @@ def interactive_simulation():
     if args.original_dest is not None:
         logger.info("<<< Storing original hypotheses into: %s >>>" % str(args.original_dest))
         ftrans_ori = open(args.original_dest, 'w')
+        ftrans_ori.close()
+
     ftrg = codecs.open(args.references, 'r', encoding='utf-8')  # File with post-edited (or reference) sentences.
     target_lines = ftrg.read().split('\n')
     if target_lines[-1] == u'':
@@ -296,16 +300,14 @@ def interactive_simulation():
                                  'state_below_index': -1,
                                  'output_text_index': 0,
                                  'apply_tokenization': params.get('APPLY_TOKENIZATION', False),
-                                 'tokenize_f': eval('dataset.' +
-                                                    params.get('TOKENIZATION_METHOD', 'tokenize_none')),
-
+                                 'tokenize_f': eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none')),
                                  'apply_detokenization': params.get('APPLY_DETOKENIZATION', True),
-                                 'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD',
-                                                                              'detokenize_none')),
+                                 'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD', 'detokenize_none')),
                                  'coverage_penalty': params.get('COVERAGE_PENALTY', False),
                                  'length_penalty': params.get('LENGTH_PENALTY', False),
                                  'length_norm_factor': params.get('LENGTH_NORM_FACTOR', 0.0),
                                  'coverage_norm_factor': params.get('COVERAGE_NORM_FACTOR', 0.0),
+                                 'state_below_maxlen': -1 if params.get('PAD_ON_BATCH', True) else params.get('MAX_OUTPUT_TEXT_LEN_TEST', 50),
                                  'output_max_length_depending_on_x': params.get('MAXLEN_GIVEN_X', True),
                                  'output_max_length_depending_on_x_factor': params.get('MAXLEN_GIVEN_X_FACTOR', 3),
                                  'output_min_length_depending_on_x': params.get('MINLEN_GIVEN_X', True),
@@ -355,13 +357,12 @@ def interactive_simulation():
                                            words_so_far=False,
                                            loading_X=True)[0][0]
 
-                encoded_reference = tokenize_f(target_lines[n_line]) if args.tokenize_references else \
-                    target_lines[n_line]
+                encoded_reference = target_lines[n_line]
 
                 # Get reference as desired by the user, i.e. detokenized if necessary
                 reference = params_prediction['detokenize_f'](encoded_reference).split() if \
                     args.detokenize_bpe else encoded_reference.split()
-
+                encoded_reference = encoded_reference.split()
                 # Detokenize line for nicer logging :)
                 if args.detokenize_bpe:
                     src_line = params_prediction['detokenize_f'](src_line)
@@ -385,13 +386,13 @@ def interactive_simulation():
 
                 # 1.2 Decode hypothesis
                 encoded_hypothesis = decode_predictions_beam_search([trans_indices],
-                                                            index2word_y,
-                                                            alphas=alphas,
-                                                            x_text=sources,
-                                                            heuristic=heuristic,
-                                                            mapping=mapping,
-                                                            pad_sequences=True,
-                                                            verbose=0)[0]
+                                                                    index2word_y,
+                                                                    alphas=alphas,
+                                                                    x_text=sources,
+                                                                    heuristic=heuristic,
+                                                                    mapping=mapping,
+                                                                    pad_sequences=True,
+                                                                    verbose=0)[0]
                 # 1.3 Store result (optional)
                 hypothesis = params_prediction['detokenize_f'](encoded_hypothesis) \
                     if params_prediction.get('apply_detokenization', False) else encoded_hypothesis
@@ -423,26 +424,33 @@ def interactive_simulation():
                         # Stage 1: Isles selection
                         #   1. Select the multiple isles in the hypothesis.
                         if not args.prefix:
-                            hypothesis_isles = find_isles(encoded_hypothesis, encoded_reference)[0]
+                            hypothesis_isles = find_isles(hypothesis, reference)[0]
+                            tokenized_isles = []
+                            next_isle_bpe_offset = 0
+                            for isle_idx, isle in hypothesis_isles:
+                                tokenized_words_in_isle = []
+                                for word in isle:
+                                    tokenized_word = tokenize_f(word.encode('utf-8')).split()
+                                    tokenized_words_in_isle += tokenized_word
+                                tokenized_isle = (isle_idx + next_isle_bpe_offset, tokenized_words_in_isle)
+                                # tokenized_isle_indices = (isle_idx + next_isle_bpe_offset, [map(lambda x: word2index_y.get(x, unk_id), tokenized_isle)])
+                                # logger.debug(u"tokenized_isle_indices: %s" % (str(tokenized_isle_indices)))
+                                next_isle_bpe_offset += len(tokenized_words_in_isle) - len(isle)
+                                tokenized_isles.append(tokenized_isle)
+                            # isle_indices =  [(index, map(lambda x: word2index_y.get(x, unk_id), word)) for index, word in hypothesis_isles]
+
+                            # hypothesis_isles_words = [(index, params_prediction['detokenize_f'](u' '.join(isle)) for index, isle in hypothesis_isles)]
                             logger.debug(u"Isles: %s" % (str(hypothesis_isles)))
                             isle_indices = [(index, map(lambda x: word2index_y.get(x, unk_id),
                                                         flatten_list_of_lists(map(lambda y:
                                                                                   tokenize_f(y).split(),
                                                                                   word))))
-                                            for index, word in hypothesis_isles] \
+                                            for index, word in tokenized_isles] \
                                 if params_prediction['apply_tokenization'] else \
                                 [(index, map(lambda x: word2index_y.get(x, unk_id), word))
-                                 for index, word in hypothesis_isles]
+                                 for index, word in tokenized_isles]
 
-                            hypothesis_isles = [(index, flatten_list_of_lists(map(lambda y:
-                                                                                  tokenize_f(y).split(),
-                                                                                  word)))
-                                                for index, word in hypothesis_isles] \
-                                if params_prediction['apply_tokenization'] else hypothesis_isles
-
-                            unks_in_isles = [(index, map(lambda w: word2index_y.get(w, unk_id), word), word)
-                                             for index, word in hypothesis_isles]
-
+                            unks_in_isles = [(index, map(lambda w: word2index_y.get(w, unk_id), word), word) for index, word in tokenized_isles]
                             # Count only for non selected isles
                             # Isles of length 1 account for 1 mouse action
                             mouse_actions_sentence += compute_mouse_movements(isle_indices,
@@ -451,6 +459,7 @@ def interactive_simulation():
                         else:
                             isle_indices = []
                             unks_in_isles = []
+
                         # Stage 2: INMT
                         # From left to right, we will correct the hypotheses, taking into account the isles info
                         # At each timestep, the user can make two operations:
@@ -459,8 +468,7 @@ def interactive_simulation():
                         while checked_index_r < len(reference):  # We check all words in the reference
                             new_word = reference[checked_index_r]
                             new_word_len = len(new_word)
-                            new_words = tokenize_f(new_word).split() if \
-                                params_prediction['apply_tokenization'] else [new_word]
+                            new_words = tokenize_f(new_word.encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [new_word]
                             if new_words[-1][-2:] == bpe_separator:  # Remove potential subwords in user feedback.
                                 new_words[-1] = new_words[-1][:-2]
                             if checked_index_h >= len(hypothesis):
@@ -504,8 +512,7 @@ def interactive_simulation():
                                 break
                             else:
                                 # No errors
-                                correct_words_h = tokenize_f(hypothesis[checked_index_h]).split() if \
-                                    params_prediction['apply_tokenization'] else [hypothesis[checked_index_h]]
+                                correct_words_h = tokenize_f(hypothesis[checked_index_h].encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [reference[checked_index_h]]
                                 new_word_indices = [word2index_y.get(word, unk_id) for word in correct_words_h]
                                 validated_prefix.append(new_word_indices)
                                 for n_word, new_subword in enumerate(new_words):
@@ -542,15 +549,15 @@ def interactive_simulation():
                             alphas = None
 
                             encoded_hypothesis = decode_predictions_beam_search([trans_indices],
-                                                                        index2word_y,
-                                                                        alphas=alphas,
-                                                                        x_text=sources,
-                                                                        heuristic=heuristic,
-                                                                        mapping=mapping,
-                                                                        pad_sequences=True,
-                                                                        verbose=0)[0]
+                                                                                index2word_y,
+                                                                                alphas=alphas,
+                                                                                x_text=sources,
+                                                                                heuristic=heuristic,
+                                                                                mapping=mapping,
+                                                                                pad_sequences=True,
+                                                                                verbose=0)[0]
                             encoded_hypothesis = encoded_hypothesis.split()
-                            hypothesis = encoded_hypothesis.split()
+                            hypothesis = encoded_hypothesis
                             for (words_idx, starting_pos), words in unk_in_isles:
                                 for pos_unk_word, pos_hypothesis in enumerate(range(starting_pos, starting_pos + len(words_idx))):
                                     hypothesis[pos_hypothesis] = words[pos_unk_word]
@@ -595,23 +602,25 @@ def interactive_simulation():
                                                                       reference.encode('utf-8'))
                 # 3. Update user effort counters
                 mouse_actions_sentence += 1  # This +1 is the validation action
-                chars_sentence = len(' '.join(hypothesis))
+                chars_sentence = len(u' '.join(hypothesis))
                 total_errors += errors_sentence
                 total_words += len(hypothesis)
                 total_chars += chars_sentence
                 total_keystrokes += keystrokes_sentence
                 total_mouse_actions += mouse_actions_sentence
+
+                # 3.1 Log some info
                 logger.debug(u"Final hypotesis: %s" % u' '.join(hypothesis))
-                logger.debug("%d errors. "
-                             "Sentence WSR: %4f. "
-                             "Sentence mouse strokes: %d "
-                             "Sentence MAR: %4f. "
-                             "Sentence MAR_c: %4f. "
-                             "Sentence **KSMR**: %4f. "
-                             "Accumulated (should only be considered for debugging purposes!) WSR: %4f. "
-                             "MAR: %4f. "
-                             "MAR_c: %4f."
-                             "**KSMR**: %4f.\n\n\n\n" %
+                logger.debug(u"%d errors. "
+                             u"Sentence WSR: %4f. "
+                             u"Sentence mouse strokes: %d "
+                             u"Sentence MAR: %4f. "
+                             u"Sentence MAR_c: %4f. "
+                             u"Sentence **KSMR**: %4f. "
+                             u"Accumulated (should only be considered for debugging purposes!) WSR: %4f. "
+                             u"MAR: %4f. "
+                             u"MAR_c: %4f."
+                             u"**KSMR**: %4f.\n\n\n\n" %
                              (errors_sentence,
                               float(errors_sentence) / len(hypothesis),
                               mouse_actions_sentence,
@@ -623,7 +632,6 @@ def interactive_simulation():
                               float(total_mouse_actions) / total_chars,
                               float(total_keystrokes + total_mouse_actions) / total_chars,
                               ))
-
                 # 4. If we are performing OL after each correct sample:
                 if args.online:
                     # 4.1 Compute model inputs
@@ -653,38 +661,36 @@ def interactive_simulation():
                     # 4.2 Train online!
                     online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq,
                                                 trg_words=[reference])
-
-                print >> ftrans, u" ".join(hypothesis)
+                # 5 Write correct sentences into a file
+                list2file(args.dest, [hypothesis], permission='a')
 
                 if (n_line + 1) % 50 == 0:
-                    ftrans.flush()
-                    if args.original_dest is not None:
-                        ftrans_ori.flush()
                     logger.info(u"%d sentences processed" % (n_line + 1))
                     logger.info(u"Current speed is {} per sentence".format((time.time() - start_time) / (n_line + 1)))
                     logger.info(u"Current WSR is: %f" % (float(total_errors) / total_words))
                     logger.info(u"Current MAR is: %f" % (float(total_mouse_actions) / total_words))
                     logger.info(u"Current MAR_c is: %f" % (float(total_mouse_actions) / total_chars))
                     logger.info(u"Current **KSMR** is: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars))
-
-        print u"Total number of errors:", total_errors
-        print u"Total number selections", total_mouse_actions
-        print u"WSR: %f" % (float(total_errors) / total_words)
-        print u"MAR: %f" % (float(total_mouse_actions) / total_words)
-        print u"MAR_c: %f" % (float(total_mouse_actions) / total_chars)
-        print u"**KSMR**: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars)
+        # 6. Final!
+        # 6.1 Log some information
+        print (u"Total number of errors:", total_errors)
+        print (u"Total number selections", total_mouse_actions)
+        print (u"WSR: %f" % (float(total_errors) / total_words))
+        print (u"MAR: %f" % (float(total_mouse_actions) / total_words))
+        print (u"MAR_c: %f" % (float(total_mouse_actions) / total_chars))
+        print (u"**KSMR**: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars))
         # 6.2 Close open files
         fsrc.close()
         ftrans.close()
-        if args.original_dest is not None:
-            ftrans_ori.close()
     except KeyboardInterrupt:
-        print u'Interrupted!'
-        print u"Total number of corrections (up to now):", total_errors
-        print u"WSR: %f" % (float(total_errors) / total_words)
-        print u"SR: %f" % (float(total_mouse_actions) / n_line)
-        print u"**KSMR**: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars)
-
+        print (u'Interrupted!')
+        print (u"Total number of corrections (up to now):", total_errors)
+        print (u"WSR: %f" % (float(total_errors) / total_words))
+        print (u"SR: %f" % (float(total_mouse_actions) / n_line))
+        print (u"**KSMR**: %f" % (float(total_keystrokes + total_mouse_actions) / total_chars))
+        # 6.2 Close open files
+        fsrc.close()
+        ftrans.close()
 
 if __name__ == "__main__":
     interactive_simulation()
