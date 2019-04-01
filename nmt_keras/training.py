@@ -47,8 +47,10 @@ def train_model(params, load_dataset=None):
                 dataset = loadDataset(
                     params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] +
                     params['TRG_LAN'] + '.pkl')
-                params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
-                    int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+
+                epoch_offset = 0 if dataset.len_train == 0 else int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+                params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else epoch_offset
+
                 for split, filename in iteritems(params['TEXT_FILES']):
                     dataset = update_dataset_from_file(dataset,
                                                        params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
