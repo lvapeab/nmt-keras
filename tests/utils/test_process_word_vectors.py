@@ -11,7 +11,7 @@ def test_text_word2vec2npy():
     vectors_name = 'wiki.fiu_vro.vec'
     path = os.path.dirname(inspect.getfile(inspect.currentframe()))
     if not os.path.exists(path + '/' + vectors_name):
-        call(["wget https://s3-us-west-1.amazonaws.com/fasttext-vectors/" + vectors_name + " -O " +
+        call(["wget https://dl.fbaipublicfiles.com/fasttext/vectors-wiki/" + vectors_name + " -O " +
               path + "/" + vectors_name],
              shell=True)
     txtvec2npy(path + '/' + vectors_name, './', vectors_name[:-4])
