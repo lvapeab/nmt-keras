@@ -23,6 +23,7 @@ from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_
 from nmt_keras.model_zoo import TranslationModel
 from nmt_keras.online_models import build_online_models
 from utils.utils import update_parameters
+from sys import version_info
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -468,7 +469,11 @@ def interactive_simulation():
                         while checked_index_r < len(reference):  # We check all words in the reference
                             new_word = reference[checked_index_r]
                             new_word_len = len(new_word)
-                            new_words = tokenize_f(new_word.encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [new_word]
+                            if version_info[0] < 3:  # Execute different code for python 2 or 3
+                                new_words = tokenize_f(new_word.encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [new_word]
+                            else:
+                                new_words = tokenize_f(str(new_word.encode('utf-8'),
+                                                           'utf-8')).split()  # if params_prediction['apply_tokenization'] else [new_word]
                             if new_words[-1][-2:] == bpe_separator:  # Remove potential subwords in user feedback.
                                 new_words[-1] = new_words[-1][:-2]
                             if checked_index_h >= len(hypothesis):
@@ -512,7 +517,11 @@ def interactive_simulation():
                                 break
                             else:
                                 # No errors
-                                correct_words_h = tokenize_f(hypothesis[checked_index_h].encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [reference[checked_index_h]]
+                                if version_info[0] < 3:  # Execute different code for python 2 or 3
+                                    correct_words_h = tokenize_f(hypothesis[checked_index_h].encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [reference[checked_index_h]]
+                                else:
+                                    correct_words_h = tokenize_f(str(hypothesis[checked_index_h].encode(
+                                        'utf-8'), 'utf-8')).split()  # if params_prediction['apply_tokenization'] else [reference[checked_index_h]]
                                 new_word_indices = [word2index_y.get(word, unk_id) for word in correct_words_h]
                                 validated_prefix.append(new_word_indices)
                                 for n_word, new_subword in enumerate(new_words):

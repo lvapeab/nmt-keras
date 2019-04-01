@@ -437,7 +437,7 @@ def interactive_simulation():
                                 unk_words_dict[pos] = word
 
                         # 2.2.6 Constrain search for the last word
-                        last_user_word_pos = fixed_words_user.keys()[-1]
+                        last_user_word_pos = list(fixed_words_user.keys())[-1]
                         if next_correction != u' ':
                             last_user_word = tokenized_validated_prefix.split()[-1]
                             filtered_idx2word = dict((word2index_y[candidate_word], candidate_word)
@@ -456,8 +456,8 @@ def interactive_simulation():
                         hypothesis = generate_constrained_hypothesis(interactive_beam_searcher, src_seq, fixed_words_user, params_prediction, args,
                                                                      isle_indices, filtered_idx2word,
                                                                      index2word_y, sources, heuristic,
-                                                                     mapping, unk_words_dict.keys(),
-                                                                     unk_words_dict.values(), unks_in_isles)
+                                                                     mapping, list(unk_words_dict.keys()),
+                                                                     list(unk_words_dict.values()), unks_in_isles)
                         hypothesis_number += 1
                         hypothesis = u' '.join(hypothesis)  # Hypothesis is unicode
                         hypothesis = params_prediction['detokenize_f'](hypothesis) \
