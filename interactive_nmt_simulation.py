@@ -469,7 +469,7 @@ def interactive_simulation():
                         while checked_index_r < len(reference):  # We check all words in the reference
                             new_word = reference[checked_index_r]
                             new_word_len = len(new_word)
-                            if version_info[0] < 3: #Execute different code for python 2 or 3
+                            if version_info[0] < 3:  # Execute different code for python 2 or 3
                                 new_words = tokenize_f(new_word.encode('utf-8')).split()  # if params_prediction['apply_tokenization'] else [new_word]
                             else:
                                 new_words = tokenize_f(str(new_word.encode('utf-8'),
