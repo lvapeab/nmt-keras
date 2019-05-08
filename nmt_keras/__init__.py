@@ -46,4 +46,17 @@ def check_params(params):
     if params['COVERAGE_PENALTY']:
         assert params['OPTIMIZED_SEARCH'], 'The application of "COVERAGE_PENALTY" requires ' \
                                            'to use the optimized search ("OPTIMIZED_SEARCH" parameter).'
+
+    if 'from_logits' in params.get('LOSS', 'categorical_crossentropy'):
+        if params.get('CLASSIFIER_ACTIVATION', 'softmax'):
+            params['CLASSIFIER_ACTIVATION'] = None
+
+    if params.get('LABEL_SMOOTHING', 0.) and 'sparse' in params.get('LOSS', 'categorical_crossentropy'):
+        logger.warn('Label smoothing with sparse outputs is still unimplemented')
+
+    if params.get('TRAIN_ONLY_LAST_LAYER'):
+        logger.info('Training only last layer.')
+        params['TRAINABLE_ENCODER'] = False
+        params['TRAINABLE_DECODER'] = False
+
     return params

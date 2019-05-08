@@ -55,6 +55,7 @@ def buildCallbacks(params, model, dataset):
             extra_vars['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
             extra_vars['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
             extra_vars['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
+            extra_vars['glossary'] = None if params.get('GLOSSARY', None) is None else pkl2dict(params.get('GLOSSARY'))
 
             if params['POS_UNK']:
                 extra_vars['heuristic'] = params['HEURISTIC']
@@ -86,6 +87,7 @@ def buildCallbacks(params, model, dataset):
                                                                              write_type=params['SAMPLING_SAVE_MODE'],
                                                                              eval_on_epochs=params['EVAL_EACH_EPOCHS'],
                                                                              save_each_evaluation=params['SAVE_EACH_EVALUATION'],
+                                                                             do_plot=params.get('PLOT_EVALUATION', False),
                                                                              verbose=params['VERBOSE'])
 
             callbacks.append(callback_metric)

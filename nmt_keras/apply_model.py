@@ -5,7 +5,7 @@ try:
 except ImportError:
     pass
 import logging
-from keras_wrapper.extra.read_write import list2file, nbest2file, list2stdout, numpy2file
+from keras_wrapper.extra.read_write import list2file, nbest2file, list2stdout, numpy2file, pkl2dict
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -73,10 +73,18 @@ def sample_ensemble(args, params):
     params_prediction['output_min_length_depending_on_x'] = params.get('MINLEN_GIVEN_X', True)
     params_prediction['output_min_length_depending_on_x_factor'] = params.get('MINLEN_GIVEN_X_FACTOR', 2)
     params_prediction['attend_on_output'] = params.get('ATTEND_ON_OUTPUT', 'transformer' in params['MODEL_TYPE'].lower())
+    params_prediction['glossary'] = params.get('GLOSSARY', None)
 
     heuristic = params.get('HEURISTIC', 0)
     mapping = None if dataset.mapping == dict() else dataset.mapping
     model_weights = args.weights
+
+    if args.glossary is not None:
+        glossary = pkl2dict(args.glossary)
+    elif params_prediction['glossary'] is not None:
+        glossary = pkl2dict(params_prediction['glossary'])
+    else:
+        glossary = None
 
     if model_weights is not None and model_weights != []:
         assert len(model_weights) == len(models), 'You should give a weight to each model. You gave %d models and %d weights.' % (len(models), len(model_weights))
@@ -106,6 +114,7 @@ def sample_ensemble(args, params):
 
         predictions = decode_predictions_beam_search(samples,
                                                      index2word_y,
+                                                     glossary=glossary,
                                                      alphas=alphas,
                                                      x_text=sources,
                                                      heuristic=heuristic,
@@ -122,6 +131,7 @@ def sample_ensemble(args, params):
                 for n_best_pred, n_best_score, n_best_alpha in zip(n_best_preds, n_best_scores, n_best_alphas):
                     pred = decode_predictions_beam_search([n_best_pred],
                                                           index2word_y,
+                                                          glossary=glossary,
                                                           alphas=[n_best_alpha] if params_prediction['pos_unk'] else None,
                                                           x_text=[sources[i]] if params_prediction['pos_unk'] else None,
                                                           heuristic=heuristic,

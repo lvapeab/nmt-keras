@@ -161,6 +161,9 @@ install:
   - export CORE_CHANGED=False;
   - export APP_CHANGED=False;
 
+  # Install Theano-1.0.4 (for compatibility with numpy>=1.16
+  - conda install -c conda-forge theano
+
   #install open mpi
   #  - rm -rf ~/mpi
   #  - mkdir ~/mpi
@@ -179,9 +182,9 @@ script:
   - sed -i -e 's/"backend":[[:space:]]*"[^"]*/"backend":\ "'$KERAS_BACKEND'/g' ~/.keras/keras.json;
   - echo -e "Running tests with the following config:\n$(cat ~/.keras/keras.json)"
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
-      PYTHONPATH=$PWD:$PYTHONPATH pytest --pep8 -m pep8 -n0;
+      PYTHONPATH=$PWD:$PYTHONPATH python -m pytest --pep8 -m pep8 -n0;
     elif [[ "$TEST_MODE" == "GENERAL" ]]; then
-      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/ tests/utils/ tests/data_engine/ 2>&1 ;
+      PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_load_params.py tests/utils/ tests/data_engine/ 2>&1 ;
     elif [[ "$TEST_MODE" == "ENCODINGS" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/encodings/ 2>&1 ;
     else

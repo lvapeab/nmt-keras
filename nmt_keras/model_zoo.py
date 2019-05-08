@@ -8,6 +8,7 @@ except ImportError:
 
 import logging
 import os
+import sys
 
 from keras.layers import *
 from keras.models import model_from_json, Model
@@ -151,6 +152,8 @@ class TranslationModel(Model_Wrapper):
         if verbose > 0:
             print(str(self))
             self.model.summary()
+            sys.stdout.flush()
+
         if set_optimizer:
             self.setOptimizer()
 
@@ -163,23 +166,21 @@ class TranslationModel(Model_Wrapper):
         The configuration is read from Translation_Model.params.
         :return: None
         """
+        if int(self.params.get('ACCUMULATE_GRADIENTS', 1)) > 1 and self.params['OPTIMIZER'].lower() != 'adam':
+            logging.warning('Gradient accumulate is only implemented for the Adam optimizer. Setting "ACCUMULATE_GRADIENTS" to 1.')
+            self.params['ACCUMULATE_GRADIENTS'] = 1
 
-        if self.verbose > 0:
-            logging.info("Preparing optimizer: %s [LR: %s - LOSS: %s - "
-                         "CLIP_C %s - CLIP_V  %s - LR_OPTIMIZER_DECAY %s] and compiling." %
-                         (str(self.params['OPTIMIZER']),
-                          str(self.params.get('LR', 0.01)),
-                          str(self.params.get('LOSS', 'categorical_crossentropy')),
-                          str(self.params.get('CLIP_C', 0.)),
-                          str(self.params.get('CLIP_V', 0.)),
-                          str(self.params.get('LR_OPTIMIZER_DECAY', 0.0))
-                          ))
+        optimizer_str = '\t LR: ' + str(self.params.get('LR', 0.01)) + \
+                        '\n\t LOSS: ' + str(self.params.get('LOSS', 'categorical_crossentropy'))
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow':
             if self.params['OPTIMIZER'].lower() not in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
                 logging.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
             if self.params.get('LR_DECAY') is not None:
                 logging.warning('The learning rate decay is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
+                self.params['USE_TF_OPTIMIZER'] = False
+            if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1:
+                logging.warning('The gradient accumulation is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
                 self.params['USE_TF_OPTIMIZER'] = False
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
@@ -191,19 +192,36 @@ class TranslationModel(Model_Wrapper):
                     optimizer = TFOptimizer(tf.train.MomentumOptimizer(self.params.get('LR', 0.01),
                                                                        self.params.get('MOMENTUM', 0.0),
                                                                        use_nesterov=self.params.get('NESTEROV_MOMENTUM', False)))
+                    optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                     '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
+
             elif self.params['OPTIMIZER'].lower() == 'adam':
                 optimizer = TFOptimizer(tf.train.AdamOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                               beta1=self.params.get('BETA_1', 0.9),
+                                                               beta2=self.params.get('BETA_2', 0.999),
                                                                epsilon=self.params.get('EPSILON', 1e-7)))
+                optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
             elif self.params['OPTIMIZER'].lower() == 'adagrad':
                 optimizer = TFOptimizer(tf.train.AdagradOptimizer(self.params.get('LR', 0.01)))
+
             elif self.params['OPTIMIZER'].lower() == 'rmsprop':
                 optimizer = TFOptimizer(tf.train.RMSPropOptimizer(self.params.get('LR', 0.01),
                                                                   decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
                                                                   momentum=self.params.get('MOMENTUM', 0.0),
                                                                   epsilon=self.params.get('EPSILON', 1e-7)))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
             elif self.params['OPTIMIZER'].lower() == 'adadelta':
                 optimizer = TFOptimizer(tf.train.AdadeltaOptimizer(learning_rate=self.params.get('LR', 0.01),
+                                                                   rho=self.params.get('RHO', 0.95),
                                                                    epsilon=self.params.get('EPSILON', 1e-7)))
+                optimizer_str += '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
             else:
                 raise Exception('\tThe chosen optimizer is not implemented.')
         else:
@@ -214,6 +232,8 @@ class TranslationModel(Model_Wrapper):
                                 nesterov=self.params.get('NESTEROV_MOMENTUM', False),
                                 clipnorm=self.params.get('CLIP_C', 0.),
                                 clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                 '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
 
             elif self.params['OPTIMIZER'].lower() == 'rsmprop':
                 optimizer = RMSprop(lr=self.params.get('LR', 0.001),
@@ -222,6 +242,8 @@ class TranslationModel(Model_Wrapper):
                                     clipnorm=self.params.get('CLIP_C', 0.),
                                     clipvalue=self.params.get('CLIP_V', 0.),
                                     epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adagrad':
                 optimizer = Adagrad(lr=self.params.get('LR', 0.01),
@@ -229,6 +251,7 @@ class TranslationModel(Model_Wrapper):
                                     clipnorm=self.params.get('CLIP_C', 0.),
                                     clipvalue=self.params.get('CLIP_V', 0.),
                                     epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adadelta':
                 optimizer = Adadelta(lr=self.params.get('LR', 1.0),
@@ -237,16 +260,38 @@ class TranslationModel(Model_Wrapper):
                                      clipnorm=self.params.get('CLIP_C', 0.),
                                      clipvalue=self.params.get('CLIP_V', 0.),
                                      epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adam':
-                optimizer = Adam(lr=self.params.get('LR', 0.001),
-                                 beta_1=self.params.get('BETA_1', 0.9),
-                                 beta_2=self.params.get('BETA_2', 0.999),
-                                 amsgrad=self.params.get('AMSGRAD', False),
-                                 decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                                 clipnorm=self.params.get('CLIP_C', 0.),
-                                 clipvalue=self.params.get('CLIP_V', 0.),
-                                 epsilon=self.params.get('EPSILON', 1e-7))
+                if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1:
+                    optimizer = AdamAccumulate(lr=self.params.get('LR', 0.001),
+                                               beta_1=self.params.get('BETA_1', 0.9),
+                                               beta_2=self.params.get('BETA_2', 0.999),
+                                               amsgrad=self.params.get('AMSGRAD', False),
+                                               decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                               clipnorm=self.params.get('CLIP_C', 0.),
+                                               clipvalue=self.params.get('CLIP_V', 0.),
+                                               epsilon=self.params.get('EPSILON', 1e-7),
+                                               accum_iters=self.params.get('ACCUMULATE_GRADIENTS'))
+                    optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                     '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                     '\n\t AMSGRAD: ' + str(self.params.get('AMSGRAD', False)) + \
+                                     '\n\t ACCUMULATE_GRADIENTS: ' + str(self.params.get('ACCUMULATE_GRADIENTS')) + \
+                                     '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+                else:
+                    optimizer = Adam(lr=self.params.get('LR', 0.001),
+                                     beta_1=self.params.get('BETA_1', 0.9),
+                                     beta_2=self.params.get('BETA_2', 0.999),
+                                     amsgrad=self.params.get('AMSGRAD', False),
+                                     decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                     clipnorm=self.params.get('CLIP_C', 0.),
+                                     clipvalue=self.params.get('CLIP_V', 0.),
+                                     epsilon=self.params.get('EPSILON', 1e-7))
+                    optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                     '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                     '\n\t AMSGRAD: ' + str(self.params.get('AMSGRAD', False)) + \
+                                     '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
 
             elif self.params['OPTIMIZER'].lower() == 'adamax':
                 optimizer = Adamax(lr=self.params.get('LR', 0.002),
@@ -256,7 +301,9 @@ class TranslationModel(Model_Wrapper):
                                    clipnorm=self.params.get('CLIP_C', 0.),
                                    clipvalue=self.params.get('CLIP_V', 0.),
                                    epsilon=self.params.get('EPSILON', 1e-7))
-
+                optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
             elif self.params['OPTIMIZER'].lower() == 'nadam':
                 optimizer = Nadam(lr=self.params.get('LR', 0.002),
                                   beta_1=self.params.get('BETA_1', 0.9),
@@ -265,9 +312,82 @@ class TranslationModel(Model_Wrapper):
                                   clipnorm=self.params.get('CLIP_C', 0.),
                                   clipvalue=self.params.get('CLIP_V', 0.),
                                   epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
+            elif self.params['OPTIMIZER'].lower() == 'sgdhd':
+                optimizer = SGDHD(lr=self.params.get('LR', 0.002),
+                                  clipnorm=self.params.get('CLIP_C', 10.),
+                                  clipvalue=self.params.get('CLIP_V', 0.),
+                                  hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001))
+                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001))
+
+            elif self.params['OPTIMIZER'].lower() == 'qhsgd':
+                optimizer = QHSGD(lr=self.params.get('LR', 0.002),
+                                  momentum=self.params.get('MOMENTUM', 0.0),
+                                  quasi_hyperbolic_momentum=self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0),
+                                  decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                  nesterov=self.params.get('NESTEROV_MOMENTUM', False),
+                                  dampening=self.params.get('DAMPENING', 0.),
+                                  clipnorm=self.params.get('CLIP_C', 10.),
+                                  clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                 '\n\t QUASI_HYPERBOLIC_MOMENTUM: ' + str(self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0)) + \
+                                 '\n\t DAMPENING: ' + str(self.params.get('DAMPENING', 0.0)) + \
+                                 '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
+
+            elif self.params['OPTIMIZER'].lower() == 'qhsgdhd':
+                optimizer = QHSGDHD(lr=self.params.get('LR', 0.002),
+                                    momentum=self.params.get('MOMENTUM', 0.0),
+                                    quasi_hyperbolic_momentum=self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0),
+                                    dampening=self.params.get('DAMPENING', 0.),
+                                    hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
+                                    decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                    nesterov=self.params.get('NESTEROV_MOMENTUM', False),
+                                    clipnorm=self.params.get('CLIP_C', 10.),
+                                    clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t MOMENTUM: ' + str(self.params.get('MOMENTUM', 0.0)) + \
+                                 '\n\t QUASI_HYPERBOLIC_MOMENTUM: ' + str(self.params.get('QUASI_HYPERBOLIC_MOMENTUM', 0.0)) + \
+                                 '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
+                                 '\n\t DAMPENING: ' + str(self.params.get('DAMPENING', 0.0)) + \
+                                 '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
+
+            elif self.params['OPTIMIZER'].lower() == 'adadeltahd':
+                optimizer = AdadeltaHD(lr=self.params.get('LR', 0.002),
+                                       hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
+                                       rho=self.params.get('RHO', 0.9),
+                                       decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                       epsilon=self.params.get('EPSILON', 1e-7),
+                                       clipnorm=self.params.get('CLIP_C', 10.),
+                                       clipvalue=self.params.get('CLIP_V', 0.))
+                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
+                                 '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
+
+            elif self.params['OPTIMIZER'].lower() == 'adamhd':
+                optimizer = AdamHD(lr=self.params.get('LR', 0.002),
+                                   hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
+                                   beta_1=self.params.get('BETA_1', 0.9),
+                                   beta_2=self.params.get('BETA_2', 0.999),
+                                   decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
+                                   clipnorm=self.params.get('CLIP_C', 10.),
+                                   clipvalue=self.params.get('CLIP_V', 0.),
+                                   epsilon=self.params.get('EPSILON', 1e-7))
+                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
+                                 '\n\t BETA_1: ' + str(self.params.get('BETA_1', 0.9)) + \
+                                 '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
+                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
             else:
                 logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
                 optimizer = eval(self.params['OPTIMIZER'])
+
+            optimizer_str += '\n\t CLIP_C ' + str(self.params.get('CLIP_C', 0.)) + \
+                             '\n\t CLIP_V ' + str(self.params.get('CLIP_V', 0.)) + \
+                             '\n\t LR_OPTIMIZER_DECAY ' + str(self.params.get('LR_OPTIMIZER_DECAY', 0.0)) + \
+                             '\n\t ACCUMULATE_GRADIENTS ' + str(self.params.get('ACCUMULATE_GRADIENTS', 1)) + '\n'
+        if self.verbose > 0:
+            logging.info("Preparing optimizer and compiling. Optimizer configuration: \n" + optimizer_str)
 
         if hasattr(self, 'multi_gpu_model') and self.multi_gpu_model is not None:
             model_to_compile = self.multi_gpu_model
@@ -335,13 +455,14 @@ class TranslationModel(Model_Wrapper):
         src_text = Input(name=self.ids_inputs[0], batch_shape=tuple([None, None]), dtype='int32')
         # 2. Encoder
         # 2.1. Source word embedding
-        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
-                                  name='source_word_embedding',
-                                  embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                  embeddings_initializer=params['INIT_FUNCTION'],
-                                  trainable=self.src_embedding_weights_trainable,
-                                  weights=self.src_embedding_weights,
-                                  mask_zero=True)(src_text)
+        embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
+                              name='source_word_embedding',
+                              embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                              embeddings_initializer=params['INIT_FUNCTION'],
+                              trainable=self.src_embedding_weights_trainable,
+                              weights=self.src_embedding_weights,
+                              mask_zero=True)
+        src_embedding = embedding(src_text)
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
             src_embedding = SqrtScaling(params['SOURCE_TEXT_EMBEDDING_SIZE'])(src_embedding)
@@ -417,13 +538,17 @@ class TranslationModel(Model_Wrapper):
         # 3.1.1. Previously generated words as inputs for training -> Teacher forcing
         next_words = Input(name=self.ids_inputs[1], batch_shape=tuple([None, None]), dtype='int32')
         # 3.1.2. Target word embedding
-        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                name='target_word_embedding',
-                                embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                embeddings_initializer=params['INIT_FUNCTION'],
-                                trainable=self.trg_embedding_weights_trainable,
-                                weights=self.trg_embedding_weights,
-                                mask_zero=True)(next_words)
+        if params.get('TIE_EMBEDDINGS', False):
+            state_below = embedding(next_words)
+        else:
+            state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                    name='target_word_embedding',
+                                    embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                                    embeddings_initializer=params['INIT_FUNCTION'],
+                                    trainable=self.trg_embedding_weights_trainable,
+                                    weights=self.trg_embedding_weights,
+                                    mask_zero=True)(next_words)
+
         if params.get('SCALE_TARGET_WORD_EMBEDDINGS', False):
             state_below = SqrtScaling(params['TARGET_TEXT_EMBEDDING_SIZE'])(state_below)
         state_below = Regularize(state_below, params, name='state_below')
@@ -616,14 +741,15 @@ class TranslationModel(Model_Wrapper):
                                                activation=params['CLASSIFIER_ACTIVATION'],
                                                kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                                bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                               trainable=params.get('TRAINABLE_DECODER', True),
-                                               name=params['CLASSIFIER_ACTIVATION']
+                                               trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                                ),
-                                         trainable=params.get('TRAINABLE_DECODER', True),
+                                         trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
 
-        self.model = Model(inputs=[src_text, next_words], outputs=softout)
+        self.model = Model(inputs=[src_text, next_words],
+                           outputs=softout,
+                           name=self.name + '_training')
 
         if params['DOUBLE_STOCHASTIC_ATTENTION_REG'] > 0.:
             self.model.add_loss(alpha_regularizer)
@@ -647,7 +773,9 @@ class TranslationModel(Model_Wrapper):
             model_init_output += h_memories_list
         if self.return_alphas:
             model_init_output.append(alphas)
-        self.model_init = Model(inputs=model_init_input, outputs=model_init_output)
+        self.model_init = Model(inputs=model_init_input,
+                                outputs=model_init_output,
+                                name=self.name + '_model_init')
 
         # Store inputs and outputs names for model_init
         self.ids_inputs_init = self.ids_inputs
@@ -742,7 +870,8 @@ class TranslationModel(Model_Wrapper):
             model_next_outputs.append(alphas)
 
         self.model_next = Model(inputs=model_next_inputs,
-                                outputs=model_next_outputs)
+                                outputs=model_next_outputs,
+                                name=self.name + '_model_next')
         # Store inputs and outputs names for model_next
         # first input must be previous word
         self.ids_inputs_next = [self.ids_inputs[1]] + ['preprocessed_input']
@@ -792,14 +921,14 @@ class TranslationModel(Model_Wrapper):
 
         # 2. Encoder
         # 2.1. Source word embedding
-        src_embedding = Embedding(params['INPUT_VOCABULARY_SIZE'],
-                                  params['SOURCE_TEXT_EMBEDDING_SIZE'],
-                                  name='source_word_embedding',
-                                  embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                  embeddings_initializer=params['INIT_FUNCTION'],
-                                  trainable=self.src_embedding_weights_trainable,
-                                  weights=self.src_embedding_weights,
-                                  mask_zero=True)(src_text)
+        embedding = Embedding(params['INPUT_VOCABULARY_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'],
+                              name='source_word_embedding',
+                              embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                              embeddings_initializer=params['INIT_FUNCTION'],
+                              trainable=self.src_embedding_weights_trainable,
+                              weights=self.src_embedding_weights,
+                              mask_zero=True)
+        src_embedding = embedding(src_text)
 
         if params.get('SCALE_SOURCE_WORD_EMBEDDINGS', False):
             src_embedding = SqrtScaling(params['MODEL_SIZE'])(src_embedding)
@@ -828,6 +957,8 @@ class TranslationModel(Model_Wrapper):
         for n_block in range(params['N_LAYERS_ENCODER']):
             src_multihead = MultiHeadAttention(params['N_HEADS'],
                                                params['MODEL_SIZE'],
+                                               activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
+                                               use_bias=True,
                                                dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                name='src_MultiHeadAttention_' + str(n_block))([src_residual_multihead,
                                                                                                src_residual_multihead])
@@ -859,14 +990,16 @@ class TranslationModel(Model_Wrapper):
         next_words_positions = PositionLayer(name='position_layer_next_words')(next_words)
 
         # 3.1.2. Target word embedding
-        state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'],
-                                params['TARGET_TEXT_EMBEDDING_SIZE'],
-                                name='target_word_embedding',
-                                embeddings_regularizer=l2(params['WEIGHT_DECAY']),
-                                embeddings_initializer=params['INIT_FUNCTION'],
-                                trainable=self.trg_embedding_weights_trainable,
-                                weights=self.trg_embedding_weights,
-                                mask_zero=True)(next_words)
+        if params.get('TIE_EMBEDDINGS', False):
+            state_below = embedding(next_words)
+        else:
+            state_below = Embedding(params['OUTPUT_VOCABULARY_SIZE'], params['TARGET_TEXT_EMBEDDING_SIZE'],
+                                    name='target_word_embedding',
+                                    embeddings_regularizer=l2(params['WEIGHT_DECAY']),
+                                    embeddings_initializer=params['INIT_FUNCTION'],
+                                    trainable=self.trg_embedding_weights_trainable,
+                                    weights=self.trg_embedding_weights,
+                                    mask_zero=True)(next_words)
 
         if params.get('SCALE_TARGET_WORD_EMBEDDINGS', False):
             state_below = SqrtScaling(params['MODEL_SIZE'])(state_below)
@@ -917,6 +1050,8 @@ class TranslationModel(Model_Wrapper):
             # Masked Multi-Head Attention block
             shared_trg_multihead = MultiHeadAttention(params['N_HEADS'],
                                                       params['MODEL_SIZE'],
+                                                      activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
+                                                      use_bias=True,
                                                       dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                       mask_future=True,  # Avoid attending on future sequences
                                                       name='trg_MultiHeadAttention_' + str(n_block))
@@ -935,7 +1070,10 @@ class TranslationModel(Model_Wrapper):
             shared_trg_norm_multihead_list.append(shared_trg_multihead_norm)
 
             # Second Multi-Head Attention block
-            shared_src_trg_multihead = MultiHeadAttention(params['N_HEADS'], params['MODEL_SIZE'],
+            shared_src_trg_multihead = MultiHeadAttention(params['N_HEADS'],
+                                                          params['MODEL_SIZE'],
+                                                          activation=params.get('MULTIHEAD_ATTENTION_ACTIVATION', 'relu'),
+                                                          use_bias=True,
                                                           dropout=params.get('ATTENTION_DROPOUT_P', 0.),
                                                           name='src_trg_MultiHeadAttention_' + str(n_block))
             shared_src_trg_multihead_list.append(shared_src_trg_multihead)
@@ -984,8 +1122,9 @@ class TranslationModel(Model_Wrapper):
             trg_multihead_norm = shared_trg_norm_multihead_list[n_block](trg_multihead_add)
 
             # Second Multi-Head Attention block
-            src_trg_multihead = shared_src_trg_multihead_list[n_block]([trg_multihead_norm,
-                                                                        masked_src_multihead])
+            src_trg_multihead = shared_src_trg_multihead_list[n_block]([trg_multihead_norm,   # Queries from the previous decoder layer.
+                                                                        masked_src_multihead  # Keys and values from the output of the encoder.
+                                                                        ])
 
             # Regularize
             src_trg_multihead_dropout = shared_src_trg_dropout_multihead_list[n_block](src_trg_multihead)
@@ -1036,13 +1175,14 @@ class TranslationModel(Model_Wrapper):
                                                activation=params['CLASSIFIER_ACTIVATION'],
                                                kernel_regularizer=l2(params['WEIGHT_DECAY']),
                                                bias_regularizer=l2(params['WEIGHT_DECAY']),
-                                               trainable=params.get('TRAINABLE_DECODER', True),
-                                               name=params['CLASSIFIER_ACTIVATION']
+                                               trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                                ),
-                                         trainable=params.get('TRAINABLE_DECODER', True),
+                                         trainable=(params.get('TRAINABLE_DECODER', True) or params.get('TRAIN_ONLY_LAST_LAYER', True)),
                                          name=self.ids_outputs[0])
         softout = shared_FC_soft(out_layer)
-        self.model = Model(inputs=[src_text, next_words], outputs=softout)
+        self.model = Model(inputs=[src_text, next_words],
+                           outputs=softout,
+                           name=self.name + '_training')
 
         if params.get('N_GPUS', 1) > 1:
             self.multi_gpu_model = multi_gpu_model(self.model, gpus=params['N_GPUS'])
@@ -1061,9 +1201,9 @@ class TranslationModel(Model_Wrapper):
         model_init_input = [src_text, next_words]
         model_init_output = [softout, masked_src_multihead]
 
-        # if self.return_alphas:
-        #    model_init_output.append(alphas)
-        self.model_init = Model(inputs=model_init_input, outputs=model_init_output)
+        self.model_init = Model(inputs=model_init_input,
+                                outputs=model_init_output,
+                                name=self.name + '_model_init')
 
         # Store inputs and outputs names for model_init
         self.ids_inputs_init = self.ids_inputs
@@ -1146,7 +1286,8 @@ class TranslationModel(Model_Wrapper):
         #     model_next_outputs.append(alphas)
 
         self.model_next = Model(inputs=model_next_inputs,
-                                outputs=model_next_outputs)
+                                outputs=model_next_outputs,
+                                name=self.name + '_model_next')
 
         # Store inputs and outputs names for model_next
         # first input must be previous word

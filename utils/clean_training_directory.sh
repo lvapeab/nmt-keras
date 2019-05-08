@@ -68,6 +68,7 @@ cp ${path}/val.coco ${tmpdir}/model/
 while read p; do
     update_to_save=$(echo "$p" | awk 'BEGIN{FS=","}{print $1}')
     cp ${path}/*_${update_to_save}_* ${tmpdir}/model/
+    cp ${path}/*_${update_to_save}.* ${tmpdir}/model/
 done < ${tmpdir}/models_to_save
 
 rm ${path}/*

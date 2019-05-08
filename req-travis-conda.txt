@@ -9,4 +9,3 @@ pytables
 numpy
 pandas
 scipy
-theano

@@ -6,7 +6,7 @@ This is a development branch. Most of the implemented here won't work/it's possi
 
 # NMT-Keras
 
-[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1239923bcbba438b97b374ae8dc435be)](https://www.codacy.com/app/lvapeab/nmt-keras?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lvapeab/nmt-keras&amp;utm_campaign=Badge_Grade) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-2.7%2F3.6-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)
+[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-2.7%2F3.6-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)
 
 Neural Machine Translation with Keras (Theano and Tensorflow).
 
@@ -30,7 +30,7 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
 
 ## Features (in addition to the full Keras cosmos): .
  * :heavy_exclamation_mark: Multi-GPU training (only for Tensorflow). 
- * [Transformer model](https://arxiv.org/abs/1706.03762) (missing the tied embeddings).
+ * [Transformer model](https://arxiv.org/abs/1706.03762).
  * [Tensorboard integration](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/tensorboard_integration.md).
  * Online learning and Interactive neural machine translation (INMT). See [the interactive NMT branch](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT).
  * Attention model over the input sequence of annotations.
@@ -79,6 +79,12 @@ NMT-Keras requires the following libraries:
  - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation). This package requires `java` (version 1.8.0 or newer).
 
 
+For accelerating the training and decoding on CUDA GPUs, you can optionally install:
+
+ - [CuDNN](https://developer.nvidia.com/cudnn).
+ - [CuPy](https://github.com/cupy/cupy).
+
+
 ## Usage
 
 ### Training
@@ -104,7 +110,7 @@ In short, if we want to use the models from the first three epochs to translate 
   ```
  
  
- ### Scoring
+### Scoring
  
  The [score.py](https://github.com/lvapeab/nmt-keras/blob/master/score.py) script can be used to obtain the (-log)probabilities of a parallel corpus. Its syntax is the following:
 ```
@@ -133,7 +139,7 @@ optional arguments:
   ```
   
   
- ### Advanced features
+### Advanced features
  Other features such as online learning or interactive NMT protocols are implemented in the [interactiveNMT](https://github.com/lvapeab/nmt-keras/tree/interactive_NMT) branch.
 
 

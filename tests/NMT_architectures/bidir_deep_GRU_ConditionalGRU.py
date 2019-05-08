@@ -39,6 +39,7 @@ def test_NMT_Bidir_deep_GRU_ConditionalGRU():
     params = load_tests_params()
 
     # Current test params: Single layered GRU - ConditionalGRU
+    params['TIED_EMBEDDINGS'] = True
     params['BIDIRECTIONAL_ENCODER'] = True
     params['N_LAYERS_ENCODER'] = 2
     params['BIDIRECTIONAL_DEEP_ENCODER'] = True
@@ -81,6 +82,7 @@ def test_NMT_Bidir_deep_GRU_ConditionalGRU():
     parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
     parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
     parser.weights = []
+    parser.glossary = None
 
     for n_best in [True, False]:
         parser.n_best = n_best

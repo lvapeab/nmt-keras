@@ -18,14 +18,14 @@ import BaseHTTPServer
 import urllib
 from collections import OrderedDict
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
-from keras_wrapper.beam_search_interactive import InteractiveBeamSearchSampler
+from keras_wrapper.model_ensemble import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *
 from keras_wrapper.extra.read_write import pkl2dict, list2file
 from keras_wrapper.online_trainer import OnlineTrainer
 from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_lists
-from model_zoo import TranslationModel
+from nmt_keras.model_zoo import TranslationModel
 # from online_models import build_online_models
 from utils.utils import update_parameters
 from config_online import load_parameters as load_parameters_online
@@ -200,7 +200,16 @@ class NMTSampler:
         tokenization_end_time = time.time()
         logger.log(2, 'tokenization time: %.6f' % (tokenization_end_time - tokenization_start_time))
         parse_input_start_time = time.time()
-        src_seq, src_words = parse_input(tokenized_input, self.dataset, self.word2index_x)
+        # Go from text to indices
+        src_seq = self.dataset.loadText([tokenized_input],
+                                        vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
+                                        max_len=self.params['MAX_INPUT_TEXT_LEN'],
+                                        offset=0,
+                                        fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
+                                        pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
+                                        words_so_far=False,
+                                        loading_X=True)[0][0]
+
         parse_input_end_time = time.time()
         logger.log(2, 'parse_input time: %.6f' % (parse_input_end_time - parse_input_start_time))
 
@@ -325,8 +334,14 @@ class NMTSampler:
         # Tokenize input
         tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
-        src_seq, src_words = parse_input(tokenized_input, self.dataset, self.word2index_x)
-
+        src_seq = self.dataset.loadText([tokenized_input],
+                                        vocabularies=self.dataset.vocabulary[self.params['INPUTS_IDS_DATASET'][0]],
+                                        max_len=self.params['MAX_INPUT_TEXT_LEN'],
+                                        offset=0,
+                                        fill=self.dataset.fill_text[self.params['INPUTS_IDS_DATASET'][0]],
+                                        pad_on_batch=self.dataset.pad_on_batch[self.params['INPUTS_IDS_DATASET'][0]],
+                                        words_so_far=False,
+                                        loading_X=True)[0][0]
         # Tokenize output
         tokenized_reference = self.general_tokenize_f(target_sentence, escape=False)
         tokenized_reference = self.model_tokenize_f(tokenized_reference)
@@ -342,7 +357,7 @@ class NMTSampler:
                                             loading_X=True)[0]
 
         # 4.1.3 Ground truth sample -> Interactively translated sentence
-        # TODO: Load dense_text if necessary
+        # TODO: Load dense-text if necessary
         trg_seq = self.dataset.loadTextOneHot([tokenized_reference.encode('utf-8')],
                                               vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
                                               vocabulary_len=self.dataset.vocabulary_len[self.params['OUTPUTS_IDS_DATASET'][0]],
@@ -408,32 +423,34 @@ def main():
     tokenize_general = dataset.tokenize_moses
     detokenize_general = dataset.detokenize_moses
 
-    parameters_prediction = dict()
-    parameters_prediction['max_batch_size'] = parameters.get('BATCH_SIZE', 20)
-    parameters_prediction['n_parallel_loaders'] = parameters.get('PARALLEL_LOADERS', 1)
-    parameters_prediction['beam_size'] = parameters.get('BEAM_SIZE', 6)
-    parameters_prediction['maxlen'] = parameters.get('MAX_OUTPUT_TEXT_LEN_TEST', 100)
-    parameters_prediction['optimized_search'] = parameters['OPTIMIZED_SEARCH']
-    parameters_prediction['model_inputs'] = parameters['INPUTS_IDS_MODEL']
-    parameters_prediction['model_outputs'] = parameters['OUTPUTS_IDS_MODEL']
-    parameters_prediction['dataset_inputs'] = parameters['INPUTS_IDS_DATASET']
-    parameters_prediction['dataset_outputs'] = parameters['OUTPUTS_IDS_DATASET']
-    parameters_prediction['search_pruning'] = parameters.get('SEARCH_PRUNING', False)
-    parameters_prediction['normalize_probs'] = True
-    parameters_prediction['alpha_factor'] = parameters.get('ALPHA_FACTOR', 1.0)
-    parameters_prediction['coverage_penalty'] = True
-    parameters_prediction['length_penalty'] = True
-    parameters_prediction['length_norm_factor'] = parameters.get('LENGTH_NORM_FACTOR', 0.0)
-    parameters_prediction['coverage_norm_factor'] = parameters.get('COVERAGE_NORM_FACTOR', 0.0)
-    parameters_prediction['pos_unk'] = parameters.get('POS_UNK', False)
-    parameters_prediction['heuristic'] = parameters.get('HEURISTIC', 0)
+    params_prediction = dict()
+    params_prediction['max_batch_size'] = parameters.get('BATCH_SIZE', 20)
+    params_prediction['n_parallel_loaders'] = parameters.get('PARALLEL_LOADERS', 1)
+    params_prediction['beam_size'] = parameters.get('BEAM_SIZE', 6)
+    params_prediction['maxlen'] = parameters.get('MAX_OUTPUT_TEXT_LEN_TEST', 100)
+    params_prediction['optimized_search'] = parameters['OPTIMIZED_SEARCH']
+    params_prediction['model_inputs'] = parameters['INPUTS_IDS_MODEL']
+    params_prediction['model_outputs'] = parameters['OUTPUTS_IDS_MODEL']
+    params_prediction['dataset_inputs'] = parameters['INPUTS_IDS_DATASET']
+    params_prediction['dataset_outputs'] = parameters['OUTPUTS_IDS_DATASET']
+    params_prediction['search_pruning'] = parameters.get('SEARCH_PRUNING', False)
+    params_prediction['normalize_probs'] = True
+    params_prediction['alpha_factor'] = parameters.get('ALPHA_FACTOR', 1.0)
+    params_prediction['coverage_penalty'] = True
+    params_prediction['length_penalty'] = True
+    params_prediction['length_norm_factor'] = parameters.get('LENGTH_NORM_FACTOR', 0.0)
+    params_prediction['coverage_norm_factor'] = parameters.get('COVERAGE_NORM_FACTOR', 0.0)
+    params_prediction['pos_unk'] = parameters.get('POS_UNK', False)
+    params_prediction['heuristic'] = parameters.get('HEURISTIC', 0)
 
-    parameters_prediction['state_below_maxlen'] = -1 if parameters.get('PAD_ON_BATCH', True) \
+    params_prediction['state_below_maxlen'] = -1 if parameters.get('PAD_ON_BATCH', True) \
         else parameters.get('MAX_OUTPUT_TEXT_LEN', 50)
-    parameters_prediction['output_max_length_depending_on_x'] = parameters.get('MAXLEN_GIVEN_X', True)
-    parameters_prediction['output_max_length_depending_on_x_factor'] = parameters.get('MAXLEN_GIVEN_X_FACTOR', 3)
-    parameters_prediction['output_min_length_depending_on_x'] = parameters.get('MINLEN_GIVEN_X', True)
-    parameters_prediction['output_min_length_depending_on_x_factor'] = parameters.get('MINLEN_GIVEN_X_FACTOR', 2)
+    params_prediction['output_max_length_depending_on_x'] = parameters.get('MAXLEN_GIVEN_X', True)
+    params_prediction['output_max_length_depending_on_x_factor'] = parameters.get('MAXLEN_GIVEN_X_FACTOR', 3)
+    params_prediction['output_min_length_depending_on_x'] = parameters.get('MINLEN_GIVEN_X', True)
+    params_prediction['output_min_length_depending_on_x_factor'] = parameters.get('MINLEN_GIVEN_X_FACTOR', 2)
+    params_prediction['attend_on_output'] = parameters.get('ATTEND_ON_OUTPUT', 'transformer' in parameters['MODEL_TYPE'].lower())
+
     # Manage pos_unk strategies
     if parameters['POS_UNK']:
         mapping = None if dataset.mapping == dict() else dataset.mapping
@@ -504,7 +521,7 @@ def main():
     word2index_x = dataset.vocabulary[parameters['INPUTS_IDS_DATASET'][0]]['words2idx']
 
     excluded_words = None
-    interactive_beam_searcher = NMTSampler(models, dataset, parameters, parameters_prediction, parameters_training,
+    interactive_beam_searcher = NMTSampler(models, dataset, parameters, params_prediction, parameters_training,
                                            tokenize_f, detokenize_function,
                                            tokenize_general, detokenize_general,
                                            mapping=mapping, word2index_x=word2index_x, word2index_y=word2index_y,

@@ -13,15 +13,19 @@ def load_parameters():
     DATA_ROOT_PATH = 'examples/%s/' % DATASET_NAME  # Path where data is stored.
 
     # SRC_LAN or TRG_LAN will be added to the file names.
-    TEXT_FILES = {'train': 'training.',        # Data files.
+    TEXT_FILES = {'train': 'training.',             # Data files.
                   'val': 'dev.',
                   'test': 'test.'}
 
+    GLOSSARY = None                               # Glossary location. If not None, it overwrites translations according to this glossary file
+
     # Dataset class parameters
-    INPUTS_IDS_DATASET = ['source_text', 'state_below']     # Corresponding inputs of the dataset.
-    OUTPUTS_IDS_DATASET = ['target_text']                   # Corresponding outputs of the dataset.
-    INPUTS_IDS_MODEL = ['source_text', 'state_below']       # Corresponding inputs of the built model.
-    OUTPUTS_IDS_MODEL = ['target_text']                     # Corresponding outputs of the built model.
+    INPUTS_IDS_DATASET = ['source_text', 'state_below']        # Corresponding inputs of the dataset.
+    OUTPUTS_IDS_DATASET = ['target_text']                      # Corresponding outputs of the dataset.
+    INPUTS_IDS_MODEL = ['source_text', 'state_below']          # Corresponding inputs of the built model.
+    OUTPUTS_IDS_MODEL = ['target_text']                        # Corresponding outputs of the built model.
+    INPUTS_TYPES_DATASET = ['text-features', 'text-features']  # Corresponding types of the data. 'text' or 'text-features' allowed.
+    OUTPUTS_TYPES_DATASET = ['text-features']                  # They are equivalent, only differ on how the data is loaded.
 
     # Evaluation params
     METRICS = ['coco']                            # Metric used for evaluating the model.
@@ -132,7 +136,8 @@ def load_parameters():
     BETA_1 = 0.9                                  # Beta 1 value (for Adam, Adamax Nadam optimizers).
     BETA_2 = 0.999                                # Beta 2 value (for Adam, Adamax Nadam optimizers).
     AMSGRAD = False                               # Whether to apply the AMSGrad variant of Adam (see https://openreview.net/pdf?id=ryQu7f-RZ).
-    EPSILON = 1e-7                                # Optimizers epsilon value.
+    EPSILON = 1e-8                                # Optimizers epsilon value.
+    ACCUMULATE_GRADIENTS = 1                      # Accumulate gradients for this number of batches. Currently only implemented for Adam.
 
     # Learning rate schedule
     LR_DECAY = None                               # Frequency (number of epochs or updates) between LR annealings. Set to None for not decay the learning rate.
@@ -146,6 +151,7 @@ def load_parameters():
     LR_REDUCER_EXP_BASE = -0.5                     # Base for the exponential decay.
     LR_HALF_LIFE = 100                           # Factor/warmup steps for exponenital/noam decay.
     WARMUP_EXP = -1.5                             # Warmup steps for noam decay.
+    MIN_LR = 1e-9                                 # Minimum value allowed for the decayed LR
 
     # Training parameters
     MAX_EPOCH = 500                               # Stop when computed this number of epochs.
@@ -193,6 +199,8 @@ def load_parameters():
 
     SCALE_SOURCE_WORD_EMBEDDINGS = False          # Scale source word embeddings by Sqrt(SOURCE_TEXT_EMBEDDING_SIZE).
     SCALE_TARGET_WORD_EMBEDDINGS = False          # Scale target word embeddings by Sqrt(TARGET_TEXT_EMBEDDING_SIZE).
+
+    TIE_EMBEDDINGS = False                        # Use the same embeddings for source and target language.
 
     N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers.
     N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
@@ -306,6 +314,8 @@ def load_parameters():
         'target_text']
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
+    PLOT_EVALUATION = False                            # If True, the evaluation will be plotted into the model folder.
+    
     VERBOSE = 1                                        # Verbosity level.
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model.
                                                        # Saved on epoch 'RELOAD' will be used.
