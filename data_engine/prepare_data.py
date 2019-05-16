@@ -115,7 +115,7 @@ def update_dataset_from_file(ds,
     return ds
 
 
-def build_tm_dataset(params):
+def build_dataset(params):
     """
     Builds (or loads) a Dataset instance.
     :param params: Parameters specifying Dataset options

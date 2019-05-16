@@ -3,7 +3,7 @@ from __future__ import print_function
 import argparse
 import logging
 import ast
-from prepare_data import build_tm_dataset
+from prepare_data import build_dataset
 from keras_wrapper.extra.read_write import pkl2dict
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
@@ -44,4 +44,4 @@ if __name__ == "__main__":
         print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     params['REBUILD_DATASET'] = True
-    dataset = build_tm_dataset(params)
+    dataset = build_dataset(params)

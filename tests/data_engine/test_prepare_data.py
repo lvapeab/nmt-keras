@@ -1,7 +1,7 @@
 import pytest
 import copy
 from config import load_parameters
-from data_engine.prepare_data import build_tm_dataset, update_dataset_from_file, keep_n_captions
+from data_engine.prepare_data import build_dataset, update_dataset_from_file, keep_n_captions
 from keras_wrapper.dataset import Dataset, loadDataset
 
 
@@ -11,7 +11,7 @@ def test_build_datset():
         params['REBUILD_DATASET'] = True
         params['VERBOSE'] = verbose
         params['DATASET_STORE_PATH'] = './'
-        ds = build_tm_dataset(params)
+        ds = build_dataset(params)
         assert isinstance(ds, Dataset)
         len_splits = [('train', 9900), ('val', 100), ('test', 2996)]
         for split, len_split in len_splits:
@@ -37,7 +37,7 @@ def test_update_dataset_from_file():
         params['REBUILD_DATASET'] = rebuild_dataset
         params['DATASET_STORE_PATH'] = './'
         for splits in [[], None, ['val']]:
-            ds = build_tm_dataset(params)
+            ds = build_dataset(params)
             assert isinstance(ds, Dataset)
             for output_text_filename in [None,
                                          params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] + params['TRG_LAN']]:
@@ -80,7 +80,7 @@ def test_keep_n_captions():
     params = load_parameters()
     params['REBUILD_DATASET'] = True
     params['DATASET_STORE_PATH'] = './'
-    ds = build_tm_dataset(params)
+    ds = build_dataset(params)
     len_splits = {'train': 9900, 'val': 100, 'test': 2996}
 
     for splits in [[], None, ['val'], ['val', 'test']]:

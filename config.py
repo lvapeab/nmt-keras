@@ -172,7 +172,7 @@ def load_parameters():
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop.
 
     # Model parameters
-    MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo.py for more info.
+    MODEL_TYPE = 'Transformer'     # Model to train. See model_zoo.py for more info.
                                                   # Supported architectures: 'AttentionRNNEncoderDecoder' and 'Transformer'.
 
     # Hyperparameters common to all models
@@ -202,8 +202,8 @@ def load_parameters():
 
     TIE_EMBEDDINGS = False                        # Use the same embeddings for source and target language.
 
-    N_LAYERS_ENCODER = 1                          # Stack this number of encoding layers.
-    N_LAYERS_DECODER = 1                          # Stack this number of decoding layers.
+    N_LAYERS_ENCODER = 6                          # Stack this number of encoding layers.
+    N_LAYERS_DECODER = 6                          # Stack this number of decoding layers.
 
     # Additional Fully-Connected layers applied before softmax.
     #       Here we should specify the activation function and the output dimension.

@@ -6,6 +6,7 @@ scikit-image
 scikit-learn
 six
 pytables
+pyyaml
 numpy
 pandas
 scipy
