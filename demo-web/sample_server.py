@@ -372,7 +372,7 @@ class NMTSampler:
         if self.online_trainer is not None:
             self.online_trainer.train_online([np.asarray([src_seq]), state_below], trg_seq, trg_words=[target_sentence])
         else:
-            logging.warning('Online learning is disabled.')
+            logger.warning('Online learning is disabled.')
 
 
 def main():
@@ -382,7 +382,7 @@ def main():
     logger.setLevel(args.logging_level)
     parameters = load_parameters()
     if args.config is not None:
-        logging.info("Loading parameters from %s" % str(args.config))
+        logger.info("Loading parameters from %s" % str(args.config))
         parameters = update_parameters(parameters, pkl2dict(args.config))
 
     if args.online:
@@ -458,7 +458,7 @@ def main():
         mapping = None
     parameters_training = dict()
     if args.online:
-        logging.info('Loading models from %s' % str(args.models))
+        logger.info('Loading models from %s' % str(args.models))
         parameters_training = {  # Traning parameters
             'n_epochs': parameters['MAX_EPOCH'],
             'shuffle': False,
@@ -502,7 +502,7 @@ def main():
         # Set additional inputs to models if using a custom loss function
         # parameters['USE_CUSTOM_LOSS'] = True if 'PAS' in parameters['OPTIMIZER'] else False
         # if parameters.get('N_BEST_OPTIMIZER', False):
-        #     logging.info('Using N-best optimizer')
+        #     logger.info('Using N-best optimizer')
         # models = build_online_models(models, parameters)
     else:
         models = [loadModel(m, -1, full_path=True) for m in args.models]

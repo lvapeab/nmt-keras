@@ -7,7 +7,7 @@ except ImportError:
 import logging
 from keras_wrapper.extra.read_write import list2file, nbest2file, list2stdout, numpy2file, pkl2dict
 
-logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +35,7 @@ def sample_ensemble(args, params):
     from keras_wrapper.dataset import loadDataset
     from keras_wrapper.utils import decode_predictions_beam_search
 
-    logging.info("Using an ensemble of %d models" % len(args.models))
+    logger.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
     dataset = update_dataset_from_file(dataset, args.text, params, splits=args.splits, remove_outputs=True)
@@ -157,9 +157,9 @@ def sample_ensemble(args, params):
         else:
             list2stdout(predictions)
             if args.n_best:
-                logging.info('Storing n-best sentences in ./' + s + '.nbest')
+                logger.info('Storing n-best sentences in ./' + s + '.nbest')
                 nbest2file('./' + s + '.nbest', n_best_predictions)
-        logging.info('Sampling finished')
+        logger.info('Sampling finished')
 
 
 def score_corpus(args, params):
@@ -185,7 +185,7 @@ def score_corpus(args, params):
     from keras_wrapper.cnn_model import loadModel
     from keras_wrapper.model_ensemble import BeamSearchEnsemble
 
-    logging.info("Using an ensemble of %d models" % len(args.models))
+    logger.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
     dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits,

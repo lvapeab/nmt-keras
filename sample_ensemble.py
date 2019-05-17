@@ -7,7 +7,7 @@ from keras_wrapper.extra.read_write import pkl2dict
 from nmt_keras import check_params
 from nmt_keras.apply_model import sample_ensemble
 
-logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 
@@ -38,11 +38,11 @@ if __name__ == "__main__":
 
     args = parse_args()
     if args.config is None:
-        logging.info("Reading parameters from config.py")
+        logger.info("Reading parameters from config.py")
         from config import load_parameters
         params = load_parameters()
     else:
-        logging.info("Loading parameters from %s" % str(args.config))
+        logger.info("Loading parameters from %s" % str(args.config))
         params = pkl2dict(args.config)
     try:
         for arg in args.changes:

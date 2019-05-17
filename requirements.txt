@@ -16,12 +16,6 @@ six
 tables
 numpy
 pandas
-pytest
-pytest-cache
-pytest-cov
-pytest-forked
-pytest-pep8
-pytest-xdist
 sacremoses
 scipy
-theano
+tensorflow-gpu

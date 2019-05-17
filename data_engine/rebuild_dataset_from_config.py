@@ -4,7 +4,7 @@ import argparse
 import logging
 import ast
 
-logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 
@@ -21,12 +21,12 @@ if __name__ == "__main__":
 
     args = parse_args()
     if args.config is None:
-        logging.info("Reading parameters from config.py")
+        logger.info("Reading parameters from config.py")
         from config import load_parameters
         params = load_parameters()
     else:
+        logger.info("Loading parameters from %s" % str(args.config))
         from keras_wrapper.extra.read_write import pkl2dict
-        logging.info("Loading parameters from %s" % str(args.config))
         params = pkl2dict(args.config)
     try:
         for arg in args.changes:

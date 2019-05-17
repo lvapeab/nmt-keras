@@ -12,7 +12,8 @@ from keras_wrapper.extra.callbacks import *
 from nmt_keras import check_params
 from nmt_keras.training import train_model, train_model_online
 from utils.utils import *
-
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
 
 def parse_args():
     parser = argparse.ArgumentParser("Train or sample NMT models")
@@ -58,7 +59,7 @@ if __name__ == "__main__":
         print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
-    check_params(parameters)
+    parameters = check_params(parameters)
     if args.online:
         dataset = loadDataset(args.dataset)
         dataset = update_dataset_from_file(dataset, args.source, parameters,
@@ -71,9 +72,9 @@ if __name__ == "__main__":
                            verbose=args.verbose)
 
     elif parameters['MODE'] == 'training':
-        logging.info('Running training.')
+        logger.info('Running training.')
         train_model(parameters, args.dataset)
         logging.info('Done!')
     elif parameters['MODE'] == 'sampling':
-        logging.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
+        logger.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
         exit(2)

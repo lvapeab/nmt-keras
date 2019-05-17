@@ -8,7 +8,7 @@ import codecs
 from timeit import default_timer as timer
 
 import logging
-logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
@@ -36,14 +36,14 @@ def train_model(params, load_dataset=None):
     """
 
     if params['RELOAD'] > 0:
-        logging.info('Resuming training.')
+        logger.info('Resuming training.')
         # Load data
         if load_dataset is None:
             if params['REBUILD_DATASET']:
-                logging.info('Rebuilding dataset.')
+                logger.info('Rebuilding dataset.')
                 dataset = build_dataset(params)
             else:
-                logging.info('Updating dataset.')
+                logger.info('Updating dataset.')
                 dataset = loadDataset(
                     params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] +
                     params['TRG_LAN'] + '.pkl')
@@ -64,7 +64,7 @@ def train_model(params, load_dataset=None):
                 saveDataset(dataset, params['DATASET_STORE_PATH'])
 
         else:
-            logging.info('Reloading and using dataset.')
+            logger.info('Reloading and using dataset.')
             dataset = loadDataset(load_dataset)
     else:
         # Load data
@@ -171,7 +171,7 @@ def train_model(params, load_dataset=None):
 
     total_end_time = timer()
     time_difference = total_end_time - total_start_time
-    logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
+    logger.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
 
 
 def train_model_online(params, source_filename, target_filename, models_path=None, dataset=None, stored_hypotheses_filename=None,
@@ -189,7 +189,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     :return:
     """
 
-    logging.info('Starting online training.')
+    logger.info('Starting online training.')
 
     # Load data
     if dataset is None:
@@ -199,7 +199,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
 
     # Load models
     if models_path is not None:
-        logging.info(u'Loading models from %s' % models_path)
+        logger.info(u'Loading models from %s' % models_path)
         model_instances = [TranslationModel(params,
                                             model_type=params['MODEL_TYPE'],
                                             verbose=params['VERBOSE'],
@@ -216,7 +216,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     # Set additional inputs to models if using a custom loss function
     trainer_models = build_online_models(models, params)
     if params['N_BEST_OPTIMIZER']:
-        logging.info('Using N-best optimizer with metric %s' % params['OPTIMIZER_REGULARIZER'])
+        logger.info('Using N-best optimizer with metric %s' % params['OPTIMIZER_REGULARIZER'])
 
     # Apply model predictions
     params_prediction = {  # Decoding params
@@ -284,7 +284,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     dynamic_display = ((hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()) or 'ipykernel' in sys.modules)
 
     # Create sampler
-    logging.info('Creating sampler...')
+    logger.info('Creating sampler...')
     beam_searcher = BeamSearchEnsemble(models,
                                        dataset,
                                        params_prediction,
@@ -294,7 +294,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     params_prediction['store_hypotheses'] = stored_hypotheses_filename
 
     # Create trainer
-    logging.info('Creating trainer...')
+    logger.info('Creating trainer...')
     if params["USE_CUSTOM_LOSS"]:
         # Update params_training:
         params_training['use_custom_loss'] = params.get('USE_CUSTOM_LOSS', False)
@@ -315,7 +315,7 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
     n_lines = len(source_lines)
     # Empty dest file
     if stored_hypotheses_filename:
-        logging.info(u'Storing htypotheses in: %s' % stored_hypotheses_filename)
+        logger.info(u'Storing htypotheses in: %s' % stored_hypotheses_filename)
         codecs.open(stored_hypotheses_filename, 'w').close()
 
     start_time = time.time()
@@ -329,8 +329,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                    words_so_far=False,
                                    loading_X=True)[0]
         if verbose > 2:
-            logging.info(u'Input sentence:  %s' % src_seq)
-            logging.info(u'Parsed sentence: %s' % map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0]))
+            logger.info(u'Input sentence:  %s' % src_seq)
+            logger.info(u'Parsed sentence: %s' % map(lambda x: dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words'][x], src_seq[0]))
 
         state_below = dataset.loadText([target_line],
                                        dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]],
@@ -351,8 +351,8 @@ def train_model_online(params, source_filename, target_filename, models_path=Non
                                          sample_weights=params['SAMPLE_WEIGHTS'],
                                          loading_X=False)
         if verbose > 2:
-            logging.info(u'Output sentence:  %s' % params_prediction['detokenize_f'](target_line))
-            logging.info(u'Parsed sentence (state below): %s ' % map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
+            logger.info(u'Output sentence:  %s' % params_prediction['detokenize_f'](target_line))
+            logger.info(u'Parsed sentence (state below): %s ' % map(lambda x: dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words'][x], state_below[0]))
 
         online_trainer.sample_and_train_online([src_seq, state_below],
                                                trg_seq,
