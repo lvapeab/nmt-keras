@@ -98,7 +98,7 @@ class TranslationModel(Model_Wrapper):
         if params['SRC_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
                 logger.info("<<< Loading pretrained word vectors from:  " + params['SRC_PRETRAINED_VECTORS'] + " >>>")
-            src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS'])).item()
+            src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS']), allow_pickle=True).item()
             self.src_embedding_weights = np.random.rand(params['INPUT_VOCABULARY_SIZE'],
                                                         params['SOURCE_TEXT_EMBEDDING_SIZE'])
             for word, index in iteritems(self.vocabularies[self.ids_inputs[0]]['words2idx']):
@@ -116,7 +116,7 @@ class TranslationModel(Model_Wrapper):
         if params['TRG_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
                 logger.info("<<< Loading pretrained word vectors from: " + params['TRG_PRETRAINED_VECTORS'] + " >>>")
-            trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS'])).item()
+            trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS']), allow_pickle=True).item()
             self.trg_embedding_weights = np.random.rand(params['OUTPUT_VOCABULARY_SIZE'],
                                                         params['TARGET_TEXT_EMBEDDING_SIZE'])
             for word, index in iteritems(self.vocabularies[self.ids_outputs[0]]['words2idx']):
