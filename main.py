@@ -9,6 +9,8 @@ from config import load_parameters
 from utils.utils import update_parameters
 from nmt_keras import check_params
 from nmt_keras.training import train_model
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
 
 
 def parse_args():
@@ -45,9 +47,9 @@ if __name__ == "__main__":
 
     parameters = check_params(parameters)
     if parameters['MODE'] == 'training':
-        logging.info('Running training.')
+        logger.info('Running training.')
         train_model(parameters, args.dataset)
     elif parameters['MODE'] == 'sampling':
-        logging.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
+        logger.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
         exit(2)
-    logging.info('Done!')
+    logger.info('Done!')

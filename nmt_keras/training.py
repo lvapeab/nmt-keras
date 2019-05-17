@@ -3,7 +3,10 @@ from __future__ import print_function
 from six import iteritems
 from timeit import default_timer as timer
 import logging
-logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+
+import nmt_keras
+
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
@@ -28,14 +31,14 @@ def train_model(params, load_dataset=None):
     """
 
     if params['RELOAD'] > 0:
-        logging.info('Resuming training.')
+        logger.info('Resuming training.')
         # Load data
         if load_dataset is None:
             if params['REBUILD_DATASET']:
-                logging.info('Rebuilding dataset.')
+                logger.info('Rebuilding dataset.')
                 dataset = build_dataset(params)
             else:
-                logging.info('Updating dataset.')
+                logger.info('Updating dataset.')
                 dataset = loadDataset(
                     params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] +
                     params['TRG_LAN'] + '.pkl')
@@ -56,7 +59,7 @@ def train_model(params, load_dataset=None):
                 saveDataset(dataset, params['DATASET_STORE_PATH'])
 
         else:
-            logging.info('Reloading and using dataset.')
+            logger.info('Reloading and using dataset.')
             dataset = loadDataset(load_dataset)
     else:
         # Load data
@@ -163,4 +166,4 @@ def train_model(params, load_dataset=None):
 
     total_end_time = timer()
     time_difference = total_end_time - total_start_time
-    logging.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
+    logger.info('In total is {0:.2f}s = {1:.2f}m'.format(time_difference, time_difference / 60.0))
