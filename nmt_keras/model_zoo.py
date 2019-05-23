@@ -141,6 +141,9 @@ class TranslationModel(Model_Wrapper):
                 eval('self.' + model_type + '(params)')
             else:
                 raise Exception('Translation_Model model_type "' + model_type + '" is not implemented.')
+        if self.params.get('TRAINING_OBJECTIVE', 'mle').lower() == 'mrt':
+            self.build_mrt_model()
+            params['LOSS'] = 'weighted_' + self.params['LOSS']
 
         # Load weights from file
         if weights_path:
@@ -401,6 +404,17 @@ class TranslationModel(Model_Wrapper):
                                  sample_weight_mode='temporal' if self.params['SAMPLE_WEIGHTS'] else None,
                                  weighted_metrics=self.params.get('KERAS_METRICS_WEIGHTS', None),
                                  target_tensors=self.params.get('TARGET_TENSORS'))
+
+    def build_mrt_model(self):
+        # Add an additional input layer to models in order to train with custom loss function
+        y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
+        y_pred = self.model.outputs[0]
+        weights = Input(name="weights", batch_shape=[None, None])
+        loss_out = Lambda(eval(self.params['LOSS']),
+                          output_shape=(1,),
+                          name=self.params['LOSS'],
+                          supports_masking=True)([y_true, y_pred, weights])
+        self.model = Model(inputs=self.model.inputs + [y_true, weights], outputs=loss_out)
 
     def __str__(self):
         """

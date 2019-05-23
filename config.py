@@ -117,12 +117,29 @@ def load_parameters():
                                                   # set to 0 if we want to use the whole answer as a single class.
     MAX_OUTPUT_TEXT_LEN_TEST = MAX_OUTPUT_TEXT_LEN * 3  # Maximum length of the output sequence during test time.
 
-    # Optimizer parameters (see model.compile() function).
+    CLASSIFIER_ACTIVATION = 'softmax'             # Activation of the final layer of the model
+
+    TRAINING_OBJECTIVE = 'MRT'                    # Training objective: MLE (maximum likelihood estimation) or MRT (minimum risk training)
+
+    # Optimization parameters (see model.compile() function).
     LOSS = 'categorical_crossentropy'
-    CLASSIFIER_ACTIVATION = 'softmax'
     SAMPLE_WEIGHTS = True                         # Select whether we use a weights matrix (mask) for the data outputs
     LABEL_SMOOTHING = 0.                          # Epsilon value for label smoothing. Only valid for 'categorical_crossentropy' loss. See arxiv.org/abs/1512.00567.
 
+    # MRT parameters (applicable if TRAINING_OBJECTIVE == 'MRT')
+    MRT_LOSS = 'BLEU'                             # Risk evaluator
+    MRT_SAMPLES = 25                              # Number of samples to generate
+    MRT_MAXLEN = MAX_OUTPUT_TEXT_LEN              # Maximum length of the samples generated
+    LOSS_MODEL_INDEX = 0                          # Index of the model output for decoding and computing the risk
+
+    # RL-related parameters
+    RL_SAMPLING = 'multinomial'                   # Sampling strategy. 'multinomial' or 'beam search'
+    REWARD = 'BLEU'                               # Reward metric (BLEU or TER)
+    REWARD_SHAPING = True                         # Apply reward shaping (estimate intermediate rewards) or not
+    EPISODES = 600000                             # Number of episodes to train on
+
+
+    # Optimizer parameters
     OPTIMIZER = 'Adam'                            # Optimizer. Supported optimizers: SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam.
     LR = 0.001                                    # Learning rate. Recommended values - Adam 0.0002 - Adadelta 1.0.
     CLIP_C = 5.                                   # During training, clip L2 norm of gradients to this value (0. means deactivated).
@@ -317,11 +334,11 @@ def load_parameters():
     PLOT_EVALUATION = False                            # If True, the evaluation will be plotted into the model folder.
     
     VERBOSE = 1                                        # Verbosity level.
-    RELOAD = 0                                         # If 0 start training from scratch, otherwise the model.
+    RELOAD = 5                                         # If 0 start training from scratch, otherwise the model.
                                                        # Saved on epoch 'RELOAD' will be used.
     RELOAD_EPOCH = True                                # Select whether we reload epoch or update number.
 
-    REBUILD_DATASET = True                             # Build again or use stored instance.
+    REBUILD_DATASET = False                             # Build again or use stored instance.
     MODE = 'training'                                  # 'training' or 'sampling' (if 'sampling' then RELOAD must
                                                        # be greater than 0 and EVAL_ON_SETS will be used).
 

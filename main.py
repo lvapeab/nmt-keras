@@ -4,30 +4,46 @@ import argparse
 import ast
 import logging
 
-from keras_wrapper.extra.read_write import pkl2dict
 from config import load_parameters
-from utils.utils import update_parameters
+from config_online import load_parameters as load_parameters_online
+from data_engine.prepare_data import update_dataset_from_file
+from keras_wrapper.dataset import loadDataset
+from keras_wrapper.extra.callbacks import *
 from nmt_keras import check_params
-from nmt_keras.training import train_model
-
+from nmt_keras.training import train_model, train_model_online, train_reinforce_model
+from utils.utils import *
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
 
 def parse_args():
     parser = argparse.ArgumentParser("Train or sample NMT models")
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "
                                                                "are read from config.py")
+    parser.add_argument("-o", "--online",
+                        action='store_true', default=False, required=False, help="Online training mode. ")
+    parser.add_argument("-s", "--splits", nargs='+', required=False, default=['val'],
+                        help="Splits to train on. Should be already included into the dataset object.")
     parser.add_argument("-ds", "--dataset", required=False, help="Dataset instance with data")
-    parser.add_argument("changes", nargs="*", help="Changes to config. "
-                                                   "Following the syntax Key=Value",
+    parser.add_argument("-m", "--models", nargs='*', required=False, help="Models to load", default="")
+    parser.add_argument("-src", "--source", help="File of source hypothesis", required=False)
+    parser.add_argument("-trg", "--references", help="Reference sentence", required=False)
+    parser.add_argument("-hyp", "--hypotheses", required=False, help="Store hypothesis to this file")
+    parser.add_argument("-v", "--verbose", required=False, default=0, type=int, help="Verbosity level")
+    parser.add_argument("-ch", "--changes", nargs="*", help="Changes to config, following the syntax Key=Value",
                         default="")
-    return parser.parse_args()
 
+    return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
     parameters = load_parameters()
     if args.config is not None:
         parameters = update_parameters(parameters, pkl2dict(args.config))
+
+    if args.online:
+        online_parameters = load_parameters_online(parameters)
+        parameters = update_parameters(parameters, online_parameters)
     try:
         for arg in args.changes:
             try:
@@ -44,10 +60,27 @@ if __name__ == "__main__":
         exit(2)
 
     parameters = check_params(parameters)
-    if parameters['MODE'] == 'training':
-        logging.info('Running training.')
-        train_model(parameters, args.dataset)
+    if args.online:
+        dataset = loadDataset(args.dataset)
+        dataset = update_dataset_from_file(dataset, args.source, parameters,
+                                           output_text_filename=args.references, splits=['train'], remove_outputs=False,
+                                           compute_state_below=True)
+        train_model_online(parameters, args.source, args.references,
+                           models_path=args.models,
+                           dataset=dataset,
+                           stored_hypotheses_filename=args.hypotheses,
+                           verbose=args.verbose)
+
+    elif parameters['MODE'] == 'training':
+        logger.info('Running %s training.' % parameters.get('TRAINING_OBJECTIVE', 'MLE'))
+        if parameters.get('TRAINING_OBJECTIVE', 'mle').lower() == 'mle' or \
+                        parameters.get('TRAINING_OBJECTIVE', 'mle').lower() == 'mrt':
+            train_model(parameters, args.dataset)
+        elif parameters.get('TRAINING_OBJECTIVE', 'mle').lower() == 'reinforce':
+            train_reinforce_model(parameters, args.dataset)
+        else:
+            raise NotImplementedError('Unknown TRAINING_OBJECTIVE: ' % parameters.get('TRAINING_OBJECTIVE', 'mle'))
     elif parameters['MODE'] == 'sampling':
-        logging.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
+        logger.error('Depecrated function. For sampling from a trained model, please run sample_ensemble.py.')
         exit(2)
-    logging.info('Done!')
+    logger.info('Done!')
