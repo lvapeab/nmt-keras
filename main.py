@@ -15,6 +15,7 @@ from utils.utils import *
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
+
 def parse_args():
     parser = argparse.ArgumentParser("Train or sample NMT models")
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
