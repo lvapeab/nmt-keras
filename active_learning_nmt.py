@@ -497,14 +497,14 @@ if __name__ == "__main__":
             try:
                 k, v = arg.split('=')
             except ValueError:
-                print 'Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes)
+                print ('Overwritten arguments must have the form key=Value. \n Currently are: %s' % str(args.changes))
                 exit(1)
             try:
                 params[k] = ast.literal_eval(v)
             except ValueError:
                 params[k] = v
     except ValueError:
-        print 'Error processing arguments: (', k, ",", v, ")"
+        print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
 
     check_params(params)
@@ -797,8 +797,9 @@ if __name__ == "__main__":
                     total_words += len(hypothesis.split())
                     total_chars += len(hypothesis)
                     # 5 Write sentences into a file
-                    print >> ftrans, hypothesis
-
+                # 5 Write correct sentences into a file
+                list2file(args.dest, [hypothesis], permission='a')
+                
                 if not args.online:
                     # Batched training with all sentences from Y
                     retrain_models(online_trainer, dataset, params, x_batch, y_batch)
@@ -808,22 +809,22 @@ if __name__ == "__main__":
             # 6. Final!
             # 6.1 Log some information
             if not args.post_editing:
-                print "Total number of errors:", total_errors
-                print "Total number selections", total_mouse_actions
-                print "WSR: %f" % (float(total_errors) / total_words)
-                print "MAR: %f" % (float(total_mouse_actions) / total_words)
-                print "MAR_c: %f" % (float(total_mouse_actions) / total_chars)
-                print "KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
+                print (u"Total number of errors:", total_errors)
+                print (u"Total number selections", total_mouse_actions)
+                print (u"WSR: %f" % (float(total_errors) / total_words))
+                print (u"MAR: %f" % (float(total_mouse_actions) / total_words))
+                print (u"MAR_c: %f" % (float(total_mouse_actions) / total_chars))
+                print (u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars))
             # 6.2 Close open files
             fsrc.close()
             ftrans.close()
 
     except KeyboardInterrupt:
 
-        print 'Interrupted!'
+        print (u'Interrupted!')
         if not args.post_editing:
-            print "Total number of corrections (up to now):", total_errors
-            print "WSR: %f" % (float(total_errors) / total_words)
-            print "MAR: %f" % (float(total_mouse_actions) / total_words)
-            print "MAR_c: %f" % (float(total_mouse_actions) / total_chars)
-            print "KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars)
+            print (u"Total number of corrections (up to now):", total_errors)
+            print (u"WSR: %f" % (float(total_errors) / total_words))
+            print (u"MAR: %f" % (float(total_mouse_actions) / total_words))
+            print (u"MAR_c: %f" % (float(total_mouse_actions) / total_chars))
+            print (u"KSMR: %f" % (float(total_errors + total_mouse_actions) / total_chars))
