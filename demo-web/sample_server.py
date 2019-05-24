@@ -14,7 +14,7 @@ import time
 import sys
 import os
 import copy
-import BaseHTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib
 from collections import OrderedDict
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
@@ -33,7 +33,7 @@ from config import load_parameters
 logger = logging.getLogger(__name__)
 
 
-class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class NMTHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         do_GET_start_time = time.time()
         args = self.path.split('?')[1]
@@ -50,45 +50,45 @@ class NMTHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for aa in args:
             cc = aa.split('=')
             if cc[0] == 'source':
-                source_sentence = urllib.unquote_plus(cc[1])
+                source_sentence = urllib.parse.unquote_plus(cc[1])
 
             if cc[0] == 'prefix':
                 validated_prefix = cc[1]
-                validated_prefix = urllib.unquote_plus(validated_prefix)
+                validated_prefix = urllib.parse.unquote_plus(validated_prefix)
 
             if cc[0] == 'learn':
                 learn = cc[1]
-                learn = urllib.unquote_plus(learn)
+                learn = urllib.parse.unquote_plus(learn)
                 learn = eval(learn)
 
             if cc[0] == 'beam_size':
                 beam_size = cc[1]
-                beam_size = urllib.unquote_plus(beam_size)
+                beam_size = urllib.parse.unquote_plus(beam_size)
                 beam_size = int(beam_size)
                 self.server.sampler.params_prediction['beam_size'] = beam_size
 
             if cc[0] == 'length_norm':
                 length_norm = cc[1]
-                length_norm = urllib.unquote_plus(length_norm)
+                length_norm = urllib.parse.unquote_plus(length_norm)
                 length_norm = float(length_norm)
                 self.server.sampler.params_prediction['length_norm_factor'] = length_norm
 
             if cc[0] == 'coverage_norm':
                 coverage_norm = cc[1]
-                coverage_norm = urllib.unquote_plus(coverage_norm)
+                coverage_norm = urllib.parse.unquote_plus(coverage_norm)
                 coverage_norm = float(coverage_norm)
                 self.server.sampler.params_prediction['coverage_norm_factor'] = coverage_norm
 
             if cc[0] == 'alpha_norm':
                 alpha_norm = cc[1]
-                alpha_norm = urllib.unquote_plus(alpha_norm)
+                alpha_norm = urllib.parse.unquote_plus(alpha_norm)
                 alpha_norm = float(alpha_norm)
                 self.server.sampler.params_prediction['alpha_factor'] = alpha_norm
 
         if source_sentence is None:
             self.send_response(400)  # 400: ('Bad Request', 'Bad request syntax or unsupported method')
             return
-        source_sentence = urllib.unquote_plus(source_sentence)
+        source_sentence = urllib.parse.unquote_plus(source_sentence)
         args_processing_end_time = time.time()
         logger.log(2, 'args_processing time: %.6f' % (args_processing_end_time - args_processing_start_time))
 
@@ -378,7 +378,7 @@ class NMTSampler:
 def main():
     args = parse_args()
     server_address = (args.address, args.port)
-    httpd = BaseHTTPServer.HTTPServer(server_address, NMTHandler)
+    httpd = HTTPServer(server_address, NMTHandler)
     logger.setLevel(args.logging_level)
     parameters = load_parameters()
     if args.config is not None:
@@ -414,7 +414,7 @@ def main():
         logger.info('Building BPE')
         if not dataset.BPE_built:
             dataset.build_bpe(parameters.get('BPE_CODES_PATH', parameters['DATA_ROOT_PATH'] + '/training_codes.joint'),
-                              bpe_separator)
+                              separator=bpe_separator)
     # Build tokenization function
     tokenize_f = eval('dataset.' + parameters.get('TOKENIZATION_METHOD', 'tokenize_bpe'))
     detokenize_function = eval('dataset.' + parameters.get('DETOKENIZATION_METHOD', 'detokenize_bpe'))

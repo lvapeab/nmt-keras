@@ -18,4 +18,4 @@ numpy
 pandas
 sacremoses
 scipy
-tensorflow-gpu
+tensorflow
