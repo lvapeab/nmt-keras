@@ -176,7 +176,8 @@ def interactive_simulation():
     if 'bpe' in params['TOKENIZATION_METHOD'].lower():
         logger.info('Building BPE')
         if not dataset.BPE_built:
-            dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'), bpe_separator)
+            dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'),
+                              separator=bpe_separator)
     # Build tokenization function
     tokenize_f = eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none'))
 

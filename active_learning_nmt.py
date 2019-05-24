@@ -557,7 +557,7 @@ if __name__ == "__main__":
         logger.info('Building BPE')
         if not dataset.BPE_built:
             dataset.build_bpe(params.get('BPE_CODES_PATH', params['DATA_ROOT_PATH'] + '/training_codes.joint'),
-                              bpe_separator)
+                              separator=bpe_separator)
     # Build tokenization function
     tokenize_f = eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none'))
 
