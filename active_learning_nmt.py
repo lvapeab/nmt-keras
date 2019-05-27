@@ -799,7 +799,7 @@ if __name__ == "__main__":
                     # 5 Write sentences into a file
                 # 5 Write correct sentences into a file
                 list2file(args.dest, [hypothesis], permission='a')
-                
+
                 if not args.online:
                     # Batched training with all sentences from Y
                     retrain_models(online_trainer, dataset, params, x_batch, y_batch)
