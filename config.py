@@ -170,6 +170,7 @@ def load_parameters():
     PATIENCE = 10                                 # We'll stop if the val STOP_METRIC does not improve after this.
                                                   # number of evaluations.
     STOP_METRIC = 'Bleu_4'                        # Metric for the stop.
+    MIN_DELTA = 0.                                # Minimum change in the monitored quantity to consider it as an improvement.
 
     # Model parameters
     MODEL_TYPE = 'AttentionRNNEncoderDecoder'     # Model to train. See model_zoo.py for more info.
