@@ -11,6 +11,13 @@ for obtaining the required packages for running this library.
 
 Nevertheless, it is highly recommended to install and configure Theano_ or Tensorflow_ with the GPU and speed optimizations enabled.
 
+Alternatively, you can run the `install.sh`_ script, which will also downloads Python::
+
+    git clone https://github.com/lvapeab/nmt-keras
+    cd nmt-keras
+    bash ./install.sh
+
+
 Requirements
 ************
  - Our version of Keras_.
@@ -25,3 +32,4 @@ Requirements
 .. _pip: https://en.wikipedia.org/wiki/Pip_(package_manager)
 .. _Theano: http://theano.readthedocs.io/en/latest/install.html#install
 .. _Tensorflow: https://www.tensorflow.org/install/
+.. _install.sh: https://github.com/lvapeab/nmt-keras/blob/master/install.sh

@@ -139,6 +139,28 @@ class NMTSampler:
     def __init__(self, models, dataset, params, params_prediction, params_training, model_tokenize_f, model_detokenize_f, general_tokenize_f,
                  general_detokenize_f, mapping=None, word2index_x=None, word2index_y=None, index2word_y=None,
                  excluded_words=None, unk_id=1, eos_symbol='/', online=False, verbose=0):
+        """
+        Builds an NMTSampler: An object containing models and dataset, for the interactive-predictive and adaptive framework.
+        :param models:
+        :param dataset:
+        :param dict params: All hyperparameters of the model.
+        :param dict params_prediction: Hyperparameters regarding prediction and search.
+        :param dict params_training:  Hyperparamters regarding incremental training.
+        :param function model_tokenize_f: Function used for tokenizing the input sentence. E.g. BPE.
+        :param function model_detokenize_f: Function used for detokenizing the output sentence. E.g. BPE revert.
+        :param function general_tokenize_f: Function used for tokenizing the input sentence. E.g. Moses tokenizer.
+        :param function general_detokenize_f: Function used for detokenizing the output sentence. E.g. Moses detokenizer.
+        :param dict mapping: Source-target dictionary (for unk_replace heuristics 1 and 2).
+        :param dict word2index_x: Mapping from word strings into indices for the source language.
+        :param dict word2index_y: Mapping from word strings into indices for the target language.
+        :param dict index2word_y: Mapping from indices into word strings for the target language.
+        :param dict excluded_words: words that won't be generated in the middle of two isles. Currenly unused.
+        :param int unk_id: Unknown word index.
+        :param str eos_symbol: End-of-sentence symbol.
+        :param bool online: Whether apply online learning after accepting each hypothesis.
+        :param int verbose: Verbosity level.
+        """
+
         self.models = models
         self.dataset = dataset
         self.params = params
@@ -165,7 +187,7 @@ class NMTSampler:
                                                                       excluded_words=self.excluded_words,
                                                                       verbose=self.verbose)
 
-        # Compile Theano sampling function by generating a fake sample # TODO: Find a better way of doing this
+        # Compile Theano sampling function by generating a fake sample. # TODO: Find a better way of doing this
         logger.info('Compiling sampler...')
         self.generate_sample('i')
         logger.info('Done.')
@@ -186,7 +208,18 @@ class NMTSampler:
 
     def generate_sample(self, source_sentence, validated_prefix=None, max_N=5, isle_indices=None,
                         filtered_idx2word=None, unk_indices=None, unk_words=None):
-        print ("In params prediction beam_size: ", self.params_prediction['beam_size'])
+        """
+        Generate sample via constrained search. Options labeled with <<isles>> are untested
+        and likely require some modifications to correctly work.
+        :param source_sentence: Source sentence.
+        :param validated_prefix: Prefix to keep in the output.
+        :param max_N: Maximum number of words to generate between validated segments. <<isles>>
+        :param isle_indices: Indices of the validated segments. <<isles>>
+        :param filtered_idx2word: List of candidate words to be the next one to generate (after generating fixed_words).
+        :param unk_indices: Positions of the unknown words.
+        :param unk_words: Unknown words.
+        :return:
+        """
         logger.log(2, 'Beam size: %d' % (self.params_prediction['beam_size']))
         generate_sample_start_time = time.time()
         if unk_indices is None:
@@ -295,10 +328,6 @@ class NMTSampler:
         decoding_predictions_end_time = time.time()
         logger.log(2, 'decoding_predictions time: %.6f' % (decoding_predictions_end_time - decoding_predictions_start_time))
 
-        # for (words_idx, starting_pos), words in unk_in_isles:
-        #     for pos_unk_word, pos_hypothesis in enumerate(range(starting_pos, starting_pos + len(words_idx))):
-        #         hypothesis[pos_hypothesis] = words[pos_unk_word]
-
         # UNK words management
         unk_management_start_time = time.time()
         unk_indices = list(unk_words_dict)
@@ -330,7 +359,12 @@ class NMTSampler:
         return hypothesis
 
     def learn_from_sample(self, source_sentence, target_sentence):
-
+        """
+        Incrementally adapt the model with the validated sample.
+        :param source_sentence: Source sentence (x).
+        :param target_sentence: Target sentence (y).
+        :return:
+        """
         # Tokenize input
         tokenized_input = self.general_tokenize_f(source_sentence, escape=False)
         tokenized_input = self.model_tokenize_f(tokenized_input)
@@ -499,7 +533,6 @@ def main():
                            for i in range(len(args.models))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
 
-        # Set additional inputs to models if using a custom loss function
         # parameters['USE_CUSTOM_LOSS'] = True if 'PAS' in parameters['OPTIMIZER'] else False
         # if parameters.get('N_BEST_OPTIMIZER', False):
         #     logger.info('Using N-best optimizer')
