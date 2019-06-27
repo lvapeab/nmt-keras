@@ -1,7 +1,8 @@
 import logging
 from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
 
-logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
 
 
 def update_dataset_from_file(ds,
@@ -125,7 +126,7 @@ def build_dataset(params):
     if params['REBUILD_DATASET']:  # We build a new dataset instance
         if params['VERBOSE'] > 0:
             silence = False
-            logging.info('Building ' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + ' dataset')
+            logger.info('Building ' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + ' dataset')
         else:
             silence = True
 
@@ -350,7 +351,7 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
     if set_names is None:
         set_names = ['val', 'test']
     for s in set_names:
-        logging.info('Keeping ' + str(n) + ' captions per input on the ' + str(s) + ' set.')
+        logger.info('Keeping ' + str(n) + ' captions per input on the ' + str(s) + ' set.')
 
         ds.extra_variables[s] = dict()
         n_samples = getattr(ds, 'len_' + s)
@@ -400,4 +401,4 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
         new_len = len(new_Y)
         setattr(ds, 'len_' + s, new_len)
 
-        logging.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')
+        logger.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')

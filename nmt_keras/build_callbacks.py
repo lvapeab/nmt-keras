@@ -5,7 +5,7 @@ from keras_wrapper.extra.callbacks import *
 def buildCallbacks(params, model, dataset):
     """
     Builds the selected set of callbacks run during the training of the model:
-        * PrintPerformanceMetricOnEpochEndOrEachNUpdates: Evaluates the model in the validation set given a number of epochs/updates.
+        * EvalPerformance: Evaluates the model in the validation set given a number of epochs/updates.
         * SampleEachNUpdates: Shows several translation samples during training.
 
 
@@ -66,29 +66,29 @@ def buildCallbacks(params, model, dataset):
             for s in params['EVAL_ON_SETS']:
                 extra_vars[s] = dict()
                 extra_vars[s]['references'] = dataset.extra_variables[s][params['OUTPUTS_IDS_DATASET'][0]]
-            callback_metric = PrintPerformanceMetricOnEpochEndOrEachNUpdates(model,
-                                                                             dataset,
-                                                                             gt_id=params['OUTPUTS_IDS_DATASET'][0],
-                                                                             metric_name=params['METRICS'],
-                                                                             set_name=params['EVAL_ON_SETS'],
-                                                                             batch_size=params['BATCH_SIZE'],
-                                                                             each_n_epochs=params['EVAL_EACH'],
-                                                                             extra_vars=extra_vars,
-                                                                             reload_epoch=params['RELOAD'],
-                                                                             is_text=True,
-                                                                             input_text_id=input_text_id,
-                                                                             index2word_y=vocab_y,
-                                                                             index2word_x=vocab_x,
-                                                                             sampling_type=params['SAMPLING'],
-                                                                             beam_search=params['BEAM_SEARCH'],
-                                                                             save_path=model.model_path,
-                                                                             start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
-                                                                             write_samples=True,
-                                                                             write_type=params['SAMPLING_SAVE_MODE'],
-                                                                             eval_on_epochs=params['EVAL_EACH_EPOCHS'],
-                                                                             save_each_evaluation=params['SAVE_EACH_EVALUATION'],
-                                                                             do_plot=params.get('PLOT_EVALUATION', False),
-                                                                             verbose=params['VERBOSE'])
+            callback_metric = EvalPerformance(model,
+                                              dataset,
+                                              gt_id=params['OUTPUTS_IDS_DATASET'][0],
+                                              metric_name=params['METRICS'],
+                                              set_name=params['EVAL_ON_SETS'],
+                                              batch_size=params['BATCH_SIZE'],
+                                              each_n_epochs=params['EVAL_EACH'],
+                                              extra_vars=extra_vars,
+                                              reload_epoch=params['RELOAD'],
+                                              is_text=True,
+                                              input_text_id=input_text_id,
+                                              index2word_y=vocab_y,
+                                              index2word_x=vocab_x,
+                                              sampling_type=params['SAMPLING'],
+                                              beam_search=params['BEAM_SEARCH'],
+                                              save_path=model.model_path,
+                                              start_eval_on_epoch=params['START_EVAL_ON_EPOCH'],
+                                              write_samples=True,
+                                              write_type=params['SAMPLING_SAVE_MODE'],
+                                              eval_on_epochs=params['EVAL_EACH_EPOCHS'],
+                                              save_each_evaluation=params['SAVE_EACH_EVALUATION'],
+                                              do_plot=params.get('PLOT_EVALUATION', False),
+                                              verbose=params['VERBOSE'])
 
             callbacks.append(callback_metric)
 

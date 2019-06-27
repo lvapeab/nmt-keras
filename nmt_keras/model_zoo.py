@@ -17,6 +17,8 @@ from keras.optimizers import *
 from keras.regularizers import l2, AlphaRegularizer
 from keras_wrapper.cnn_model import Model_Wrapper
 from keras_wrapper.extra.regularize import Regularize
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
 
 
 def getPositionalEncodingWeights(input_dim, output_dim, name='', verbose=True):
@@ -31,7 +33,7 @@ def getPositionalEncodingWeights(input_dim, output_dim, name='', verbose=True):
     """
 
     if verbose > 0:
-        logging.info("<<< Obtaining positional encodings of layer " + name + " >>>")
+        logger.info("<<< Obtaining positional encodings of layer " + name + " >>>")
     position_enc = np.array([[pos / np.power(10000, 2. * i / output_dim) for i in range(output_dim)] for pos in range(input_dim)])
     position_enc[:, 0::2] = np.sin(position_enc[:, 0::2])  # dim 2i
     position_enc[:, 1::2] = np.cos(position_enc[:, 1::2])  # dim 2i+1
@@ -95,8 +97,8 @@ class TranslationModel(Model_Wrapper):
         # Prepare source word embedding
         if params['SRC_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
-                logging.info("<<< Loading pretrained word vectors from:  " + params['SRC_PRETRAINED_VECTORS'] + " >>>")
-            src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS'])).item()
+                logger.info("<<< Loading pretrained word vectors from:  " + params['SRC_PRETRAINED_VECTORS'] + " >>>")
+            src_word_vectors = np.load(os.path.join(params['SRC_PRETRAINED_VECTORS']), allow_pickle=True).item()
             self.src_embedding_weights = np.random.rand(params['INPUT_VOCABULARY_SIZE'],
                                                         params['SOURCE_TEXT_EMBEDDING_SIZE'])
             for word, index in iteritems(self.vocabularies[self.ids_inputs[0]]['words2idx']):
@@ -113,8 +115,8 @@ class TranslationModel(Model_Wrapper):
         # Prepare target word embedding
         if params['TRG_PRETRAINED_VECTORS'] is not None:
             if self.verbose > 0:
-                logging.info("<<< Loading pretrained word vectors from: " + params['TRG_PRETRAINED_VECTORS'] + " >>>")
-            trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS'])).item()
+                logger.info("<<< Loading pretrained word vectors from: " + params['TRG_PRETRAINED_VECTORS'] + " >>>")
+            trg_word_vectors = np.load(os.path.join(params['TRG_PRETRAINED_VECTORS']), allow_pickle=True).item()
             self.trg_embedding_weights = np.random.rand(params['OUTPUT_VOCABULARY_SIZE'],
                                                         params['TARGET_TEXT_EMBEDDING_SIZE'])
             for word, index in iteritems(self.vocabularies[self.ids_outputs[0]]['words2idx']):
@@ -131,13 +133,13 @@ class TranslationModel(Model_Wrapper):
         if structure_path:
             # Load a .json model
             if self.verbose > 0:
-                logging.info("<<< Loading model structure from file " + structure_path + " >>>")
+                logger.info("<<< Loading model structure from file " + structure_path + " >>>")
             self.model = model_from_json(open(structure_path).read())
         else:
             # Build model from scratch
             if hasattr(self, model_type):
                 if self.verbose > 0:
-                    logging.info("<<< Building " + model_type + " Translation_Model >>>")
+                    logger.info("<<< Building " + model_type + " Translation_Model >>>")
                 eval('self.' + model_type + '(params)')
             else:
                 raise Exception('Translation_Model model_type "' + model_type + '" is not implemented.')
@@ -148,7 +150,7 @@ class TranslationModel(Model_Wrapper):
         # Load weights from file
         if weights_path:
             if self.verbose > 0:
-                logging.info("<<< Loading weights from file " + weights_path + " >>>")
+                logger.info("<<< Loading weights from file " + weights_path + " >>>")
             self.model.load_weights(weights_path)
 
         # Print information of self
@@ -170,7 +172,7 @@ class TranslationModel(Model_Wrapper):
         :return: None
         """
         if int(self.params.get('ACCUMULATE_GRADIENTS', 1)) > 1 and self.params['OPTIMIZER'].lower() != 'adam':
-            logging.warning('Gradient accumulate is only implemented for the Adam optimizer. Setting "ACCUMULATE_GRADIENTS" to 1.')
+            logger.warning('Gradient accumulate is only implemented for the Adam optimizer. Setting "ACCUMULATE_GRADIENTS" to 1.')
             self.params['ACCUMULATE_GRADIENTS'] = 1
 
         optimizer_str = '\t LR: ' + str(self.params.get('LR', 0.01)) + \
@@ -178,12 +180,12 @@ class TranslationModel(Model_Wrapper):
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow':
             if self.params['OPTIMIZER'].lower() not in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
-                logging.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
+                logger.warning('The optimizer %s is not natively implemented in Tensorflow. Using the Keras version.' % (str(self.params['OPTIMIZER'])))
             if self.params.get('LR_DECAY') is not None:
-                logging.warning('The learning rate decay is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
+                logger.warning('The learning rate decay is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
                 self.params['USE_TF_OPTIMIZER'] = False
             if self.params.get('ACCUMULATE_GRADIENTS', 1) > 1:
-                logging.warning('The gradient accumulation is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
+                logger.warning('The gradient accumulation is not natively implemented in native Tensorflow optimizers. Using the Keras version.')
                 self.params['USE_TF_OPTIMIZER'] = False
 
         if self.params.get('USE_TF_OPTIMIZER', False) and K.backend() == 'tensorflow' and self.params['OPTIMIZER'].lower() in ['sgd', 'adagrad', 'adadelta', 'rmsprop', 'adam']:
@@ -382,7 +384,7 @@ class TranslationModel(Model_Wrapper):
                                  '\n\t BETA_2: ' + str(self.params.get('BETA_2', 0.999)) + \
                                  '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
             else:
-                logging.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
+                logger.info('\tWARNING: The modification of the LR is not implemented for the chosen optimizer.')
                 optimizer = eval(self.params['OPTIMIZER'])
 
             optimizer_str += '\n\t CLIP_C ' + str(self.params.get('CLIP_C', 0.)) + \
@@ -390,7 +392,7 @@ class TranslationModel(Model_Wrapper):
                              '\n\t LR_OPTIMIZER_DECAY ' + str(self.params.get('LR_OPTIMIZER_DECAY', 0.0)) + \
                              '\n\t ACCUMULATE_GRADIENTS ' + str(self.params.get('ACCUMULATE_GRADIENTS', 1)) + '\n'
         if self.verbose > 0:
-            logging.info("Preparing optimizer and compiling. Optimizer configuration: \n" + optimizer_str)
+            logger.info("Preparing optimizer and compiling. Optimizer configuration: \n" + optimizer_str)
 
         if hasattr(self, 'multi_gpu_model') and self.multi_gpu_model is not None:
             model_to_compile = self.multi_gpu_model
