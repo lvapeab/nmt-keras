@@ -2,7 +2,7 @@ coverage
 cloudpickle
 future
 -e git+https://github.com/MarcBS/keras.git#egg=keras
-Multimodal-Keras-Wrapper
+multimodal-keras-wrapper
 -e git+https://github.com/lvapeab/coco-caption.git#egg=coco-caption
 flaky
 keras_applications
