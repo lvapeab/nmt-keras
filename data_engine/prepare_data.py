@@ -181,8 +181,8 @@ def build_dataset(params, vocabulary=dict(), vocabulary_len=dict()):
         name = params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
         doc_size = 0
         if 'SECOND_DIM_SIZE' in params:
-	    doc_size=params['SECOND_DIM_SIZE']
-	ds = Dataset(name, base_path, silence=silence, vocabulary=vocabulary, vocabulary_len=vocabulary_len, doc_size=doc_size)
+            doc_size=params['SECOND_DIM_SIZE']
+        ds = Dataset(name, base_path, silence=silence, vocabulary=vocabulary, vocabulary_len=vocabulary_len, doc_size=doc_size)
         # OUTPUT DATA
         # Load the train, val and test splits of the target language sentences (outputs). The files include a sentence per line.
 
@@ -322,7 +322,7 @@ def build_dataset(params, vocabulary=dict(), vocabulary_len=dict()):
         max_src_in_len=params.get('MAX_SRC_INPUT_TEXT_LEN', None)
         if max_src_in_len == None:
             params['MAX_SRC_INPUT_TEXT_LEN'] = params['MAX_INPUT_TEXT_LEN']
-        	
+
         max_trg_in_len=params.get('MAX_TRG_INPUT_TEXT_LEN', None)
         if max_trg_in_len == None:
             params['MAX_TRG_INPUT_TEXT_LEN'] = params['MAX_INPUT_TEXT_LEN']
