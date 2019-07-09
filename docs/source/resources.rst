@@ -45,10 +45,10 @@ Let's have a look to these files.
     - `epoch_1_weights_next.h5`: Model next parameters (weight matrices).
     - `val.coco`: Metrics dump. This file is name as [tested_split].[metrics_name]. It contains a header with the metrics name and the value of all evaluations (epoch/updates). For instance::
 
-    epoch,Bleu_1, Bleu_2, Bleu_3, Bleu_4, CIDEr, METEOR, ROUGE_L,
-    1,0.906982874122, 0.875873151361, 0.850383597611, 0.824070996966, 8.084477458, 0.550547408997, 0.931523374569,
-    2,0.932937494321, 0.90923787501, 0.889965151506, 0.871819102335, 8.53565391657, 0.586377788443, 0.947634196936,
-    3,0.965579088172, 0.947927460597, 0.934090548706, 0.920166838768, 9.0864109399, 0.63234570058, 0.971618921459,
+       epoch,Bleu_1, Bleu_2, Bleu_3, Bleu_4, CIDEr, METEOR, ROUGE_L,
+       1,0.906982874122, 0.875873151361, 0.850383597611, 0.824070996966, 8.084477458, 0.550547408997, 0.931523374569,
+       2,0.932937494321, 0.90923787501, 0.889965151506, 0.871819102335, 8.53565391657, 0.586377788443, 0.947634196936,
+       3,0.965579088172, 0.947927460597, 0.934090548706, 0.920166838768, 9.0864109399, 0.63234570058, 0.971618921459,
 
 * `val_epoch_1.pred`: Raw file with the output of the NMT system at the evaluation performed at the end of epoch 1.
 
@@ -98,7 +98,7 @@ We can open Tensorboard in our browser (http://localhost:6006) with the NMT-Kera
 Loss curve
 ----------
 .. image:: ../../examples/documentation/imgs/tb-scalar.png
-   :scale: 80 %
+   :width: 90 %
    :alt: alternate text
    :align: left
 
@@ -108,7 +108,7 @@ Model graphs
 ------------
 
 .. image:: ../../examples/documentation/imgs/tb-graph.png
-   :scale: 80 %
+   :width: 90 %
    :alt: alternate text
    :align: left
 
@@ -119,7 +119,7 @@ Embedding visualization
 
 
 .. image:: ../../examples/documentation/imgs/tb-embeddings.png
-   :scale: 80 %
+   :width: 90 %
    :alt: alternate text
    :align: left
 
