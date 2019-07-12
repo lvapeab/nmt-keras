@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from keras_wrapper.extra.callbacks import *
+from .callbacks import *
 
 
 def buildCallbacks(params, model, dataset):
