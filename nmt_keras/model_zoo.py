@@ -19,7 +19,7 @@ from keras_wrapper.cnn_model import Model_Wrapper
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
-from regularize import Regularize
+from .regularize import Regularize
 
 
 def getPositionalEncodingWeights(input_dim, output_dim, name='', verbose=True):
