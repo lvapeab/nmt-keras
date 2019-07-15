@@ -1,19 +1,25 @@
 # -*- coding: utf-8 -*-
+
 from __future__ import print_function
+
 import argparse
 import ast
+import glob
 import logging
+import os
+import sys
 
+from numpy.random import seed
 from keras_wrapper.extra.read_write import pkl2dict
+
 from config import load_parameters
+
+from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from utils.utils import update_parameters
 from nmt_keras import check_params
 from nmt_keras.training import train_model
+
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
-import glob
-import sys
-import os
-from numpy.random import seed
 
 logger = logging.getLogger(__name__)
 
