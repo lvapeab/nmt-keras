@@ -59,4 +59,8 @@ def check_params(params):
         params['TRAINABLE_ENCODER'] = False
         params['TRAINABLE_DECODER'] = False
 
+    if params.get('MODE') == "training":
+        assert "MULTI_TASK" in params, "%r should be set to True or False" % "MULTI_TASK"
+
+
     return params
