@@ -1,5 +1,30 @@
 import logging
+
 from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
+
+# Do not do this at home.
+# A bug in multimodal_keras_wrapper (see
+# https://github.com/MarcBS/multimodal_keras_wrapper/pull/221)
+# means that process of real-valued labels is incorrect.
+# We patch the Dataset class here.
+# This will not be necessary when multimodal_keras_wrapper is fixed.
+
+def dataset_preprocessreal_fixed(filename):
+    """
+    A version of multimodal_keras_wrapper dataset.Dataset's
+    processReal method that works with reals.
+    """
+
+    import codecs
+
+    with codecs.open(filename, 'r', encoding="utf-8") as lines:
+        labels = []
+        for line in lines:
+            labels.append(float(line))
+        return labels
+
+Dataset.preprocessReal = staticmethod(dataset_preprocessreal_fixed)
+
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
