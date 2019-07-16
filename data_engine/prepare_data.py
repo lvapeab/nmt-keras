@@ -163,7 +163,7 @@ def update_dataset_from_file(ds,
     return ds
 
 
-def build_dataset(params, vocabulary=dict(), vocabulary_len=dict()):
+def build_dataset(params, vocabulary=None, vocabulary_len=None):
     """
     Builds (or loads) a Dataset instance.
     :param params: Parameters specifying Dataset options
@@ -179,10 +179,15 @@ def build_dataset(params, vocabulary=dict(), vocabulary_len=dict()):
 
         base_path = params['DATA_ROOT_PATH']
         name = params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN']
-        doc_size = 0
-        if 'SECOND_DIM_SIZE' in params:
-            doc_size=params['SECOND_DIM_SIZE']
-        ds = Dataset(name, base_path, silence=silence, vocabulary=vocabulary, vocabulary_len=vocabulary_len, doc_size=doc_size)
+
+        doc_size=params.get('SECOND_DIM_SIZE', 0)
+
+        assert vocabulary == None, "vocabulary not implemented yet"
+        assert vocabulary_len == None, "vocabulary not implemented yet"
+        assert doc_size == 0, "doc_size not implemented yet"
+
+        ds = Dataset(name, base_path, silence=silence)
+
         # OUTPUT DATA
         # Load the train, val and test splits of the target language sentences (outputs). The files include a sentence per line.
 
