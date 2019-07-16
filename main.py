@@ -17,6 +17,7 @@ from config import load_parameters
 
 from data_engine.prepare_data import build_dataset, update_dataset_from_file
 from nmt_keras import check_params
+from nmt_keras.callbacks import PrintPerformanceMetricOnEpochEndOrEachNUpdates
 from nmt_keras.model_zoo import TranslationModel
 from nmt_keras.training import train_model
 from utils.utils import update_parameters
