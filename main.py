@@ -9,6 +9,8 @@ import logging
 import os
 import sys
 
+from timeit import default_timer as timer
+
 from numpy.random import seed
 from keras_wrapper.extra.read_write import pkl2dict, dict2pkl
 from keras_wrapper.extra.read_write import pkl2dict, dict2pkl
