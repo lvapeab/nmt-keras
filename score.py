@@ -6,6 +6,7 @@ import ast
 from keras_wrapper.extra.read_write import pkl2dict
 from nmt_keras import check_params
 from nmt_keras.apply_model import score_corpus
+from keras.utils import CustomObjectScope
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -58,4 +59,8 @@ if __name__ == "__main__":
         print ('Error processing arguments: (', k, ",", v, ")")
         exit(2)
     params = check_params(params)
-    score_corpus(args, params)
+
+
+    from nmt_keras import model_zoo
+    with CustomObjectScope(vars(model_zoo)):
+        score_corpus(args, params)
