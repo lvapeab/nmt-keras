@@ -376,7 +376,7 @@ class NMTSampler:
         tokenized_reference = self.model_tokenize_f(tokenized_reference)
 
         # Build inputs/outpus of the system
-        state_below = self.dataset.loadText([tokenized_reference.encode('utf-8')],
+        state_below = self.dataset.loadText([tokenized_reference],
                                             vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
                                             max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                             offset=1,
@@ -387,7 +387,7 @@ class NMTSampler:
 
         # 4.1.3 Ground truth sample -> Interactively translated sentence
         # TODO: Load dense-text if necessary
-        trg_seq = self.dataset.loadTextOneHot([tokenized_reference.encode('utf-8')],
+        trg_seq = self.dataset.loadTextOneHot([tokenized_reference],
                                               vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
                                               vocabulary_len=self.dataset.vocabulary_len[self.params['OUTPUTS_IDS_DATASET'][0]],
                                               max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
