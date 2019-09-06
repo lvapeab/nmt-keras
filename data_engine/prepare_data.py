@@ -66,6 +66,7 @@ def update_dataset_from_file(ds,
         else:
             # Type of val/test outuput is always 'text' or 'dense-text'
             output_type = 'dense-text' if 'sparse' in params['LOSS'] else 'text'
+        # if sampling: output_type = "real"
 
         if remove_outputs:
             ds.removeOutput(split,
@@ -121,6 +122,8 @@ def update_dataset_from_file(ds,
                         overwrite_split=True)
 
 
+            # Avoid if sampling
+            # """
             ds.setInput(output_text_filename,
                         split,
                         type='text',
@@ -135,6 +138,7 @@ def update_dataset_from_file(ds,
                         min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
                         bpe_codes=params.get('BPE_CODES_PATH', None),
                         overwrite_split=True)
+            # """
 
 
         else:
@@ -188,7 +192,7 @@ def update_dataset_from_file(ds,
     return ds
 
 
-def build_dataset(params, vocabulary=None, vocabulary_len=None):
+def build_dataset(params, vocabulary=dict(), vocabulary_len=dict()):
     """
     Builds (or loads) a Dataset instance.
     :param params: Parameters specifying Dataset options
@@ -207,11 +211,11 @@ def build_dataset(params, vocabulary=None, vocabulary_len=None):
 
         doc_size=params.get('SECOND_DIM_SIZE', 0)
 
-        assert vocabulary == None, "vocabulary not implemented yet"
-        assert vocabulary_len == None, "vocabulary not implemented yet"
         assert doc_size == 0, "doc_size not implemented yet"
 
         ds = Dataset(name, base_path, silence=silence)
+        ds.vocabulary = vocabulary
+        ds.vocabulary_len = vocabulary_len
 
         # OUTPUT DATA
         # Load the train, val and test splits of the target language sentences (outputs). The files include a sentence per line.
