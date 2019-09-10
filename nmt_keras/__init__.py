@@ -12,11 +12,11 @@ def check_params(params):
     :return: None
     """
 
-    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][:-1] != '.npy':
+    if params['SRC_PRETRAINED_VECTORS'] and params['SRC_PRETRAINED_VECTORS'][-4:] != '.npy':
         logger.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                     'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
 
-    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][:-1] != '.npy':
+    if params['TRG_PRETRAINED_VECTORS'] and params['TRG_PRETRAINED_VECTORS'][-4:] != '.npy':
         logger.warn('It seems that the pretrained word vectors provided for the target text are not in npy format.'
                     'You should preprocess the word embeddings with the "utils/preprocess_*_word_vectors.py script.')
     if not params['PAD_ON_BATCH']:
