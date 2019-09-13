@@ -32,7 +32,7 @@ def check_params(params):
                                                                              'Currently, they are: %d and %d, respectively.' % (params['MODEL_SIZE'], params['SOURCE_TEXT_EMBEDDING_SIZE'])
 
         if params['POS_UNK']:
-            logger.warn('The "POS_UNK" option is still unimplemented for the "Transformer" model. Setting it to False.' )
+            logger.warn('The "POS_UNK" option is still unimplemented for the "Transformer" model. Setting it to False.')
             params['POS_UNK'] = False
         assert params['MODEL_SIZE'] % params['N_HEADS'] == 0, \
             '"MODEL_SIZE" should be a multiple of "N_HEADS". ' \
