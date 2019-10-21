@@ -154,8 +154,7 @@ install:
   # set library path
   - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
 
-  # install 
-  orFlow (CPU version).
+  # install TensorFlow (CPU version).
   - pip install tensorflow==1.14.0
 
     # detect whether core files are changed or not (from Keras)
