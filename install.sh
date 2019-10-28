@@ -10,4 +10,4 @@ conda info -a
 conda install --file req-travis-conda.txt
 conda install mkl mkl-service
 pip install -r req-travis-pip.txt
-pip install tensorflow
+pip install tensorflow==1.14.0
