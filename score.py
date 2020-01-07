@@ -17,12 +17,12 @@ def parse_args():
     parser.add_argument("-src", "--source", required=True, help="Text file with source sentences")
     parser.add_argument("-trg", "--target", required=True, help="Text file with target sentences")
     parser.add_argument("-s", "--splits", nargs='+', required=False, default=['val'], help="Splits to sample. "
-                                                                                           "Should be already included"
+                                                                                           "Should be already included "
                                                                                            "into the dataset object.")
     parser.add_argument("-d", "--dest", required=False, help="File to save scores in")
     parser.add_argument("-v", "--verbose", required=False, action='store_true', default=False, help="Be verbose")
     parser.add_argument("-w", "--weights", nargs="*", help="Weight given to each model in the ensemble. "
-                                                           "You should provide the same number of weights than models."
+                                                           "You should provide the same number of weights than models. "
                                                            "By default, it applies the same weight to each model (1/N).", default=[])
     parser.add_argument("-c", "--config", required=False, help="Config pkl for loading the model configuration. "
                                                                "If not specified, hyperparameters "

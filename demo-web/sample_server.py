@@ -181,13 +181,15 @@ class NMTSampler:
         self.word2index_y = word2index_y if word2index_y is not None else \
             dataset.vocabulary[params_prediction['OUTPUTS_IDS_DATASET'][0]]['words2idx']
         self.unk_id = unk_id
+
         self.interactive_beam_searcher = InteractiveBeamSearchSampler(self.models,
                                                                       self.dataset,
                                                                       self.params_prediction,
                                                                       excluded_words=self.excluded_words,
                                                                       verbose=self.verbose)
 
-        # Compile Theano sampling function by generating a fake sample. # TODO: Find a better way of doing this
+        # Compile sampling function by generating a fake sample.
+        # TODO: Find a better way of doing this
         logger.info('Compiling sampler...')
         self.generate_sample('i')
         logger.info('Done.')
@@ -279,7 +281,6 @@ class NMTSampler:
                 filtered_idx2word = dict((self.word2index_y[candidate_word], candidate_word)
                                          for candidate_word in self.word2index_y if candidate_word[:len(last_user_word)] == last_user_word)
 
-                # if candidate_word.decode('utf-8')[:len(last_user_word)] == last_user_word)
                 if filtered_idx2word != dict():
                     del fixed_words_user[last_user_word_pos]
                     if last_user_word_pos in list(unk_words_dict.keys()):
@@ -299,12 +300,6 @@ class NMTSampler:
                                                                           idx2word=self.index2word_y)
         sample_beam_search_end_time = time.time()
         logger.log(2, 'sample_beam_search time: %.6f' % (sample_beam_search_end_time - sample_beam_search_start_time))
-
-        # # Substitute possible unknown words in isles
-        # unk_in_isles = []
-        # for isle_idx, isle_sequence, isle_words in unks_in_isles:
-        #     if unk_id in isle_sequence:
-        #         unk_in_isles.append((subfinder(isle_sequence, list(trans_indices)), isle_words))
 
         if False and self.params_prediction['pos_unk']:
             alphas = [alphas]
@@ -381,7 +376,7 @@ class NMTSampler:
         tokenized_reference = self.model_tokenize_f(tokenized_reference)
 
         # Build inputs/outpus of the system
-        state_below = self.dataset.loadText([tokenized_reference.encode('utf-8')],
+        state_below = self.dataset.loadText([tokenized_reference],
                                             vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
                                             max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
                                             offset=1,
@@ -392,7 +387,7 @@ class NMTSampler:
 
         # 4.1.3 Ground truth sample -> Interactively translated sentence
         # TODO: Load dense-text if necessary
-        trg_seq = self.dataset.loadTextOneHot([tokenized_reference.encode('utf-8')],
+        trg_seq = self.dataset.loadTextOneHot([tokenized_reference],
                                               vocabularies=self.dataset.vocabulary[self.params['OUTPUTS_IDS_DATASET'][0]],
                                               vocabulary_len=self.dataset.vocabulary_len[self.params['OUTPUTS_IDS_DATASET'][0]],
                                               max_len=self.params['MAX_OUTPUT_TEXT_LEN_TEST'],
@@ -457,6 +452,7 @@ def main():
     tokenize_general = dataset.tokenize_moses
     detokenize_general = dataset.detokenize_moses
 
+    # Prediction parameters
     params_prediction = dict()
     params_prediction['max_batch_size'] = parameters.get('BATCH_SIZE', 20)
     params_prediction['n_parallel_loaders'] = parameters.get('PARALLEL_LOADERS', 1)
@@ -476,9 +472,9 @@ def main():
     params_prediction['coverage_norm_factor'] = parameters.get('COVERAGE_NORM_FACTOR', 0.0)
     params_prediction['pos_unk'] = parameters.get('POS_UNK', False)
     params_prediction['heuristic'] = parameters.get('HEURISTIC', 0)
-
-    params_prediction['state_below_maxlen'] = -1 if parameters.get('PAD_ON_BATCH', True) \
-        else parameters.get('MAX_OUTPUT_TEXT_LEN', 50)
+    params_prediction['state_below_index'] = -1
+    params_prediction['output_text_index'] = 0
+    params_prediction['state_below_maxlen'] = -1 if parameters.get('PAD_ON_BATCH', True) else parameters.get('MAX_OUTPUT_TEXT_LEN', 50)
     params_prediction['output_max_length_depending_on_x'] = parameters.get('MAXLEN_GIVEN_X', True)
     params_prediction['output_max_length_depending_on_x_factor'] = parameters.get('MAXLEN_GIVEN_X_FACTOR', 3)
     params_prediction['output_min_length_depending_on_x'] = parameters.get('MINLEN_GIVEN_X', True)
@@ -490,6 +486,12 @@ def main():
         mapping = None if dataset.mapping == dict() else dataset.mapping
     else:
         mapping = None
+
+    if 'transformer' in parameters['MODEL_TYPE'].lower():
+        params_prediction['pos_unk'] = False
+        params_prediction['coverage_penalty'] = False
+
+    # Training parameters
     parameters_training = dict()
     if args.online:
         logger.info('Loading models from %s' % str(args.models))
@@ -532,11 +534,6 @@ def main():
                                             set_optimizer=False)
                            for i in range(len(args.models))]
         models = [updateModel(model, path, -1, full_path=True) for (model, path) in zip(model_instances, args.models)]
-
-        # parameters['USE_CUSTOM_LOSS'] = True if 'PAS' in parameters['OPTIMIZER'] else False
-        # if parameters.get('N_BEST_OPTIMIZER', False):
-        #     logger.info('Using N-best optimizer')
-        # models = build_online_models(models, parameters)
     else:
         models = [loadModel(m, -1, full_path=True) for m in args.models]
 
