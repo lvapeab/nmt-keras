@@ -489,7 +489,7 @@ if __name__ == "__main__":
         logger.info('Reading parameters from config.py.')
         params = load_parameters()
     logger.info('Starting active learning with arguments: %str' % str(args))
-    online_parameters = load_parameters_online()
+    online_parameters = load_parameters_online(params)
     params = update_parameters(params, online_parameters)
 
     try:
