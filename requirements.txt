@@ -4,10 +4,9 @@ future
 -e git+https://github.com/lvapeab/coco-caption.git#egg=coco-caption
 keras_applications
 keras_preprocessing
-future
 h5py
 matplotlib
-multimodal-keras-wrapper
+-e git+https://github.com/lvapeab/multimodal-keras-wrapper.git#egg=keras-wrapper
 numpy
 scikit-image
 scikit-learn
@@ -17,4 +16,4 @@ numpy
 pandas
 sacremoses
 scipy
-tensorflow
+tensorflow<2
