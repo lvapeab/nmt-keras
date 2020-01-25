@@ -1,6 +1,6 @@
 # NMT-Keras
 
-[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-2.7%2F3.6-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)
+[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-3.6-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)
 
 Neural Machine Translation with Keras (Theano and Tensorflow).
 

@@ -3,68 +3,8 @@ dist: trusty
 language: python
 matrix:
     include:
-        - python: 2.7
+        - python: 3.6
           env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=GENERAL
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ENCODINGS
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=shallow
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
-        - python: 2.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir
         - python: 3.6
           env: KERAS_BACKEND=theano TEST_MODE=GENERAL
         - python: 3.6
@@ -131,11 +71,7 @@ install:
   # code below is taken from http://conda.pydata.org/docs/travis.html
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r

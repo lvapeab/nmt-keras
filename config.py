@@ -215,7 +215,7 @@ def load_parameters():
     # AttentionRNNEncoderDecoder model hyperparameters
     # # # # # # # # # # # # # # # # # # # # # # # #
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported).
-    USE_CUDNN = True                              # Use CuDNN's implementation of GRU and LSTM (only for Tensorflow backend).
+    USE_CUDNN = False                              # Use CuDNN's implementation of GRU and LSTM (only for Tensorflow backend).
 
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type.
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported).
