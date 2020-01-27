@@ -91,7 +91,7 @@ def sample_ensemble(args, params):
     if model_weights:
         assert len(model_weights) == len(
             models), 'You should give a weight to each model. You gave %d models and %d weights.' % (
-        len(models), len(model_weights))
+            len(models), len(model_weights))
         model_weights = list(map(float, model_weights))
         if len(model_weights) > 1:
             logger.info('Giving the following weights to each model: %s' % str(model_weights))
@@ -205,7 +205,7 @@ def score_corpus(args, params):
     if model_weights:
         assert len(model_weights) == len(
             models), 'You should give a weight to each model. You gave %d models and %d weights.' % (
-        len(models), len(model_weights))
+            len(models), len(model_weights))
         model_weights = list(map(float, model_weights))
         if len(model_weights) > 1:
             logger.info('Giving the following weights to each model: %s' % str(model_weights))
