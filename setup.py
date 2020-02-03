@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
-setup(name='nmt-keras',
+setup(name='nmt_keras',
       version='0.6',
       description='Neural Machine Translation with Keras (Theano and Tensorflow).',
       author='Marc Bolaños - Alvaro Peris',
