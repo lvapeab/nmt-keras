@@ -9,6 +9,7 @@ setup(name='nmt-keras',
       url='https://github.com/lvapeab/nmt-keras',
       download_url='https://github.com/lvapeab/nmt-keras/archive/master.zip',
       license='MIT',
+      packages=setuptools.find_packages(),
       classifiers=[
           'Intended Audience :: Developers',
           'Intended Audience :: Education',
