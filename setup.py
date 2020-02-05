@@ -43,19 +43,19 @@ setup(name='nmt_keras',
           'scipy',
           'tensorflow<2'
       ],
-      package_dir={'nmt_keras':'.',
-                   'nmt_keras.utils':'utils',
-                   'nmt_keras.data_engine':'data_engine',
-                   'nmt_keras.nmt_keras':'nmt_keras',
-                   'nmt_keras.demo-web':'demo-web',
+      package_dir={'nmt_keras': '.',
+                   'nmt_keras.utils': 'utils',
+                   'nmt_keras.data_engine': 'data_engine',
+                   'nmt_keras.nmt_keras': 'nmt_keras',
+                   'nmt_keras.demo-web': 'demo-web',
                    },
       packages=['nmt_keras',
                 'nmt_keras.utils',
                 'nmt_keras.data_engine',
                 'nmt_keras.nmt_keras',
                 'nmt_keras.demo-web'
-      ],
+                ],
       package_data={
-                'nmt_keras': ['examples/*']
+          'nmt_keras': ['examples/*']
       }
       )
