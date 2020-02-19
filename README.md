@@ -1,8 +1,8 @@
 # NMT-Keras
 
-[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-3.6-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)
+[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-3.7-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)
 
-Neural Machine Translation with Keras (Theano and Tensorflow).
+Neural Machine Translation with Keras.
 
 Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.io)
 
@@ -53,15 +53,15 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
     
 ## Installation
 
-Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed, run:
+Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed and updated (>18), run:
   
   ```bash
   git clone https://github.com/lvapeab/nmt-keras
   cd nmt-keras
-  pip install -r requirements.txt
+  pip install -e .
   ```
  
- for obtaining the required packages for running this library.
+ for installing the library.
  
 
 ### Requirements
@@ -200,7 +200,7 @@ To see other projects following the same philosophy and style of NMT-Keras, take
 
 ### Warning!
 
-There is a [known issue](https://github.com/Theano/Theano/issues/5994) with the `Theano` backend. When running `NMT-Keras`, it will show the following message:
+The `Theano` backend is not tested anymore, although it should work. There is a [known issue](https://github.com/Theano/Theano/issues/5994) with the `Theano` backend. When running `NMT-Keras`, it will show the following message:
 
 ```
 [...]

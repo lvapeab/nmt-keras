@@ -1,118 +1,43 @@
 sudo: required
-dist: trusty
+dist: bionic
 language: python
 matrix:
     include:
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=GENERAL
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=ENCODINGS
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=shallow
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
-        - python: 3.6
+        - python: 3.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
+        - python: 3.7
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 3.6
-          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 3.6
-          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 3.6
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir          
 
 # command to install dependencies
 install:
-  # code below is taken from http://conda.pydata.org/docs/travis.html
-  # We do this conditionally because it saves us some downloading if the
-  # version is the same.
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
+  - travis_wait 30 pip install .
 
-  # Replace dep1 dep2 ... with your dependencies
-  - travis_wait 30 conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
-  - source activate test-environment
-  - travis_wait 30 conda install mkl mkl-service
-  - travis_wait 30 pip install -r req-travis-pip.txt
-  - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
-
-  # set library path
-  - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
-
-  # install TensorFlow (CPU version).
-  - pip install tensorflow==1.14.0
-
-    # detect whether core files are changed or not (from Keras)
-  - export CORE_CHANGED=False;
-  - export APP_CHANGED=False;
-
-  # Install Theano-1.0.4 (for compatibility with numpy>=1.16
-  - conda install -c conda-forge theano
-
-  #install open mpi
-  #  - rm -rf ~/mpi
-  #  - mkdir ~/mpi
-  #  - pushd ~/mpi
-  #  - wget http://cntk.ai/PythonWheel/ForKeras/depends/openmpi_1.10-3.zip
-  #  - unzip ./openmpi_1.10-3.zip
-  #  - sudo dpkg -i openmpi_1.10-3.deb
-  #  - popd
+  # Install packages to run tests.
+  - pip install flaky pytest pytest-cache pytest-cov pytest-forked pytest-pep8 pytest-xdist pyux
 
 
 # command to run tests
 script:
-  - export MKL_THREADING_LAYER="GNU"
   # run keras backend init to initialize backend config
   - python -c "import keras.backend"
   - sed -i -e 's/"backend":[[:space:]]*"[^"]*/"backend":\ "'$KERAS_BACKEND'/g' ~/.keras/keras.json;
