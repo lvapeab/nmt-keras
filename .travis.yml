@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: bionic
 language: python
 matrix:
     include:
@@ -68,14 +68,7 @@ matrix:
 
 # command to install dependencies
 install:
-  # code below is taken from http://conda.pydata.org/docs/travis.html
-  # We do this conditionally because it saves us some downloading if the
-  # version is the same.
-  - pip install -U pip
-  - python -m venv test-environment
-  - source test-environment/bin/activate
   - travis_wait 30 pip install .
-
   # Install Theano-1.0.4 (for compatibility with numpy>=1.16
   - pip install theano;
 
