@@ -71,25 +71,13 @@ install:
   # code below is taken from http://conda.pydata.org/docs/travis.html
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-
-  # Replace dep1 dep2 ... with your dependencies
-  - travis_wait 30 conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  - source activate test-environment
+  - pip install -U pip
+  - python -m venv test-environment
+  - source test-environment/bin/activate
   - travis_wait 30 pip install .
 
-  # set library path
-  - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
-
   # Install Theano-1.0.4 (for compatibility with numpy>=1.16
-  - conda install -c conda-forge theano;
+  - pip install theano;
 
 # command to run tests
 script:
