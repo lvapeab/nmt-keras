@@ -53,15 +53,15 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
     
 ## Installation
 
-Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed, run:
+Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed and updated (>18), run:
   
   ```bash
   git clone https://github.com/lvapeab/nmt-keras
   cd nmt-keras
-  pip install -r requirements.txt
+  pip install -e .
   ```
  
- for obtaining the required packages for running this library.
+ for installing the library.
  
 
 ### Requirements

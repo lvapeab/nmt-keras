@@ -81,38 +81,20 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - travis_wait 30 conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file req-travis-conda.txt
+  - travis_wait 30 conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
-  - travis_wait 30 conda install mkl mkl-service
-  - travis_wait 30 pip install -r req-travis-pip.txt
-  - export PYTHONPATH=$PWD:$PWD/src:$PYTHONPATH
+  - travis_wait 30 pip install .
 
   # set library path
   - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
 
-  # install TensorFlow (CPU version).
-  - pip install tensorflow==1.14.0
-
-    # detect whether core files are changed or not (from Keras)
-  - export CORE_CHANGED=False;
-  - export APP_CHANGED=False;
-
   # Install Theano-1.0.4 (for compatibility with numpy>=1.16
-  - conda install -c conda-forge theano
-
-  #install open mpi
-  #  - rm -rf ~/mpi
-  #  - mkdir ~/mpi
-  #  - pushd ~/mpi
-  #  - wget http://cntk.ai/PythonWheel/ForKeras/depends/openmpi_1.10-3.zip
-  #  - unzip ./openmpi_1.10-3.zip
-  #  - sudo dpkg -i openmpi_1.10-3.deb
-  #  - popd
-
+  - if [[ "KERAS_BACKEND" == "THEANO" ]]; then
+      conda install -c conda-forge theano;
+  fi
 
 # command to run tests
 script:
-  - export MKL_THREADING_LAYER="GNU"
   # run keras backend init to initialize backend config
   - python -c "import keras.backend"
   - sed -i -e 's/"backend":[[:space:]]*"[^"]*/"backend":\ "'$KERAS_BACKEND'/g' ~/.keras/keras.json;
