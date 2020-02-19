@@ -6,9 +6,9 @@ matrix:
         - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
         - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=GENERAL
+          env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
         - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=ENCODINGS
+          env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
         - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
         - python: 3.7
@@ -70,7 +70,7 @@ matrix:
 install:
   - travis_wait 30 pip install .
   # Install Theano
-  - pip install theano
+  - pip install mkl theano
   # Install packages to run tests.
   - pip install flaky pytest pytest-cache pytest-cov pytest-forked pytest-pep8 pytest-xdist pyux
 
