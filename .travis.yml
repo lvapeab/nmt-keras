@@ -89,9 +89,7 @@ install:
   - export LD_LIBRARY_PATH=$HOME/miniconda/envs/test-environment/lib/:$LD_LIBRARY_PATH
 
   # Install Theano-1.0.4 (for compatibility with numpy>=1.16
-  - if [[ "KERAS_BACKEND" == "THEANO" ]]; then
-      conda install -c conda-forge theano;
-  fi
+  - conda install -c conda-forge theano;
 
 # command to run tests
 script:
