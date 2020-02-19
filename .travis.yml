@@ -3,67 +3,67 @@ dist: trusty
 language: python
 matrix:
     include:
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=PEP8
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=GENERAL
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=ENCODINGS
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=shallow
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
-        - python: 3.6
+        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir          
 
 # command to install dependencies
