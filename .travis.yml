@@ -69,8 +69,10 @@ matrix:
 # command to install dependencies
 install:
   - travis_wait 30 pip install .
-  # Install Theano-1.0.4 (for compatibility with numpy>=1.16
-  - pip install theano;
+  # Install Theano
+  - pip install theano
+  # Install packages to run tests.
+  - pip install flaky pytest pytest-cache pytest-cov pytest-forked pytest-pep8 pytest-xdist pyux
 
 # command to run tests
 script:
