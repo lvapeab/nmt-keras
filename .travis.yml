@@ -24,18 +24,6 @@ matrix:
         - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=bidir
         - python: 3.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 3.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 3.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 3.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 3.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 3.7
-          env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
         - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=transformer DEPTH=deep DIR=unidir          
