@@ -10,32 +10,6 @@ matrix:
         - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
         - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=shallow
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=shallow
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=shallow
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=shallow
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=unidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=unidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=unidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=unidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=GRU DEPTH=deep DIR=bidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=LSTM DEPTH=deep DIR=bidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalGRU DEPTH=deep DIR=bidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=ConditionalLSTM DEPTH=deep DIR=bidir
-        - python: 3.7
-          env: KERAS_BACKEND=theano TEST_MODE=transformer DEPTH=deep DIR=unidir
-        - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=GENERAL
         - python: 3.7
           env: KERAS_BACKEND=tensorflow TEST_MODE=ENCODINGS
@@ -69,13 +43,15 @@ matrix:
 # command to install dependencies
 install:
   - travis_wait 30 pip install .
-  # Install Theano
-  - pip install mkl theano
+
   # Install packages to run tests.
   - pip install flaky pytest pytest-cache pytest-cov pytest-forked pytest-pep8 pytest-xdist pyux
 
+
 # command to run tests
 script:
+  - export MKL_THREADING_LAYER="GNU"
+
   # run keras backend init to initialize backend config
   - python -c "import keras.backend"
   - sed -i -e 's/"backend":[[:space:]]*"[^"]*/"backend":\ "'$KERAS_BACKEND'/g' ~/.keras/keras.json;
