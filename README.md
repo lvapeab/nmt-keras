@@ -2,7 +2,7 @@
 
 [![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=interactive_NMT)](https://travis-ci.org/lvapeab/nmt-keras) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1239923bcbba438b97b374ae8dc435be)] [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=interactive_NMT)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=interactive_NMT) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
-Neural Machine Translation with Keras (Theano and Tensorflow).
+Neural Machine Translation with Keras.
 
 Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.io)
 
@@ -94,15 +94,15 @@ This branch requires—in addition to the regular NMT-Keras requirements—the `
     
 ## Installation
 
-Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed, run:
+Assuming that you have [pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) installed and updated (>18), run:
   
   ```bash
   git clone https://github.com/lvapeab/nmt-keras
   cd nmt-keras
-  pip install -r requirements.txt
+  pip install -e .
   ```
  
- for obtaining the required packages for running this library.
+ for installing the library.
  
 
 ### Requirements
@@ -241,7 +241,7 @@ To see other projects following the same philosophy and style of NMT-Keras, take
 
 ### Warning!
 
-There is a [known issue](https://github.com/Theano/Theano/issues/5994) with the `Theano` backend. When running `NMT-Keras`, it will show the following message:
+The `Theano` backend is not tested anymore, although it should work. There is a [known issue](https://github.com/Theano/Theano/issues/5994) with the `Theano` backend. When running `NMT-Keras`, it will show the following message:
 
 ```
 [...]
