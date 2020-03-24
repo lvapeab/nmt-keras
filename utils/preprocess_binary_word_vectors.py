@@ -50,6 +50,8 @@ def parse_args():
     parser.add_argument("-v", "--vectors", required=True, help="Pre-trained word embeddings file.",
                         default="GoogleNews-vectors-negative300.bin")
     parser.add_argument("-d", "--destination", required=True, help="Destination file.", default='word2vec.en')
+    parser.add_argument("-s", "--split_symbol", required=False,
+                        help="Split symbol.", default='word2vec.en')
     return parser.parse_args()
 
 
