@@ -1,6 +1,6 @@
 # NMT-Keras
 
-[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-3.7-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)
+[![Documentation](https://readthedocs.org/projects/nmt-keras/badge/?version=latest)](https://nmt-keras.readthedocs.io) [![Build Status](https://travis-ci.org/lvapeab/nmt-keras.svg?branch=master)](https://travis-ci.org/lvapeab/nmt-keras) [![Requirements Status](https://requires.io/github/lvapeab/nmt-keras/requirements.svg?branch=master)](https://requires.io/github/lvapeab/nmt-keras/requirements/?branch=master) ![Compatibility](https://img.shields.io/badge/Python-3.7-blue.svg) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/lvapeab/nmt-keras/blob/master/LICENSE)  [![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvapeab/nmt-keras/blob/master/examples/tutorial.ipynb) 
 
 Neural Machine Translation with Keras.
 
@@ -143,15 +143,11 @@ optional arguments:
  
  * In [examples/documentation/neural_machine_translation.pdf](https://github.com/lvapeab/nmt-keras/blob/master/examples/documentation/neural_machine_translation.pdf) you'll find an overview of an attentional NMT system.
 
- * In the [examples](https://github.com/lvapeab/nmt-keras/blob/master/examples/) folder you'll find some tutorials for running this library. They are expected to be followed in order:
-    
-    1) [Dataset set up](https://github.com/lvapeab/nmt-keras/blob/master/examples/1_dataset_tutorial.ipynb): Shows how to invoke and configure a Dataset instance for a translation problem.
-    
-    2) [Training tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/2_training_tutorial.ipynb): Shows how to call a translation model, link it with the dataset object and construct calllbacks for monitorizing the training. 
-    
-    3) [Decoding tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/3_decoding_tutorial.ipynb): Shows how to call a trained translation model and use it to translate new text. 
-
-    4) [NMT model tutorial](https://github.com/lvapeab/nmt-keras/blob/master/examples/4_nmt_model_tutorial.ipynb): Shows how to build a state-of-the-art NMT model with Keras in few (~50) lines. 
+ * In the [examples](https://github.com/lvapeab/nmt-keras/blob/master/examples/) folder you'll find  2 colab notebooks, explaining the basic usage of this library:
+ 
+ * An introduction to a complete NMT experiment: [![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvapeab/nmt-keras/blob/master/examples/tutorial.ipynb) 
+  * A dissected NMT model: [![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvapeab/nmt-keras/blob/master/examples/modeling_tutorial.ipynb) 
+ 
 
  * In the [examples/configs](https://github.com/lvapeab/nmt-keras/blob/master/examples/configs) folder you'll find two examples of configs for larger models.
 
