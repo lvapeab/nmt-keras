@@ -28,7 +28,7 @@ def load_parameters():
     OUTPUTS_TYPES_DATASET = ['text-features']                  # They are equivalent, only differ on how the data is loaded.
 
     # Evaluation params
-    METRICS = ['coco']                            # Metric used for evaluating the model.
+    METRICS = ['sacrebleu']                            # Metric used for evaluating the model.
     EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator).
     EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested..
     START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation.

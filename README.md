@@ -70,13 +70,14 @@ NMT-Keras requires the following libraries:
 
  - [Our version of Keras](https://github.com/MarcBS/keras) (Recommended v. 2.0.7 or newer).
  - [Multimodal Keras Wrapper](https://github.com/lvapeab/multimodal_keras_wrapper) (v. 2.0 or newer). ([Documentation](http://marcbs.github.io/staged_keras_wrapper/) and [tutorial](http://marcbs.github.io/multimodal_keras_wrapper/tutorial.html)).
- - [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) (Only required to perform evaluation). This package requires `java` (version 1.8.0 or newer).
 
 
 For accelerating the training and decoding on CUDA GPUs, you can optionally install:
 
  - [CuDNN](https://developer.nvidia.com/cudnn).
  - [CuPy](https://github.com/cupy/cupy).
+
+For evaluating with additional metrics (Meteor, TER, etc), you can use the [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) and set `METRICS='coco` in the `config.py` file. This package requires `java` (version 1.8.0 or newer).
 
 
 ## Usage
