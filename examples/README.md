@@ -6,7 +6,7 @@ This folder contains some examples and tutorials showing how the library works.
 
 **WARNING**: Almost all variables and parameters in tutorials representing model hyperparameters have been intentionally hardcoded, aiming to  facilitate readability. On a real execution, these values are taken from the `config.py` file.
  
- There are 2 colab notebooks:
+There are 2 colab notebooks:
  
  * An introduction to a complete NMT experiment: [![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvapeab/nmt-keras/blob/master/examples/tutorial.ipynb) 
   * A dissected NMT model: [![Open in colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvapeab/nmt-keras/blob/master/examples/modeling_tutorial.ipynb) 
