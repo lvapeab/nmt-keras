@@ -77,7 +77,7 @@ For accelerating the training and decoding on CUDA GPUs, you can optionally inst
  - [CuDNN](https://developer.nvidia.com/cudnn).
  - [CuPy](https://github.com/cupy/cupy).
 
-For evaluating with additional metrics (Meteor, TER, etc), you can use the [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) and set `METRICS='coco` in the `config.py` file. This package requires `java` (version 1.8.0 or newer).
+For evaluating with additional metrics (Meteor, TER, etc), you can use the [Coco-caption evaluation package](https://github.com/lvapeab/coco-caption/tree/master/pycocoevalcap/) and set `METRICS='coco'` in the `config.py` file. This package requires `java` (version 1.8.0 or newer).
 
 
 ## Usage
