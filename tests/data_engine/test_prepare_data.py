@@ -1,4 +1,6 @@
 import pytest
+import os
+
 import copy
 from config import load_parameters
 from data_engine.prepare_data import build_dataset, update_dataset_from_file, keep_n_captions

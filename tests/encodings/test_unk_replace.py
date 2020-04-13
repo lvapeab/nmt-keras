@@ -62,7 +62,7 @@ def test_unk_replace_0():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
+    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print ("Training model")
@@ -73,14 +73,14 @@ def test_unk_replace_0():
     parser = argparse.ArgumentParser('Parser for unit testing')
     parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
 
-    parser.text = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
+    parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
     parser.config = params['STORE_PATH'] + '/config.pkl'
     parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
     parser.verbose = 0
     parser.dest = None
-    parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
-    parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
+    parser.source = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
+    parser.target = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['TRG_LAN'])
     parser.weights = []
     parser.glossary = None
 
@@ -122,7 +122,7 @@ def test_unk_replace_1():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
+    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print ("Training model")
@@ -133,14 +133,14 @@ def test_unk_replace_1():
     parser = argparse.ArgumentParser('Parser for unit testing')
     parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
 
-    parser.text = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
+    parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
     parser.config = params['STORE_PATH'] + '/config.pkl'
     parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
     parser.verbose = 0
     parser.dest = None
-    parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
-    parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
+    parser.source = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
+    parser.target = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['TRG_LAN'])
     parser.weights = []
     parser.glossary = None
 
@@ -182,7 +182,7 @@ def test_unk_replace_2():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
+    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print ("Training model")
@@ -193,14 +193,14 @@ def test_unk_replace_2():
     parser = argparse.ArgumentParser('Parser for unit testing')
     parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
 
-    parser.text = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
+    parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
     parser.config = params['STORE_PATH'] + '/config.pkl'
     parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
     parser.verbose = 0
     parser.dest = None
-    parser.source = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['SRC_LAN']
-    parser.target = params['DATA_ROOT_PATH'] + '/' + params['TEXT_FILES']['val'] + params['TRG_LAN']
+    parser.source = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
+    parser.target = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['TRG_LAN'])
     parser.weights = []
     parser.glossary = None
 

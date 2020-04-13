@@ -355,18 +355,6 @@ class TranslationModel(Model_Wrapper):
                                  '\n\t DAMPENING: ' + str(self.params.get('DAMPENING', 0.0)) + \
                                  '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
 
-            elif self.params['OPTIMIZER'].lower() == 'adadeltahd':
-                optimizer = AdadeltaHD(lr=self.params.get('LR', 0.002),
-                                       hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
-                                       rho=self.params.get('RHO', 0.9),
-                                       decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                                       epsilon=self.params.get('EPSILON', 1e-7),
-                                       clipnorm=self.params.get('CLIP_C', 10.),
-                                       clipvalue=self.params.get('CLIP_V', 0.))
-                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
-                                 '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
-                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
-
             elif self.params['OPTIMIZER'].lower() == 'adamhd':
                 optimizer = AdamHD(lr=self.params.get('LR', 0.002),
                                    hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),

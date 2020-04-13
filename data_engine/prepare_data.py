@@ -1,4 +1,5 @@
 import logging
+import os
 from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
@@ -136,9 +137,10 @@ def build_dataset(params):
 
         # OUTPUT DATA
         # Load the train, val and test splits of the target language sentences (outputs). The files include a sentence per line.
-        ds.setOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
+        ds.setOutput(os.path.join(base_path, params['TEXT_FILES']['train'] + params['TRG_LAN']),
                      'train',
-                     type=params.get('OUTPUTS_TYPES_DATASET', ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0],
+                     type=params.get('OUTPUTS_TYPES_DATASET',
+                                     ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0],
                      id=params['OUTPUTS_IDS_DATASET'][0],
                      tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                      build_vocabulary=True,
@@ -151,14 +153,14 @@ def build_dataset(params):
                      bpe_codes=params.get('BPE_CODES_PATH', None),
                      label_smoothing=params.get('LABEL_SMOOTHING', 0.))
         if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
-            ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
+            ds.setRawOutput(os.path.join(base_path, params['TEXT_FILES']['train'] + params['TRG_LAN']),
                             'train',
                             type='file-name',
                             id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
 
         for split in ['val', 'test']:
             if params['TEXT_FILES'].get(split) is not None:
-                ds.setOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
+                ds.setOutput(os.path.join(base_path, params['TEXT_FILES'][split] + params['TRG_LAN']),
                              split,
                              type='text',  # The type of the references should be always 'text'
                              id=params['OUTPUTS_IDS_DATASET'][0],
@@ -170,7 +172,7 @@ def build_dataset(params):
                              bpe_codes=params.get('BPE_CODES_PATH', None),
                              label_smoothing=0.)
                 if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
-                    ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
+                    ds.setRawOutput(os.path.join(base_path, params['TEXT_FILES'][split] + params['TRG_LAN']),
                                     split,
                                     type='file-name',
                                     id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
@@ -183,7 +185,7 @@ def build_dataset(params):
                     build_vocabulary = True
                 else:
                     build_vocabulary = False
-                ds.setInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
+                ds.setInput(os.path.join(base_path, params['TEXT_FILES'][split] + params['SRC_LAN']),
                             split,
                             type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[0],
                             id=params['INPUTS_IDS_DATASET'][0],
@@ -198,7 +200,7 @@ def build_dataset(params):
 
                 if len(params['INPUTS_IDS_DATASET']) > 1:
                     if 'train' in split:
-                        ds.setInput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
+                        ds.setInput(os.path.join(base_path, params['TEXT_FILES'][split] + params['TRG_LAN']),
                                     split,
                                     type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[1],
                                     id=params['INPUTS_IDS_DATASET'][1],
@@ -220,7 +222,7 @@ def build_dataset(params):
                                     id=params['INPUTS_IDS_DATASET'][-1],
                                     required=False)
                 if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
-                    ds.setRawInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
+                    ds.setRawInput(os.path.join(base_path, params['TEXT_FILES'][split] + params['SRC_LAN']),
                                    split,
                                    type='file-name',
                                    id='raw_' + params['INPUTS_IDS_DATASET'][0])
@@ -236,7 +238,9 @@ def build_dataset(params):
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+        ds = loadDataset(os.path.join(params['DATASET_STORE_PATH'],
+                                      'Dataset_' + params['DATASET_NAME'] +
+                                      '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'))
 
         # If we had multiple references per sentence
         keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])

@@ -507,7 +507,7 @@ def main():
             'lr_gamma': parameters.get('LR_GAMMA', 1.),
             'epochs_for_save': -1,
             'verbose': args.verbose,
-            'eval_on_sets': parameters['EVAL_ON_SETS_KERAS'],
+            'eval_on_sets': parameters.get('EVAL_ON_SETS_KERAS', None),
             'n_parallel_loaders': parameters['PARALLEL_LOADERS'],
             'extra_callbacks': [],  # callbacks,
             'reload_epoch': parameters['RELOAD'],

@@ -66,7 +66,7 @@ def test_sampling_maxlikelihood():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
+    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print ("Training model")
@@ -106,7 +106,7 @@ def test_sampling_multinomial():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = K.backend() + '_test_train_models/' + params['MODEL_NAME'] + '/'
+    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print ("Training model")

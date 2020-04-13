@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import os
 import numpy as np
 import argparse
 from os.path import basename, dirname
@@ -40,8 +41,9 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
 
     # Store dict
     print ("")
-    print ("Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy'))
-    np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
+    output_path = os.path.join(base_path_save, dest_filename + '.npy')
+    print ("Saving word vectors in %s" % output_path)
+    np.save(output_path, word_vecs)
     print("")
 
 
