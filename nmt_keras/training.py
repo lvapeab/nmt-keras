@@ -164,12 +164,10 @@ def train_model(params, load_dataset=None):
                                'write_graph': params.get('WRITE_GRAPH', True),
                                'write_grads': params.get('WRITE_GRADS', False),
                                'write_images': params.get('WRITE_IMAGES', False),
-                               'embeddings_freq': params.get('EMBEDDINGS_FREQ', 0),
-                               'embeddings_layer_names': params.get('EMBEDDINGS_LAYER_NAMES', None),
-                               'embeddings_metadata': params.get('EMBEDDINGS_METADATA', None),
-                               'label_word_embeddings_with_vocab': params.get('LABEL_WORD_EMBEDDINGS_WITH_VOCAB',
-                                                                              False),
-                               'word_embeddings_labels': params.get('WORD_EMBEDDINGS_LABELS', None),
+                               'embeddings_freq': None,
+                               'embeddings_layer_names': None,
+                               'embeddings_metadata': None,
+                               'word_embeddings_labels': None,
                                'update_freq': params.get('UPDATE_FREQ', 'epoch')}
                        }
     nmt_model.trainNet(dataset, training_params)
