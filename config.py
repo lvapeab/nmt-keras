@@ -28,9 +28,9 @@ def load_parameters():
     OUTPUTS_TYPES_DATASET = ['text-features']                  # They are equivalent, only differ on how the data is loaded.
 
     # Evaluation params
-    METRICS = ['sacrebleu']                            # Metric used for evaluating the model.
+    METRICS = ['sacrebleu']                       # Metric used for evaluating the model.
+    KERAS_METRICS = ['perplexity']                # Metrics to be logged by Keras during training (in addition to the loss).
     EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator).
-    EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested..
     START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation.
     EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates.
     EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates).
