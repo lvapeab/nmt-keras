@@ -1,7 +1,7 @@
 import argparse
+import os
 
 import pytest
-import os
 from keras import backend as K
 
 from config import load_parameters
