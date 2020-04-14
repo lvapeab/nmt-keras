@@ -45,8 +45,9 @@ def test_NMT_Bidir_LSTM_LSTM():
     print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
-                     params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -105,9 +106,9 @@ def test_NMT_Unidir_LSTM_LSTM():
     print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
-                     params['TRG_LAN'] + '.pkl'
-
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
     parser.config = params['STORE_PATH'] + '/config.pkl'

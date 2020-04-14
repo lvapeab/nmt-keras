@@ -42,9 +42,9 @@ def test_sampling_maxlikelihood():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
-    print ("Done")
+    print("Done")
 
 
 def test_sampling_multinomial():
@@ -82,9 +82,9 @@ def test_sampling_multinomial():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
-    print ("Done")
+    print("Done")
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@ def test_build_datset():
     for verbose in range(2):
         params['REBUILD_DATASET'] = True
         params['VERBOSE'] = verbose
-        params['DATASET_STORE_PATH'] = './'
+        params['DATASET_STORE_PATH'] = '.'
         ds = build_dataset(params)
         assert isinstance(ds, Dataset)
         len_splits = [('train', 9900), ('val', 100), ('test', 2996)]
@@ -25,7 +25,9 @@ def test_build_datset():
 
 def test_load_dataset():
     params = load_parameters()
-    ds = loadDataset('./Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+    ds = loadDataset(os.path.join('.',
+                                  'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params[
+                                      'TRG_LAN'] + '.pkl'))
     assert isinstance(ds, Dataset)
     assert isinstance(ds.vocabulary, dict)
     assert len(list(ds.vocabulary)) >= 3
@@ -37,18 +39,20 @@ def test_update_dataset_from_file():
     params = load_parameters()
     for rebuild_dataset in [True, False]:
         params['REBUILD_DATASET'] = rebuild_dataset
-        params['DATASET_STORE_PATH'] = './'
+        params['DATASET_STORE_PATH'] = '.'
         for splits in [[], None, ['val']]:
             ds = build_dataset(params)
             assert isinstance(ds, Dataset)
             for output_text_filename in [None,
-                                         params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] + params['TRG_LAN']]:
+                                         os.path.join(params['DATA_ROOT_PATH'],
+                                                      params['TEXT_FILES']['test'] + params['TRG_LAN'])]:
                 for remove_outputs in [True, False]:
                     for compute_state_below in [True, False]:
                         for recompute_references in [True, False]:
                             ds2 = update_dataset_from_file(copy.deepcopy(ds),
-                                                           params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] +
-                                                           params['SRC_LAN'],
+                                                           os.path.join(params['DATA_ROOT_PATH'],
+                                                                        params['TEXT_FILES']['test'] + params[
+                                                                            'SRC_LAN']),
                                                            params,
                                                            splits=splits,
                                                            output_text_filename=output_text_filename,
@@ -64,7 +68,8 @@ def test_update_dataset_from_file():
                                    params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] + params['SRC_LAN'],
                                    params,
                                    splits=[split],
-                                   output_text_filename=params['DATA_ROOT_PATH'] + params['TEXT_FILES']['test'] + params['TRG_LAN'],
+                                   output_text_filename=os.path.join(params['DATA_ROOT_PATH'],
+                                                                     params['TEXT_FILES']['test'] + params['TRG_LAN']),
                                    remove_outputs=False,
                                    compute_state_below=True,
                                    recompute_references=True)
@@ -81,7 +86,7 @@ def test_update_dataset_from_file():
 def test_keep_n_captions():
     params = load_parameters()
     params['REBUILD_DATASET'] = True
-    params['DATASET_STORE_PATH'] = './'
+    params['DATASET_STORE_PATH'] = '.'
     ds = build_dataset(params)
     len_splits = {'train': 9900, 'val': 100, 'test': 2996}
 

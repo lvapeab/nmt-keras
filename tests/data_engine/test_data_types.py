@@ -55,8 +55,9 @@ def test_text_features_none():
     print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
-                     params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -111,8 +112,9 @@ def test_text_features_target_text():
     print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
-                     params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -167,8 +169,9 @@ def test_text_features_state_below():
     print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
-                     params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -223,8 +226,9 @@ def test_text_features_src():
     print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
-                     params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']

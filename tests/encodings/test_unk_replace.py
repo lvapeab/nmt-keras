@@ -9,6 +9,7 @@ from data_engine.prepare_data import build_dataset
 from nmt_keras.training import train_model
 from nmt_keras.apply_model import sample_ensemble, score_corpus
 
+
 def test_unk_replace_0():
     params = load_tests_params()
 
@@ -39,18 +40,20 @@ def test_unk_replace_0():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
-    parser.config = params['STORE_PATH'] + '/config.pkl'
-    parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
+    parser.config = os.path.join(params['STORE_PATH'], 'config.pkl')
+    parser.models = [os.path.join(params['STORE_PATH'], 'epoch_' + str(1))]
     parser.verbose = 0
     parser.dest = None
     parser.source = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
@@ -60,13 +63,13 @@ def test_unk_replace_0():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 def test_unk_replace_1():
@@ -99,18 +102,20 @@ def test_unk_replace_1():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
-    parser.config = params['STORE_PATH'] + '/config.pkl'
-    parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
+    parser.config = os.path.join(params['STORE_PATH'], 'config.pkl')
+    parser.models = [os.path.join(params['STORE_PATH'], 'epoch_' + str(1))]
     parser.verbose = 0
     parser.dest = None
     parser.source = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
@@ -120,13 +125,13 @@ def test_unk_replace_1():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 def test_unk_replace_2():
@@ -159,18 +164,20 @@ def test_unk_replace_2():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
-    parser.config = params['STORE_PATH'] + '/config.pkl'
-    parser.models = [params['STORE_PATH'] + '/epoch_' + str(1)]
+    parser.config = os.path.join(params['STORE_PATH'], 'config.pkl')
+    parser.models = [os.path.join(params['STORE_PATH'], 'epoch_' + str(1))]
     parser.verbose = 0
     parser.dest = None
     parser.source = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
@@ -180,13 +187,13 @@ def test_unk_replace_2():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 if __name__ == '__main__':

@@ -22,30 +22,32 @@ def test_ConditionalGRU_add():
     params['ATTENTION_MODE'] = 'add'
 
     params['REBUILD_DATASET'] = True
+    dataset = build_dataset(params)
+    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
+    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     params['MODEL_NAME'] = \
         params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + params['MODEL_TYPE'] + \
         '_src_emb_' + str(params['SOURCE_TEXT_EMBEDDING_SIZE']) + \
         '_bidir_' + str(params['BIDIRECTIONAL_ENCODER']) + \
-        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(params['ENCODER_HIDDEN_SIZE']) + \
-        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(params['DECODER_HIDDEN_SIZE']) + params['ATTENTION_MODE'] + \
+        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(
+            params['ENCODER_HIDDEN_SIZE']) + \
+        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(
+            params['DECODER_HIDDEN_SIZE']) + \
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
-    params['DATASET_STORE_PATH'] = params['STORE_PATH']
-    dataset = build_dataset(params)
-    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
-    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
-
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -60,13 +62,13 @@ def test_ConditionalGRU_add():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 def test_ConditionalGRU_dot():
@@ -82,32 +84,32 @@ def test_ConditionalGRU_dot():
     params['ATTENTION_MODE'] = 'dot'
 
     params['REBUILD_DATASET'] = True
+    dataset = build_dataset(params)
+    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
+    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     params['MODEL_NAME'] = \
         params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + params['MODEL_TYPE'] + \
         '_src_emb_' + str(params['SOURCE_TEXT_EMBEDDING_SIZE']) + \
         '_bidir_' + str(params['BIDIRECTIONAL_ENCODER']) + \
-        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(params['ENCODER_HIDDEN_SIZE']) + \
-        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(params['DECODER_HIDDEN_SIZE']) + params['ATTENTION_MODE'] + \
+        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(
+            params['ENCODER_HIDDEN_SIZE']) + \
+        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(
+            params['DECODER_HIDDEN_SIZE']) + \
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
-    params['DATASET_STORE_PATH'] = params['STORE_PATH']
-    dataset = build_dataset(params)
-    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
-    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
-
-    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
-
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -122,13 +124,13 @@ def test_ConditionalGRU_dot():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 def test_ConditionalGRU_scaled():
@@ -144,30 +146,32 @@ def test_ConditionalGRU_scaled():
     params['ATTENTION_MODE'] = 'scaled-dot'
 
     params['REBUILD_DATASET'] = True
+    dataset = build_dataset(params)
+    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
+    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
     params['MODEL_NAME'] = \
         params['TASK_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '_' + params['MODEL_TYPE'] + \
         '_src_emb_' + str(params['SOURCE_TEXT_EMBEDDING_SIZE']) + \
         '_bidir_' + str(params['BIDIRECTIONAL_ENCODER']) + \
-        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(params['ENCODER_HIDDEN_SIZE']) + \
-        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(params['DECODER_HIDDEN_SIZE']) + params['ATTENTION_MODE'] + \
+        '_enc_' + params['ENCODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_ENCODER']) + '_' + str(
+            params['ENCODER_HIDDEN_SIZE']) + \
+        '_dec_' + params['DECODER_RNN_TYPE'] + '_*' + str(params['N_LAYERS_DECODER']) + '_' + str(
+            params['DECODER_HIDDEN_SIZE']) + \
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
-    params['DATASET_STORE_PATH'] = params['STORE_PATH']
-    dataset = build_dataset(params)
-    params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
-    params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
-
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = os.path.join(
+        params['DATASET_STORE_PATH'],
+        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -182,13 +186,13 @@ def test_ConditionalGRU_scaled():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 if __name__ == '__main__':
