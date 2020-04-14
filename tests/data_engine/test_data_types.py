@@ -3,30 +3,14 @@ import os
 import pytest
 from keras import backend as K
 
-from config import load_parameters
+from tests.test_config import load_tests_params
 from data_engine.prepare_data import build_dataset
 from nmt_keras.training import train_model
 from nmt_keras.apply_model import sample_ensemble, score_corpus
 
 
-def load_tests_params():
-    params = load_parameters()
-    params['BATCH_SIZE'] = 10
-    params['DROPOUT_P'] = 0.1
-    params['RECURRENT_INPUT_DROPOUT_P'] = 0.01
-    params['RECURRENT_DROPOUT_P'] = 0.01
-    params['USE_NOISE'] = True
-    params['NOISE_AMOUNT'] = 0.01
-    params['USE_BATCH_NORMALIZATION'] = True
-    params['BATCH_NORMALIZATION_MODE'] = 1
-    params['SOURCE_TEXT_EMBEDDING_SIZE'] = 8
-    params['TARGET_TEXT_EMBEDDING_SIZE'] = 8
-    params['DECODER_HIDDEN_SIZE'] = 4
-    params['ENCODER_HIDDEN_SIZE'] = 4
-    params['RELOAD'] = 0
-    params['MAX_EPOCH'] = 1
-    params['USE_CUDNN'] = False
-
+def load_transformer_test_params():
+    params = load_tests_params()
     params['MODEL_TYPE'] = 'Transformer'
     params['N_LAYERS_ENCODER'] = 2
     params['N_LAYERS_DECODER'] = 2
@@ -41,7 +25,7 @@ def load_tests_params():
 
 
 def test_text_features_none():
-    params = load_tests_params()
+    params = load_transformer_test_params()
 
     # Current test params:
     params['INPUTS_TYPES_DATASET'] = ['text', 'text']
@@ -65,13 +49,14 @@ def test_text_features_none():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
+                     params['TRG_LAN'] + '.pkl'
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -86,17 +71,17 @@ def test_text_features_none():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 def test_text_features_target_text():
-    params = load_tests_params()
+    params = load_transformer_test_params()
 
     # Current test params:
     params['INPUTS_TYPES_DATASET'] = ['text', 'text']
@@ -120,13 +105,14 @@ def test_text_features_target_text():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
+                     params['TRG_LAN'] + '.pkl'
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -141,17 +127,17 @@ def test_text_features_target_text():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 def test_text_features_state_below():
-    params = load_tests_params()
+    params = load_transformer_test_params()
 
     # Current test params:
     params['INPUTS_TYPES_DATASET'] = ['text', 'text-features']
@@ -175,13 +161,14 @@ def test_text_features_state_below():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
+                     params['TRG_LAN'] + '.pkl'
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -196,17 +183,17 @@ def test_text_features_state_below():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 def test_text_features_src():
-    params = load_tests_params()
+    params = load_transformer_test_params()
 
     # Current test params:
     params['INPUTS_TYPES_DATASET'] = ['text-features', 'text']
@@ -230,13 +217,14 @@ def test_text_features_src():
     params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
-    print ("Training model")
+    print("Training model")
     train_model(params)
     params['RELOAD'] = 1
-    print ("Done")
+    print("Done")
 
     parser = argparse.ArgumentParser('Parser for unit testing')
-    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'
+    parser.dataset = params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + \
+                     params['TRG_LAN'] + '.pkl'
 
     parser.text = os.path.join(params['DATA_ROOT_PATH'], params['TEXT_FILES']['val'] + params['SRC_LAN'])
     parser.splits = ['val']
@@ -251,13 +239,13 @@ def test_text_features_src():
 
     for n_best in [True, False]:
         parser.n_best = n_best
-        print ("Sampling with n_best = %s " % str(n_best))
+        print("Sampling with n_best = %s " % str(n_best))
         sample_ensemble(parser, params)
-        print ("Done")
+        print("Done")
 
-    print ("Scoring corpus")
+    print("Scoring corpus")
     score_corpus(parser, params)
-    print ("Done")
+    print("Done")
 
 
 if __name__ == '__main__':

@@ -4,36 +4,10 @@ import os
 import pytest
 from keras import backend as K
 
-from config import load_parameters
+from tests.test_config import load_tests_params
 from data_engine.prepare_data import build_dataset
 from nmt_keras.training import train_model
 from nmt_keras.apply_model import sample_ensemble, score_corpus
-
-
-def load_tests_params():
-    params = load_parameters()
-    params['BATCH_SIZE'] = 10
-    params['WEIGHT_DECAY'] = 1e-4
-    params['RECURRENT_WEIGHT_DECAY'] = 1e-4
-    params['DROPOUT_P'] = 0.01
-    params['RECURRENT_INPUT_DROPOUT_P'] = 0.01
-    params['RECURRENT_DROPOUT_P'] = 0.01
-    params['USE_NOISE'] = True
-    params['NOISE_AMOUNT'] = 0.01
-    params['USE_BATCH_NORMALIZATION'] = True
-    params['BATCH_NORMALIZATION_MODE'] = 1
-    params['SOURCE_TEXT_EMBEDDING_SIZE'] = 8
-    params['TARGET_TEXT_EMBEDDING_SIZE'] = 8
-    params['DECODER_HIDDEN_SIZE'] = 4
-    params['ENCODER_HIDDEN_SIZE'] = 4
-    params['ATTENTION_SIZE'] = params['DECODER_HIDDEN_SIZE']
-    params['SKIP_VECTORS_HIDDEN_SIZE'] = params['DECODER_HIDDEN_SIZE']
-    params['DOUBLE_STOCHASTIC_ATTENTION_REG'] = 0.7
-    params['RELOAD'] = 0
-    params['MAX_EPOCH'] = 1
-    params['USE_CUDNN'] = False
-
-    return params
 
 
 def test_NMT_Bidir_LSTM_ConditionalGRU():

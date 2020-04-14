@@ -4,7 +4,7 @@ import os
 import pytest
 from keras import backend as K
 
-from config import load_parameters
+from tests.test_config import load_tests_params
 from data_engine.prepare_data import build_dataset
 from nmt_keras.training import train_model
 from nmt_keras.apply_model import sample_ensemble, score_corpus
