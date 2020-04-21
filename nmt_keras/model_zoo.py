@@ -58,8 +58,17 @@ class TranslationModel(Model_Wrapper):
     :param bool clear_dirs: Clean model directories or not.
     """
 
-    def __init__(self, params, model_type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
-                 model_name=None, vocabularies=None, store_path=None, set_optimizer=True, clear_dirs=True):
+    def __init__(self,
+                 params,
+                 model_type='Translation_Model',
+                 verbose=1,
+                 structure_path=None,
+                 weights_path=None,
+                 model_name=None,
+                 vocabularies=None,
+                 store_path=None,
+                 set_optimizer=True,
+                 clear_dirs=True):
         """
         Translation_Model object constructor.
 
@@ -77,8 +86,11 @@ class TranslationModel(Model_Wrapper):
         :param clear_dirs: Clean model directories or not.
 
         """
-        super(TranslationModel, self).__init__(model_type=model_type, model_name=model_name,
-                                               silence=verbose == 0, models_path=store_path, inheritance=True)
+        super(TranslationModel, self).__init__(model_type=model_type,
+                                               model_name=model_name,
+                                               silence=verbose == 0,
+                                               models_path=store_path,
+                                               inheritance=True)
 
         self.__toprint = ['_model_type', 'name', 'model_path', 'verbose']
 
