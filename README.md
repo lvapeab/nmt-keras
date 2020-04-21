@@ -43,6 +43,7 @@ Library documentation: [nmt-keras.readthedocs.io](https://nmt-keras.readthedocs.
  * [Label smoothing](https://arxiv.org/abs/1512.00567).  
  * N-best list generation (as byproduct of the beam search process).
  * Unknown words replacement (see Section 3.3 from [this paper](https://arxiv.org/pdf/1412.2007v2.pdf))
+ * Joint Byte Pair Encoding (Run the [script](https://github.com/lvapeab/scripts/blob/master/apply_joint_bpe_to_corpus.sh))
  * Use of pretrained ([Glove](http://nlp.stanford.edu/projects/glove/) or [Word2Vec](https://code.google.com/archive/p/word2vec/)) word embedding vectors.
  * MLPs for initializing the RNN hidden and memory state.
  * [Spearmint](https://github.com/HIPS/Spearmint) [wrapper](https://github.com/lvapeab/nmt-keras/tree/master/meta-optimizers/spearmint) for hyperparameter optimization.
