@@ -487,6 +487,7 @@ class TranslationModel(Model_Wrapper):
                                                                                           kernel_initializer=params['INIT_FUNCTION'],
                                                                                           recurrent_initializer=params['INNER_INIT'],
                                                                                           trainable=params.get('TRAINABLE_ENCODER', True),
+                                                                                          reset_after=params.get('GRU_RESET_AFTER', False),
                                                                                           return_sequences=True),
                                         trainable=params.get('TRAINABLE_ENCODER', True),
                                         name='bidirectional_encoder_' + params['ENCODER_RNN_TYPE'],
@@ -498,6 +499,7 @@ class TranslationModel(Model_Wrapper):
                                                                             bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                             kernel_initializer=params['INIT_FUNCTION'],
                                                                             recurrent_initializer=params['INNER_INIT'],
+                                                                            reset_after=params.get('GRU_RESET_AFTER', False),
                                                                             trainable=params.get('TRAINABLE_ENCODER', True),
                                                                             return_sequences=True,
                                                                             name='encoder_' + params['ENCODER_RNN_TYPE'])(src_embedding)
