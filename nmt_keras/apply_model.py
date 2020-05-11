@@ -190,8 +190,12 @@ def score_corpus(args, params):
     logger.info("Using an ensemble of %d models" % len(args.models))
     models = [loadModel(m, -1, full_path=True) for m in args.models]
     dataset = loadDataset(args.dataset)
-    dataset = update_dataset_from_file(dataset, args.source, params, splits=args.splits,
-                                       output_text_filename=args.target, compute_state_below=True)
+    dataset = update_dataset_from_file(dataset,
+                                       args.source,
+                                       params,
+                                       splits=args.splits,
+                                       output_text_filename=args.target,
+                                       compute_state_below=True)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]

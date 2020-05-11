@@ -29,7 +29,6 @@ def update_dataset_from_file(ds,
 
     :return: Dataset object with the processed data
     """
-
     if splits is None:
         splits = ['val']
 
@@ -65,6 +64,13 @@ def update_dataset_from_file(ds,
                          label_smoothing=params.get('LABEL_SMOOTHING', 0.),
                          overwrite_split=True)
 
+            if params.get('ALIGN_FROM_RAW', True):
+                ds.setRawOutput(output_text_filename,
+                                split,
+                                type='file-name',
+                                id='raw_' + params['OUTPUTS_IDS_DATASET'][0],
+                                overwrite_split=True)
+
         # INPUT DATA
         ds.setInput(input_text_filename,
                     split,
@@ -79,6 +85,7 @@ def update_dataset_from_file(ds,
                     min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0),
                     bpe_codes=params.get('BPE_CODES_PATH', None),
                     overwrite_split=True)
+
         if compute_state_below and output_text_filename is not None:
             # INPUT DATA
             ds.setInput(output_text_filename,
@@ -113,7 +120,6 @@ def update_dataset_from_file(ds,
         # If we had multiple references per sentence
         if recompute_references:
             keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
-
     return ds
 
 
