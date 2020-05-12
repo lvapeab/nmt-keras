@@ -24,7 +24,7 @@ def test_build_datset():
 
 def test_load_dataset():
     params = load_parameters()
-    ds = loadDataset(os.path.join('.',
+    ds = loadDataset(os.path.join('datasets',
                                   'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params[
                                       'TRG_LAN'] + '.pkl'))
     assert isinstance(ds, Dataset)
