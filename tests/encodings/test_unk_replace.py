@@ -1,10 +1,7 @@
 import argparse
 import os
-
 import pytest
-from keras import backend as K
-
-from tests.test_config import load_tests_params
+from tests.test_config import load_tests_params, clean_dirs
 from data_engine.prepare_data import build_dataset
 from nmt_keras.training import train_model
 from nmt_keras.apply_model import sample_ensemble, score_corpus
@@ -22,7 +19,6 @@ def test_unk_replace_0():
     params['ALIGN_FROM_RAW'] = True
 
     dataset = build_dataset(params)
-    # params['MAPPING'] = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -37,7 +33,6 @@ def test_unk_replace_0():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print("Training model")
@@ -70,6 +65,7 @@ def test_unk_replace_0():
     print("Scoring corpus")
     score_corpus(parser, params)
     print("Done")
+    clean_dirs(params)
 
 
 def test_unk_replace_1():
@@ -82,9 +78,9 @@ def test_unk_replace_1():
     params['POS_UNK'] = True
     params['HEURISTIC'] = 1
     params['ALIGN_FROM_RAW'] = True
+    params['MAPPING'] = os.path.join(params['DATA_ROOT_PATH'], 'mapping.%s_%s.pkl' % (params['SRC_LAN'], params['TRG_LAN']))
 
     dataset = build_dataset(params)
-    # params['MAPPING'] = DATA_ROOT_PATH + '/mapping.%s_%s.pkl' % (SRC_LAN, TRG_LAN)
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -99,7 +95,6 @@ def test_unk_replace_1():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print("Training model")
@@ -132,6 +127,7 @@ def test_unk_replace_1():
     print("Scoring corpus")
     score_corpus(parser, params)
     print("Done")
+    clean_dirs(params)
 
 
 def test_unk_replace_2():
@@ -146,7 +142,7 @@ def test_unk_replace_2():
     params['ALIGN_FROM_RAW'] = True
 
     dataset = build_dataset(params)
-    params['MAPPING'] = params['DATA_ROOT_PATH'] + '/mapping.%s_%s.pkl' % (params['SRC_LAN'], params['TRG_LAN'])
+    params['MAPPING'] = os.path.join(params['DATA_ROOT_PATH'], 'mapping.%s_%s.pkl' % (params['SRC_LAN'], params['TRG_LAN']))
 
     params['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['INPUTS_IDS_DATASET'][0]]
     params['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[params['OUTPUTS_IDS_DATASET'][0]]
@@ -161,7 +157,6 @@ def test_unk_replace_2():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print("Training model")
@@ -194,6 +189,7 @@ def test_unk_replace_2():
     print("Scoring corpus")
     score_corpus(parser, params)
     print("Done")
+    clean_dirs(params)
 
 
 if __name__ == '__main__':

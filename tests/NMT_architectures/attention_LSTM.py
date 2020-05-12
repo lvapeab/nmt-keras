@@ -1,10 +1,7 @@
 import argparse
 import os
-
 import pytest
-from keras import backend as K
-
-from tests.test_config import load_tests_params
+from tests.test_config import load_tests_params, clean_dirs
 from data_engine.prepare_data import build_dataset
 from nmt_keras.training import train_model
 from nmt_keras.apply_model import sample_ensemble, score_corpus
@@ -37,7 +34,6 @@ def test_LSTM_add():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print("Training model")
@@ -70,6 +66,7 @@ def test_LSTM_add():
     print("Scoring corpus")
     score_corpus(parser, params)
     print("Done")
+    clean_dirs(params)
 
 
 def test_LSTM_dot():
@@ -99,7 +96,6 @@ def test_LSTM_dot():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print("Training model")
@@ -132,6 +128,7 @@ def test_LSTM_dot():
     print("Scoring corpus")
     score_corpus(parser, params)
     print("Done")
+    clean_dirs(params)
 
 
 def test_LSTM_scaled():
@@ -161,7 +158,6 @@ def test_LSTM_scaled():
         '_deepout_' + '_'.join([layer[0] for layer in params['DEEP_OUTPUT_LAYERS']]) + \
         '_trg_emb_' + str(params['TARGET_TEXT_EMBEDDING_SIZE']) + \
         '_' + params['OPTIMIZER'] + '_' + str(params['LR'])
-    params['STORE_PATH'] = os.path.join(K.backend() + '_test_train_models', params['MODEL_NAME'])
 
     # Test several NMT-Keras utilities: train, sample, sample_ensemble, score_corpus...
     print("Training model")
@@ -194,6 +190,7 @@ def test_LSTM_scaled():
     print("Scoring corpus")
     score_corpus(parser, params)
     print("Done")
+    clean_dirs(params)
 
 
 if __name__ == '__main__':

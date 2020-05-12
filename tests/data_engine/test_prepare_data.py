@@ -3,7 +3,7 @@ import os
 
 import copy
 from config import load_parameters
-from data_engine.prepare_data import build_dataset, update_dataset_from_file, keep_n_captions
+from data_engine.prepare_data import build_dataset, update_dataset_from_file, prepare_references
 from keras_wrapper.dataset import Dataset, loadDataset
 
 
@@ -12,7 +12,6 @@ def test_build_datset():
     for verbose in range(2):
         params['REBUILD_DATASET'] = True
         params['VERBOSE'] = verbose
-        params['DATASET_STORE_PATH'] = '.'
         ds = build_dataset(params)
         assert isinstance(ds, Dataset)
         len_splits = [('train', 9900), ('val', 100), ('test', 2996)]
@@ -39,7 +38,6 @@ def test_update_dataset_from_file():
     params = load_parameters()
     for rebuild_dataset in [True, False]:
         params['REBUILD_DATASET'] = rebuild_dataset
-        params['DATASET_STORE_PATH'] = '.'
         for splits in [[], None, ['val']]:
             ds = build_dataset(params)
             assert isinstance(ds, Dataset)
@@ -79,19 +77,15 @@ def test_update_dataset_from_file():
     assert len(eval('ds2.X_' + split + str([params['INPUTS_IDS_DATASET'][0]]))) == len_test
     assert len(eval('ds2.Y_' + split + str([params['OUTPUTS_IDS_DATASET'][0]]))) == len_test
 
-    if __name__ == '__main__':
-        pytest.main([__file__])
-
 
 def test_keep_n_captions():
     params = load_parameters()
     params['REBUILD_DATASET'] = True
-    params['DATASET_STORE_PATH'] = '.'
     ds = build_dataset(params)
     len_splits = {'train': 9900, 'val': 100, 'test': 2996}
 
     for splits in [[], None, ['val'], ['val', 'test']]:
-        keep_n_captions(ds, 1, n=1, set_names=splits)
+        prepare_references(ds, 1, n=1, set_names=splits)
         if splits is not None:
             for split in splits:
                 len_split = len_splits[split]
@@ -100,5 +94,5 @@ def test_keep_n_captions():
                 assert len(eval('ds.X_' + split + str([params['INPUTS_IDS_DATASET'][0]]))) == len_split
                 assert len(eval('ds.Y_' + split + str([params['OUTPUTS_IDS_DATASET'][0]]))) == len_split
 
-    if __name__ == '__main__':
-        pytest.main([__file__])
+if __name__ == '__main__':
+    pytest.main([__file__])
