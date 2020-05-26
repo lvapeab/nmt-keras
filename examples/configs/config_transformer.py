@@ -138,7 +138,7 @@ def load_parameters():
     LR_GAMMA = 1                                  # Multiplier used for decreasing the LR
     LR_REDUCE_EACH_EPOCHS = False                 # Reduce each LR_DECAY number of epochs or updates
     LR_START_REDUCTION_ON_EPOCH = 0               # Epoch to start the reduction
-    LR_REDUCER_TYPE = 'Noam'               # Function to reduce. 'linear' and 'exponential' implemented.
+    LR_REDUCER_TYPE = 'noam'               # Function to reduce. 'linear' and 'exponential' implemented.
                                                   # Linear reduction: new_lr = lr * LR_GAMMA
                                                   # Exponential reduction: new_lr = lr * LR_REDUCER_EXP_BASE ** (current_nb / LR_HALF_LIFE) * LR_GAMMA
                                                   # Noam reduction: new_lr = lr * min(current_nb ** LR_REDUCER_EXP_BASE, current_nb * LR_HALF_LIFE ** WARMUP_EXP)
