@@ -113,7 +113,7 @@ def sampling_function(source_stream, n_samples, mode='random', src_seqs=None, hy
     elif mode == 'attention-distraction':
         assert alphas_stream is not None, 'Cannot use sampling mode "%s" without alphas.' % str(mode)
         # Get the mean minus curtosis for each sentence
-        stream_scores = [-kurtosis(alphas).mean() for alphas in alphas_stream]
+        stream_scores = [-kurtosis(alphas, axis=-1).mean() for alphas in alphas_stream]
         # Return the maximum values
         indices_to_return = np.asarray(stream_scores).argsort()[::-1][:n_samples]  # Get the maximum values
         return indices_to_return, [None]
@@ -164,7 +164,7 @@ def sampling_function(source_stream, n_samples, mode='random', src_seqs=None, hy
             stream_scores_cp[i] = float(cp_penalty) / len(src_seq)
 
         # Get the mean minus curtosis for each sentence
-        stream_scores_ad = [-kurtosis(alphas).mean() for alphas in alphas_stream]
+        stream_scores_ad = [-kurtosis(alphas, axis=-1).mean() for alphas in alphas_stream]
 
         # Random sampling
         indices_to_return_random = np.arange(len(source_stream))
