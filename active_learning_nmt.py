@@ -129,7 +129,7 @@ def sampling_function(source_stream, n_samples, mode='random', src_seqs=None, hy
                 for cp_i in range(len(hyp_seqs[i])):
                     att_weight += alphas[cp_i, cp_j]
                 cp_penalty += np.log(min(att_weight, 1.0))
-            stream_scores[i] = float(cp_penalty) / len(src_seq)
+            stream_scores[i] = -float(cp_penalty) / len(src_seq)
         # Return the minimum-covered hypotheses -> Maximum penalized scores
         indices_to_return = np.asarray(stream_scores).argsort()[::-1][:n_samples]  # Get the maximum values
         return indices_to_return, [None]
@@ -161,7 +161,7 @@ def sampling_function(source_stream, n_samples, mode='random', src_seqs=None, hy
                 for cp_i in range(len(hyp_seqs[i])):
                     att_weight += alphas[cp_i, cp_j]
                 cp_penalty += np.log(min(att_weight, 1.0))
-            stream_scores_cp[i] = float(cp_penalty) / len(src_seq)
+            stream_scores_cp[i] = -float(cp_penalty) / len(src_seq)
 
         # Get the mean minus curtosis for each sentence
         stream_scores_ad = [-kurtosis(alphas).mean() for alphas in alphas_stream]
