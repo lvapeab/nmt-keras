@@ -434,6 +434,9 @@ def main():
         exit(2)
     dataset = loadDataset(args.dataset)
 
+    parameters['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['INPUTS_IDS_DATASET'][0]]
+    parameters['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['OUTPUTS_IDS_DATASET'][0]]
+
     # For converting predictions into sentences
     # Dataset backwards compatibility
     bpe_separator = dataset.BPE_separator if hasattr(dataset,
@@ -540,9 +543,6 @@ def main():
     for nmt_model in models:
         nmt_model.setParams(parameters)
         nmt_model.setOptimizer()
-
-    parameters['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['INPUTS_IDS_DATASET'][0]]
-    parameters['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['OUTPUTS_IDS_DATASET'][0]]
 
     # Get word2index and index2word dictionaries
     index2word_y = dataset.vocabulary[parameters['OUTPUTS_IDS_DATASET'][0]]['idx2words']
