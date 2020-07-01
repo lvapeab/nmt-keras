@@ -301,7 +301,7 @@ class NMTSampler:
         sample_beam_search_end_time = time.time()
         logger.log(2, 'sample_beam_search time: %.6f' % (sample_beam_search_end_time - sample_beam_search_start_time))
 
-        if False and self.params_prediction['pos_unk']:
+        if self.params_prediction['pos_unk']:
             alphas = [alphas]
             sources = [tokenized_input]
             heuristic = self.params_prediction['heuristic']
