@@ -5,7 +5,6 @@ import logging
 import numpy as np
 import os
 from keras_wrapper.extra.read_write import file2list, numpy2file
-from nltk import ngrams
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -53,6 +52,7 @@ def compute_centroid(args):
 
     print ("Finished. Storing n-gram counts in %s " % args.dest)
     numpy2file(args.dest, centroid)
+
 
 if __name__ == "__main__":
     args = parse_args()

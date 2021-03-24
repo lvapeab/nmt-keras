@@ -674,9 +674,7 @@ if __name__ == "__main__":
                                  'state_below_index': -1,
                                  'output_text_index': 0,
                                  'apply_tokenization': params.get('APPLY_TOKENIZATION', False),
-                                 'tokenize_f': eval('dataset.' +
-                                                    params.get('TOKENIZATION_METHOD', 'tokenize_none')),
-
+                                 'tokenize_f': eval('dataset.' + params.get('TOKENIZATION_METHOD', 'tokenize_none')),
                                  'apply_detokenization': params.get('APPLY_DETOKENIZATION', True),
                                  'detokenize_f': eval('dataset.' + params.get('DETOKENIZATION_METHOD',
                                                                               'detokenize_none')),

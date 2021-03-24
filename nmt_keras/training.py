@@ -45,8 +45,7 @@ def train_model(params, load_dataset=None):
             else:
                 logger.info('Updating dataset.')
                 dataset = loadDataset(
-                    params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] +
-                    params['TRG_LAN'] + '.pkl')
+                    params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
 
                 epoch_offset = 0 if dataset.len_train == 0 else int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
                 params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else epoch_offset
@@ -110,8 +109,8 @@ def train_model(params, load_dataset=None):
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
         if params.get('EPOCH_OFFSET') is None:
-            params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
-                int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+            params['EPOCH_OFFSET'] = \
+                params['RELOAD'] if params['RELOAD_EPOCH'] else int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
 
     # Store configuration as pkl
     dict2pkl(params, params['STORE_PATH'] + '/config')

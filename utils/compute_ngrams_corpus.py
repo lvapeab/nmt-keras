@@ -41,6 +41,7 @@ def extract_n_grams(args):
     print ("Finished. Storing n-gram counts in %s " % args.dest)
     dict2pkl(n_gram_counts, args.dest)
 
+
 if __name__ == "__main__":
     args = parse_args()
     extract_n_grams(args)

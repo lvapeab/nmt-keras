@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-import time
 import argparse
 import ast
 import codecs
@@ -271,8 +270,6 @@ def interactive_simulation():
     # Get word2index and index2word dictionaries
     index2word_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
     word2index_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['words2idx']
-    index2word_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words']
-    word2index_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['words2idx']
     unk_id = dataset.extra_words['<unk>']
 
     # Initialize counters
@@ -501,7 +498,6 @@ def interactive_simulation():
                                 mouse_actions_sentence += 1
                                 if checked_index_h - last_checked_index > 1:
                                     mouse_actions_sentence += 1
-                                last_correct_pos = checked_index_h
                                 keystrokes_sentence += new_word_len
                                 # Substitution
                                 new_word_indices = [word2index_y.get(word, unk_id) for word in new_words]
@@ -701,6 +697,7 @@ def interactive_simulation():
         # 6.2 Close open files
         fsrc.close()
         ftrans.close()
+
 
 if __name__ == "__main__":
     interactive_simulation()

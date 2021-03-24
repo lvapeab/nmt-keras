@@ -170,8 +170,8 @@ def build_online_models(models, params):
                 y_true = Input(name="y_true", batch_shape=tuple([None, None, None]))
                 y_pred = nmt_model.model.outputs[0]
                 inputs = [y_true, y_pred, hyp1, preds_h1, weight1, weight2]
-                losses = [Lambda(eval(loss), output_shape=(None,),
-                                 name=loss, supports_masking=False)(inputs) for loss in params['LOSS']]
+                _ = [Lambda(eval(loss), output_shape=(None,),
+                            name=loss, supports_masking=False)(inputs) for loss in params['LOSS']]
 
                 trainer_model = Model(inputs=nmt_model.model.inputs + [state_below_h1] + [y_true, weight1, weight2],
                                       outputs=loss_out)

@@ -269,8 +269,6 @@ def interactive_simulation():
     # Get word2index and index2word dictionaries
     index2word_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['idx2words']
     word2index_y = dataset.vocabulary[params['OUTPUTS_IDS_DATASET'][0]]['words2idx']
-    index2word_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['idx2words']
-    word2index_x = dataset.vocabulary[params['INPUTS_IDS_DATASET'][0]]['words2idx']
     unk_id = dataset.extra_words['<unk>']
 
     # Initialize counters
@@ -578,6 +576,7 @@ def interactive_simulation():
         # 6.2 Close open files
         fsrc.close()
         ftrans.close()
+
 
 if __name__ == "__main__":
     interactive_simulation()
