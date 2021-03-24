@@ -46,9 +46,9 @@ def parse_args():
     parser.add_argument("--max-n", type=int, default=5, help="Maximum number of words generated between isles")
     parser.add_argument("-src", "--source", help="File of source hypothesis", required=True)
     parser.add_argument("-trg", "--references", help="Reference sentence (for simulation)", required=True)
-    parser.add_argument("-bpe-tok", "--tokenize-bpe", help="Apply BPE tokenization", action='store_true', default=True)
+    parser.add_argument("-bpe-tok", "--tokenize-bpe", help="Apply BPE tokenization", action='store_true', default=False)
     parser.add_argument("-bpe-detok", "--detokenize-bpe", help="Revert BPE tokenization",
-                        action='store_true', default=True)
+                        action='store_true', default=False)
     parser.add_argument("-tok-ref", "--tokenize-references", help="Tokenize references. If set to False, the references"
                                                                   "should be given already preprocessed/tokenized.",
                         action='store_true', default=False)
