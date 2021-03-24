@@ -1,4 +1,5 @@
 import logging
+import os
 from keras_wrapper.dataset import Dataset, saveDataset, loadDataset
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
@@ -28,9 +29,6 @@ def update_dataset_from_file(ds,
 
     :return: Dataset object with the processed data
     """
-
-    logging.info("<<< Updating Dataset instance " + ds.name + " ... >>>")
-
     if splits is None:
         splits = ['val']
 
@@ -80,6 +78,7 @@ def update_dataset_from_file(ds,
                     min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0),
                     bpe_codes=params.get('BPE_CODES_PATH', None),
                     overwrite_split=True)
+
         if compute_state_below and output_text_filename is not None:
             # INPUT DATA
             ds.setInput(output_text_filename,
@@ -113,7 +112,7 @@ def update_dataset_from_file(ds,
 
         # If we had multiple references per sentence
         if recompute_references:
-            keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
+            prepare_references(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
 
     return ds
 
@@ -138,9 +137,10 @@ def build_dataset(params):
 
         # OUTPUT DATA
         # Load the train, val and test splits of the target language sentences (outputs). The files include a sentence per line.
-        ds.setOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
+        ds.setOutput(os.path.join(base_path, params['TEXT_FILES']['train'] + params['TRG_LAN']),
                      'train',
-                     type=params.get('OUTPUTS_TYPES_DATASET', ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0],
+                     type=params.get('OUTPUTS_TYPES_DATASET',
+                                     ['dense-text'] if 'sparse' in params['LOSS'] else ['text'])[0],
                      id=params['OUTPUTS_IDS_DATASET'][0],
                      tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
                      build_vocabulary=True,
@@ -152,15 +152,10 @@ def build_dataset(params):
                      min_occ=params.get('MIN_OCCURRENCES_OUTPUT_VOCAB', 0),
                      bpe_codes=params.get('BPE_CODES_PATH', None),
                      label_smoothing=params.get('LABEL_SMOOTHING', 0.))
-        if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
-            ds.setRawOutput(base_path + '/' + params['TEXT_FILES']['train'] + params['TRG_LAN'],
-                            'train',
-                            type='file-name',
-                            id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
 
         for split in ['val', 'test']:
             if params['TEXT_FILES'].get(split) is not None:
-                ds.setOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
+                ds.setOutput(os.path.join(base_path, params['TEXT_FILES'][split] + params['TRG_LAN']),
                              split,
                              type='text',  # The type of the references should be always 'text'
                              id=params['OUTPUTS_IDS_DATASET'][0],
@@ -171,82 +166,80 @@ def build_dataset(params):
                              max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
                              bpe_codes=params.get('BPE_CODES_PATH', None),
                              label_smoothing=0.)
-                if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
-                    ds.setRawOutput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
-                                    split,
-                                    type='file-name',
-                                    id='raw_' + params['OUTPUTS_IDS_DATASET'][0])
 
         # INPUT DATA
         # We must ensure that the 'train' split is the first (for building the vocabulary)
-        for split in ['train', 'val', 'test']:
-            if params['TEXT_FILES'].get(split) is not None:
-                if split == 'train':
-                    build_vocabulary = True
-                else:
-                    build_vocabulary = False
-                ds.setInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
-                            split,
-                            type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[0],
-                            id=params['INPUTS_IDS_DATASET'][0],
-                            pad_on_batch=params.get('PAD_ON_BATCH', True),
-                            tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
-                            build_vocabulary=build_vocabulary,
-                            fill=params.get('FILL', 'end'),
-                            max_text_len=params.get('MAX_INPUT_TEXT_LEN', 70),
-                            max_words=params.get('INPUT_VOCABULARY_SIZE', 0),
-                            min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0),
-                            bpe_codes=params.get('BPE_CODES_PATH', None))
+        for split in params['TEXT_FILES']:
+            build_vocabulary = split == 'train'
+            ds.setInput(os.path.join(base_path, params['TEXT_FILES'][split] + params['SRC_LAN']),
+                        split,
+                        type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[0],
+                        id=params['INPUTS_IDS_DATASET'][0],
+                        pad_on_batch=params.get('PAD_ON_BATCH', True),
+                        tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
+                        build_vocabulary=build_vocabulary,
+                        fill=params.get('FILL', 'end'),
+                        max_text_len=params.get('MAX_INPUT_TEXT_LEN', 70),
+                        max_words=params.get('INPUT_VOCABULARY_SIZE', 0),
+                        min_occ=params.get('MIN_OCCURRENCES_INPUT_VOCAB', 0),
+                        bpe_codes=params.get('BPE_CODES_PATH', None))
 
-                if len(params['INPUTS_IDS_DATASET']) > 1:
-                    if 'train' in split:
-                        ds.setInput(base_path + '/' + params['TEXT_FILES'][split] + params['TRG_LAN'],
-                                    split,
-                                    type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[1],
-                                    id=params['INPUTS_IDS_DATASET'][1],
-                                    required=False,
-                                    tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
-                                    pad_on_batch=params.get('PAD_ON_BATCH', True),
-                                    build_vocabulary=params['OUTPUTS_IDS_DATASET'][0],
-                                    offset=1,
-                                    fill=params.get('FILL', 'end'),
-                                    max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
-                                    max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
-                                    bpe_codes=params.get('BPE_CODES_PATH', None))
-                        if params.get('TIE_EMBEDDINGS', False):
-                            ds.merge_vocabularies([params['INPUTS_IDS_DATASET'][1], params['INPUTS_IDS_DATASET'][0]])
-                    else:
-                        ds.setInput(None,
-                                    split,
-                                    type='ghost',
-                                    id=params['INPUTS_IDS_DATASET'][-1],
-                                    required=False)
-                if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
-                    ds.setRawInput(base_path + '/' + params['TEXT_FILES'][split] + params['SRC_LAN'],
-                                   split,
-                                   type='file-name',
-                                   id='raw_' + params['INPUTS_IDS_DATASET'][0])
+            if len(params['INPUTS_IDS_DATASET']) > 1:
+                if 'train' in split:
+                    ds.setInput(os.path.join(base_path, params['TEXT_FILES'][split] + params['TRG_LAN']),
+                                split,
+                                type=params.get('INPUTS_TYPES_DATASET', ['text', 'text'])[1],
+                                id=params['INPUTS_IDS_DATASET'][1],
+                                required=False,
+                                tokenization=params.get('TOKENIZATION_METHOD', 'tokenize_none'),
+                                pad_on_batch=params.get('PAD_ON_BATCH', True),
+                                build_vocabulary=params['OUTPUTS_IDS_DATASET'][0],
+                                offset=1,
+                                fill=params.get('FILL', 'end'),
+                                max_text_len=params.get('MAX_OUTPUT_TEXT_LEN', 70),
+                                max_words=params.get('OUTPUT_VOCABULARY_SIZE', 0),
+                                bpe_codes=params.get('BPE_CODES_PATH', None))
+                    if params.get('TIE_EMBEDDINGS', False):
+                        ds.merge_vocabularies([params['INPUTS_IDS_DATASET'][1], params['INPUTS_IDS_DATASET'][0]])
+                else:
+                    ds.setInput(None,
+                                split,
+                                type='ghost',
+                                id=params['INPUTS_IDS_DATASET'][-1],
+                                required=False)
+            if params.get('ALIGN_FROM_RAW', True) and not params.get('HOMOGENEOUS_BATCHES', False):
+                ds.setRawInput(os.path.join(base_path, params['TEXT_FILES'][split] + params['SRC_LAN']),
+                               split,
+                               type='file-name',
+                               id='raw_' + params['INPUTS_IDS_DATASET'][0])
         if params.get('POS_UNK', False):
             if params.get('HEURISTIC', 0) > 0:
                 ds.loadMapping(params['MAPPING'])
-
-        # If we had multiple references per sentence
-        keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
+        # Prepare references
+        prepare_references(ds,
+                           repeat=1,
+                           n=1,
+                           set_names=params['EVAL_ON_SETS'])
 
         # We have finished loading the dataset, now we can store it for using it in the future
         saveDataset(ds, params['DATASET_STORE_PATH'])
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+        ds = loadDataset(
+            os.path.join(params['DATASET_STORE_PATH'],
+                         'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'))
 
-        # If we had multiple references per sentence
-        keep_n_captions(ds, repeat=1, n=1, set_names=params['EVAL_ON_SETS'])
+        # Prepare references
+        prepare_references(ds,
+                           repeat=1,
+                           n=1,
+                           set_names=params['EVAL_ON_SETS'])
 
     return ds
 
 
-def keep_n_captions(ds, repeat, n=1, set_names=None):
+def prepare_references(ds, repeat, n=1, set_names=None):
     """
     Keeps only n captions per image and stores the rest in dictionaries for a later evaluation
     :param ds: Dataset object
@@ -310,3 +303,7 @@ def keep_n_captions(ds, repeat, n=1, set_names=None):
         setattr(ds, 'len_' + s, new_len)
 
         logger.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')
+
+
+# Backwards compatibility:
+keep_n_captions = prepare_references

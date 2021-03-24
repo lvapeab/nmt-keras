@@ -8,6 +8,9 @@ import codecs
 from timeit import default_timer as timer
 
 import logging
+
+import os
+
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
 
@@ -45,17 +48,23 @@ def train_model(params, load_dataset=None):
             else:
                 logger.info('Updating dataset.')
                 dataset = loadDataset(
-                    params['DATASET_STORE_PATH'] + '/Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+                    os.path.join(
+                        params['DATASET_STORE_PATH'],
+                        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+                )
 
-                epoch_offset = 0 if dataset.len_train == 0 else int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+                epoch_offset = 0 if dataset.len_train == 0 else int(
+                    params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
                 params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else epoch_offset
 
                 for split, filename in iteritems(params['TEXT_FILES']):
                     dataset = update_dataset_from_file(dataset,
-                                                       params['DATA_ROOT_PATH'] + '/' + filename + params['SRC_LAN'],
+                                                       os.path.join(params['DATA_ROOT_PATH'],
+                                                                    filename + params['SRC_LAN']),
                                                        params,
                                                        splits=list([split]),
-                                                       output_text_filename=params['DATA_ROOT_PATH'] + '/' + filename + params['TRG_LAN'],
+                                                       output_text_filename=os.path.join(params['DATA_ROOT_PATH'],
+                                                                                         filename + params['TRG_LAN']),
                                                        remove_outputs=False,
                                                        compute_state_below=True,
                                                        recompute_references=True)
@@ -109,11 +118,11 @@ def train_model(params, load_dataset=None):
         nmt_model.setParams(params)
         nmt_model.setOptimizer()
         if params.get('EPOCH_OFFSET') is None:
-            params['EPOCH_OFFSET'] = \
-                params['RELOAD'] if params['RELOAD_EPOCH'] else int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
+            params['EPOCH_OFFSET'] = params['RELOAD'] if params['RELOAD_EPOCH'] else \
+                int(params['RELOAD'] * params['BATCH_SIZE'] / dataset.len_train)
 
     # Store configuration as pkl
-    dict2pkl(params, params['STORE_PATH'] + '/config')
+    dict2pkl(params, os.path.join(params['STORE_PATH'], 'config'))
 
     # Callbacks
     callbacks = buildCallbacks(params, nmt_model, dataset)
@@ -139,7 +148,7 @@ def train_model(params, load_dataset=None):
                        'min_lr': params.get('MIN_LR', 1e-9),
                        'epochs_for_save': params['EPOCHS_FOR_SAVE'],
                        'verbose': params['VERBOSE'],
-                       'eval_on_sets': params['EVAL_ON_SETS_KERAS'],
+                       'eval_on_sets': None,  # Unsupported for autorreggressive models
                        'n_parallel_loaders': params['PARALLEL_LOADERS'],
                        'extra_callbacks': callbacks,
                        'reload_epoch': params['RELOAD'],
@@ -151,21 +160,21 @@ def train_model(params, load_dataset=None):
                        'eval_on_epochs': params.get('EVAL_EACH_EPOCHS', True),
                        'each_n_epochs': params.get('EVAL_EACH', 1),
                        'start_eval_on_epoch': params.get('START_EVAL_ON_EPOCH', 0),
-                       'tensorboard': params.get('TENSORBOARD', False),
                        'n_gpus': params.get('N_GPUS', 1),
-                       'tensorboard_params': {'log_dir': params.get('LOG_DIR', 'tensorboard_logs'),
-                                              'histogram_freq': params.get('HISTOGRAM_FREQ', 0),
-                                              'batch_size': params.get('TENSORBOARD_BATCH_SIZE', params['BATCH_SIZE']),
-                                              'write_graph': params.get('WRITE_GRAPH', True),
-                                              'write_grads': params.get('WRITE_GRADS', False),
-                                              'write_images': params.get('WRITE_IMAGES', False),
-                                              'embeddings_freq': params.get('EMBEDDINGS_FREQ', 0),
-                                              'embeddings_layer_names': params.get('EMBEDDINGS_LAYER_NAMES', None),
-                                              'embeddings_metadata': params.get('EMBEDDINGS_METADATA', None),
-                                              'label_word_embeddings_with_vocab': params.get(
-                                                  'LABEL_WORD_EMBEDDINGS_WITH_VOCAB', False),
-                                              'word_embeddings_labels': params.get('WORD_EMBEDDINGS_LABELS', None),
-                                              }
+                       'tensorboard': params.get('TENSORBOARD', False),
+                       'tensorboard_params':
+                           {
+                               'log_dir': params.get('LOG_DIR', 'tensorboard_logs'),
+                               'histogram_freq': params.get('HISTOGRAM_FREQ', 0),
+                               'batch_size': params.get('TENSORBOARD_BATCH_SIZE', params['BATCH_SIZE']),
+                               'write_graph': params.get('WRITE_GRAPH', True),
+                               'write_grads': params.get('WRITE_GRADS', False),
+                               'write_images': params.get('WRITE_IMAGES', False),
+                               'embeddings_freq': None,
+                               'embeddings_layer_names': None,
+                               'embeddings_metadata': None,
+                               'word_embeddings_labels': None,
+                               'update_freq': params.get('UPDATE_FREQ', 'epoch')}
                        }
     nmt_model.trainNet(dataset, training_params)
 
