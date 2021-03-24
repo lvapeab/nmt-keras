@@ -429,7 +429,11 @@ def interactive_simulation():
                             for isle_idx, isle in hypothesis_isles:
                                 tokenized_words_in_isle = []
                                 for word in isle:
-                                    tokenized_word = tokenize_f(word.encode('utf-8')).split()
+                                    if version_info[0] < 3:  # Execute different code for python 2 or 3
+                                        tokenized_word = tokenize_f(word.encode('utf-8')).split()
+                                    else:
+                                        tokenized_word = tokenize_f(str(word.encode('utf-8'),
+                                                                   'utf-8')).split()
                                     tokenized_words_in_isle += tokenized_word
                                 tokenized_isle = (isle_idx + next_isle_bpe_offset, tokenized_words_in_isle)
                                 # tokenized_isle_indices = (isle_idx + next_isle_bpe_offset, [map(lambda x: word2index_y.get(x, unk_id), tokenized_isle)])
