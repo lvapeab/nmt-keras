@@ -33,7 +33,7 @@ install:
   - travis_wait 30 pip install .
 
   # Install packages to run tests.
-  - pip install flaky pytest pytest-cache pytest-cov pytest-forked pytest-pep8 pytest-xdist pyux
+  - pip install flaky pytest pytest-cache pytest-cov pytest-forked pytest-xdist pyux flake8
 
 
 # command to run tests
@@ -43,7 +43,7 @@ script:
   - sed -i -e 's/"backend":[[:space:]]*"[^"]*/"backend":\ "'$KERAS_BACKEND'/g' ~/.keras/keras.json;
   - echo -e "Running tests with the following config:\n$(cat ~/.keras/keras.json)"
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
-      PYTHONPATH=$PWD:$PYTHONPATH python -m pytest --pep8 -m pep8 -n0;
+      PYTHONPATH=$PWD:$PYTHONPATH python -m flake8 --config=./.flake8 .;
     elif [[ "$TEST_MODE" == "GENERAL" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH pytest -s tests/test_load_params.py tests/utils/ tests/data_engine/ 2>&1 ;
     elif [[ "$TEST_MODE" == "ENCODINGS" ]]; then

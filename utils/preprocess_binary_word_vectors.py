@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import os
 import numpy as np
 import argparse
 from os.path import basename, dirname
@@ -40,8 +41,9 @@ def word2vec2npy(v_path, base_path_save, dest_filename):
 
     # Store dict
     print ("")
-    print ("Saving word vectors in %s" % (base_path_save + '/' + dest_filename + '.npy'))
-    np.save(base_path_save + '/' + dest_filename + '.npy', word_vecs)
+    output_path = os.path.join(base_path_save, dest_filename + '.npy')
+    print ("Saving word vectors in %s" % output_path)
+    np.save(output_path, word_vecs)
     print("")
 
 
@@ -50,6 +52,8 @@ def parse_args():
     parser.add_argument("-v", "--vectors", required=True, help="Pre-trained word embeddings file.",
                         default="GoogleNews-vectors-negative300.bin")
     parser.add_argument("-d", "--destination", required=True, help="Destination file.", default='word2vec.en')
+    parser.add_argument("-s", "--split_symbol", required=False,
+                        help="Split symbol.", default='word2vec.en')
     return parser.parse_args()
 
 

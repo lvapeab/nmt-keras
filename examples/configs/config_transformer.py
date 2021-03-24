@@ -138,7 +138,7 @@ def load_parameters():
     LR_GAMMA = 1                                  # Multiplier used for decreasing the LR
     LR_REDUCE_EACH_EPOCHS = False                 # Reduce each LR_DECAY number of epochs or updates
     LR_START_REDUCTION_ON_EPOCH = 0               # Epoch to start the reduction
-    LR_REDUCER_TYPE = 'Noam'               # Function to reduce. 'linear' and 'exponential' implemented.
+    LR_REDUCER_TYPE = 'noam'               # Function to reduce. 'linear' and 'exponential' implemented.
                                                   # Linear reduction: new_lr = lr * LR_GAMMA
                                                   # Exponential reduction: new_lr = lr * LR_REDUCER_EXP_BASE ** (current_nb / LR_HALF_LIFE) * LR_GAMMA
                                                   # Noam reduction: new_lr = lr * min(current_nb ** LR_REDUCER_EXP_BASE, current_nb * LR_HALF_LIFE ** WARMUP_EXP)
@@ -295,14 +295,6 @@ def load_parameters():
     TENSORBOARD = True                       # Switches On/Off the tensorboard callback.
     LOG_DIR = 'tensorboard_logs'             # Directory to store teh model. Will be created inside STORE_PATH.
     EMBEDDINGS_FREQ = 1                      # Frequency (in epochs) at which selected embedding layers will be saved.
-    EMBEDDINGS_LAYER_NAMES = [               # A list of names of layers to keep eye on. If None or empty list all the embedding layer will be watched.
-        'source_word_embedding',
-        'target_word_embedding']
-    EMBEDDINGS_METADATA = None               # Dictionary which maps layer name to a file name in which metadata for this embedding layer is saved.
-    LABEL_WORD_EMBEDDINGS_WITH_VOCAB = True  # Whether to use vocabularies as word embeddings labels (will overwrite EMBEDDINGS_METADATA).
-    WORD_EMBEDDINGS_LABELS = [               # Vocabularies for labeling. Must match EMBEDDINGS_LAYER_NAMES.
-        'source_text',
-        'target_text']
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
     VERBOSE = 1                                        # Verbosity level.

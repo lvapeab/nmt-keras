@@ -58,8 +58,17 @@ class TranslationModel(Model_Wrapper):
     :param bool clear_dirs: Clean model directories or not.
     """
 
-    def __init__(self, params, model_type='Translation_Model', verbose=1, structure_path=None, weights_path=None,
-                 model_name=None, vocabularies=None, store_path=None, set_optimizer=True, clear_dirs=True):
+    def __init__(self,
+                 params,
+                 model_type='Translation_Model',
+                 verbose=1,
+                 structure_path=None,
+                 weights_path=None,
+                 model_name=None,
+                 vocabularies=None,
+                 store_path=None,
+                 set_optimizer=True,
+                 clear_dirs=True):
         """
         Translation_Model object constructor.
 
@@ -77,8 +86,11 @@ class TranslationModel(Model_Wrapper):
         :param clear_dirs: Clean model directories or not.
 
         """
-        super(TranslationModel, self).__init__(model_type=model_type, model_name=model_name,
-                                               silence=verbose == 0, models_path=store_path, inheritance=True)
+        super(TranslationModel, self).__init__(model_type=model_type,
+                                               model_name=model_name,
+                                               silence=verbose == 0,
+                                               models_path=store_path,
+                                               inheritance=True)
 
         self.__toprint = ['_model_type', 'name', 'model_path', 'verbose']
 
@@ -355,18 +367,6 @@ class TranslationModel(Model_Wrapper):
                                  '\n\t DAMPENING: ' + str(self.params.get('DAMPENING', 0.0)) + \
                                  '\n\t NESTEROV: ' + str(self.params.get('NESTEROV_MOMENTUM', False))
 
-            elif self.params['OPTIMIZER'].lower() == 'adadeltahd':
-                optimizer = AdadeltaHD(lr=self.params.get('LR', 0.002),
-                                       hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
-                                       rho=self.params.get('RHO', 0.9),
-                                       decay=self.params.get('LR_OPTIMIZER_DECAY', 0.0),
-                                       epsilon=self.params.get('EPSILON', 1e-7),
-                                       clipnorm=self.params.get('CLIP_C', 10.),
-                                       clipvalue=self.params.get('CLIP_V', 0.))
-                optimizer_str += '\n\t HYPERGRAD_LR: ' + str(self.params.get('HYPERGRAD_LR', 0.001)) + \
-                                 '\n\t RHO: ' + str(self.params.get('RHO', 0.9)) + \
-                                 '\n\t EPSILON: ' + str(self.params.get('EPSILON', 1e-7))
-
             elif self.params['OPTIMIZER'].lower() == 'adamhd':
                 optimizer = AdamHD(lr=self.params.get('LR', 0.002),
                                    hypergrad_lr=self.params.get('HYPERGRAD_LR', 0.001),
@@ -444,10 +444,10 @@ class TranslationModel(Model_Wrapper):
             * Possibly deep encoder/decoder
         See:
             * `Neural Machine Translation by Jointly Learning to Align and Translate`_.
-            * `Nematus\: a Toolkit for Neural Machine Translation`_.
+            * `Nematus: a Toolkit for Neural Machine Translation`_.
 
         .. _Neural Machine Translation by Jointly Learning to Align and Translate: https://arxiv.org/abs/1409.0473
-        .. _Nematus\: a Toolkit for Neural Machine Translation: https://arxiv.org/abs/1703.04357
+        .. _Nematus: a Toolkit for Neural Machine Translation: https://arxiv.org/abs/1703.04357
 
         :param int params: Dictionary of hyper-params (see config.py)
         :return: None
@@ -487,6 +487,7 @@ class TranslationModel(Model_Wrapper):
                                                                                           kernel_initializer=params['INIT_FUNCTION'],
                                                                                           recurrent_initializer=params['INNER_INIT'],
                                                                                           trainable=params.get('TRAINABLE_ENCODER', True),
+                                                                                          reset_after=params.get('GRU_RESET_AFTER', False),
                                                                                           return_sequences=True),
                                         trainable=params.get('TRAINABLE_ENCODER', True),
                                         name='bidirectional_encoder_' + params['ENCODER_RNN_TYPE'],
@@ -498,6 +499,7 @@ class TranslationModel(Model_Wrapper):
                                                                             bias_regularizer=l2(params['RECURRENT_WEIGHT_DECAY']),
                                                                             kernel_initializer=params['INIT_FUNCTION'],
                                                                             recurrent_initializer=params['INNER_INIT'],
+                                                                            reset_after=params.get('GRU_RESET_AFTER', False),
                                                                             trainable=params.get('TRAINABLE_ENCODER', True),
                                                                             return_sequences=True,
                                                                             name='encoder_' + params['ENCODER_RNN_TYPE'])(src_embedding)

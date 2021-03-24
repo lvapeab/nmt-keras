@@ -3,10 +3,6 @@
 
 from __future__ import print_function
 
-try:
-    import itertools.imap as map
-except ImportError:
-    pass
 import argparse
 import ast
 import logging
@@ -22,9 +18,9 @@ from keras_wrapper.model_ensemble import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *
-from keras_wrapper.extra.read_write import pkl2dict, list2file
+from keras_wrapper.extra.read_write import pkl2dict
 from keras_wrapper.online_trainer import OnlineTrainer
-from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_lists
+from keras_wrapper.utils import decode_predictions_beam_search
 from nmt_keras.model_zoo import TranslationModel
 # from online_models import build_online_models
 from utils.utils import update_parameters
@@ -301,7 +297,7 @@ class NMTSampler:
         sample_beam_search_end_time = time.time()
         logger.log(2, 'sample_beam_search time: %.6f' % (sample_beam_search_end_time - sample_beam_search_start_time))
 
-        if False and self.params_prediction['pos_unk']:
+        if self.params_prediction['pos_unk']:
             alphas = [alphas]
             sources = [tokenized_input]
             heuristic = self.params_prediction['heuristic']
@@ -434,6 +430,9 @@ def main():
         exit(2)
     dataset = loadDataset(args.dataset)
 
+    parameters['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['INPUTS_IDS_DATASET'][0]]
+    parameters['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['OUTPUTS_IDS_DATASET'][0]]
+
     # For converting predictions into sentences
     # Dataset backwards compatibility
     bpe_separator = dataset.BPE_separator if hasattr(dataset,
@@ -507,7 +506,7 @@ def main():
             'lr_gamma': parameters.get('LR_GAMMA', 1.),
             'epochs_for_save': -1,
             'verbose': args.verbose,
-            'eval_on_sets': parameters['EVAL_ON_SETS_KERAS'],
+            'eval_on_sets': parameters.get('EVAL_ON_SETS_KERAS', None),
             'n_parallel_loaders': parameters['PARALLEL_LOADERS'],
             'extra_callbacks': [],  # callbacks,
             'reload_epoch': parameters['RELOAD'],
@@ -541,13 +540,9 @@ def main():
         nmt_model.setParams(parameters)
         nmt_model.setOptimizer()
 
-    parameters['INPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['INPUTS_IDS_DATASET'][0]]
-    parameters['OUTPUT_VOCABULARY_SIZE'] = dataset.vocabulary_len[parameters['OUTPUTS_IDS_DATASET'][0]]
-
     # Get word2index and index2word dictionaries
     index2word_y = dataset.vocabulary[parameters['OUTPUTS_IDS_DATASET'][0]]['idx2words']
     word2index_y = dataset.vocabulary[parameters['OUTPUTS_IDS_DATASET'][0]]['words2idx']
-    index2word_x = dataset.vocabulary[parameters['INPUTS_IDS_DATASET'][0]]['idx2words']
     word2index_x = dataset.vocabulary[parameters['INPUTS_IDS_DATASET'][0]]['words2idx']
 
     excluded_words = None

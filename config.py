@@ -28,9 +28,9 @@ def load_parameters():
     OUTPUTS_TYPES_DATASET = ['text-features']                  # They are equivalent, only differ on how the data is loaded.
 
     # Evaluation params
-    METRICS = ['coco']                            # Metric used for evaluating the model.
+    METRICS = ['sacrebleu', 'perplexity']         # Metric used for evaluating the model.
+    KERAS_METRICS = ['perplexity']                # Metrics to be logged by Keras during training (in addition to the loss).
     EVAL_ON_SETS = ['val']                        # Possible values: 'train', 'val' and 'test' (external evaluator).
-    EVAL_ON_SETS_KERAS = []                       # Possible values: 'train', 'val' and 'test' (Keras' evaluator). Untested..
     START_EVAL_ON_EPOCH = 1                       # First epoch to start the model evaluation.
     EVAL_EACH_EPOCHS = True                       # Select whether evaluate between N epochs or N updates.
     EVAL_EACH = 1                                 # Sets the evaluation frequency (epochs or updates).
@@ -183,7 +183,6 @@ def load_parameters():
                                                   # Supported architectures: 'AttentionRNNEncoderDecoder' and 'Transformer'.
 
     # Common hyperparameters for all models
-    # # # # # # # # # # # # # # # # # # # # # # # #
     TRAINABLE_ENCODER = True                      # Whether the encoder's weights should be modified during training.
     TRAINABLE_DECODER = True                      # Whether the decoder's weights should be modified during training.
 
@@ -216,12 +215,13 @@ def load_parameters():
     #       Here we should specify the activation function and the output dimension.
     #       (e.g DEEP_OUTPUT_LAYERS = [('tanh', 600), ('relu', 400), ('relu', 200)])
     DEEP_OUTPUT_LAYERS = [('linear', TARGET_TEXT_EMBEDDING_SIZE)]
-    # # # # # # # # # # # # # # # # # # # # # # # #
 
     # AttentionRNNEncoderDecoder model hyperparameters
-    # # # # # # # # # # # # # # # # # # # # # # # #
     ENCODER_RNN_TYPE = 'LSTM'                     # Encoder's RNN unit type ('LSTM' and 'GRU' supported).
-    USE_CUDNN = False                              # Use CuDNN's implementation of GRU and LSTM (only for Tensorflow backend).
+    USE_CUDNN = False                             # Use CuDNN's implementation of GRU and LSTM (only for Tensorflow backend).
+    GRU_RESET_AFTER = True                        # GRU convention (whether to apply reset gate after or before matrix multiplication).
+                                                  # False = "before", True = "after" (CuDNN compatible).
+
 
     DECODER_RNN_TYPE = 'ConditionalLSTM'          # Decoder's RNN unit type.
                                                   # ('LSTM', 'GRU', 'ConditionalLSTM' and 'ConditionalGRU' supported).
@@ -246,15 +246,12 @@ def load_parameters():
     SKIP_VECTORS_HIDDEN_SIZE = TARGET_TEXT_EMBEDDING_SIZE     # Hidden size.
     ADDITIONAL_OUTPUT_MERGE_MODE = 'Add'          # Merge mode for the skip-connections (see keras.layers.merge.py).
     SKIP_VECTORS_SHARED_ACTIVATION = 'tanh'       # Activation for the skip vectors.
-    # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Transformer model hyperparameters
-    # # # # # # # # # # # # # # # # # # # # # # # #
     MODEL_SIZE = 32                               # Transformer model size (d_{model} in de paper).
     MULTIHEAD_ATTENTION_ACTIVATION = 'linear'     # Activation the input projections in the Multi-Head Attention blocks.
     FF_SIZE = MODEL_SIZE * 4                      # Size of the feed-forward layers of the Transformer model.
     N_HEADS = 8                                   # Number of parallel attention layers of the Transformer model.
-    # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Regularizers
     REGULARIZATION_FN = 'L2'                      # Regularization function. 'L1', 'L2' and 'L1_L2' supported.
@@ -308,21 +305,14 @@ def load_parameters():
     DATASET_STORE_PATH = 'datasets/'                   # Dataset instance will be stored here.
 
     # Tensorboard configuration. Only if the backend is Tensorflow. Otherwise, it will be ignored.
-    TENSORBOARD = True                       # Switches On/Off the tensorboard callback.
-    LOG_DIR = 'tensorboard_logs'             # Directory to store teh model. Will be created inside STORE_PATH.
-    EMBEDDINGS_FREQ = 1                      # Frequency (in epochs) at which selected embedding layers will be saved.
-    EMBEDDINGS_LAYER_NAMES = [               # A list of names of layers to keep eye on. If None or empty list all the embedding layer will be watched.
-        'source_word_embedding',
-        'target_word_embedding']
-    EMBEDDINGS_METADATA = None               # Dictionary which maps layer name to a file name in which metadata for this embedding layer is saved.
-    LABEL_WORD_EMBEDDINGS_WITH_VOCAB = True  # Whether to use vocabularies as word embeddings labels (will overwrite EMBEDDINGS_METADATA).
-    WORD_EMBEDDINGS_LABELS = [               # Vocabularies for labeling. Must match EMBEDDINGS_LAYER_NAMES.
-        'source_text',
-        'target_text']
+    TENSORBOARD = True                                 # Switches On/Off the tensorboard callback.
+    LOG_DIR = 'tensorboard_logs'                       # Directory to store teh model. Will be created inside STORE_PATH.
+    EMBEDDINGS_FREQ = 1                                # Frequency (in epochs) at which selected embedding layers will be saved.
 
     SAMPLING_SAVE_MODE = 'list'                        # 'list': Store in a text file, one sentence per line.
     PLOT_EVALUATION = False                            # If True, the evaluation will be plotted into the model folder.
-    
+    MAX_PLOT_Y = 1. if 'coco' in METRICS else 100.     # Max value of axis Y in the plot.
+
     VERBOSE = 1                                        # Verbosity level.
     RELOAD = 0                                         # If 0 start training from scratch, otherwise the model.
                                                        # Saved on epoch 'RELOAD' will be used.

@@ -23,7 +23,6 @@ setup(name='nmt_keras',
           "License :: OSI Approved :: MIT License"
       ],
       install_requires=[
-          'coco-caption @ https://github.com/lvapeab/coco-caption/archive/master.zip',
           'cloudpickle',
           'future',
           'keras @ https://github.com/MarcBS/keras/archive/master.zip',
@@ -39,6 +38,7 @@ setup(name='nmt_keras',
           'tables',
           'numpy',
           'pandas',
+          'sacrebleu',
           'sacremoses',
           'scipy',
           'tensorflow<2'
