@@ -67,5 +67,6 @@ def test_NMT_Unidir_deep_GRU_ConditionalLSTM():
     print("Done")
     clean_dirs(params)
 
+
 if __name__ == '__main__':
     pytest.main([__file__])

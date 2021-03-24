@@ -42,9 +42,7 @@ def train_model(params, load_dataset=None):
                 dataset = loadDataset(
                     os.path.join(
                         params['DATASET_STORE_PATH'],
-                        'Dataset_' +
-                        params['DATASET_NAME'] + '_' +
-                        params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
+                        'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl')
                 )
 
                 epoch_offset = 0 if dataset.len_train == 0 else int(

@@ -1,0 +1,9 @@
+[flake8]
+ignore = E501,E402,E731,E211,F403,F405
+exclude =
+    ./venv
+    ./.idea
+    ./notebooks
+    *conf*.py
+     src/*
+

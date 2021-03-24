@@ -3,10 +3,6 @@
 
 from __future__ import print_function
 
-try:
-    import itertools.imap as map
-except ImportError:
-    pass
 import argparse
 import ast
 import logging
@@ -22,9 +18,9 @@ from keras_wrapper.model_ensemble import InteractiveBeamSearchSampler
 from keras_wrapper.cnn_model import loadModel, updateModel
 from keras_wrapper.dataset import loadDataset
 from keras_wrapper.extra.isles_utils import *
-from keras_wrapper.extra.read_write import pkl2dict, list2file
+from keras_wrapper.extra.read_write import pkl2dict
 from keras_wrapper.online_trainer import OnlineTrainer
-from keras_wrapper.utils import decode_predictions_beam_search, flatten_list_of_lists
+from keras_wrapper.utils import decode_predictions_beam_search
 from nmt_keras.model_zoo import TranslationModel
 # from online_models import build_online_models
 from utils.utils import update_parameters
@@ -547,7 +543,6 @@ def main():
     # Get word2index and index2word dictionaries
     index2word_y = dataset.vocabulary[parameters['OUTPUTS_IDS_DATASET'][0]]['idx2words']
     word2index_y = dataset.vocabulary[parameters['OUTPUTS_IDS_DATASET'][0]]['words2idx']
-    index2word_x = dataset.vocabulary[parameters['INPUTS_IDS_DATASET'][0]]['idx2words']
     word2index_x = dataset.vocabulary[parameters['INPUTS_IDS_DATASET'][0]]['words2idx']
 
     excluded_words = None

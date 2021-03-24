@@ -226,9 +226,9 @@ def build_dataset(params):
 
     else:
         # We can easily recover it with a single line
-        ds = loadDataset(os.path.join(params['DATASET_STORE_PATH'],
-                                      'Dataset_' + params['DATASET_NAME'] +
-                                      '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'))
+        ds = loadDataset(
+            os.path.join(params['DATASET_STORE_PATH'],
+                         'Dataset_' + params['DATASET_NAME'] + '_' + params['SRC_LAN'] + params['TRG_LAN'] + '.pkl'))
 
         # Prepare references
         prepare_references(ds,
@@ -303,6 +303,7 @@ def prepare_references(ds, repeat, n=1, set_names=None):
         setattr(ds, 'len_' + s, new_len)
 
         logger.info('Samples reduced to ' + str(new_len) + ' in ' + s + ' set.')
+
 
 # Backwards compatibility:
 keep_n_captions = prepare_references

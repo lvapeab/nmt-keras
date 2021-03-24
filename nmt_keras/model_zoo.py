@@ -444,10 +444,10 @@ class TranslationModel(Model_Wrapper):
             * Possibly deep encoder/decoder
         See:
             * `Neural Machine Translation by Jointly Learning to Align and Translate`_.
-            * `Nematus\: a Toolkit for Neural Machine Translation`_.
+            * `Nematus: a Toolkit for Neural Machine Translation`_.
 
         .. _Neural Machine Translation by Jointly Learning to Align and Translate: https://arxiv.org/abs/1409.0473
-        .. _Nematus\: a Toolkit for Neural Machine Translation: https://arxiv.org/abs/1703.04357
+        .. _Nematus: a Toolkit for Neural Machine Translation: https://arxiv.org/abs/1703.04357
 
         :param int params: Dictionary of hyper-params (see config.py)
         :return: None
